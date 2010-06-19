@@ -1,0 +1,20 @@
+
+Seltzer CRM
+Installation Instructions
+
+1. Unpack the package.
+
+2. Import schema.sql into a new MySQL database.
+
+3. Under seltzer/crm/include, copy config.inc.php.sample to config.inc.php,
+and modify it to reflect the settings for your database.
+
+4. Upload the seltzer/crm directory to your webserver.
+
+5. Visit the crm directory in your browser, example:
+http://yourserver.com/crm
+
+6. The default admin credentials are:
+user: admin
+password: admin
+

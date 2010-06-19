@@ -1,0 +1,113 @@
+<?php
+
+/*
+    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    
+    This file is part of the Seltzer CRM Project
+    config.inc.php - Sample configuration
+
+    Seltzer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    Seltzer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+// Database configuration
+$config_db_host = 'localhost';
+$config_db_user = 'seltzer_user';
+$config_db_password = 'seltzer_password';
+$config_db_db = 'seltzer_db';
+
+// Site info
+$config_site_title = 'Seltzer CRM';
+
+// Site map
+$config_sitemap = array(
+    'index' => array(
+        'title' => 'Home',
+        'url' => 'index.php'
+    ),
+    'members' => array(
+        'title' => 'Members',
+        'url' => 'members.php',
+        'visible' => 'authenticated'
+    ),
+    'reports' => array(
+        'title' => 'Reports',
+        'url' => 'reports.php',
+        'visible' => 'authenticated'
+    )
+);
+
+// Roles
+$config_roles = array(
+    "member",
+    "director",
+    "president",
+    "vp",
+    "secretary",
+    "treasurer",
+    "webAdmin"
+);
+
+// Permissions (which roles can perform which actions)
+$config_permissions = array(
+    "user_add" => array(
+        "director",
+        "webAdmin"
+    ),
+    "user_edit" => array(
+        "webAdmin",
+        "director"
+    ),
+    "user_delete" => array(
+        "webAdmin",
+        "director"
+    ),
+    "contact_view" => array(
+        "director",
+        "member"
+    ),
+    "contact_add" => array(
+        "webAdmin",
+        "director"
+    ),
+    "contact_edit" => array(
+        "webAdmin",
+        "director"
+    ),
+    "contact_delete" => array(
+        "webAdmin",
+        "director"
+    ),
+    "member_view" => array(
+        "director",
+        "member"
+    ),
+    "member_add" => array(
+        "webAdmin",
+        "director"
+    ),
+    "member_edit" => array(
+        "webAdmin",
+        "director"
+    ),
+    "member_delete" => array(
+        "director"
+    ),
+    "roles_edit" => array(
+        "director",
+        "secretary",
+        "webAdmin"
+    )
+);
+
+?>
