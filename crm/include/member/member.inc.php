@@ -27,28 +27,37 @@
  *
  * @param $opts An associative array of options, possible keys are:
  *   'mid' If specified, returns a single memeber with the matching member id,
- *   'filter' An array of SQL statements to AND with the WHERE clause
+ *   'filter' An array of filters of the form (<filter name>, <filter param>)
 */ 
 function member_data ($opts) {
     
     // Query database
     $sql = "
         SELECT
-        `mid`, `member`.`active` AS `memberActive`,
+        `member`.`mid`,
         `member`.`cid`, `firstName`, `middleName`, `lastName`, `email`, `phone`, `emergencyName`, `emergencyPhone`,
-        `member`.`pid`, `name`, `price`, `plan`.`active` AS `planActive`,
         `user`.`uid`, `username`, `hash`
         FROM `member`
         LEFT JOIN `contact` ON `member`.`cid`=`contact`.`cid`
         LEFT JOIN `user` ON `member`.`cid`=`user`.`cid`
-        LEFT JOIN `plan` ON `member`.`pid`=`plan`.`pid`
+        LEFT JOIN `membership` ON (`member`.`mid`=`membership`.`mid` AND `membership`.`end` IS NULL)
+        LEFT JOIN `plan` ON `plan`.`pid`=`membership`.`pid`
         WHERE 1";
     if (!empty($opts['mid'])) {
-        $sql .= " AND `mid`=$opts[mid]";
+        $sql .= " AND `member`.`mid`=$opts[mid]";
     }
     if (!empty($opts['filter'])) {
         foreach ($opts['filter'] as $filter) {
-            $sql .= " AND $filter";
+            $name = $filter[0];
+            $param = $filter[1];
+            switch ($name) {
+                case 'active':
+                    $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL)";
+                    break;
+                case 'voting':
+                    $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL AND `plan`.`voting` <> 0)";
+                    break;
+            }
         }
     }
     $sql .= "
@@ -60,7 +69,7 @@ function member_data ($opts) {
     $members = array();
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
-        $members[] = array(
+        $member = array(
             'mid' => $row['mid'],
             'active' => $row['memberActive'],
             'contact' => array(
@@ -78,15 +87,50 @@ function member_data ($opts) {
                 'username' => $row['username'],
                 'hash' => $row['hash']
             ),
-            'plan' => array(
-                'pid' => $row['pid'],
-                'name' => $row['name'],
-                'price' => $row['price'],
-                'active' => $row['planActive'],
-                'voting' => $row['voting']
-            )
+            'membership' => array()
         );
+        
+        $members[] = $member;
         $row = mysql_fetch_assoc($res);
+    }
+    
+    // Get list of memberships associated with each member
+    // This is slow, should be combined into above query, but works for now -Ed
+    foreach ($members as $index => $member) {
+        
+        // Query all memberships for current member
+        $sql = "
+            SELECT
+            `membership`.`sid`, `membership`.`mid`, `membership`.`start`, `membership`.`end`,
+            `plan`.`pid`, `plan`.`name`, `plan`.`price`, `plan`.`active`, `plan`.`voting`
+            FROM `membership`
+            INNER JOIN `plan` ON `plan`.`pid` = `membership`.`pid`
+            WHERE `membership`.`mid`='$member[mid]'
+            ORDER BY `membership`.`start` ASC
+        ";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        // Add each membership
+        $row = mysql_fetch_assoc($res);
+        while (!empty($row)) {
+            $membership = array(
+                'sid' => $row['sid'],
+                'mid' => $row['mid'],
+                'pid' => $row['pid'],
+                'start' => $row['start'],
+                'end' => $row['end'],
+                'plan' => array(
+                    'pid' => $row['pid'],
+                    'name' => $row['name'],
+                    'price' => $row['price'],
+                    'active' => $row['active'],
+                    'voting' => $row['voting']
+                )
+            );
+            $members[$index]['membership'][] = $membership;
+            $row = mysql_fetch_assoc($res);
+        }
     }
     
     // Return data
@@ -98,14 +142,22 @@ function member_data ($opts) {
  * 
  * @param $opts An associative array of options, possible keys are:
  *   'pid' If specified, returns a single plan with the matching id,
- *   'filter' An array of SQL statements to AND with the WHERE clause
+ *   'filter' An array of filters of the form (<filter name>, <filter param>)
 */
 function member_plan_data ($opts) {
     
     // Construct query for plans
     $sql = "SELECT * FROM `plan` WHERE 1";
-    foreach ($opts['filter'] as $filter) {
-        $sql .= " AND $filter";
+    if (!empty($opts['filter'])) {
+        foreach ($opts['filter'] as $filter) {
+            $name = $filter[0];
+            $params = $filter[1];
+            switch ($name) {
+                case 'active':
+                    $sql .= " AND `plan`.`active` <> 0";
+                    break;
+            }
+        }
     }
 
     // Query database for plans
@@ -124,9 +176,73 @@ function member_plan_data ($opts) {
 }
 
 /**
+ * Return data tree representing memberships
+ *
+ * @param $opts An associative array of options, possible keys are:
+ *   'mid' If specified, returns memberships for the member with the matching id,
+ *   'filter' An array of filters of the form (<filter name>, <filter param>)
+*/ 
+function membership_data ($opts) {
+    
+    // Query database
+    $sql = "
+        SELECT *
+        FROM `membership`
+        INNER JOIN `plan`
+        ON `membership`.`pid` = `plan`.`pid`
+        WHERE 1";
+        
+    // Add member id
+    if (!empty($opts['mid'])) {
+        $sql .= " AND `mid`=$opts[mid]";
+    }
+    
+    // Add filters
+    if (!empty($opts['filter'])) {
+        foreach ($opts['filter'] as $filter) {
+            $name = $filter[0];
+            $params = $filter[1];
+            switch ($name) {
+                default:
+                break;
+            }
+        }
+    }
+    
+    $sql .= "
+        ORDER BY `start` DESC";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    // Store data
+    $memberships = array();
+    $row = mysql_fetch_assoc($res);
+    while (!empty($row)) {
+        $memberships[] = array(
+            'mid' => $row['mid'],
+            'sid' => $row['mid'],
+            'pid' => $row['pid'],
+            'start' => $row['start'],
+            'end' => $row['end'],
+            'plan' => array(
+                'pid' => $row['pid'],
+                'name' => $row['name'],
+                'price' => $row['price'],
+                'active' => $row['active'],
+                'voting' => $row['voting']
+            )
+        );
+        $row = mysql_fetch_assoc($res);
+    }
+    
+    // Return data
+    return $memberships;
+}
+
+/**
  * Return options array for membership plans
  */
-function member_plan_options($opts) {
+function member_plan_options($opts = NULL) {
     
     // Get plan data
     $plans = member_plan_data($opts);
@@ -134,7 +250,7 @@ function member_plan_options($opts) {
     // Add option for each member plan
     $options = array();
     foreach ($plans as $plan) {
-        $options[$plan['pid']] = $plan['name'];
+        $options[$plan['pid']] = "$plan[name] - $plan[price]";
     }
     
     return $options;
@@ -145,7 +261,7 @@ function member_plan_options($opts) {
  * 
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified, returns a single memeber with the matching member id,
- *   'filter' An array of SQL statements to AND with the WHERE clause
+ *   'filter' An array of filters of the form (<filter name>, <filter param>)
 */ 
 function member_contact_data ($opts) {
     
@@ -153,9 +269,24 @@ function member_contact_data ($opts) {
     $sql = "
         SELECT * FROM `contact`
         WHERE 1";
+        
+    // Add contact id
     if ($opts['cid']) {
         $sql .= " AND `cid`=$opts[cid]";
     }
+    
+    // Add filters
+    if (!empty($opts['filter'])) {
+        foreach ($opts['filter'] as $filter) {
+            $name = $filter[0];
+            $params = $filter[1];
+            switch ($name) {
+                default:
+                break;
+            }
+        }
+    }
+
     $sql .= "
         ORDER BY `lastName`, `firstName`, `middleName` ASC";
     $res = mysql_query($sql);
@@ -209,11 +340,8 @@ function member_table ($opts = NULL) {
     $table['columns'] = array();
     
     if (permission_check('member_view')) {
-        $table['columns'][] = array('title'=>'Last','class'=>'');
-        $table['columns'][] = array('title'=>'First','class'=>'');
-        $table['columns'][] = array('title'=>'Middle','class'=>'');
+        $table['columns'][] = array('title'=>'Name','class'=>'');
         $table['columns'][] = array('title'=>'Membership','class'=>'');
-        $table['columns'][] = array('title'=>'Active','class'=>'');
         $table['columns'][] = array('title'=>'E-Mail','class'=>'');
         $table['columns'][] = array('title'=>'Phone','class'=>'');
         $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
@@ -230,11 +358,24 @@ function member_table ($opts = NULL) {
         // Add user data
         $row = array();
         if (permission_check('member_view')) {
-            $row[] = $member['contact']['lastName'];
-            $row[] = $member['contact']['firstName'];
-            $row[] = $member['contact']['middleName'];
-            $row[] = $member['plan']['name'];
-            $row[] = $member['active'] ? 'x' : '';
+            
+            // Construct name
+            $name = $member['contact']['lastName'] . ", ";
+            $name .= $member['contact']['firstName'];
+            if (!empty($member['contact']['middleName'])) {
+                $name .= ' ' . $member['contact']['middleName'];
+            }
+            
+            // Construct membership info
+            $recentMembership = end($member['membership']);
+            $plan = '';
+            if (!empty($recentMembership) && empty($recentMembership['end'])) {
+                $plan = $recentMembership['plan']['name'];
+            }
+            
+            // Add cells
+            $row[] = $name;
+            $row[] = $plan;
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
             $row[] = $member['contact']['emergencyName'];
@@ -276,7 +417,7 @@ function member_voting_report_table () {
     }
     
     // Get member data
-    $members = member_data(array('filter'=>array("(`member`.`active`=1 AND `plan`.`voting`=1)")));
+    $members = member_data(array('filter'=>array(array('voting'))));
     
     // Create table structure
     $table = array(
@@ -326,12 +467,74 @@ function member_voting_report_table () {
     return $table;
 }
 
+/**
+ * Return table structure representing memberships
+ *
+*/
+function member_membership_table ($opts = NULL) {
+    
+    // Ensure user is allowed to view members
+    if (!permission_check('member_membership_view')) {
+        return NULL;
+    }
+    
+    // Get member data
+    $memberships = membership_data($opts);
+    
+    // Create table structure
+    $table = array(
+        'id' => '',
+        'class' => '',
+        'rows' => array()
+    );
+    
+    // Add columns
+    $table['columns'] = array();
+    
+    if (permission_check('member_membership_view')) {
+        $table['columns'][] = array('title'=>'Start','class'=>'');
+        $table['columns'][] = array('title'=>'End','class'=>'');
+        $table['columns'][] = array('title'=>'Plan','class'=>'');
+        $table['columns'][] = array('title'=>'Price','class'=>'');
+    }
+
+    // Check if there are any results
+    if (empty($memberships)) {
+        return $table;
+    }
+
+    // Loop through membership data
+    foreach ($memberships as $membership) {
+        
+        // Add user data
+        $row = array();
+        if (permission_check('member_membership_view')) {
+            $row[] = $membership['start'];
+            $row[] = $membership['end'];
+            $row[] = $membership['plan']['name'];
+            $row[] = $membership['plan']['price'];
+        }
+        
+        // Construct ops array
+        $ops = array();
+        
+        // Add row to table
+        $table['rows'][] = $row;
+    }
+    
+    // Return table
+    return $table;
+}
+
 // Forms ///////////////////////////////////////////////////////////////////////
 
 /**
  * Return add member form structure
 */
 function member_add_form () {
+    
+    // Generate default start date, first of current month
+    $start = date("Y-m-01");
     
     // Create form structure
     $form = array(
@@ -384,17 +587,17 @@ function member_add_form () {
                         'name' => 'username'
                     ),
                     array(
-                        'type' => 'checkbox',
-                        'label' => 'Active',
-                        'name' => 'active',
-                        'checked' => true
-                    ),
-                    array(
                         'type' => 'select',
                         'label' => 'Plan',
                         'name' => 'pid',
                         'selected' => $member['plan']['pid'],
-                        'options' => member_plan_options(array('filter'=>array("`active`=1")))
+                        'options' => member_plan_options(array('filter'=>array(array('active'))))
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Start Date',
+                        'name' => 'start',
+                        'value' => $start
                     ),
                     array(
                         'type' => 'submit',
@@ -409,48 +612,44 @@ function member_add_form () {
 }
 
 /**
- * Return edit member form structure
+ * Return add membership form structure
  *
- * @param $mid id of the member to edit
+ * @param mid the member id of the member to add a membership for
 */
-function member_edit_form ($mid) {
-    
-    // Get member data
-    $data = member_data(array('mid'=>$mid));
-    $member = $data[0];
-    if (empty($member) || count($member) < 1) {
-        return array();
-    }
+function member_membership_add_form ($mid) {
     
     // Create form structure
     $form = array(
         'type' => 'form',
         'method' => 'post',
-        'command' => 'member_update',
+        'command' => 'member_membership_add',
         'hidden' => array(
             'mid' => $mid
         ),
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Edit Membership Info',
+                'label' => 'Add Membership',
                 'fields' => array(
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Active',
-                        'name' => 'active',
-                        'checked' => $member['active']
-                    ),
                     array(
                         'type' => 'select',
                         'label' => 'Plan',
                         'name' => 'pid',
-                        'selected' => $member['plan']['pid'],
-                        'options' => member_plan_options(array('filter'=>array("`active`=1")))
+                        'options' => member_plan_options()
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Start',
+                        'name' => 'start',
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'End',
+                        'name' => 'end',
                     ),
                     array(
                         'type' => 'submit',
-                        'value' => 'Update'
+                        'value' => 'Add'
                     )
                 )
             )
@@ -708,13 +907,62 @@ function command_member_add() {
     // Add member
     $sql = "
         INSERT INTO `member`
-        (`pid`,`cid`,`active`)
+        (`pid`,`cid`)
         VALUES
-        ('$esc_post[pid]','$cid','$esc_post[active]')";
+        ('$esc_post[pid]','$cid')";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    $mid = mysql_insert_id();
+    
+    // Add membership
+    $sql = "
+        INSERT INTO `membership`
+        (`mid`, `pid`, `start`)
+        VALUES
+        ('$mid', '$esc_post[pid]', '$esc_post[start]')
+    ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
     return 'members.php';
+}
+
+/**
+ * Handle membership add request.
+ */
+function command_member_membership_add() {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!permission_check('member_edit')) {
+        error_register('Permission denied: member_edit');
+        return 'members.php';
+    }
+    if (!permission_check('member_membership_edit')) {
+        error_register('Permission denied: member_membership_edit');
+        return 'members.php';
+    }
+    
+    // Add membership
+    $sql = "
+        INSERT INTO `membership`
+        (`mid`,`pid`,`start`";
+    if (!empty($esc_post['end'])) {
+        $sql .= ", `end`";
+    }
+    $sql .= ")
+        VALUES
+        ('$esc_post[mid]','$esc_post[pid]','$esc_post[start]'";
+        
+    if (!empty($esc_post['end'])) {
+        $sql .= ",'$esc_post[end]'";
+    }
+    $sql .= ")";
+    
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    return "member.php?mid=$_POST[mid]";
 }
 
 /**
@@ -730,10 +978,10 @@ function command_member_filter() {
         $_SESSION['member_filter'] = array();
     }
     if ($_GET['filter'] == 'active') {
-        $_SESSION['member_filter'][] = "`member`.`active`=1";
+        $_SESSION['member_filter'] = array(array('active'));
     }
     if ($_GET['filter'] == 'voting') {
-        $_SESSION['member_filter'][] = "(`member`.`active`=1 AND `plan`.`voting`=1)";
+        $_SESSION['member_filter'] = array(array('voting'));
     }
     
     // Construct query string
@@ -749,31 +997,6 @@ function command_member_filter() {
     }
     
     return 'members.php' . $query;
-}
-
-/**
- * Handle member update request.
- */
-function command_member_update() {
-    global $esc_post;
-    
-    // Verify permissions
-    if (!permission_check('member_edit')) {
-        error_register('Permission denied: user_edit');
-        return 'members.php';
-    }
-    
-    // Query database
-    $sql = "
-        UPDATE `member`
-        SET
-        `pid`='$esc_post[pid]',
-        `active`='$esc_post[active]'
-        WHERE `mid`='$esc_post[mid]'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
-    return 'members.php';
 }
 
 /**
@@ -894,5 +1117,21 @@ function theme_member_filter_form () {
 */
 function theme_member_voting_report () {
     return theme_table(member_voting_report_table());
+}
+
+/**
+ * Return themed html for a membership table
+ */
+function theme_member_membership_table ($opts = NULL) {
+    return theme_table(member_membership_table($opts));
+}
+
+/**
+ * Return themed html for a membership add form
+ *
+ * @param $mid the member id of the member who owns the membership
+ */
+function theme_member_membership_add_form ($mid) {
+    return theme_form(member_membership_add_form($mid));
 }
 ?>

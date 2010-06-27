@@ -137,9 +137,11 @@ function permission_check ($action) {
     $roles = mysql_fetch_assoc($res);
     
     // Loop through allowed roles
-    foreach ($config_permissions[$action] as $role) {
-        if ($roles[$role]) {
-            return true;
+    if (!empty($config_permissions[$action])) {
+        foreach ($config_permissions[$action] as $role) {
+            if ($roles[$role]) {
+                return true;
+            }
         }
     }
     

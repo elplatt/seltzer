@@ -103,6 +103,14 @@ $config_permissions = array(
     "member_delete" => array(
         "director"
     ),
+    "member_membership_view" => array(
+        "director",
+        "treasurer"
+    ),
+    "member_membership_edit" => array(
+        "director",
+        "treasurer"
+    ),
     "roles_edit" => array(
         "director",
         "secretary",
