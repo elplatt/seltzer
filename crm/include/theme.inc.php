@@ -211,6 +211,9 @@ function theme_form_text($field) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
     $output .= '<input type="text" name="' . $field['name'] . '"';
+    if (!empty($field['class'])) {
+        $output .= ' class="' . $field['class'] . '"';
+    }
     if (!empty($field['value'])) {
         $output .= ' value="' . $field['value'] . '"';
     }

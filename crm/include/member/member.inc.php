@@ -597,7 +597,8 @@ function member_add_form () {
                         'type' => 'text',
                         'label' => 'Start Date',
                         'name' => 'start',
-                        'value' => $start
+                        'value' => $start,
+                        'class' => 'date'
                     ),
                     array(
                         'type' => 'submit',
@@ -641,11 +642,13 @@ function member_membership_add_form ($mid) {
                         'type' => 'text',
                         'label' => 'Start',
                         'name' => 'start',
+                        'class' => 'date'
                     ),
                     array(
                         'type' => 'text',
                         'label' => 'End',
                         'name' => 'end',
+                        'class' => 'date'
                     ),
                     array(
                         'type' => 'submit',

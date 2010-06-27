@@ -17,3 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+// Add datepicker to necessary fields
+$(document).ready(function () {
+    $('input.date').datepicker({"dateFormat" : "yy-mm-dd"});
+});

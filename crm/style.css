@@ -43,3 +43,9 @@ td, th {
 
 
 /* Report styles */
+
+/* Datepicker styles */
+
+.ui-datepicker {
+    background-color: #eeeeee;
+}
