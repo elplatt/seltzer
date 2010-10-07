@@ -20,17 +20,27 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Configuration
+// Configuration ///////////////////////////////////////////////////////////////
 require_once('config.inc.php');
 
-// Init code
+// Init code ///////////////////////////////////////////////////////////////////
 require_once('init.inc.php');
 
-// Core functionality
-require_once('core.inc.php');
+// Core Modules ////////////////////////////////////////////////////////////////
+
+// Basic framework
+require_once('core/core.inc.php');
+
+// Tabbed page functionality
+require_once('page/page.inc.php');
+
+// Users and permissions
+require_once('user/user.inc.php');
 
 // Form functionality
-require_once('form.inc.php');
+require_once('form/form.inc.php');
+
+// Non-module core functions ///////////////////////////////////////////////////
 
 // Command handlers
 require_once('command.inc.php');

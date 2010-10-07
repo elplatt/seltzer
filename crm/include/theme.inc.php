@@ -20,7 +20,42 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* Returns themed html for a page header
+/**
+ * Maps theme calls to appropriate theme handler
+ *
+ * At least one parmaeter is required, namely the element being themed.
+ * Additional parameters will be passed on to the theme handler.
+ *
+ * @param $element The element to theme
+*/
+function theme() {
+    
+    // Check for arguments
+    if (func_num_args() < 1) {
+        return "";
+    }
+    $args = func_get_args();
+    
+    // Construct handler name
+    $element = $args[0];
+    $handler = 'theme_' . $element;
+    
+    // Construct handler arguments
+    $handler_args = array();
+    for ($i = 1; $i < count($args); $i++) {
+        $handler_args[] = $args[$i];
+    }
+    
+    // Check for undefined handler
+    if (!function_exists($handler)) {
+        return "";
+    }
+    
+    return call_user_func_array($handler, $handler_args);
+}
+
+/**
+ * Returns themed html for a page header
 */
 function theme_header() {
     $output = '';
@@ -48,7 +83,7 @@ function theme_login_status() {
     
     $output = '<div class="login-status">';
     if (user_id()) {
-        $user = user();
+        $user = user_get_user();
         $output .= 'Welcome, ' . $user['username'] . '. <a href="action.php?command=logout">Log out</a>';
     } else {
         $output .= '<a href="login.php">Log in</a>';
@@ -374,6 +409,77 @@ function theme_table($table) {
 }
 
 /**
+ * Return themed html for a vertical table
+ *
+ * @param $table The table data.
+*/
+function theme_table_vertical($table) {
+    
+    // Check if table is empty
+    if (empty($table['rows'])) {
+        return '';
+    }
+    
+    // Open table
+    $output = "<table";
+    if (!empty($table['id'])) {
+        $output .= ' id="' . $table['id'] . '"';
+    }
+    if (!empty($table['class'])) {
+        $output .= ' class="' . $table['class'] . '"';
+    }
+    $output .= '>';
+    
+    // No head
+    $output .= "<thead></thead>";
+    
+    // Output table body
+    $output .= "<tbody>";
+    
+    // Loop through headers
+    foreach ($table['columns'] as $i => $col) {
+        
+        // Open row
+        $output .= '<tr>';
+        
+        // Print header
+        $output .= '<td';
+        if (!empty($col['id'])) {
+            $output .= ' id="' . $col['id'] . '"';
+        }
+        if (!empty($col['class'])) {
+            $output .= ' class="' . $col['class'] . '"';
+        }
+        $output .= '>';
+        
+        $output .= $col['title'];
+        $output .= '</td>';
+        
+        // Loop through rows
+        foreach ($table['rows'] as $row) {
+            
+            $output .= '<td';
+            if (!empty($table['columns'][$i]['id'])) {
+                $output .= ' id="' . $col['id'] . '"';
+            }
+            if (!empty($table['columns'][$i]['id'])) {
+                $output .= ' class="' . $col['class'] . '"';
+            }
+            $output .= '>';
+            $output .= $row[$i];
+            $output .= '</td>';
+        }
+        
+        $output .= '</tr>';
+    }
+    
+    $output .= "</tbody>";
+    $output .= "</table>";
+    
+    return $output;
+}
+
+/**
  * Returned themed html for a delete confirmation form
  *
  * @param $type The type of element to delete
@@ -381,6 +487,38 @@ function theme_table($table) {
 */
 function theme_delete_form ($type, $id) {
     return theme_form(delete_form($type, $id));
+}
+
+/**
+ * Return themed html for a page
+ *
+ * @param $page The page name
+ * @param $options Additional options
+ */
+function theme_page($page, $options) {
+    
+    // Create data structure
+    $data = page($page, $options);
+    
+    // Initialize output
+    $output = '';
+    
+    // Loop through each tab
+    foreach ($data as $tab => $tab_data) {
+        
+        // Generate tab name
+        $tab_name = preg_replace('/\W+/', '-', strtolower($tab));
+        
+        $output .= '<fieldset class="tab">';
+        
+        $output .= '<legend><a name="' . $tab_name . '">' . $tab . '</a></legend>';
+        
+        $output .= join($tab_data);
+        
+        $output .= '</fieldset>';
+    }
+    
+    return $output;
 }
 
 ?>

@@ -40,7 +40,7 @@ function command_login () {
     
     // Check for user
     if (!empty($row)) {
-        user_id_set($row['uid']);
+        user_login($row['uid']);
         $next = 'index.php';
     } else {
         error_register('Invalid username/password');

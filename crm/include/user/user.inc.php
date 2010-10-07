@@ -4,7 +4,7 @@
     Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
-    core.inc.php - Core functions
+    user.inc.php - Core user functions
 
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ function user_id() {
  *
  * @param $user_id The logged in user id
 */
-function user_id_set($user_id) {
+function user_login($user_id) {
     $_SESSION['userId'] = $user_id;
 }
 
@@ -41,7 +41,7 @@ function user_id_set($user_id) {
  *
  * @param $uid The id of the user being queried, defaults to current user
 */
-function user($uid = 0) {
+function user_get_user($uid = 0) {
     
     // Default to logged in user
     if ($uid == 0) {
@@ -60,29 +60,11 @@ function user($uid = 0) {
 }
 
 /**
- * Register an error
- *
- * @param $error The error
-*/
-function error_register ($error) {
-    $_SESSION['errorList'][] = $error;
-}
-
-/**
- * Return an array of errors and clear error list
-*/
-function error_list() {
-    $errors = $_SESSION['errorList'];
-    $_SESSION['errorList'] = array();
-    return $errors;
-}
-
-/**
  * Check if a user has the given role
  *
  * @param $role The role.
 */
-function role_check ($role, $user_id = NULL) {
+function user_check_role ($role, $user_id = NULL) {
     
     // Choose logged in user if no user id
     if (!$user_id) {
@@ -124,7 +106,7 @@ function role_check ($role, $user_id = NULL) {
  *
  * @param $action The action
 */
-function permission_check ($action) {
+function user_access ($action) {
     global $config_permissions;
     
     // Get user id
@@ -149,25 +131,3 @@ function permission_check ($action) {
     return false;
 }
 
-/**
- * Return sitemap tree structure
- *
- * Only contains sections the current user has permission to see.
-*/
-function sitemap() {
-    global $config_sitemap;
-    
-    // Initialize sitemap array
-    $sitemap = array();
-    
-    // Loop through sections
-    foreach ($config_sitemap as $section) {
-        if (empty($section['visible']) || role_check($section['visible'])) {
-            $sitemap[] = $section;
-        }
-    }
-    
-    return $sitemap;
-}
-
-?>

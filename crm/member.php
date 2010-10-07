@@ -40,10 +40,11 @@ $member = member_data(array('mid'=>$_GET['mid']));
             <?php print theme_header(); ?>
         </div>
         <div class="content">
-            <?php print theme_errors(); ?>
-            <?php print theme_member_membership_add_form($_GET['mid']); ?>
-            <?php print theme_member_membership_table(array('mid' => $_GET['mid'])); ?>
-            <?php print theme_member_contact_edit_form($member[0]['contact']['cid']); ?>
+            <?php print theme('errors'); ?>
+            <?php //print theme('member_membership_add_form', $_GET['mid']); ?>
+            <?php //print theme('member_membership_table', array('mid' => $_GET['mid'])); ?>
+            <?php //print theme('member_contact_edit_form', $member[0]['contact']['cid']); ?>
+            <?php print theme('page', 'member', array('mid' => $_GET['mid'])); ?>
         </div>
         <div class="footer">
             <?php print theme_footer(); ?>
