@@ -40,6 +40,12 @@ require_once('user/user.inc.php');
 // Form functionality
 require_once('form/form.inc.php');
 
+// Members and contacts
+require_once('member/member.inc.php');
+
+// Key card module
+require_once('key/key.inc.php');
+
 // Non-module core functions ///////////////////////////////////////////////////
 
 // Command handlers
@@ -47,10 +53,5 @@ require_once('command.inc.php');
 
 // Theme functions
 require_once('theme.inc.php');
-
-// Modules /////////////////////////////////////////////////////////////////////
-
-// Members and contacts
-require_once('member/member.inc.php');
 
 ?>

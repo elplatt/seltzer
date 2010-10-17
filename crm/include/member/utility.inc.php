@@ -47,3 +47,13 @@ function member_contact_id ($mid) {
     $data = member_data(array('mid' => $mid));
     return $data[0]['contact']['cid'];
 }
+
+/**
+ * Return member id for a given contact
+ *
+ * @param $cid The contact's id
+*/
+function member_contact_member_id ($cid) {
+    $data = member_data(array('cid' => $cid));
+    return $data[0]['mid'];
+}

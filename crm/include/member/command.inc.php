@@ -72,9 +72,9 @@ function command_member_add() {
     // Add member
     $sql = "
         INSERT INTO `member`
-        (`pid`,`cid`)
+        (`cid`)
         VALUES
-        ('$esc_post[pid]','$cid')";
+        ('$cid')";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $mid = mysql_insert_id();

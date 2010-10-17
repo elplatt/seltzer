@@ -205,6 +205,9 @@ function theme_form($form) {
     case 'message':
         $output .= theme_form_message($form);
         break;
+    case 'readonly':
+        $output .= theme_form_readonly($form);
+        break;
     case 'text':
         $output .= theme_form_text($form);
         break;
@@ -232,6 +235,22 @@ function theme_form($form) {
 function theme_form_message($field) {
     $output = '<fieldset>';
     $output .= $field['value'];
+    $output .= '</fieldset>';
+    return $output;
+}
+
+/* Return themed html for a read-only field
+ *
+ * @param $field the field
+ */
+function theme_form_readonly($field) {
+    $output = '<fieldset>';
+    if (!empty($field['label'])) {
+        $output .= '<label>' . $field['label'] . '</label>';
+    }
+    if (!empty($field['value'])) {
+        $output .= '<span class="value">' . $field['value'] . '</span>';
+    }
     $output .= '</fieldset>';
     return $output;
 }

@@ -62,6 +62,12 @@ function login_form () {
  * @param $id The id of the element to delete
 */
 function delete_form ($type, $id) {
+    $function = $type . '_delete_form';
+    if (function_exists($function)) {
+        return $function($id);
+    }
+    return array();
+    /*
     switch ($type) {
     case 'member':
         return member_delete_form($id);
@@ -71,6 +77,7 @@ function delete_form ($type, $id) {
         break;
     }
     return array();
+    */
 }
 
 /**

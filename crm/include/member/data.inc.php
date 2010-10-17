@@ -44,6 +44,9 @@ function member_data ($opts) {
     if (!empty($opts['mid'])) {
         $sql .= " AND `member`.`mid`=$opts[mid]";
     }
+    if (!empty($opts['cid'])) {
+        $sql .= " AND `member`.`cid`=$opts[cid]";
+    }
     if (!empty($opts['filter'])) {
         foreach ($opts['filter'] as $filter) {
             $name = $filter[0];

@@ -52,7 +52,7 @@ function member_table ($opts = NULL) {
         $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
         $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
     }
-    // Add edit column
+    // Add ops column
     if (user_access('member_edit') || user_access('member_delete')) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
