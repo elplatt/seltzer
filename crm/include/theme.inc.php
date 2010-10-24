@@ -68,13 +68,13 @@ function theme_header() {
 /* Returns themed html for a page footer
 */
 function theme_footer() {
-    return "footer";
+    return 'Powered by <a href="http://github.com/elplatt/seltzer">Seltzer CRM</a>';
 }
 
 /* Returns themed html for logo
 */
 function theme_logo() {
-    return '<div class="logo">i3 Detroit</div>';
+    return '<div class="logo"><img alt="i3 Detroit" src="images/logo.png"/></div>';
 }
 
 /* Returns themed html for user login status
@@ -96,7 +96,7 @@ function theme_login_status() {
 /* Returns themed html for navigation
 */
 function theme_navigation() {
-    $output = '<ul>';
+    $output = '<ul class="nav">';
     foreach (sitemap() as $link) {
         $output .= '<li>' . theme_navigation_link($link) . '</li>';
     }
@@ -169,11 +169,11 @@ function theme_form($form) {
         
         // Add hidden values
         if (!empty($form['command'])) {
-            $output .= '<input type="hidden" name="command" value="' . $form['command'] . '" />';
+            $output .= '<fieldset class="hidden"><input type="hidden" name="command" value="' . $form['command'] . '" /></fieldset>';
         }
         if (count($form['hidden']) > 0) {
             foreach ($form['hidden'] as $name => $value) {
-                $output .= '<input type="hidden" name="' . $name . '" value="' . $value . '"/>';
+                $output .= '<fieldset class="hidden"><input type="hidden" name="' . $name . '" value="' . $value . '"/></fieldset>';
             }
         }
         
@@ -233,7 +233,7 @@ function theme_form($form) {
  * @param $field the message
  */
 function theme_form_message($field) {
-    $output = '<fieldset>';
+    $output = '<fieldset class="form-row">';
     $output .= $field['value'];
     $output .= '</fieldset>';
     return $output;
@@ -244,7 +244,7 @@ function theme_form_message($field) {
  * @param $field the field
  */
 function theme_form_readonly($field) {
-    $output = '<fieldset>';
+    $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -260,7 +260,7 @@ function theme_form_readonly($field) {
  * @param $field the text field
  */
 function theme_form_text($field) {
-    $output = '<fieldset>';
+    $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -271,7 +271,7 @@ function theme_form_text($field) {
     if (!empty($field['value'])) {
         $output .= ' value="' . $field['value'] . '"';
     }
-    $output .= '"/>';
+    $output .= '/>';
     $output .= '</fieldset>';
     return $output;
 }
@@ -281,7 +281,7 @@ function theme_form_text($field) {
  * @param $field the checkbox
  */
 function theme_form_checkbox($field) {
-    $output = '<fieldset>';
+    $output = '<fieldset class="form-row">';
     $output .= '<input type="checkbox" name="' . $field['name'] . '" value="1"';
     if ($field['checked']) {
         $output .= ' checked="checked"';
@@ -299,7 +299,7 @@ function theme_form_checkbox($field) {
  * @param $field the password field
  */
 function theme_form_password($field) {
-    $output = '<fieldset>';
+    $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -313,7 +313,7 @@ function theme_form_password($field) {
  * @param $field the select field
  */
 function theme_form_select($field) {
-    $output = '<fieldset>';
+    $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -339,7 +339,7 @@ function theme_form_select($field) {
  * @param $field the submit button
  */
 function theme_form_submit($field) {
-    $output = '<fieldset>';
+    $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -400,10 +400,20 @@ function theme_table($table) {
     // Output table body
     $output .= "<tbody>";
     
+    // Initialize zebra striping
+    $zebra = 1;
+    
     // Loop through rows
     foreach ($table['rows'] as $row) {
         
-        $output .= '<tr>';
+        $output .= '<tr';
+        if ($zebra % 2 === 0) {
+            $output .= ' class="even"';
+        } else {
+            $output .= ' class="odd"';
+        }
+        $zebra++;
+        $output .= '>';
         
         foreach ($row as $i => $cell) {
             $output .= '<td';
@@ -448,9 +458,6 @@ function theme_table_vertical($table) {
         $output .= ' class="' . $table['class'] . '"';
     }
     $output .= '>';
-    
-    // No head
-    $output .= "<thead></thead>";
     
     // Output table body
     $output .= "<tbody>";
@@ -514,30 +521,49 @@ function theme_delete_form ($type, $id) {
  * @param $page The page name
  * @param $options Additional options
  */
-function theme_page($page, $options) {
+function theme_page($page, $options = array()) {
     
     // Create data structure
     $data = page($page, $options);
     
     // Initialize output
-    $output = '';
+    $tabs = '';
+    $header = '';
+    
+    // Add page title to header
+    if (!empty($data['#title'])) {
+        $header .= '<h1>' . $data['#title'] . '</h1>';
+    }
+    
+    // Add button list to header
+    $header .= '<ul class="page-nav">';
     
     // Loop through each tab
     foreach ($data as $tab => $tab_data) {
         
+        // Skip special keys
+        if ($tab{0} === '#') {
+            continue;
+        }
+        
         // Generate tab name
         $tab_name = preg_replace('/\W+/', '-', strtolower($tab));
         
-        $output .= '<fieldset class="tab">';
+        $header .= '<li><a href="#tab-' . $tab_name . '">' . $tab . '</a></li>';
         
-        $output .= '<legend><a name="' . $tab_name . '">' . $tab . '</a></legend>';
+        $tabs .= '<fieldset id="tab-' . $tab_name . '" class="tab">';
         
-        $output .= join($tab_data);
+        $tabs .= '<legend><a name="' . $tab_name . '">' . $tab . '</a></legend>';
         
-        $output .= '</fieldset>';
+        $tabs .= join($tab_data);
+        
+        $tabs .= '</fieldset>';
     }
     
-    return $output;
+    // Close header button list
+    $header .= '</ul>';
+    
+    return $header . $tabs;
 }
 
 ?>

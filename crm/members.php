@@ -39,9 +39,7 @@ require_once('include/crm.inc.php');
         </div>
         <div class="content">
             <?php print theme_errors(); ?>
-            <?php print theme_member_add_form(); ?>
-            <?php print theme_member_filter_form(); ?>
-            <?php print theme_member_table(array('filter'=>$_SESSION['member_filter'])); ?>
+            <?php print theme('page', 'members'); ?>
         </div>
         <div class="footer">
             <?php print theme_footer(); ?>

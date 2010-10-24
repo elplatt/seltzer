@@ -38,8 +38,10 @@ require_once('include/crm.inc.php');
             <?php print theme_header(); ?>
         </div>
         <div class="content">
+            <p>
+                Welcome to the i3 Detroit CRM.
+            </p>
             <?php print theme_errors(); ?>
-            Some content
         </div>
         <div class="footer">
             <?php print theme_footer(); ?>

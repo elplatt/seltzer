@@ -27,6 +27,24 @@ function member_page(&$data, $page, $options) {
     
     switch ($page) {
         
+        case 'members':
+            
+            // Set page title
+            $data['#title'] = 'Members';
+            
+            // Add view tab
+            if (!isset($data['View'])) {
+                $data['View'] = array();
+            }
+            array_unshift($data['View'], theme('member_table', array('filter'=>$_SESSION['member_filter'])));
+            array_unshift($data['View'], theme('member_filter_form'));
+            
+            // Add add tab
+            if (!isset($data['Add'])) {
+                $data['Add'] = array();
+            }
+            array_unshift($data['Add'], theme('member_add_form'));
+        
         case 'member':
             
             // Capture member id
@@ -34,6 +52,9 @@ function member_page(&$data, $page, $options) {
             if (empty($mid)) {
                 return;
             }
+            
+            // Set page title
+            $data['#title'] = theme('member_contact_name', member_contact_id($mid));
             
             // Add view tab
             if (!isset($data['View'])) {

@@ -20,5 +20,29 @@
 
 // Add datepicker to necessary fields
 $(document).ready(function () {
+    
+    // Enable date picker
     $('input.date').datepicker({"dateFormat" : "yy-mm-dd"});
+    
+    // Set up tabbing
+    showTab();
+    $('ul.page-nav li a').click(function () {
+        showTab($(this).attr('href'));
+        return false;
+    });
 });
+
+var showTab = function (hash) {
+    $('fieldset.tab').hide();
+    $('ul.page-nav li a').removeClass('active');
+    if (hash == null) {
+        hash = window.location.hash;
+    }
+    if (hash === '') {
+        $('fieldset#tab-view').show();
+        $('ul.page-nav li a[href="#tab-view"]').addClass('active');
+    } else {
+        $('fieldset' + hash).show();
+        $('ul.page-nav li a[href="' + hash + '"]').addClass('active');
+    }
+}
