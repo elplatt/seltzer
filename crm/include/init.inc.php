@@ -46,6 +46,11 @@ if (empty($_SESSION['errorList'])) {
     $_SESSION['errorList'] = array();
 }
 
+// Initialize message array
+if (empty($_SESSION['messageList'])) {
+    $_SESSION['messageList'] = array();
+}
+
 // Initialize member filter array
 if (empty($_SESSION['member_filter'])) {
     $_SESSION['member_filter'] = array();

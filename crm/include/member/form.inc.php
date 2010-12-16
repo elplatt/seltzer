@@ -25,6 +25,11 @@
 */
 function member_add_form () {
     
+    // Ensure user is allowed to view members
+    if (!user_access('member_add')) {
+        return NULL;
+    }
+    
     // Generate default start date, first of current month
     $start = date("Y-m-01");
     
@@ -111,6 +116,11 @@ function member_add_form () {
 */
 function member_membership_add_form ($mid) {
     
+    // Ensure user is allowed to edit memberships
+    if (!user_access('member_membership_edit')) {
+        return NULL;
+    }
+    
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -160,6 +170,11 @@ function member_membership_add_form ($mid) {
  * @param $mid id of the member to delete
 */
 function member_delete_form ($mid) {
+    
+    // Ensure user is allowed to delete members
+    if (!user_access('member_delete')) {
+        return NULL;
+    }
     
     // Get member data
     $data = member_data(array('mid'=>$mid));
@@ -223,6 +238,11 @@ function member_delete_form ($mid) {
 */
 function member_membership_delete_form ($sid) {
     
+    // Ensure user is allowed to edit memberships
+    if (!user_access('member_membership_edit')) {
+        return NULL;
+    }
+    
     // Get membership data
     $data = member_membership_data(array('sid'=>$sid));
     $membership = $data[0];
@@ -277,6 +297,11 @@ function member_membership_delete_form ($sid) {
  * @param $cid id of the contact to edit
 */
 function member_contact_edit_form ($cid) {
+    
+    // Ensure user is allowed to edit contacts
+    if (!user_access('contact_edit')) {
+        return NULL;
+    }
     
     // Get contact data
     $data = member_contact_data(array('cid'=>$cid));

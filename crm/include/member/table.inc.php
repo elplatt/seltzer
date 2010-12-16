@@ -70,7 +70,7 @@ function member_table ($opts = NULL) {
             if (!empty($member['contact']['middleName'])) {
                 $name .= ' ' . $member['contact']['middleName'];
             }
-            
+            $name_link = '<a href="member.php?mid=' . $member['mid'] . '">' . $name . '</a>';
             // Construct membership info
             $recentMembership = end($member['membership']);
             $plan = '';
@@ -79,7 +79,7 @@ function member_table ($opts = NULL) {
             }
             
             // Add cells
-            $row[] = $name;
+            $row[] = $name_link;
             $row[] = $plan;
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
@@ -101,7 +101,9 @@ function member_table ($opts = NULL) {
         }
         
         // Add ops row
-        $row[] = join(' ', $ops);
+        if (user_access('member_edit') || user_access('member_delete')) {
+            $row[] = join(' ', $ops);
+        }
         
         // Add row to table
         $table['rows'][] = $row;

@@ -42,6 +42,7 @@ require_once('include/crm.inc.php');
                 Welcome to the i3 Detroit CRM.
             </p>
             <?php print theme_errors(); ?>
+            <?php print theme_messages(); ?>
         </div>
         <div class="footer">
             <?php print theme_footer(); ?>

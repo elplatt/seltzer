@@ -30,11 +30,29 @@ function error_register ($error) {
 }
 
 /**
+ * Register a message
+ *
+ * @param $message The message
+*/
+function message_register ($message) {
+    $_SESSION['messageList'][] = $message;
+}
+
+/**
  * Return an array of errors and clear error list
 */
 function error_list () {
     $errors = $_SESSION['errorList'];
     $_SESSION['errorList'] = array();
+    return $errors;
+}
+
+/**
+ * Return an array of messages and clear message list
+*/
+function message_list () {
+    $errors = $_SESSION['messageList'];
+    $_SESSION['messageList'] = array();
     return $errors;
 }
 

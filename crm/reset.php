@@ -4,7 +4,7 @@
     Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
-    reports.php - Displays list of available reports
+    reset.php - Provides password reset form
 
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,10 +39,7 @@ require_once('include/crm.inc.php');
         </div>
         <div class="content">
             <?php print theme_errors(); ?>
-            <!-- TEMPORARY: should be replaced with dynamic code to list available reports -->
-            <?php print theme_key_report(); ?>
-            <?php print theme_member_voting_report(); ?>
-            <!-- / TEMPORARY -->
+            <?php print theme('user_reset_password_form'); ?>
         </div>
         <div class="footer">
             <?php print theme_footer(); ?>

@@ -39,6 +39,7 @@ require_once('include/crm.inc.php');
         </div>
         <div class="content">
             <?php print theme_errors(); ?>
+            <?php print theme_messages(); ?>
             <?php print theme_login_form(); ?>
         </div>
         <div class="footer">

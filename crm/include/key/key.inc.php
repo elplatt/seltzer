@@ -159,6 +159,46 @@ function key_table ($opts) {
     return $table;
 }
 
+/**
+ * Return key report table structure
+*/
+function key_report_table () {
+    
+    // Ensure user is allowed to view keys
+    if (!user_access('key_view')) {
+        return NULL;
+    }
+    
+    // Get contact data
+    $data = key_data($opts);
+    if (count($data) < 1) {
+        return array();
+    }
+    
+    $highest = 0;
+    foreach ($data as $key) {
+        $highest = max($highest, $key['slot']);
+    }
+    
+    // Initialize table
+    $table = array(
+        "id" => '',
+        "class" => '',
+        "rows" => array(),
+        "columns" => array()
+    );
+    
+    // Add columns
+    if (user_access('key_view')) {
+        $table['columns'][] = array("title"=>'Next Available Key Slot', 'class'=>'', 'id'=>'');
+    }
+    
+    // Add cell
+    $table['rows'][] = array($highest + 1);
+    
+    return $table;
+}
+
 // Forms ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -167,6 +207,11 @@ function key_table ($opts) {
  * @param cid of the contact to add a key for
 */
 function key_add_form ($cid) {
+    
+    // Ensure user is allowed to edit keys
+    if (!user_access('key_edit')) {
+        return NULL;
+    }
     
     // Create form structure
     $form = array(
@@ -222,6 +267,11 @@ function key_add_form ($cid) {
  * @param $kid id of the key to edit
 */
 function key_edit_form ($kid) {
+    
+    // Ensure user is allowed to edit key
+    if (!user_access('key_edit')) {
+        return NULL;
+    }
     
     // Get key data
     $data = key_data(array('kid'=>$kid));
@@ -299,6 +349,11 @@ function key_edit_form ($kid) {
  * @param $kid id of the key to delete
 */
 function key_delete_form ($kid) {
+    
+    // Ensure user is allowed to delete keys
+    if (!user_access('key_delete')) {
+        return NULL;
+    }
     
     // Get key data
     $data = key_data(array('kid'=>$kid));
@@ -443,12 +498,14 @@ function key_page(&$data, $page, $options) {
             }
             
             // Add keys tab
-            if (!isset($data['Keys'])) {
-                $data['Keys'] = array();
+            if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
+                if (!isset($data['Keys'])) {
+                    $data['Keys'] = array();
+                }
+                $keys = theme('key_table', array('cid' => member_contact_id($mid)));
+                $keys .= theme('key_add_form', member_contact_id($mid));
+                array_push($data['Keys'], $keys);
             }
-            $keys = theme('key_table', array('cid' => member_contact_id($mid)));
-            $keys .= theme('key_add_form', member_contact_id($mid));
-            array_push($data['Keys'], $keys);
             
             break;
         
@@ -461,10 +518,12 @@ function key_page(&$data, $page, $options) {
             }
             
             // Add edit tab
-            if (!isset($data['Edit'])) {
-                $data['Edit'] = array();
+            if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
+                if (!isset($data['Edit'])) {
+                    $data['Edit'] = array();
+                }
+                array_unshift($data['Edit'], theme('key_edit_form', $kid));
             }
-            array_unshift($data['Edit'], theme('key_edit_form', $kid));
             
             break;
     }
@@ -495,6 +554,13 @@ function theme_key_add_form ($cid) {
  */
 function theme_key_edit_form ($kid) {
     return theme_form(key_edit_form($kid));
+}
+
+/**
+ * Return themed html for key report
+ */
+function theme_key_report () {
+    return theme_table(key_report_table());
 }
 
 ?>

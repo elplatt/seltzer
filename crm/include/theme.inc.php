@@ -86,7 +86,8 @@ function theme_login_status() {
         $user = user_get_user();
         $output .= 'Welcome, ' . $user['username'] . '. <a href="action.php?command=logout">Log out</a>';
     } else {
-        $output .= '<a href="login.php">Log in</a>';
+        $output .= '<a href="login.php">Log in</a>&nbsp;&nbsp;&nbsp;';
+        $output .= '<a href="reset.php">Reset password</a>';
     }
     $output .= '</div>';
     
@@ -128,6 +129,28 @@ function theme_errors() {
     // Loop through errors
     foreach ($errors as $error) {
         $output .= '<li>' . $error . '</li>';
+    }
+    
+    $output .= '</ul></fieldset>';
+    return $output;
+}
+
+/**
+ * Returns themed html for messages
+*/
+function theme_messages() {
+
+    // Pop and check messages
+    $messages = message_list();
+    if (empty($messages)) {
+        return '';
+    }
+    
+    $output = '<fieldset><ul>';
+    
+    // Loop through errors
+    foreach ($messages as $message) {
+        $output .= '<li>' . $message . '</li>';
     }
     
     $output .= '</ul></fieldset>';
