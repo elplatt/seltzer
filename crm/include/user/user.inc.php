@@ -242,7 +242,8 @@ function command_reset_password () {
     
     // Make sure user exists
     if (empty($row)) {
-        return false;
+        error_register('No such username');
+        return 'reset.php';
     }
     
     // Generate code
