@@ -18,3 +18,8 @@ http://yourserver.com/crm
 user: admin
 password: admin
 
+7. Use the admin account to add an account for one of your directors.
+
+8. Open the database and assign the necessary roles to your director.
+
+9. The director may log in and should have full access to the CRM.

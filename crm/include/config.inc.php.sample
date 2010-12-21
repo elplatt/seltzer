@@ -22,12 +22,25 @@
 
 // Database configuration
 $config_db_host = 'localhost';
-$config_db_user = 'seltzer_user';
-$config_db_password = 'seltzer_password';
-$config_db_db = 'seltzer_db';
+$config_db_user = '';
+$config_db_password = '';
+$config_db_db = '';
 
 // Site info
 $config_site_title = 'Seltzer CRM';
+$config_email_from = '';
+$config_host = $_SERVER['SERVER_NAME'];
+$config_base_path = '/crm/';
+
+// Modules
+$config_modules = array(
+    "core",
+    "page",
+    "form",
+    "user",
+    "member",
+    "key"
+);
 
 // Site map
 $config_sitemap = array(
@@ -61,43 +74,39 @@ $config_roles = array(
 // Permissions (which roles can perform which actions)
 $config_permissions = array(
     "user_add" => array(
-        "director",
-        "webAdmin"
+        "director"
+        , "webAdmin"
     ),
     "user_edit" => array(
-        "webAdmin",
         "director"
     ),
     "user_delete" => array(
-        "webAdmin",
         "director"
     ),
     "contact_view" => array(
-        "director",
-        "member"
+        "director"
+        , "webAdmin"
     ),
     "contact_add" => array(
-        "webAdmin",
         "director"
+        , "webAdmin"
     ),
     "contact_edit" => array(
-        "webAdmin",
         "director"
     ),
     "contact_delete" => array(
-        "webAdmin",
         "director"
     ),
     "member_view" => array(
-        "director",
-        "member"
+        "director"
+        , "member"
+        , "webAdmin"
     ),
     "member_add" => array(
-        "webAdmin",
         "director"
+        , "webAdmin"
     ),
     "member_edit" => array(
-        "webAdmin",
         "director"
     ),
     "member_delete" => array(
@@ -105,16 +114,22 @@ $config_permissions = array(
     ),
     "member_membership_view" => array(
         "director",
-        "treasurer"
+        "webAdmin"
     ),
     "member_membership_edit" => array(
-        "director",
-        "treasurer"
+        "director"
     ),
     "roles_edit" => array(
-        "director",
-        "secretary",
-        "webAdmin"
+        "director"
+    ),
+    "key_view" => array(
+        "director"
+    ),
+    "key_edit" => array(
+        "director"
+    ),
+    "key_delete" => array(
+        "director"
     )
 );
 
