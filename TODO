@@ -2,7 +2,8 @@ Seltzer CRM
 TODO Items - Highest priority first
 
 Add export to CSV functionality for any table
-Add role edit page
+Add role edit page to user module
+Add membership lan administration to member module
 
 Modify user, contact, and member to all use cid as primary key
 Divide member module into member and contact modules
