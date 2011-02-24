@@ -32,7 +32,7 @@
  *   'cid' If specified, returns all keys assigned to the contact with specified id;
  *   'filter' An array of filters of the form (<filter name>, <filter param>)
 */ 
-function key_data ($opts) {
+function key_data ($opts = array()) {
     
     // Query database
     $sql = "
@@ -170,14 +170,25 @@ function key_report_table () {
     }
     
     // Get contact data
-    $data = key_data($opts);
+    $data = key_data(array('filter'=>array('active')));
     if (count($data) < 1) {
         return array();
     }
     
-    $highest = 0;
+    // Create list of taken slots, in ascending order
+    $taken = array();
     foreach ($data as $key) {
-        $highest = max($highest, $key['slot']);
+        $taken[] = $key['slot'];
+    }
+    sort($taken);
+    
+    // Start at slot 0
+    $next = 0;
+    foreach ($taken as $n) {
+        // Jump to next highest if current is taken
+        if ($next == $n) {
+            $next++;
+        }
     }
     
     // Initialize table
@@ -194,7 +205,7 @@ function key_report_table () {
     }
     
     // Add cell
-    $table['rows'][] = array($highest + 1);
+    $table['rows'][] = array($next);
     
     return $table;
 }
