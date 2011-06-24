@@ -441,7 +441,7 @@ function command_key_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'member.php?mid=' . member_contact_member_id($esc_post['cid']);
+    return 'member.php?cid=' . $esc_post['cid'];
 }
 
 /**
