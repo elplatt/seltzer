@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     core.inc.php - Core functions
@@ -21,25 +21,27 @@
 */
 
 /**
- * Register an error
+ * Register an error.
  *
- * @param $error The error
+ * @param $error The error.
 */
 function error_register ($error) {
     $_SESSION['errorList'][] = $error;
 }
 
 /**
- * Register a message
+ * Register a message.
  *
- * @param $message The message
+ * @param $message The message.
 */
 function message_register ($message) {
     $_SESSION['messageList'][] = $message;
 }
 
 /**
- * Return an array of errors and clear error list
+ * Return all registered errors and clear the list.
+ *
+ * @return An array of error strings.
 */
 function error_list () {
     $errors = $_SESSION['errorList'];
@@ -48,7 +50,9 @@ function error_list () {
 }
 
 /**
- * Return an array of messages and clear message list
+ * Return all registered messages and clear the list.
+ *
+ * @return An array of message strings.
 */
 function message_list () {
     $errors = $_SESSION['messageList'];
@@ -57,9 +61,10 @@ function message_list () {
 }
 
 /**
- * Return sitemap tree structure
+ * Returns a sitemap containing only pages the logged in user has permission
+ * to see.
  *
- * Only contains sections the current user has permission to see.
+ * @return A tree structure representing the sitemap.
 */
 function sitemap () {
     global $config_sitemap;
@@ -78,7 +83,7 @@ function sitemap () {
 }
 
 /**
- * Return list of installed modules
+ * @return list of installed modules.
  */
 function module_list () {
     global $config_modules;

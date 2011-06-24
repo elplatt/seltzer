@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     member.php - View or edit single member
@@ -44,7 +44,7 @@ $member = member_data(array('mid'=>$_GET['mid']));
             <?php //print theme('member_membership_add_form', $_GET['mid']); ?>
             <?php //print theme('member_membership_table', array('mid' => $_GET['mid'])); ?>
             <?php //print theme('member_contact_edit_form', $member[0]['contact']['cid']); ?>
-            <?php print theme('page', 'member', array('mid' => $_GET['mid'])); ?>
+            <?php print theme('page', 'member', array('cid' => $_GET['cid'])); ?>
         </div>
         <div class="footer">
             <?php print theme_footer(); ?>

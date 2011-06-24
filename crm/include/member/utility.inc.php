@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     utility.inc.php - Member module - utility functions
@@ -27,33 +27,13 @@
  * @param $middle Middle name
  * @param $last Last name
  *
- * Returns the name string
+ * @return the name string.
  */
-function member_name($first, $middle, $last) {
+function member_name ($first, $middle, $last) {
     $name = $last . ", ";
     $name .= $first;
     if (!empty($middle)) {
         $name .= ' ' . $middle;
     }
     return $name;
-}
-
-/**
- * Return contact id for a given member
- *
- * @param $mid The member's id
-*/
-function member_contact_id ($mid) {
-    $data = member_data(array('mid' => $mid));
-    return $data[0]['contact']['cid'];
-}
-
-/**
- * Return member id for a given contact
- *
- * @param $cid The contact's id
-*/
-function member_contact_member_id ($cid) {
-    $data = member_data(array('cid' => $cid));
-    return $data[0]['mid'];
 }

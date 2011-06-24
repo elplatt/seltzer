@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     theme.inc.php - Provides theming for core elements
@@ -21,14 +21,15 @@
 */
 
 /**
- * Maps theme calls to appropriate theme handler
+ * Map theme calls to appropriate theme handler.
  *
  * At least one parmaeter is required, namely the element being themed.
  * Additional parameters will be passed on to the theme handler.
  *
- * @param $element The element to theme
+ * @param $element The element to theme.
+ * @return The themed html string for the specified element.
 */
-function theme() {
+function theme () {
     
     // Check for arguments
     if (func_num_args() < 1) {
@@ -55,9 +56,9 @@ function theme() {
 }
 
 /**
- * Returns themed html for a page header
+ * @return The themed html string for a page header.
 */
-function theme_header() {
+function theme_header () {
     $output = '';
     $output .= theme_logo();
     $output .= theme_login_status();
@@ -65,21 +66,24 @@ function theme_header() {
     return $output;
 }
 
-/* Returns themed html for a page footer
+/**
+ * @return The themed html string for a page footer.
 */
 function theme_footer() {
     return 'Powered by <a href="http://github.com/elplatt/seltzer">Seltzer CRM</a>';
 }
 
-/* Returns themed html for logo
+/**
+ * @return The themed html string for logo.
 */
-function theme_logo() {
+function theme_logo () {
     return '<div class="logo"><img alt="i3 Detroit" src="images/logo.png"/></div>';
 }
 
-/* Returns themed html for user login status
+/**
+ * @return The themed html string for user login status.
 */
-function theme_login_status() {
+function theme_login_status () {
     
     $output = '<div class="login-status">';
     if (user_id()) {
@@ -94,9 +98,10 @@ function theme_login_status() {
     return $output;
 }
 
-/* Returns themed html for navigation
+/**
+ * @return The themed html string for the navigation menu.
 */
-function theme_navigation() {
+function theme_navigation () {
     $output = '<ul class="nav">';
     foreach (sitemap() as $link) {
         $output .= '<li>' . theme_navigation_link($link) . '</li>';
@@ -106,17 +111,23 @@ function theme_navigation() {
     return $output;
 }
 
-/* Returns themed html for single link
+/**
+ * Theme a link.
+ *
+ * @param $link An array representing the link.  The keys are:
+ *   url - Destination url
+ *   title - Text to display.
+ * @return The themed html string for a single link.
 */
-function theme_navigation_link($link) {
+function theme_navigation_link ($link) {
     $output = '<a href="' . $link['url'] . '">' . $link['title'] . '</a>';
     return $output;
 }
 
 /**
- * Returns themed html for errors
+ * @return The themed html string for any errors currently registered.
 */
-function theme_errors() {
+function theme_errors () {
 
     // Pop and check errors
     $errors = error_list();
@@ -136,9 +147,9 @@ function theme_errors() {
 }
 
 /**
- * Returns themed html for messages
+ * @return The themed html string for any registered messages.
 */
-function theme_messages() {
+function theme_messages () {
 
     // Pop and check messages
     $messages = message_list();
@@ -157,17 +168,11 @@ function theme_messages() {
     return $output;
 }
 
-/* Returns themed html for a login form
+/**
+ * @param $form The form structure.
+ * @return The themed html string for a form.
 */
-function theme_login_form() {
-    return theme_form(login_form());
-}
-
-/* Returns themed html for a form
- *
- * @param $form The form structure
-*/
-function theme_form($form) {
+function theme_form ($form) {
     
     // Return empty string if there is no structure
     if (empty($form)) {
@@ -251,9 +256,11 @@ function theme_form($form) {
     return $output;
 }
 
-/* Return themed html for a message
+/**
+ * Themes a message in a form.
  *
- * @param $field the message
+ * @param $field the message.
+ * @return The themed html string for a message form element.
  */
 function theme_form_message($field) {
     $output = '<fieldset class="form-row">';
@@ -262,11 +269,13 @@ function theme_form_message($field) {
     return $output;
 }
 
-/* Return themed html for a read-only field
- *
- * @param $field the field
+/**
+ * Themes a read-only field in a form.
+ * 
+ * @param $field The field.
+ * @return The themed html for a read-only form field.
  */
-function theme_form_readonly($field) {
+function theme_form_readonly ($field) {
     $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -278,11 +287,13 @@ function theme_form_readonly($field) {
     return $output;
 }
 
-/* Return themed html for a text field
- *
- * @param $field the text field
+/**
+ * Themes a text field in a form.
+ * 
+ * @param $field the text field.
+ * @return The themed html for the text field.
  */
-function theme_form_text($field) {
+function theme_form_text ($field) {
     $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -299,11 +310,13 @@ function theme_form_text($field) {
     return $output;
 }
 
-/* Return themed html for a checkbox
+/**
+ * Themes a checkbox in a form.
  *
- * @param $field the checkbox
+ * @param $field the checkbox.
+ * @return The themed html for the checkbox.
  */
-function theme_form_checkbox($field) {
+function theme_form_checkbox ($field) {
     $output = '<fieldset class="form-row">';
     $output .= '<input type="checkbox" name="' . $field['name'] . '" value="1"';
     if ($field['checked']) {
@@ -317,11 +330,13 @@ function theme_form_checkbox($field) {
     return $output;
 }
 
-/* Return themed html for a password field
- *
- * @param $field the password field
+/**
+ * Themes a password field in a form.
+ * 
+ * @param $field the password field.
+ * @return The themed html for the password field.
  */
-function theme_form_password($field) {
+function theme_form_password ($field) {
     $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -331,11 +346,13 @@ function theme_form_password($field) {
     return $output;
 }
 
-/* Return themed html for a select field
- *
- * @param $field the select field
+/**
+ * Themes a select field in a form.
+ * 
+ * @param $field the select field.
+ * @return themed html for the select field.
  */
-function theme_form_select($field) {
+function theme_form_select ($field) {
     $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -357,11 +374,13 @@ function theme_form_select($field) {
     return $output;
 }
 
-/* Return themed html for a submit button
+/**
+ * Themes a submit button in a form.
  *
- * @param $field the submit button
+ * @param $field The submit button.
+ * @return The themed html for the submit button.
  */
-function theme_form_submit($field) {
+function theme_form_submit ($field) {
     $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -379,11 +398,12 @@ function theme_form_submit($field) {
 }
 
 /**
- * Return themed html for a table
+ * Themes tabular data.
  *
  * @param $table The table data.
+ * @return The themed html for a table.
 */
-function theme_table($table) {
+function theme_table ($table) {
     
     // Check if table is empty
     if (empty($table['rows'])) {
@@ -461,11 +481,12 @@ function theme_table($table) {
 }
 
 /**
- * Return themed html for a vertical table
+ * Themes a table with headers in the left column instead of the top row.
  *
  * @param $table The table data.
+ * @return The themed html for a vertical table
 */
-function theme_table_vertical($table) {
+function theme_table_vertical ($table) {
     
     // Check if table is empty
     if (empty($table['rows'])) {
@@ -529,64 +550,14 @@ function theme_table_vertical($table) {
 }
 
 /**
- * Returned themed html for a delete confirmation form
- *
- * @param $type The type of element to delete
- * @param $id The id of the element to delete
+ * Generate a themed delete confirmation form.
+ * 
+ * @param $type The type of element to delete.
+ * @param $id The id of the element to delete.
+ * @return The themed html for a delete confirmation form.
 */
 function theme_delete_form ($type, $id) {
     return theme_form(delete_form($type, $id));
-}
-
-/**
- * Return themed html for a page
- *
- * @param $page The page name
- * @param $options Additional options
- */
-function theme_page($page, $options = array()) {
-    
-    // Create data structure
-    $data = page($page, $options);
-    
-    // Initialize output
-    $tabs = '';
-    $header = '';
-    
-    // Add page title to header
-    if (!empty($data['#title'])) {
-        $header .= '<h1>' . $data['#title'] . '</h1>';
-    }
-    
-    // Add button list to header
-    $header .= '<ul class="page-nav">';
-    
-    // Loop through each tab
-    foreach ($data as $tab => $tab_data) {
-        
-        // Skip special keys
-        if ($tab{0} === '#') {
-            continue;
-        }
-        
-        // Generate tab name
-        $tab_name = preg_replace('/\W+/', '-', strtolower($tab));
-        
-        $header .= '<li><a href="#tab-' . $tab_name . '">' . $tab . '</a></li>';
-        
-        $tabs .= '<fieldset id="tab-' . $tab_name . '" class="tab">';
-        
-        $tabs .= '<legend><a name="' . $tab_name . '">' . $tab . '</a></legend>';
-        
-        $tabs .= join($tab_data);
-        
-        $tabs .= '</fieldset>';
-    }
-    
-    // Close header button list
-    $header .= '</ul>';
-    
-    return $header . $tabs;
 }
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     user.inc.php - Core user functions
@@ -21,36 +21,35 @@
 */
 
 /**
- * Return logged in user id
+ * @return the cid of the logged in user.
 */
-function user_id() {
+function user_id () {
     return $_SESSION['userId'];
 }
 
 /**
- * Set logged in user
+ * Update the session variables to set a specified user as logged in.
  *
- * @param $user_id The logged in user id
+ * @param $cid The cid to set as the logged in user.
 */
-function user_login($user_id) {
-    $_SESSION['userId'] = $user_id;
+function user_login ($cid) {
+    $_SESSION['userId'] = $cid;
 }
 
 /**
- * Return logged in user structure
- *
- * @param $uid The id of the user being queried, defaults to current user
+ * @param $cid The cid of the user being queried, defaults to current user.
+ * @return The data structure for the specified user.
 */
-function user_get_user($uid = 0) {
+function user_get_user($cid = 0) {
     
     // Default to logged in user
-    if ($uid == 0) {
-        $uid = user_id();
+    if ($cid == 0) {
+        $cid = user_id();
     }
     
     // Query database
-    $uid = mysql_real_escape_string($uid);
-    $sql = "SELECT * FROM `user` WHERE `uid`='$uid'";
+    $cid = mysql_real_escape_string($cid);
+    $sql = "SELECT * FROM `user` WHERE `cid`='$cid'";
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
     
@@ -60,19 +59,20 @@ function user_get_user($uid = 0) {
 }
 
 /**
- * Check if a user has the given role
+ * Check if a user has the given role.
  *
- * @param $role The role.
+ * @param $role A string containing the role to check.
+ * @return True if the user is assigned to the given role.
 */
-function user_check_role ($role, $user_id = NULL) {
+function user_check_role ($role, $cid = NULL) {
     
     // Choose logged in user if no user id
-    if (!$user_id) {
-        $user_id = user_id();
+    if (!$cid) {
+        $cid = user_id();
     }
     
     // Special case for authenticated user
-    if ($user_id == user_id() && user_id()) {
+    if ($cid == user_id() && user_id()) {
         if ($role == 'authenticated') {
             return true;
         }
@@ -81,8 +81,8 @@ function user_check_role ($role, $user_id = NULL) {
     // Query for users roles
     $sql = "
         SELECT * FROM
-        `user` LEFT JOIN `role` ON `user`.`uid`=`role`.`uid`
-        WHERE `user`.`uid`='$user_id'";
+        `user` LEFT JOIN `role` ON `user`.`cid`=`role`.`cid`
+        WHERE `user`.`cid`='$cid'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $row = mysql_fetch_array($res);
@@ -102,18 +102,19 @@ function user_check_role ($role, $user_id = NULL) {
 }
 
 /**
- * Check if user has permissions for a given action
+ * Check if the logged in user has permissions for a specified action.
  *
  * @param $action The action
+ * @return True if the user has permission to perform $action.
 */
 function user_access ($action) {
     global $config_permissions;
     
     // Get user id
-    $uid = user_id();
+    $cid = user_id();
     
     // Query user's role info
-    $sql = "SELECT * FROM `role` WHERE `uid`='$uid'";
+    $sql = "SELECT * FROM `role` WHERE `cid`='$cid'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $roles = mysql_fetch_assoc($res);
@@ -132,11 +133,12 @@ function user_access ($action) {
 }
 
 /**
- * Check reset password code
+ * Check whether a specified password reset code exists.
  *
- * @param $code The code
+ * @param $code A string containing the code.
+ * @return True if the specified reset code exists.
 */
-function user_check_reset_code($code) {
+function user_check_reset_code ($code) {
     
     // Query database for code
     $esc_code = mysql_real_escape_string($code);
@@ -152,7 +154,89 @@ function user_check_reset_code($code) {
 }
 
 /**
- * Return reset password form structure
+ * Handle login request.
+ *
+ * @return the url to display when complete.
+ */
+function command_login () {
+    global $esc_post;
+    
+    // Calculate hash
+    $esc_hash = sha1($_POST['password']);
+    
+    // Query database for given user
+    $sql = "
+        SELECT *
+        FROM `user`
+        WHERE `username`='$esc_post[username]' AND `hash`='$esc_hash'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    
+    // Check for user
+    if (!empty($row)) {
+        user_login($row['cid']);
+        $next = 'index.php';
+    } else {
+        error_register('Invalid username/password');
+        $next = 'login.php';
+    }
+    
+    // Redirect to index
+    return $next;
+}
+
+/**
+ * Handle logout request.
+ *
+ * @return The url to display when complete.
+ */
+function command_logout () {
+
+    // Destroy session data
+    session_destroy();
+    
+    // Redirect to index
+    return 'index.php';
+}
+
+/**
+ * @return login form structure.
+*/
+function login_form () {
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'login',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Log in',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'Username',
+                        'name' => 'username'
+                    ),
+                    array(
+                        'type' => 'password',
+                        'label' => 'Password',
+                        'name' => 'password'
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'name' => 'submitted',
+                        'value' => 'Log in'
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
+/**
+ * @return password reset form structure
 */
 function user_reset_password_form () {
     $form = array(
@@ -182,7 +266,8 @@ function user_reset_password_form () {
 }
 
 /**
- * Return reset password confirmation form structure
+ * @param $code The password reset code.
+ * @return The password reset confirmation form structure.
 */
 function user_reset_password_confirm_form ($code) {
     
@@ -221,9 +306,8 @@ function user_reset_password_confirm_form ($code) {
 }
 
 /**
- * Respond to reset password request
+ * Respond to reset password request.
 */
-
 function command_reset_password () {
     global $esc_post;
     global $config_host;
@@ -252,9 +336,9 @@ function command_reset_password () {
     // Insert code into reminder table
     $sql = "
         REPLACE INTO `resetPassword`
-        (`uid`, `code`)
+        (`cid`, `code`)
         VALUES
-        ('$row[uid]', '$code')";
+        ('$row[cid]', '$code')";
     $res = mysql_query($sql);
     
     // Generate reset url
@@ -274,9 +358,9 @@ function command_reset_password () {
 }
 
 /**
- * Respond to reset password confirmation
+ * Respond to password reset confirmation.
+ * @return The url to display after the command is processed.
 */
-
 function command_reset_password_confirm () {
     global $esc_post;
     
@@ -297,7 +381,7 @@ function command_reset_password_confirm () {
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
     $row = mysql_fetch_assoc($res);
-    $esc_uid = mysql_real_escape_string($row['uid']);
+    $esc_cid = mysql_real_escape_string($row['cid']);
     
     // Calculate hash
     $esc_hash = mysql_real_escape_string(sha1($_POST['password']));
@@ -306,7 +390,7 @@ function command_reset_password_confirm () {
     $sql = "
         UPDATE `user`
         SET `hash`='$esc_hash'
-        WHERE `uid`='$esc_uid'
+        WHERE `cid`='$esc_cid'
         ";
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
@@ -317,18 +401,25 @@ function command_reset_password_confirm () {
     return 'login.php';
 }
 
-/* Returns themed html for a password reset form
+/**
+ * @return The themed html string for a login form.
 */
-function theme_user_reset_password_form() {
+function theme_login_form () {
+    return theme_form(login_form());
+}
+
+/**
+ * @return The themed html for a password reset form.
+*/
+function theme_user_reset_password_form () {
     return theme_form(user_reset_password_form());
 }
 
 /**
- * Returns themed html for a password reset form
- *
- * @param $code The reset code
+ * @param $code The pasword reset code.
+ * @return The themed html for a password reset form.
  */
-function theme_user_reset_password_confirm_form($code) {
+function theme_user_reset_password_confirm_form ($code) {
     
     if (!user_check_reset_code($code)) {
         return '<p>Invalid code</p>';

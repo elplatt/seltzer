@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     form.inc.php - Member module - form structures
@@ -21,7 +21,7 @@
 */
 
 /**
- * Return add member form structure
+ * @return The form structure for adding a member.
 */
 function member_add_form () {
     
@@ -110,11 +110,12 @@ function member_add_form () {
 }
 
 /**
- * Return add membership form structure
+ * Return the form structure for adding a membership.
  *
- * @param mid the member id of the member to add a membership for
+ * @param cid the cid of the member to add a membership for.
+ * @return The form structure.
 */
-function member_membership_add_form ($mid) {
+function member_membership_add_form ($cid) {
     
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
@@ -127,7 +128,7 @@ function member_membership_add_form ($mid) {
         'method' => 'post',
         'command' => 'member_membership_add',
         'hidden' => array(
-            'mid' => $mid
+            'cid' => $cid
         ),
         'fields' => array(
             array(
@@ -165,11 +166,12 @@ function member_membership_add_form ($mid) {
 }
 
 /**
- * Return delete member form structure
+ * Return the form structure to delete a member.
  *
- * @param $mid id of the member to delete
+ * @param $cid The cid of the member to delete.
+ * @return The form structure.
 */
-function member_delete_form ($mid) {
+function member_delete_form ($cid) {
     
     // Ensure user is allowed to delete members
     if (!user_access('member_delete')) {
@@ -177,7 +179,7 @@ function member_delete_form ($mid) {
     }
     
     // Get member data
-    $data = member_data(array('mid'=>$mid));
+    $data = member_data(array('cid'=>$cid));
     $member = $data[0];
     
     // Construct member name
@@ -196,9 +198,7 @@ function member_delete_form ($mid) {
         'method' => 'post',
         'command' => 'member_delete',
         'hidden' => array(
-            'mid' => $mid,
             'cid' => $member['contact']['cid'],
-            'uid' => $member['user']['uid']
         ),
         'fields' => array(
             array(
@@ -232,9 +232,10 @@ function member_delete_form ($mid) {
 }
 
 /**
- * Return delete membership form structure
+ * Return the form structure to delete a membership.
  *
- * @param $sid id of the membership to delete
+ * @param $sid id of the membership to delete.
+ * @return The form structure.
 */
 function member_membership_delete_form ($sid) {
     
@@ -260,7 +261,7 @@ function member_membership_delete_form ($sid) {
     */
     
     // Construct membership name
-    $membership_name = "user:$membership[mid] $membership[start] -- $membership[end]";
+    $membership_name = "user:$membership[cid] $membership[start] -- $membership[end]";
     
     // Create form structure
     $form = array(
@@ -292,9 +293,10 @@ function member_membership_delete_form ($sid) {
 }
 
 /**
- * Return edit contact form structure
+ * Return the form structure for editing a contact.
  *
- * @param $cid id of the contact to edit
+ * @param $cid id of the contact to edit.
+ * @return The form structure.
 */
 function member_contact_edit_form ($cid) {
     
@@ -380,7 +382,9 @@ function member_contact_edit_form ($cid) {
 // Filters
 
 /**
- * Return form structure for member filter
+ * Return the form structure for a member filter.
+ * 
+ * @return The form structure.
 */
 function member_filter_form () {
 

@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     key.inc.php - Key tracking module
@@ -25,12 +25,13 @@
 // DB to Object mapping ////////////////////////////////////////////////////////
 
 /**
- * Return data tree representing key cards
+ * Return data for one or more key card assignments.
  *
  * @param $opts An associative array of options, possible keys are:
  *   'kid' If specified, returns a single memeber with the matching key id;
  *   'cid' If specified, returns all keys assigned to the contact with specified id;
  *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ * @return An array with each element representing a single key card assignment.
 */ 
 function key_data ($opts = array()) {
     
@@ -91,9 +92,10 @@ function key_data ($opts = array()) {
 // Table data structures ///////////////////////////////////////////////////////
 
 /**
- * Return key table structure
+ * Return a table structure for a table of key assignments.
  *
- * @param $opts Associative array of options
+ * @param $opts The options to pass to key_data().
+ * @return The table structure.
 */
 function key_table ($opts) {
     
@@ -160,7 +162,7 @@ function key_table ($opts) {
 }
 
 /**
- * Return key report table structure
+ * @return The table structure for a key report.
 */
 function key_report_table () {
     
@@ -213,9 +215,10 @@ function key_report_table () {
 // Forms ///////////////////////////////////////////////////////////////////////
 
 /**
- * Return add key form structure
+ * Return the form structure for the add key assignment form.
  *
- * @param cid of the contact to add a key for
+ * @param The cid of the contact to add a key assignment for.
+ * @return The form structure.
 */
 function key_add_form ($cid) {
     
@@ -273,9 +276,10 @@ function key_add_form ($cid) {
 }
 
 /**
- * Return edit key form structure
+ * Return the form structure for an edit key assignment form.
  *
- * @param $kid id of the key to edit
+ * @param $kid The kid of the key assignment to edit.
+ * @return The form structure.
 */
 function key_edit_form ($kid) {
     
@@ -355,9 +359,10 @@ function key_edit_form ($kid) {
 }
 
 /**
- * Return delete key form structure
+ * Return the delete key assigment form structure.
  *
- * @param $kid id of the key to delete
+ * @param $kid The kid of the key assignment to delete.
+ * @return The form structure.
 */
 function key_delete_form ($kid) {
     
@@ -406,6 +411,8 @@ function key_delete_form ($kid) {
 
 /**
  * Handle key add request.
+ *
+ * @return The url to display on completion.
  */
 function command_key_add() {
     global $esc_post;
@@ -439,6 +446,8 @@ function command_key_add() {
 
 /**
  * Handle key update request.
+ *
+ * @return The url to display on completion.
  */
 function command_key_update() {
     global $esc_post;
@@ -471,6 +480,8 @@ function command_key_update() {
 
 /**
  * Handle key delete request.
+ *
+ * @return The url to display on completion.
  */
 function command_key_delete() {
     global $esc_post;
@@ -494,7 +505,11 @@ function command_key_delete() {
 // Pages ///////////////////////////////////////////////////////////////////////
 
 /**
- * Page hook
+ * Page hook.  Adds module content to a page before it is rendered.
+ *
+ * @param &$data Reference to data about the page being rendered.
+ * @param $page The name of the page being rendered.
+ * @param $options The array of options passed to theme('page').
 */
 function key_page(&$data, $page, $options) {
     
@@ -502,9 +517,9 @@ function key_page(&$data, $page, $options) {
         
         case 'member':
             
-            // Capture member id
-            $mid = $options['mid'];
-            if (empty($mid)) {
+            // Capture member cid
+            $cid = $options['cid'];
+            if (empty($cid)) {
                 return;
             }
             
@@ -513,8 +528,8 @@ function key_page(&$data, $page, $options) {
                 if (!isset($data['Keys'])) {
                     $data['Keys'] = array();
                 }
-                $keys = theme('key_table', array('cid' => member_contact_id($mid)));
-                $keys .= theme('key_add_form', member_contact_id($mid));
+                $keys = theme('key_table', array('cid' => $cid));
+                $keys .= theme('key_add_form', $cid);
                 array_push($data['Keys'], $keys);
             }
             
@@ -543,32 +558,39 @@ function key_page(&$data, $page, $options) {
 // Themeing ////////////////////////////////////////////////////////////////////
 
 /**
- * Return themed html for a key table
+ * Return the themed html for a key assignment table.
+ *
+ * @param $opts The options to pass to key_table().
+ * @return The themed html.
 */
 function theme_key_table ($opts = NULL) {
     return theme_table(key_table($opts));
 }
 
 /**
- * Return themed html for key add form
+ * Return the themed html for an add key assignment form.
  *
- * @param $cid The id of the contact to add a key for
+ * @param $cid The id of the contact to add a key assignment for.
+ * @return The themed html string.
  */
 function theme_key_add_form ($cid) {
     return theme_form(key_add_form($cid));
 }
 
 /**
- * Return themed html for key edit form
+ * Return themed html for an edit key assignment form.
  *
- * @param $kid The id of the key to edit
+ * @param $kid The kid of the key assignment to edit.
+ * @return The themed html string.
  */
 function theme_key_edit_form ($kid) {
     return theme_form(key_edit_form($kid));
 }
 
 /**
- * Return themed html for key report
+ * Return the themed html for the key assignment report.
+ *
+ * @return The themed html.
  */
 function theme_key_report () {
     return theme_table(key_report_table());

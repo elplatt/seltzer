@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     theme.inc.php - Member module - theming
@@ -21,78 +21,91 @@
 */
 
 /**
- * Return themed html for a table of members
+ * Return the themed html for a table of members.
+ *
+ * @param $opts Options to pass to member_data().
+ * @return The themed html string.
 */
 function theme_member_table ($opts = NULL) {
     return theme_table(member_table($opts));
 }
 
 /**
- * Return themed html for a single members contact info
+ * Return the themed html for a single member's contact info.
+ * 
+ * @param $opts The options to pass to member_contact_data().
+ * @return The themed html string.
 */
 function theme_member_contact_table ($opts = NULL) {
     return theme_table_vertical(member_contact_table($opts));
 }
 
 /**
- * Returned themed html for add member form.
+ * @return The themed html for an add member form.
 */
 function theme_member_add_form () {
     return theme_form(member_add_form());
 }
 
 /**
- * Returned themed html for edit member form.
+ * Returned the themed html for edit member form.
  *
- * @param $mid The id of the member to edit
+ * @param $cid The cd of the member to edit.
+ * @return The themed html.
 */
-function theme_member_edit_form ($mid) {
-    return theme_form(member_edit_form($mid));
+function theme_member_edit_form ($cid) {
+    return theme_form(member_edit_form($cid));
 }
 
 /**
- * Returned themed html for edit contact form.
+ * Return the themed html for an edit contact form.
  *
- * @param $cid The id of the contact to edit
+ * @param $cid The cid of the contact to edit.
+ * @return The themed html string.
 */
 function theme_member_contact_edit_form ($cid) {
     return theme_form(member_contact_edit_form($cid));
 }
 
 /**
- * Return themed html for a member filter form
+ * @return The themed html for a member filter form.
 */
 function theme_member_filter_form () {
     return theme_form(member_filter_form());
 }
 
 /**
- * Return themed html for a member votin report
+ * @return The themed html for a member voting report.
 */
 function theme_member_voting_report () {
     return theme_table(member_voting_report_table());
 }
 
 /**
- * Return themed html for a membership table
+ * Return the themed html for a membership table.
+ *
+ * @param $opts The options to pass to member_membership_data().
+ * @return The themed html string.
  */
 function theme_member_membership_table ($opts = NULL) {
     return theme_table(member_membership_table($opts));
 }
 
 /**
- * Return themed html for a membership add form
+ * Return the themed html for a membership add form.
  *
- * @param $mid the member id of the member who owns the membership
+ * @param $cid the cid of the member who owns the membership
+ * @return The themed html string.
  */
-function theme_member_membership_add_form ($mid) {
-    return theme_form(member_membership_add_form($mid));
+function theme_member_membership_add_form ($cid) {
+    return theme_form(member_membership_add_form($cid));
 }
 
 /**
- * Return themed html for a contact's name
+ * Return the themed html for a contact's name.
  *
- * @param $cid the id of the contact
+ * @param $cid The cid of the contact.
+ * @return The themed html string.
  */
 function theme_member_contact_name ($cid) {
     
@@ -109,4 +122,3 @@ function theme_member_contact_name ($cid) {
     
     return $output;
 }
-

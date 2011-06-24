@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     table.inc.php - Member module - table structures
@@ -21,8 +21,10 @@
 */
 
 /**
- * Return table structure representing members
+ * Return a table structure representing members.
  *
+ * @param $opts Options to pass to member_data().
+ * @return The table structure.
 */
 function member_table ($opts = NULL) {
     
@@ -70,7 +72,7 @@ function member_table ($opts = NULL) {
             if (!empty($member['contact']['middleName'])) {
                 $name .= ' ' . $member['contact']['middleName'];
             }
-            $name_link = '<a href="member.php?mid=' . $member['mid'] . '">' . $name . '</a>';
+            $name_link = '<a href="member.php?cid=' . $member['cid'] . '">' . $name . '</a>';
             // Construct membership info
             $recentMembership = end($member['membership']);
             $plan = '';
@@ -92,12 +94,12 @@ function member_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_edit')) {
-            $ops[] = '<a href="member.php?mid=' . $member['mid'] . '">edit</a> ';
+            $ops[] = '<a href="member.php?cid=' . $member['cid'] . '">edit</a> ';
         }
         
         // Add delete op
         if (user_access('member_delete')) {
-            $ops[] = '<a href="delete.php?type=member&amp;id=' . $member['mid'] . '">delete</a>';
+            $ops[] = '<a href="delete.php?type=member&amp;id=' . $member['cid'] . '">delete</a>';
         }
         
         // Add ops row
@@ -114,7 +116,9 @@ function member_table ($opts = NULL) {
 }
 
 /**
- * Return voting member report table
+ * Return table structure for all active voting members.
+ * 
+ * @return The table structure.
 */
 function member_voting_report_table () {
     
@@ -175,8 +179,10 @@ function member_voting_report_table () {
 }
 
 /**
- * Return table structure representing memberships
+ * Return a table structure representing a member's past and current memberships.
  *
+ * @param $opts Options to pass to member_membership_data().
+ * @return The table structure.
 */
 function member_membership_table ($opts = NULL) {
     
@@ -243,9 +249,10 @@ function member_membership_table ($opts = NULL) {
 }
 
 /**
- * Return contact table structure
+ * Return a table structure representing contact info.
  *
- * @param $opts Associative array of options
+ * @param $opts Options to pass to member_contact_data().
+ * @return The table structure.
 */
 function member_contact_table ($opts) {
     

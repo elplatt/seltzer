@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     form.inc.php - Core form system and core forms
@@ -21,45 +21,11 @@
 */
 
 /**
- * Return login form structure
-*/
-function login_form () {
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'login',
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Log in',
-                'fields' => array(
-                    array(
-                        'type' => 'text',
-                        'label' => 'Username',
-                        'name' => 'username'
-                    ),
-                    array(
-                        'type' => 'password',
-                        'label' => 'Password',
-                        'name' => 'password'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Log in'
-                    )
-                )
-            )
-        )
-    );
-    return $form;
-}
-
-/**
- * Return form structure for delete confirmation
+ * Return the form structure for a delete confirmation form.
  *
- * @param $type The type of element to delete
- * @param $id The id of the element to delete
+ * @param $type The type of element to delete.
+ * @param $id The id of the element to delete.
+ * @return The form structure.
 */
 function delete_form ($type, $id) {
     $function = $type . '_delete_form';
@@ -81,14 +47,15 @@ function delete_form ($type, $id) {
 }
 
 /**
- * Return form structure for a filtering form
+ * Return the form structure for a filtering form.
  *
- * @param $filters Array of filter keys and labels
- * @param $default The default filter
- * @param $action URL to submit to
- * @param $get HTTP GET params to pass
+ * @param $filters Array of filter keys and labels.
+ * @param $default The default filter.
+ * @param $action URL to submit to.
+ * @param $get HTTP GET params to pass.
+ * @return The form structure.
 */
-function filter_form($filters, $selected, $action, $get) {
+function filter_form ($filters, $selected, $action, $get) {
     
     // Construct hidden fields to pass GET params
     $hidden = array();

@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     page.inc.php - Member module - tabbed page structures
@@ -21,9 +21,13 @@
 */
 
 /**
- * Member page hook
+ * Page hook.  Adds member module content to a page before it is rendered.
+ *
+ * @param &$data Reference to data about the page being rendered.
+ * @param $page The name of the page being rendered.
+ * @param $options The array of options passed to theme('page').
 */
-function member_page(&$data, $page, $options) {
+function member_page (&$data, $page, $options) {
     
     switch ($page) {
         
@@ -52,20 +56,20 @@ function member_page(&$data, $page, $options) {
         case 'member':
             
             // Capture member id
-            $mid = $options['mid'];
-            if (empty($mid)) {
+            $cid = $options['cid'];
+            if (empty($cid)) {
                 return;
             }
             
             // Set page title
-            $data['#title'] = theme('member_contact_name', member_contact_id($mid));
+            $data['#title'] = theme('member_contact_name', $cid);
             
             // Add view tab
             if (user_access('member_view')) {
                 if (!isset($data['View'])) {
                     $data['View'] = array();
                 }
-                array_unshift($data['View'], theme('member_contact_table', array('cid' => member_contact_id($mid))));
+                array_unshift($data['View'], theme('member_contact_table', array('cid' => $cid)));
             }
             
             // Add edit tab
@@ -73,7 +77,7 @@ function member_page(&$data, $page, $options) {
                 if (!isset($data['Edit'])) {
                     $data['Edit'] = array();
                 }
-                array_unshift($data['Edit'], theme('member_contact_edit_form', member_contact_id($mid)));
+                array_unshift($data['Edit'], theme('member_contact_edit_form', $cid));
             }
             
             // Add plan tab
@@ -81,8 +85,8 @@ function member_page(&$data, $page, $options) {
                 if (!isset($data['Plan'])) {
                     $data['Plan'] = array();
                 }
-                $plan = theme('member_membership_table', array('mid' => $mid));
-                $plan .= theme('member_membership_add_form', $mid);
+                $plan = theme('member_membership_table', array('cid' => $cid));
+                $plan .= theme('member_membership_add_form', $cid);
                 array_unshift($data['Plan'], $plan);
             }
             

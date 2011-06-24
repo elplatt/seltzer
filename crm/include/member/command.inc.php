@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     command.inc.php - Member module - request handlers
@@ -22,8 +22,10 @@
 
 /**
  * Handle member add request.
+ *
+ * @return The url to display when complete.
  */
-function command_member_add() {
+function command_member_add () {
     global $esc_post;
     
     // Verify permissions
@@ -58,14 +60,13 @@ function command_member_add() {
         ('$esc_post[username]', '$cid')";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
-    $uid = mysql_insert_id();
-    
+     
     // Add role entry
     $sql = "
         INSERT INTO `role`
-        (`uid`, `member`)
+        (`cid`, `member`)
         VALUES
-        ('$uid', 1)";
+        ('$cid', 1)";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
@@ -77,14 +78,13 @@ function command_member_add() {
         ('$cid')";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
-    $mid = mysql_insert_id();
     
     // Add membership
     $sql = "
         INSERT INTO `membership`
-        (`mid`, `pid`, `start`)
+        (`cid`, `pid`, `start`)
         VALUES
-        ('$mid', '$esc_post[pid]', '$esc_post[start]')
+        ('$cid', '$esc_post[pid]', '$esc_post[start]')
     ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
@@ -94,8 +94,10 @@ function command_member_add() {
 
 /**
  * Handle membership add request.
+ *
+ * @return The url to display on completion.
  */
-function command_member_membership_add() {
+function command_member_membership_add () {
     global $esc_post;
     
     // Verify permissions
@@ -111,13 +113,13 @@ function command_member_membership_add() {
     // Add membership
     $sql = "
         INSERT INTO `membership`
-        (`mid`,`pid`,`start`";
+        (`cid`,`pid`,`start`";
     if (!empty($esc_post['end'])) {
         $sql .= ", `end`";
     }
     $sql .= ")
         VALUES
-        ('$esc_post[mid]','$esc_post[pid]','$esc_post[start]'";
+        ('$esc_post[cid]','$esc_post[pid]','$esc_post[start]'";
         
     if (!empty($esc_post['end'])) {
         $sql .= ",'$esc_post[end]'";
@@ -127,13 +129,15 @@ function command_member_membership_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return "member.php?mid=$_POST[mid]";
+    return "member.php?cid=$_POST[cid]";
 }
 
 /**
  * Handle member filter request.
+ *
+ * @return The url to display on completion.
  */
-function command_member_filter() {
+function command_member_filter () {
     
     // Set filter in session
     $_SESSION['member_filter_option'] = $_GET['filter'];
@@ -166,8 +170,10 @@ function command_member_filter() {
 
 /**
  * Handle member delete request.
+ *
+ * @return The url to display on completion.
  */
-function command_member_delete() {
+function command_member_delete () {
     global $esc_post;
     
     // Verify permissions
@@ -184,17 +190,17 @@ function command_member_delete() {
         return 'members.php';
     }
 
-    // Delete member
-    $sql = "DELETE FROM `member` WHERE `mid`='$esc_post[mid]'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
     // Delete user
     if ($_POST['deleteUser']) {
-        $sql = "DELETE FROM `user` WHERE `uid`='$esc_post[uid]'";
+        $sql = "DELETE FROM `user` WHERE `cid`='$esc_post[cid]'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     }
+    
+    // Delete member
+    $sql = "DELETE FROM `member` WHERE `cid`='$esc_post[cid]'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
     
     // Delete contact info
     if ($_POST['deleteContact']) {
@@ -208,8 +214,10 @@ function command_member_delete() {
 
 /**
  * Handle membership delete request.
+ *
+ * @return The url to display on completion.
  */
-function command_member_membership_delete() {
+function command_member_membership_delete () {
     global $esc_post;
     
     // Verify permissions
@@ -228,8 +236,10 @@ function command_member_membership_delete() {
 
 /**
  * Handle contact update request.
+ *
+ * @return The url to display on completion.
  */
-function command_contact_update() {
+function command_contact_update () {
     global $esc_post;
     
     // Verify permissions

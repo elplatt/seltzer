@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2010 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     data.inc.php - Member module - database to object mapping
@@ -21,29 +21,26 @@
 */
 
 /**
- * Return data tree representing members
+ * Return data for one or more members.
  *
  * @param $opts An associative array of options, possible keys are:
- *   'mid' If specified, returns a single memeber with the matching member id,
+ *   'cid' If specified, returns a single memeber with the matching cid,
  *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ * @return An array with each element representing a member.
 */ 
 function member_data ($opts) {
     
     // Query database
     $sql = "
         SELECT
-        `member`.`mid`,
         `member`.`cid`, `firstName`, `middleName`, `lastName`, `email`, `phone`, `emergencyName`, `emergencyPhone`,
-        `user`.`uid`, `username`, `hash`
+        `username`, `hash`
         FROM `member`
         LEFT JOIN `contact` ON `member`.`cid`=`contact`.`cid`
         LEFT JOIN `user` ON `member`.`cid`=`user`.`cid`
-        LEFT JOIN `membership` ON (`member`.`mid`=`membership`.`mid` AND `membership`.`end` IS NULL)
+        LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND `membership`.`end` IS NULL)
         LEFT JOIN `plan` ON `plan`.`pid`=`membership`.`pid`
         WHERE 1";
-    if (!empty($opts['mid'])) {
-        $sql .= " AND `member`.`mid`=$opts[mid]";
-    }
     if (!empty($opts['cid'])) {
         $sql .= " AND `member`.`cid`=$opts[cid]";
     }
@@ -71,7 +68,7 @@ function member_data ($opts) {
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
         $member = array(
-            'mid' => $row['mid'],
+            'cid' => $row['cid'],
             'active' => $row['memberActive'],
             'contact' => array(
                 'cid' => $row['cid'],
@@ -84,7 +81,7 @@ function member_data ($opts) {
                 'emergencyPhone' => $row['emergencyPhone']
             ),
             'user' => array(
-                'uid' => $row['uid'],
+                'cid' => $row['cid'],
                 'username' => $row['username'],
                 'hash' => $row['hash']
             ),
@@ -96,17 +93,17 @@ function member_data ($opts) {
     }
     
     // Get list of memberships associated with each member
-    // This is slow, should be combined into above query, but works for now -Ed
+    // This is slow, should be combined into a single query
     foreach ($members as $index => $member) {
         
         // Query all memberships for current member
         $sql = "
             SELECT
-            `membership`.`sid`, `membership`.`mid`, `membership`.`start`, `membership`.`end`,
+            `membership`.`sid`, `membership`.`cid`, `membership`.`start`, `membership`.`end`,
             `plan`.`pid`, `plan`.`name`, `plan`.`price`, `plan`.`active`, `plan`.`voting`
             FROM `membership`
             INNER JOIN `plan` ON `plan`.`pid` = `membership`.`pid`
-            WHERE `membership`.`mid`='$member[mid]'
+            WHERE `membership`.`cid`='$member[cid]'
             ORDER BY `membership`.`start` ASC
         ";
         $res = mysql_query($sql);
@@ -117,7 +114,7 @@ function member_data ($opts) {
         while (!empty($row)) {
             $membership = array(
                 'sid' => $row['sid'],
-                'mid' => $row['mid'],
+                'cid' => $row['cid'],
                 'pid' => $row['pid'],
                 'start' => $row['start'],
                 'end' => $row['end'],
@@ -139,11 +136,12 @@ function member_data ($opts) {
 }
 
 /**
- * Return data tree representing membership plans
+ * Return data for one or more membership plans.
  * 
  * @param $opts An associative array of options, possible keys are:
  *   'pid' If specified, returns a single plan with the matching id,
  *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ * @return An array with each element representing a membership plan.
 */
 function member_plan_data ($opts) {
     
@@ -177,11 +175,12 @@ function member_plan_data ($opts) {
 }
 
 /**
- * Return data tree representing memberships
+ * Return data for one or more memberships.
  *
  * @param $opts An associative array of options, possible keys are:
- *   'mid' If specified, returns memberships for the member with the matching id,
+ *   'cid' If specified, returns memberships for the member with the cid,
  *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ * @return An array with each element representing a membership.
 */ 
 function member_membership_data ($opts) {
     
@@ -194,8 +193,8 @@ function member_membership_data ($opts) {
         WHERE 1";
         
     // Add member id
-    if (!empty($opts['mid'])) {
-        $sql .= " AND `mid`=$opts[mid]";
+    if (!empty($opts['cid'])) {
+        $sql .= " AND `cid`=$opts[cid]";
     }
     
     // Add membership id
@@ -225,7 +224,7 @@ function member_membership_data ($opts) {
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
         $memberships[] = array(
-            'mid' => $row['mid'],
+            'cid' => $row['cid'],
             'sid' => $row['sid'],
             'pid' => $row['pid'],
             'start' => $row['start'],
@@ -246,9 +245,13 @@ function member_membership_data ($opts) {
 }
 
 /**
- * Return options array for membership plans
+ * Generates an associative array mapping membership plan pids to
+ * strings describing those membership plan.
+ * 
+ * @param $opts Options to be passed to member_plan_data().
+ * @return The associative array of membership plan descriptions.
  */
-function member_plan_options($opts = NULL) {
+function member_plan_options ($opts = NULL) {
     
     // Get plan data
     $plans = member_plan_data($opts);
@@ -263,11 +266,12 @@ function member_plan_options($opts = NULL) {
 }
 
 /**
- * Return data structure representing contacts
+ * Return data for one or more contacts.
  * 
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified, returns a single memeber with the matching member id,
  *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ * @return An array with each element representing a contact.
 */ 
 function member_contact_data ($opts) {
     
