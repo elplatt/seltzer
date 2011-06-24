@@ -40,7 +40,6 @@ require_once('include/crm.inc.php');
         <div class="content">
             <?php print theme_errors(); ?>
             <!-- TEMPORARY: should be replaced with dynamic code to list available reports -->
-            <?php print theme_key_report(); ?>
             <?php print theme_member_voting_report(); ?>
             <!-- / TEMPORARY -->
         </div>
