@@ -212,12 +212,14 @@ function member_delete_form ($cid) {
                     array(
                         'type' => 'checkbox',
                         'label' => 'Also delete user?',
-                        'name' => 'deleteUser'
+                        'name' => 'deleteUser',
+                        'checked' => true
                     ),
                     array(
                         'type' => 'checkbox',
                         'label' => 'Also delete contact info?',
-                        'name' => 'deleteContact'
+                        'name' => 'deleteContact',
+                        'checked' => true
                     ),
                     array(
                         'type' => 'submit',
@@ -301,7 +303,7 @@ function member_membership_delete_form ($sid) {
 function member_contact_edit_form ($cid) {
     
     // Ensure user is allowed to edit contacts
-    if (!user_access('contact_edit')) {
+    if (!user_access('contact_edit') && $cid != user_id()) {
         return NULL;
     }
     
@@ -379,6 +381,82 @@ function member_contact_edit_form ($cid) {
     return $form;
 }
 
+/**
+ * Return the form structure for editing a membership.
+ *
+ * @param $sid id of the membership to edit.
+ * @return The form structure.
+*/
+function member_membership_edit_form ($sid) {
+    
+    // Ensure user is allowed to edit memberships
+    if (!user_access('member_membership_edit')) {
+        return NULL;
+    }
+    
+    // Get membership data
+    $data = member_membership_data(array('sid'=>$sid));
+    $membership = $data[0];
+    if (empty($membership) || count($membership) < 1) {
+        return array();
+    }
+    
+    // Construct contact name
+    $data = member_contact_data(array('cid'=>$membership['cid']));
+    $contact = $data[0];
+    $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'member_membership_update',
+        'hidden' => array(
+            'sid' => $sid,
+            'cid' => $membership['cid']
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Edit Membership Info',
+                'fields' => array(
+                    array(
+                        'type' => 'readonly',
+                        'label' => 'Name',
+                        'value' => $name
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => 'Plan',
+                        'name' => 'pid',
+                        'options' => member_plan_options(),
+                        'selected' => $membership['pid']
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Start',
+                        'name' => 'start',
+                        'class' => 'date',
+                        'value' => $membership['start']
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'End',
+                        'name' => 'end',
+                        'class' => 'date',
+                        'value' => $membership['end']
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Update'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
 // Filters
 
 /**

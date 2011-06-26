@@ -18,6 +18,19 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Create object containing GET variables
+var httpGet = {};
+(function () {
+    var q = window.location.search.substring(1);
+    var assignments = q.split('&');
+    var parts;
+    var i;
+    for (i = 0; i < assignments.length; i++) {
+        parts = assignments[i].split('=');
+        httpGet[parts[0]] = parts[1];
+    }
+})();
+
 // Add datepicker to necessary fields
 $(document).ready(function () {
     
@@ -38,11 +51,17 @@ var showTab = function (hash) {
     if (hash == null) {
         hash = window.location.hash;
     }
-    if (hash === '') {
-        $('fieldset#tab-view').show();
-        $('ul.page-nav li a[href="#tab-view"]').addClass('active');
-    } else {
+    if (hash != '') {
+        // Display tab specified in hash
         $('fieldset' + hash).show();
         $('ul.page-nav li a[href="' + hash + '"]').addClass('active');
+    } else if (httpGet.hasOwnProperty('tab')) {
+        // Display tab specified in query string
+        $('fieldset#tab-' + httpGet.tab).show();
+        $('ul.page-nav li a[href="#tab-' + httpGet.tab + '"]').addClass('active');
+    } else {
+        // Display view tab
+        $('fieldset#tab-view').show();
+        $('ul.page-nav li a[href="#tab-view"]').addClass('active');
     }
 }

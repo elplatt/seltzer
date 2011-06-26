@@ -102,6 +102,16 @@ function theme_member_membership_add_form ($cid) {
 }
 
 /**
+ * Return the themed html for a membership edit form.
+ *
+ * @param $sid The sid of the membership to edit.
+ * @return The themed html string.
+*/
+function theme_member_membership_edit_form ($sid) {
+    return theme_form(member_membership_edit_form($sid));
+}
+
+/**
  * Return the themed html for a contact's name.
  *
  * @param $cid The cid of the contact.

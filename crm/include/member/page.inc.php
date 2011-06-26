@@ -73,7 +73,7 @@ function member_page (&$data, $page, $options) {
             }
             
             // Add edit tab
-            if (user_access('contact_edit') && user_access('member_edit')) {
+            if (user_id() == $options['cid'] || (user_access('contact_edit') && user_access('member_edit'))) {
                 if (!isset($data['Edit'])) {
                     $data['Edit'] = array();
                 }
@@ -88,6 +88,27 @@ function member_page (&$data, $page, $options) {
                 $plan = theme('member_membership_table', array('cid' => $cid));
                 $plan .= theme('member_membership_add_form', $cid);
                 array_unshift($data['Plan'], $plan);
+            }
+            
+            break;
+        
+        case 'membership':
+            
+            // Capture sid id
+            $sid = $options['sid'];
+            if (empty($sid)) {
+                return;
+            }
+            
+            // Set page title
+            $data['#title'] = member_membership_description($sid);
+            
+            // Add edit tab
+            if (user_access('member_membership_edit') && user_access('member_edit')) {
+                if (!isset($data['Edit'])) {
+                    $data['Edit'] = array();
+                }
+                array_unshift($data['Edit'], theme('member_membership_edit_form', $sid));
             }
             
             break;

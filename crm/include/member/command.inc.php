@@ -52,12 +52,35 @@ function command_member_add () {
     if (!$res) die(mysql_error());
     $cid = mysql_insert_id();
     
+    // Find Username
+    $esc_name = $esc_post['username'];
+    $n = 0;
+    while (empty($esc_name) && $n < 100) {
+        
+        // Contruct test username
+        $test_name = strtolower($_POST[firstName]{0} . $_POST[lastName]);
+        if ($n > 0) {
+            $test_name .= $n;
+        }
+        
+        // Check whether username is taken
+        $esc_test_name = mysql_real_escape_string($test_name);
+        $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $row = mysql_fetch_assoc($res);
+        if (!$row) {
+            $esc_name = $esc_test_name;
+        }
+        $n++;
+    }
+    
     // Add user
     $sql = "
         INSERT INTO `user`
         (`username`, `cid`)
         VALUES
-        ('$esc_post[username]', '$cid')";
+        ('$esc_name', '$cid')";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
      
@@ -130,6 +153,51 @@ function command_member_membership_add () {
     if (!$res) die(mysql_error());
     
     return "member.php?cid=$_POST[cid]";
+}
+
+/**
+ * Handle membership update request.
+ *
+ * @param $sid The sid of the membership to update.
+ * @return The url to display on completion.
+ */
+function command_member_membership_update () {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('member_edit')) {
+        error_register('Permission denied: member_edit');
+        return 'members.php';
+    }
+    if (!user_access('member_membership_edit')) {
+        error_register('Permission denied: member_membership_edit');
+        return 'members.php';
+    }
+    
+    // Update membership
+    $sql = "
+        UPDATE `membership`
+        SET
+            `pid`='$esc_post[pid]'
+    ";
+    if (!empty($esc_post['start'])) {
+        $sql .= ", `start`='$esc_post[start]'";
+    } else {
+        $sql .= ", `start`=NULL";
+    }
+    if (!empty($esc_post['end'])) {
+        $sql .= ", `end`='$esc_post[end]'";
+    } else {
+        $sql .= ", `end`=NULL";
+    }
+    $sql .= "
+        WHERE `sid`='$esc_post[sid]'
+    ";
+    
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    return "member.php?cid=$_POST[cid]&tab=plan";
 }
 
 /**
@@ -243,7 +311,7 @@ function command_contact_update () {
     global $esc_post;
     
     // Verify permissions
-    if (!user_access('contact_edit')) {
+    if (!user_access('contact_edit') && $_POST['cid'] != user_id()) {
         error_register('Permission denied: contact_edit');
         return 'members.php';
     }

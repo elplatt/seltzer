@@ -94,7 +94,7 @@ function member_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_edit')) {
-            $ops[] = '<a href="member.php?cid=' . $member['cid'] . '">edit</a> ';
+            $ops[] = '<a href="member.php?cid=' . $member['cid'] . '&tab=edit">edit</a> ';
         }
         
         // Add delete op
@@ -232,6 +232,7 @@ function member_membership_table ($opts = NULL) {
         
         // Add delete op
         if (user_access('member_membership_edit')) {
+            $ops[] = '<a href="membership.php?sid=' . $membership['sid'] . '&tab=edit">edit</a>';
             $ops[] = '<a href="delete.php?type=member_membership&amp;id=' . $membership['sid'] . '">delete</a>';
         }
         

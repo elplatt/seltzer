@@ -37,3 +37,28 @@ function member_name ($first, $middle, $last) {
     }
     return $name;
 }
+
+/**
+ * Generate description for a membership plan.
+ *
+ * @param $sid The sid of the membership.
+ * @return The description string.
+ */
+function member_membership_description ($sid) {
+    
+    // Get membership data
+    $data = member_membership_data(array('sid'=>$sid));
+    $membership = $data[0];
+    
+    // Get member contact info
+    $data = member_contact_data(array('cid'=>$membership['cid']));
+    $contact = $data[0];
+    
+    // Construct description
+    $description = 'Membership : ';
+    $description .= member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    $description .= ' : ' . $membership['plan']['name'];
+    $description .= ' : Starting ' . $membership['start'];
+    
+    return $description;
+}

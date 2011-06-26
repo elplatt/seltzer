@@ -22,6 +22,28 @@
 
 // Utility functions ///////////////////////////////////////////////////////////
 
+/**
+ * Generate a descriptive string for a single key.
+ *
+ * @param $kid The kid of the key to describe.
+ * @return The description string.
+ */
+function key_description ($kid) {
+    
+    // Get key data
+    $data = key_data(array('kid' => $kid));
+    if (empty($data)) {
+        return '';
+    }
+    $key = $data[0];
+    
+    // Construct description
+    $description = 'Key ';
+    $description .= $key['serial'];
+    
+    return $description;
+}
+
 // DB to Object mapping ////////////////////////////////////////////////////////
 
 /**
@@ -144,7 +166,7 @@ function key_table ($opts) {
         
         // Add edit op
         if (user_access('key_edit')) {
-            $ops[] = '<a href="key.php?kid=' . $key['kid'] . '">edit</a> ';
+            $ops[] = '<a href="key.php?kid=' . $key['kid'] . '#tab-edit">edit</a> ';
         }
         
         // Add delete op
@@ -511,7 +533,7 @@ function command_key_delete() {
  * @param $page The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
 */
-function key_page(&$data, $page, $options) {
+function key_page (&$data, $page, $options) {
     
     switch ($page) {
         
@@ -542,6 +564,9 @@ function key_page(&$data, $page, $options) {
             if (empty($kid)) {
                 return;
             }
+            
+            // Set page title
+            $data['#title'] = key_description($kid);
             
             // Add edit tab
             if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
