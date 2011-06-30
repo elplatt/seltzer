@@ -112,6 +112,36 @@ function theme_member_membership_edit_form ($sid) {
 }
 
 /**
+ * Return the themed html for a membership plan table.
+ *
+ * @param $opts The options to pass to member_plan_data().
+ * @return The themed html string.
+ */
+function theme_member_plan_table ($opts = NULL) {
+    return theme_table(member_plan_table($opts));
+}
+
+/**
+ * Return the themed html for a membership plan add form.
+ *
+ * @param $pid the pid of the plan to edit.
+ * @return The themed html string.
+ */
+function theme_member_plan_add_form ($pid) {
+    return theme_form(member_plan_add_form($pid));
+}
+
+/**
+ * Return the themed html for a membership plan edit form.
+ *
+ * @param $pid The pid of the membership plan to edit.
+ * @return The themed html string.
+*/
+function theme_member_plan_edit_form ($pid) {
+    return theme_form(member_plan_edit_form($pid));
+}
+
+/**
  * Return the themed html for a contact's name.
  *
  * @param $cid The cid of the contact.

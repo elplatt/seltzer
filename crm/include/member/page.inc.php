@@ -53,6 +53,27 @@ function member_page (&$data, $page, $options) {
                 array_unshift($data['Add'], theme('member_add_form'));
             }
         
+        case 'plans':
+            
+            // Set page title
+            $data['#title'] = 'Plans';
+            
+            // Add view tab
+            if (user_access('member_plan_edit')) {
+                if (!isset($data['View'])) {
+                    $data['View'] = array();
+                }
+                array_unshift($data['View'], theme('member_plan_table'));
+            }
+            
+            // Add add tab
+            if (user_access('member_plan_edit')) {
+                if (!isset($data['Add'])) {
+                    $data['Add'] = array();
+                }
+                array_unshift($data['Add'], 'add form'); //theme('member_plan_add_form'));
+            }
+        
         case 'member':
             
             // Capture member id

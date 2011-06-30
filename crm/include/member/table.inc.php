@@ -179,6 +179,79 @@ function member_voting_report_table () {
 }
 
 /**
+ * Return a table structure representing membership plans.
+ *
+ * @param $opts Options to pass to member_plan_data().
+ * @return The table structure.
+*/
+function member_plan_table ($opts = NULL) {
+    
+    // Ensure user is allowed to view membership plans
+    if (!user_access('member_plan_edit')) {
+        return NULL;
+    }
+    
+    // Get membership plan data
+    $plans = member_plan_data($opts);
+    
+    // Create table structure
+    $table = array(
+        'id' => '',
+        'class' => '',
+        'rows' => array()
+    );
+    
+    // Add columns
+    $table['columns'] = array();
+    if (user_access('member_plan_edit')) {
+        $table['columns'][] = array('title'=>'Name','class'=>'');
+        $table['columns'][] = array('title'=>'Price','class'=>'');
+        $table['columns'][] = array('title'=>'Active','class'=>'');
+        $table['columns'][] = array('title'=>'Voting','class'=>'');
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
+
+    // Loop through plan data
+    foreach ($plans as $plan) {
+        
+        // Add plan data to table
+        $row = array();
+        if (user_access('member_plan_edit')) {
+            
+            // Add cells
+            $row[] = $plan['name'];
+            $row[] = $plan['price'];
+            $row[] = $plan['active'] ? 'Yes' : 'No';
+            $row[] = $plan['voting'] ? 'Yes' : 'No';
+        }
+        
+        // Construct ops array
+        $ops = array();
+        
+        // Add edit op
+        if (user_access('member_plan_edit')) {
+            $ops[] = '<a href="plan.php?pid=' . $plan['pid'] . '&tab=edit">edit</a> ';
+        }
+        
+        // Add delete op
+        if (user_access('member_plan_edit')) {
+            $ops[] = '<a href="delete.php?type=plan&amp;id=' . $plan['pid'] . '">delete</a>';
+        }
+        
+        // Add ops row
+        if (user_access('member_plan_edit')) {
+            $row[] = join(' ', $ops);
+        }
+        
+        // Add row to table
+        $table['rows'][] = $row;
+    }
+    
+    // Return table
+    return $table;
+}
+
+/**
  * Return a table structure representing a member's past and current memberships.
  *
  * @param $opts Options to pass to member_membership_data().
