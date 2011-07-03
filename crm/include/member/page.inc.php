@@ -52,6 +52,8 @@ function member_page (&$data, $page, $options) {
                 }
                 array_unshift($data['Add'], theme('member_add_form'));
             }
+            
+            break;
         
         case 'plans':
             
@@ -71,8 +73,31 @@ function member_page (&$data, $page, $options) {
                 if (!isset($data['Add'])) {
                     $data['Add'] = array();
                 }
-                array_unshift($data['Add'], 'add form'); //theme('member_plan_add_form'));
+                array_unshift($data['Add'], theme('member_plan_add_form'));
             }
+            
+            break;
+        
+        case 'plan':
+            
+            // Capture plan id
+            $pid = $options['pid'];
+            if (empty($pid)) {
+                return;
+            }
+            
+            // Set page title
+            $data['#title'] = 'Plan: ' . theme('member_plan_description', $pid);
+            
+            // Add edit tab
+            if (user_access('member_plan_edit')) {
+                if (!isset($data['Edit'])) {
+                    $data['Edit'] = array();
+                }
+                array_unshift($data['Edit'], theme('member_plan_edit_form', $pid));
+            }
+            
+            break;
         
         case 'member':
             

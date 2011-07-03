@@ -124,11 +124,10 @@ function theme_member_plan_table ($opts = NULL) {
 /**
  * Return the themed html for a membership plan add form.
  *
- * @param $pid the pid of the plan to edit.
  * @return The themed html string.
  */
-function theme_member_plan_add_form ($pid) {
-    return theme_form(member_plan_add_form($pid));
+function theme_member_plan_add_form () {
+    return theme_form(member_plan_add_form());
 }
 
 /**
@@ -159,6 +158,25 @@ function theme_member_contact_name ($cid) {
         $data[0]['contact']['firstName']
         , $data[0]['contact']['middleName']
         , $data[0]['contact']['lastName']);
+    
+    return $output;
+}
+
+/**
+ * Return the themed html description for a plan.
+ *
+ * @param $pid The pid of the plan.
+ * @return The themed html string.
+ */
+function theme_member_plan_description ($pid) {
+    
+    // Get plan data
+    $data = member_plan_data(array('pid' => $pid));
+    if (count($data) < 1) {
+        return '';
+    }
+    
+    $output = $data[0]['name'] . ' : ' . $data[0]['price'];
     
     return $output;
 }

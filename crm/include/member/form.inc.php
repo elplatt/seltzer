@@ -110,6 +110,128 @@ function member_add_form () {
 }
 
 /**
+ * @return The form structure for adding a membership plan.
+*/
+function member_plan_add_form () {
+    
+    // Ensure user is allowed to edit plans
+    if (!user_access('member_plan_edit')) {
+        return NULL;
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'member_plan_add',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Add Membership Plan',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'Name',
+                        'name' => 'name'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Price',
+                        'name' => 'price'
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Voting',
+                        'name' => 'voting'
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Active',
+                        'name' => 'active',
+                        'checked' => true
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Add'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+/**
+ * Returns the form structure for editing a membership plan.
+ *
+ * @param $pid The pid of the membership plan to edit.
+ * @return The form structure.
+*/
+function member_plan_edit_form ($pid) {
+    
+    // Ensure user is allowed to edit plans
+    if (!user_access('member_plan_edit')) {
+        return NULL;
+    }
+    
+    // Get plan data
+    $plans = member_plan_data(array('pid'=>$pid));
+    $plan = $plans[0];
+    if (!$plan) {
+        return NULL;
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'member_plan_update',
+        'hidden' => array(
+            'pid' => $pid
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Edit Membership Plan',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'Name',
+                        'name' => 'name',
+                        'value' => $plan['name']
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Price',
+                        'name' => 'price',
+                        'value' => $plan['price']
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Voting',
+                        'name' => 'voting',
+                        'checked' => $plan['voting']
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Active',
+                        'name' => 'active',
+                        'checked' => $plan['voting']
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Update'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+/**
  * Return the form structure for adding a membership.
  *
  * @param cid the cid of the member to add a membership for.
@@ -139,7 +261,7 @@ function member_membership_add_form ($cid) {
                         'type' => 'select',
                         'label' => 'Plan',
                         'name' => 'pid',
-                        'options' => member_plan_options()
+                        'options' => member_plan_options(array('filter'=>array(array('active'))))
                     ),
                     array(
                         'type' => 'text',
@@ -156,6 +278,51 @@ function member_membership_add_form ($cid) {
                     array(
                         'type' => 'submit',
                         'value' => 'Add'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+/**
+ * Return the form structure to delete a membership plan.
+ *
+ * @param $pid The pid of the plan to delete.
+ * @return The form structure.
+*/
+function member_plan_delete_form ($pid) {
+    
+    // Ensure user is allowed to edit plans
+    if (!user_access('member_plan_edit')) {
+        return NULL;
+    }
+    
+    // Get plan description
+    $description = theme('member_plan_description', $pid);
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'member_plan_delete',
+        'hidden' => array(
+            'pid' => $pid,
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Delete Plan',
+                'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => '<p>Are you sure you want to delete the plan "' . $description. '"? This cannot be undone.',
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Delete'
                     )
                 )
             )

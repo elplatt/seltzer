@@ -235,7 +235,7 @@ function member_plan_table ($opts = NULL) {
         
         // Add delete op
         if (user_access('member_plan_edit')) {
-            $ops[] = '<a href="delete.php?type=plan&amp;id=' . $plan['pid'] . '">delete</a>';
+            $ops[] = '<a href="delete.php?type=member_plan&amp;id=' . $plan['pid'] . '">delete</a>';
         }
         
         // Add ops row

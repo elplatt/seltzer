@@ -116,6 +116,87 @@ function command_member_add () {
 }
 
 /**
+ * Handle membership plan add request.
+ *
+ * @return The url to display on completion.
+ */
+function command_member_plan_add () {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('member_plan_edit')) {
+        error_register('Permission denied: member_plan_edit');
+        return 'plans.php';
+    }
+    
+    // Add plan
+    $sql = "
+        INSERT INTO `plan`
+        (`name`,`price`, `voting`, `active`)
+        VALUES
+        ('$esc_post[name]', '$esc_post[price]', '$esc_post[voting]', '$esc_post[active]')
+    ";
+    
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    return "plans.php";
+}
+
+/**
+ * Handle membership plan update request.
+ *
+ * @return The url to display on completion.
+ */
+function command_member_plan_update () {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('member_plan_edit')) {
+        error_register('Permission denied: member_plan_edit');
+        return 'plans.php';
+    }
+    
+    // Update plan
+    $sql = "
+        UPDATE `plan`
+        SET
+            `name`='$esc_post[name]',
+            `price`='$esc_post[price]',
+            `active`='$esc_post[active]',
+            `voting`='$esc_post[voting]'
+        WHERE `pid`='$esc_post[pid]'
+    ";
+    
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    return "plans.php";
+}
+
+/**
+ * Handle delete membership plan request.
+ *
+ * @return The url to display on completion.
+ */
+function command_member_plan_delete () {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('member_plan_edit')) {
+        error_register('Permission denied: member_plan_edit');
+        return 'members.php';
+    }
+
+    // Delete plan
+    $sql = "DELETE FROM `plan` WHERE `pid`='$esc_post[pid]'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+
+    return 'plans.php';
+}
+
+/**
  * Handle membership add request.
  *
  * @return The url to display on completion.

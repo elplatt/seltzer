@@ -158,6 +158,10 @@ function member_plan_data ($opts) {
             }
         }
     }
+    if (!empty($opts['pid'])) {
+        $pid = mysql_real_escape_string($opts[pid]);
+        $sql .= " AND `plan`.`pid`='$pid' ";
+    }
 
     // Query database for plans
     $res = mysql_query($sql);
