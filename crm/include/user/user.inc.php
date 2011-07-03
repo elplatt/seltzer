@@ -118,6 +118,9 @@ function user_access ($action) {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $roles = mysql_fetch_assoc($res);
+    if (count($roles) == 0) {
+        return false;
+    }
     
     // Loop through allowed roles
     if (!empty($config_permissions[$action])) {

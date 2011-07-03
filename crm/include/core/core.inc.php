@@ -74,11 +74,22 @@ function sitemap () {
     
     // Loop through sections
     foreach ($config_sitemap as $section) {
-        if (empty($section['visible']) || user_check_role($section['visible'])) {
+        if (empty($section['visible'])) {
             $sitemap[] = $section;
+        } else {
+            foreach ($section['visible'] as $perm) {
+                if ($perm == 'authenticated' && user_id() != 0) {
+                    $sitemap[] = $section;
+                    break;
+                }
+                if (user_access($perm)) {
+                    $sitemap[] = $section;
+                    break;                    
+                }
+            }
         }
     }
-    
+
     return $sitemap;
 }
 

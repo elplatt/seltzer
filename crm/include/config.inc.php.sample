@@ -51,17 +51,24 @@ $config_sitemap = array(
     'members' => array(
         'title' => 'Members',
         'url' => 'members.php',
-        'visible' => 'authenticated'
+        'visible' => array(
+            'member_view',
+            'member_edit'
+        )
     ),
     'plans' => array(
         'title' => 'Plans',
         'url' => 'plans.php',
-        'visible' => 'member_plan_edit'
+        'visible' => array(
+            'member_plan_edit'
+        )
     ),
     'reports' => array(
         'title' => 'Reports',
         'url' => 'reports.php',
-        'visible' => 'authenticated'
+        'visible' => array(
+            'authenticated'
+        )
     )
 );
 
