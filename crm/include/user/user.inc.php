@@ -59,6 +59,39 @@ function user_get_user($cid = 0) {
 }
 
 /**
+ * Get role data for one or more users.
+ *
+ * @param $opts Options, possible keys are:
+ *   cid Filter results to only those matching the given cid.
+ * @return An array with each element representing one user's roles.
+ */
+function user_role_data ($opts = NULL) {
+    
+    // Construct query
+    $sql = "SELECT * FROM `role` WHERE 1 ";
+    
+    // Add filter
+    if (!empty($opts['cid'])) {
+        $cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND `cid`='$cid'";
+    }
+    
+    // Excecute query
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+
+    // Construct array of role data
+    $roles = array();
+    $row = mysql_fetch_assoc($res);
+    while ($row) {
+        $roles[] = $row;
+        $row = mysql_fetch_assoc($res);
+    }
+    
+    return $roles;
+}
+
+/**
  * Check if a user has the given role.
  *
  * @param $role A string containing the role to check.
@@ -429,4 +462,119 @@ function theme_user_reset_password_confirm_form ($code) {
     }
     
     return theme_form(user_reset_password_confirm_form($code));
+}
+
+/**
+ * Return the form structure for editing user roles.
+ *
+ * @param $cid The cid of the user.
+ * @return The form structure.
+*/
+function user_role_edit_form ($cid) {
+    
+    // Get user data
+    $data = user_role_data(array('cid'=>$cid));
+    $role = $data[0];
+    
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'user_role_update',
+        'hidden' => array(
+            'cid' => $cid
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Update Roles',
+                'fields' => array(
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Director',
+                        'name' => 'director',
+                        'checked' => $role['director']
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'President',
+                        'name' => 'president',
+                        'checked' => $role['president']
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'VP',
+                        'name' => 'vp',
+                        'checked' => $role['vp']
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Secretary',
+                        'name' => 'secretary',
+                        'checked' => $role['secretary']
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Treasurer',
+                        'name' => 'treasurer',
+                        'checked' => $role['treasurer']
+                    ),
+                    array(
+                        'type' => 'checkbox',
+                        'label' => 'Web Admin',
+                        'name' => 'webAdmin',
+                        'checked' => $role['webAdmin']
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'name' => 'submitted',
+                        'value' => 'Update'
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
+/**
+ * Handle user role update request.
+ *
+ * @return The url to display on completion.
+ */
+function command_user_role_update () {
+    global $esc_post;
+    
+    // Check permissions
+    if (!user_access('user_edit')) {
+        error_register('Current user does not have permission: user_edit');
+        return 'members.php';
+    }
+    
+    // Construct query
+    $sql = "
+        UPDATE `role`
+        SET
+            `director`='$esc_post[director]'
+            , `president`='$esc_post[president]'
+            , `vp`='$esc_post[vp]'
+            , `secretary`='$esc_post[secretary]'
+            , `treasurer`='$esc_post[treasurer]'
+            , `webAdmin`='$esc_post[webAdmin]'
+        WHERE `cid`='$esc_post[cid]'
+    ";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    
+    return "member.php?cid=$_POST[cid]&tab=roles";
+}
+
+
+/**
+ * Return themed html for a user role edit form.
+ *
+ * @param $cid The cid for the user to edit.
+ * @return The themed html string.
+ */
+function theme_user_role_edit_form ($cid) {
+    return theme('form', user_role_edit_form($cid));
 }

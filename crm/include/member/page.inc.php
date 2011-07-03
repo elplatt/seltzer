@@ -136,6 +136,15 @@ function member_page (&$data, $page, $options) {
                 array_unshift($data['Plan'], $plan);
             }
             
+            // Add role tab
+            if (user_access('member_membership_edit')) {
+                if (!isset($data['Roles'])) {
+                    $data['Roles'] = array();
+                }
+                $roles = theme('user_role_edit_form', $cid);
+                array_unshift($data['Roles'], $roles);
+            }
+            
             break;
         
         case 'membership':
@@ -160,3 +169,4 @@ function member_page (&$data, $page, $options) {
             break;
     }
 }
+

@@ -317,7 +317,7 @@ function theme_form_text ($field) {
  * @return The themed html for the checkbox.
  */
 function theme_form_checkbox ($field) {
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row form-row-checkbox">';
     $output .= '<input type="checkbox" name="' . $field['name'] . '" value="1"';
     if ($field['checked']) {
         $output .= ' checked="checked"';

@@ -105,6 +105,17 @@ tr:first-child td {
     background-color: #eeeeee;
 }
 
+/* General form styles */
+
+.form-row-checkbox input {
+    float: left;
+    margin-right: 0.5em;
+}
+
+.form-row-checkbox label {
+    float: left;
+}
+
 /* Layout */
 
 .container {
