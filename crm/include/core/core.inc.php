@@ -162,11 +162,11 @@ function command_install () {
     global $esc_post;
     
     // Check whether already installed
-    $sql = "SHOW TABLES LIKE 'contat'";
+    $sql = "SHOW TABLES LIKE 'contact'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $row = mysql_fetch_assoc($res);
-    if (!$row) {
+    if ($row) {
         error_register('The database must be empty before you can install Seltzer CRM!');
         return 'index.php';
     }
@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     // Add all roles for admin
     $sql = "
         INSERT INTO `role`
-        (`cid`, `core`, `director`, `president`, `vp`, `secretary`, `treasurer`, `webAdmin`)
+        (`cid`, `member`, `director`, `president`, `vp`, `secretary`, `treasurer`, `webAdmin`)
         VALUES
         ('$cid', '1', '1', '1', '1', '1', '1', '1')
     ";
