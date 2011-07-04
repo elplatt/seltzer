@@ -40,7 +40,8 @@ function member_data ($opts) {
         LEFT JOIN `user` ON `member`.`cid`=`user`.`cid`
         LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND `membership`.`end` IS NULL)
         LEFT JOIN `plan` ON `plan`.`pid`=`membership`.`pid`
-        WHERE 1";
+        WHERE 1
+        GROUP BY `cid`";
     if (!empty($opts['cid'])) {
         $sql .= " AND `member`.`cid`=$opts[cid]";
     }
