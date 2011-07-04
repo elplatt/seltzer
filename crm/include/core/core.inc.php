@@ -303,9 +303,9 @@ CREATE TABLE IF NOT EXISTS `user` (
     // Add all roles for admin
     $sql = "
         INSERT INTO `role`
-        (`cid`, `director`, `president`, `vp`, `secretary`, `treasurer`, `webAdmin`)
+        (`cid`, `core`, `director`, `president`, `vp`, `secretary`, `treasurer`, `webAdmin`)
         VALUES
-        ('$cid', '1', '1', '1', '1', '1', '1')
+        ('$cid', '1', '1', '1', '1', '1', '1', '1')
     ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());

@@ -499,6 +499,12 @@ function user_role_edit_form ($cid) {
                 'fields' => array(
                     array(
                         'type' => 'checkbox',
+                        'label' => 'Member',
+                        'name' => 'member',
+                        'checked' => $role['member']
+                    ),
+                    array(
+                        'type' => 'checkbox',
                         'label' => 'Director',
                         'name' => 'director',
                         'checked' => $role['director']
@@ -563,7 +569,8 @@ function command_user_role_update () {
     $sql = "
         UPDATE `role`
         SET
-            `director`='$esc_post[director]'
+            `member`='$esc_post[member]'
+            , `director`='$esc_post[director]'
             , `president`='$esc_post[president]'
             , `vp`='$esc_post[vp]'
             , `secretary`='$esc_post[secretary]'
