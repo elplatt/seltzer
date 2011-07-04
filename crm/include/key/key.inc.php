@@ -497,7 +497,7 @@ function command_key_update() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'key.php?kid=' . $esc_post['kid'];
+    return 'key.php?kid=' . $esc_post['kid'] . '&tab=edit';
 }
 
 /**
