@@ -4,24 +4,18 @@ Installation Instructions
 
 1. Unpack the package.
 
-2. Import schema.sql into a new MySQL database.
+2. Create an empty database.
 
-3. Manually add at least one membership plans to the plan table.
-
-4. Under seltzer/crm/include, copy config.inc.php.sample to config.inc.php,
+3. Under seltzer/crm/include, copy config.inc.php.sample to config.inc.php,
 and modify it to reflect the settings for your database.
 
-5. Upload the seltzer/crm directory to your webserver.
+4. Upload the seltzer/crm directory to your webserver.
+Example: /var/www/html/crm
 
-6. Visit the crm directory in your browser, example:
-http://yourserver.com/crm
+5. Open a web browser and navigate to install.php in the crm directory.
+Example: http://yourserver.com/crm/install.php
 
-7. The default admin credentials are:
-user: admin
-password: admin
+6. Enter an email and password for the admin user.
 
-8. Use the admin account to add an account for one of your directors.
-
-9. Open the database and assign the necessary roles to your director.
-
-10. The director may use the password reset functionality to log in and should have full access to the CRM.
+7. You can now log in using "admin" as the username and the password you
+selected during installation.

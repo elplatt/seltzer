@@ -366,6 +366,8 @@ function member_delete_form ($cid) {
         'command' => 'member_delete',
         'hidden' => array(
             'cid' => $member['contact']['cid'],
+            'deleteUser' => 1,
+            'deleteContact' => 1,
         ),
         'fields' => array(
             array(
@@ -376,6 +378,9 @@ function member_delete_form ($cid) {
                         'type' => 'message',
                         'value' => '<p>Are you sure you want to delete the member "' . $member_name . '"? This cannot be undone.',
                     ),
+                    /* Until there is a separate contact/user interface,
+                     * users and contacts should always be deleted when
+                     * the corresponding member is deleted
                     array(
                         'type' => 'checkbox',
                         'label' => 'Also delete user?',
@@ -388,6 +393,7 @@ function member_delete_form ($cid) {
                         'name' => 'deleteContact',
                         'checked' => true
                     ),
+                    */
                     array(
                         'type' => 'submit',
                         'value' => 'Delete'

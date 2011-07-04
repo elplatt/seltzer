@@ -339,9 +339,12 @@ function command_member_delete () {
         return 'members.php';
     }
 
-    // Delete user
+    // Delete user and roles
     if ($_POST['deleteUser']) {
         $sql = "DELETE FROM `user` WHERE `cid`='$esc_post[cid]'";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $sql = "DELETE FROM `role` WHERE `cid`='$esc_post[cid]'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     }
