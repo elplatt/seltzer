@@ -102,4 +102,13 @@ function module_list () {
     return $config_modules;
 }
 
+/**
+ * @return The title of the site.
+ */
+function title () {
+    global $config_site_title;
+    
+    return $config_site_title;
+}
+
 ?>

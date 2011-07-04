@@ -33,7 +33,7 @@ $member = member_data(array('mid'=>$_GET['mid']));
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
     <script type="text/javascript" src="script.js"></script>
-    <title>i3 Detroit</title>
+    <title><?php print title(); ?></title>
 </head>
 <body>
     <div class="container">

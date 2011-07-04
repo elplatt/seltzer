@@ -31,7 +31,7 @@ require_once('include/crm.inc.php');
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
     <script type="text/javascript" src="script.js"></script>
-    <title>i3 Detroit</title>
+    <title><?php print title(); ?></title>
 </head>
 <body>
     <div class="container">
@@ -40,7 +40,7 @@ require_once('include/crm.inc.php');
         </div>
         <div class="content">
             <p>
-                Welcome to the i3 Detroit CRM.
+                Welcome to Seltzer CRM.
             </p>
             <?php print theme_errors(); ?>
             <?php print theme_messages(); ?>
