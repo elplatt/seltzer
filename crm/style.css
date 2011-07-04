@@ -73,28 +73,28 @@ p {
 
 /* General table styles */
 
-table {
+table.seltzer-table {
     border-collapse: collapse;
     margin: 0.5em;
 }
-th {
+table.seltzer-table th {
     background: #0099cb;
     color: white;
 }
-td, th {
+table.seltzer-table td, table.seltzer-table th {
     border-left: solid 1px #0099cb;
     border-right: solid 1px #0099cb;
     border-spacing: 0;
     padding: 0.2em 0.5em;
     text-align: left;
 }
-tr.even td, tr.even th {
+table.seltzer-table tr.even td, table.seltzer-table tr.even th {
     background-color: #eeeeff;
 }
-tr:last-child td {
+table.seltzer-table tr:last-child td {
     border-bottom: solid 1px #0099cb;
 }
-tr:first-child td {
+table.seltzer-table tr:first-child td {
     border-top: solid 1px #0099cb;
 }
 /* Report styles */

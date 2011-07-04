@@ -27,8 +27,9 @@ require_once('include/crm.inc.php');
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.8.14.custom.css"/>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
     <script type="text/javascript" src="script.js"></script>
     <title>i3 Detroit</title>
 </head>

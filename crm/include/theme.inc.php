@@ -415,9 +415,11 @@ function theme_table ($table) {
     if (!empty($table['id'])) {
         $output .= ' id="' . $table['id'] . '"';
     }
+    $class = "seltzer-table";
     if (!empty($table['class'])) {
-        $output .= ' class="' . $table['class'] . '"';
+        $class .= ' ' . $table['class'];
     }
+    $output .= ' class="' . $class . '"';
     $output .= '>';
     
     $output .= "<thead><tr>";
