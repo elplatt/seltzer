@@ -146,6 +146,15 @@ function user_access ($action) {
     // Get user id
     $cid = user_id();
     
+    // Check whether role table exists (might not be installed yet)
+    $sql = "SHOW TABLES LIKE 'role'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    if (!$row) {
+        return false;
+    }
+    
     // Query user's role info
     $sql = "SELECT * FROM `role` WHERE `cid`='$cid'";
     $res = mysql_query($sql);
