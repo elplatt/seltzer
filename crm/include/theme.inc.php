@@ -500,9 +500,11 @@ function theme_table_vertical ($table) {
     if (!empty($table['id'])) {
         $output .= ' id="' . $table['id'] . '"';
     }
+    $class = "seltzer-table";
     if (!empty($table['class'])) {
-        $output .= ' class="' . $table['class'] . '"';
+        $class .= " " . $table['class'];
     }
+    $output .= ' class="' . $class . '"';
     $output .= '>';
     
     // Output table body
