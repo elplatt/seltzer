@@ -217,7 +217,7 @@ function member_plan_edit_form ($pid) {
                         'type' => 'checkbox',
                         'label' => 'Active',
                         'name' => 'active',
-                        'checked' => $plan['voting']
+                        'checked' => $plan['active']
                     ),
                     array(
                         'type' => 'submit',
