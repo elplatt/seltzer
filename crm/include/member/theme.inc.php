@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     theme.inc.php - Member module - theming
@@ -79,6 +79,28 @@ function theme_member_filter_form () {
 */
 function theme_member_voting_report () {
     return theme_table(member_voting_report_table());
+}
+
+/**
+ * @return The themed html for an active member email report.
+*/
+function theme_member_email_report ($opts) {
+    $output = '<div class="member-email-report">';
+    $title = '';
+    if (!empty($opts['filter'])) {
+        foreach ($opts['filter'] as $filter) {
+            if ($filter[0] == 'active') {
+                $title = $filter[1] ? 'Active ' : 'Lapsed ';
+            }
+        }
+    }
+    $title .= 'Email Report';
+    $output .= "<h2>$title</h2>";
+    $output .= '<textarea rows="10" cols="80">';
+    $output .= member_email_report($opts);
+    $output .= '</textarea>';
+    $output .= '</div>';
+    return $output;
 }
 
 /**

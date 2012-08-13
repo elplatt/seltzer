@@ -206,3 +206,9 @@ fieldset.tab > legend {
 .footer a {
     color: #999999;
 }
+
+/* Specific styles */
+
+.member-email-report {
+    margin: 0 0.5em;
+}

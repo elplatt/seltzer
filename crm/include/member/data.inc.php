@@ -51,7 +51,11 @@ function member_data ($opts) {
             $param = $filter[1];
             switch ($name) {
                 case 'active':
-                    $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL)";
+                    if ($param) {
+                        $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL)";
+                    } else {
+                        $sql .= " AND (`membership`.`start` IS NULL OR `membership`.`end` IS NOT NULL)";
+                    }
                     break;
                 case 'voting':
                     $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL AND `plan`.`voting` <> 0)";
