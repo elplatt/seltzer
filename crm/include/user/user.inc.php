@@ -450,14 +450,14 @@ function command_reset_password_confirm () {
  * @return The themed html string for a login form.
 */
 function theme_login_form () {
-    return theme_form(login_form());
+    return theme('form', login_form());
 }
 
 /**
  * @return The themed html for a password reset form.
 */
 function theme_user_reset_password_form () {
-    return theme_form(user_reset_password_form());
+    return theme('form', user_reset_password_form());
 }
 
 /**
@@ -470,7 +470,7 @@ function theme_user_reset_password_confirm_form ($code) {
         return '<p>Invalid code</p>';
     }
     
-    return theme_form(user_reset_password_confirm_form($code));
+    return theme('form', user_reset_password_confirm_form($code));
 }
 
 /**
@@ -583,7 +583,6 @@ function command_user_role_update () {
     
     return "member.php?cid=$_POST[cid]&tab=roles";
 }
-
 
 /**
  * Return themed html for a user role edit form.

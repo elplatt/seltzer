@@ -589,7 +589,7 @@ function key_page (&$data, $page, $options) {
  * @return The themed html.
 */
 function theme_key_table ($opts = NULL) {
-    return theme_table(key_table($opts));
+    return theme('table', key_table($opts));
 }
 
 /**
@@ -599,7 +599,7 @@ function theme_key_table ($opts = NULL) {
  * @return The themed html string.
  */
 function theme_key_add_form ($cid) {
-    return theme_form(key_add_form($cid));
+    return theme('form', key_add_form($cid));
 }
 
 /**
@@ -609,7 +609,7 @@ function theme_key_add_form ($cid) {
  * @return The themed html string.
  */
 function theme_key_edit_form ($kid) {
-    return theme_form(key_edit_form($kid));
+    return theme('form', key_edit_form($kid));
 }
 
 /**
@@ -618,7 +618,7 @@ function theme_key_edit_form ($kid) {
  * @return The themed html.
  */
 function theme_key_report () {
-    return theme_table(key_report_table());
+    return theme('table', key_report_table());
 }
 
 ?>

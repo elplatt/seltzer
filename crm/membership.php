@@ -36,13 +36,13 @@ require_once('include/crm.inc.php');
 <body>
     <div class="container">
         <div class="header">
-            <?php print theme_header(); ?>
+            <?php print theme('header'); ?>
         </div>
         <div class="content">
             <?php print theme('page', 'membership', array('sid' => $_GET['sid'])); ?>
         </div>
         <div class="footer">
-            <?php print theme_footer(); ?>
+            <?php print theme('footer'); ?>
         </div>
     </div>
 </body>

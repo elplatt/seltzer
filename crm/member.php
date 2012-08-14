@@ -38,7 +38,7 @@ $member = member_data(array('mid'=>$_GET['mid']));
 <body>
     <div class="container">
         <div class="header">
-            <?php print theme_header(); ?>
+            <?php print theme('header'); ?>
         </div>
         <div class="content">
             <?php print theme('errors'); ?>
@@ -48,7 +48,7 @@ $member = member_data(array('mid'=>$_GET['mid']));
             <?php print theme('page', 'member', array('cid' => $_GET['cid'])); ?>
         </div>
         <div class="footer">
-            <?php print theme_footer(); ?>
+            <?php print theme('footer'); ?>
         </div>
     </div>
 </body>

@@ -36,14 +36,14 @@ require_once('include/crm.inc.php');
 <body>
     <div class="container">
         <div class="header">
-            <?php print theme_header(); ?>
+            <?php print theme('header'); ?>
         </div>
         <div class="content">
-            <?php print theme_errors(); ?>
-            <?php print theme_delete_form($_GET['type'], $_GET['id']); ?>
+            <?php print theme('errors'); ?>
+            <?php print theme('delete_form', $_GET['type'], $_GET['id']); ?>
         </div>
         <div class="footer">
-            <?php print theme_footer(); ?>
+            <?php print theme('footer'); ?>
         </div>
     </div>
 </body>

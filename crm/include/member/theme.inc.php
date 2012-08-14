@@ -27,7 +27,7 @@
  * @return The themed html string.
 */
 function theme_member_table ($opts = NULL) {
-    return theme_table(member_table($opts));
+    return theme('table', member_table($opts));
 }
 
 /**
@@ -37,14 +37,14 @@ function theme_member_table ($opts = NULL) {
  * @return The themed html string.
 */
 function theme_member_contact_table ($opts = NULL) {
-    return theme_table_vertical(member_contact_table($opts));
+    return theme('table_vertical', member_contact_table($opts));
 }
 
 /**
  * @return The themed html for an add member form.
 */
 function theme_member_add_form () {
-    return theme_form(member_add_form());
+    return theme('form', member_add_form());
 }
 
 /**
@@ -54,7 +54,7 @@ function theme_member_add_form () {
  * @return The themed html.
 */
 function theme_member_edit_form ($cid) {
-    return theme_form(member_edit_form($cid));
+    return theme('form', member_edit_form($cid));
 }
 
 /**
@@ -64,21 +64,21 @@ function theme_member_edit_form ($cid) {
  * @return The themed html string.
 */
 function theme_member_contact_edit_form ($cid) {
-    return theme_form(member_contact_edit_form($cid));
+    return theme('form', member_contact_edit_form($cid));
 }
 
 /**
  * @return The themed html for a member filter form.
 */
 function theme_member_filter_form () {
-    return theme_form(member_filter_form());
+    return theme('form', member_filter_form());
 }
 
 /**
  * @return The themed html for a member voting report.
 */
 function theme_member_voting_report () {
-    return theme_table(member_voting_report_table());
+    return theme('table', member_voting_report_table());
 }
 
 /**
@@ -106,7 +106,7 @@ function theme_member_email_report ($opts) {
  * @return The themed html string.
  */
 function theme_member_membership_table ($opts = NULL) {
-    return theme_table(member_membership_table($opts));
+    return theme('table', member_membership_table($opts));
 }
 
 /**
@@ -116,7 +116,7 @@ function theme_member_membership_table ($opts = NULL) {
  * @return The themed html string.
  */
 function theme_member_membership_add_form ($cid) {
-    return theme_form(member_membership_add_form($cid));
+    return theme('form', member_membership_add_form($cid));
 }
 
 /**
@@ -126,7 +126,7 @@ function theme_member_membership_add_form ($cid) {
  * @return The themed html string.
 */
 function theme_member_membership_edit_form ($sid) {
-    return theme_form(member_membership_edit_form($sid));
+    return theme('form', member_membership_edit_form($sid));
 }
 
 /**
@@ -136,7 +136,7 @@ function theme_member_membership_edit_form ($sid) {
  * @return The themed html string.
  */
 function theme_member_plan_table ($opts = NULL) {
-    return theme_table(member_plan_table($opts));
+    return theme('table', member_plan_table($opts));
 }
 
 /**
@@ -145,7 +145,7 @@ function theme_member_plan_table ($opts = NULL) {
  * @return The themed html string.
  */
 function theme_member_plan_add_form () {
-    return theme_form(member_plan_add_form());
+    return theme('form', member_plan_add_form());
 }
 
 /**
@@ -155,7 +155,7 @@ function theme_member_plan_add_form () {
  * @return The themed html string.
 */
 function theme_member_plan_edit_form ($pid) {
-    return theme_form(member_plan_edit_form($pid));
+    return theme('form', member_plan_edit_form($pid));
 }
 
 /**

@@ -36,18 +36,18 @@ require_once('include/crm.inc.php');
 <body>
     <div class="container">
         <div class="header">
-            <?php print theme_header(); ?>
+            <?php print theme('header'); ?>
         </div>
         <div class="content">
-            <?php print theme_errors(); ?>
+            <?php print theme('errors'); ?>
             <!-- TEMPORARY: should be replaced with dynamic code to list available reports -->
             <?php print theme('member_email_report', array('filter'=>array('active'=>true))); ?>
             <?php print theme('member_email_report', array('filter'=>array('active'=>false))); ?>
-            <?php print theme_member_voting_report(); ?>
+            <?php print theme('member_voting_report'); ?>
             <!-- / TEMPORARY -->
         </div>
         <div class="footer">
-            <?php print theme_footer(); ?>
+            <?php print theme('footer'); ?>
         </div>
     </div>
 </body>

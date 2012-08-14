@@ -60,9 +60,9 @@ function theme () {
 */
 function theme_header () {
     $output = '';
-    $output .= theme_logo();
-    $output .= theme_login_status();
-    $output .= theme_navigation();
+    $output .= theme('logo');
+    $output .= theme('login_status');
+    $output .= theme('navigation');
     return $output;
 }
 
@@ -104,7 +104,7 @@ function theme_login_status () {
 function theme_navigation () {
     $output = '<ul class="nav">';
     foreach (sitemap() as $link) {
-        $output .= '<li>' . theme_navigation_link($link) . '</li>';
+        $output .= '<li>' . theme('navigation_link', $link) . '</li>';
     }
     $output .= '</ul>';
     
@@ -207,7 +207,7 @@ function theme_form ($form) {
         
         // Loop through each field and add output
         foreach ($form['fields'] as $field) {
-            $output .= theme_form($field);
+            $output .= theme('form', $field);
         }
         
         $output .= '</form>';
@@ -224,32 +224,32 @@ function theme_form ($form) {
         
         // Loop through each field and add output
         foreach ($form['fields'] as $field) {
-            $output .= theme_form($field);
+            $output .= theme('form', $field);
         }
         
         $output .= '</fieldset>';
         
         break;
     case 'message':
-        $output .= theme_form_message($form);
+        $output .= theme('form_message', $form);
         break;
     case 'readonly':
-        $output .= theme_form_readonly($form);
+        $output .= theme('form_readonly', $form);
         break;
     case 'text':
-        $output .= theme_form_text($form);
+        $output .= theme('form_text', $form);
         break;
     case 'checkbox':
-        $output .= theme_form_checkbox($form);
+        $output .= theme('form_checkbox', $form);
         break;
     case 'select':
-        $output .= theme_form_select($form);
+        $output .= theme('form_select', $form);
         break;
     case 'password':
-        $output .= theme_form_password($form);
+        $output .= theme('form_password', $form);
         break;
     case 'submit':
-        $output .= theme_form_submit($form);
+        $output .= theme('form_submit', $form);
         break;
     }
     
@@ -561,7 +561,7 @@ function theme_table_vertical ($table) {
  * @return The themed html for a delete confirmation form.
 */
 function theme_delete_form ($type, $id) {
-    return theme_form(delete_form($type, $id));
+    return theme('form', delete_form($type, $id));
 }
 
 ?>
