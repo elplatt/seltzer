@@ -87,12 +87,8 @@ function theme_member_voting_report () {
 function theme_member_email_report ($opts) {
     $output = '<div class="member-email-report">';
     $title = '';
-    if (!empty($opts['filter'])) {
-        foreach ($opts['filter'] as $filter) {
-            if ($filter[0] == 'active') {
-                $title = $filter[1] ? 'Active ' : 'Lapsed ';
-            }
-        }
+    if (isset($opts['filter']) && isset($opts['filter']['active'])) {
+        $title = $opts['filter']['active'] ? 'Active ' : 'Lapsed ';
     }
     $title .= 'Email Report';
     $output .= "<h2>$title</h2>";

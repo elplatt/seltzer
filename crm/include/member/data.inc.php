@@ -25,7 +25,7 @@
  *
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified, returns a single memeber with the matching cid,
- *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a member.
 */ 
 function member_data ($opts) {
@@ -45,22 +45,17 @@ function member_data ($opts) {
     if (!empty($opts['cid'])) {
         $sql .= " AND `member`.`cid`=$opts[cid]";
     }
-    if (!empty($opts['filter'])) {
-        foreach ($opts['filter'] as $filter) {
-            $name = $filter[0];
-            $param = $filter[1];
-            switch ($name) {
-                case 'active':
-                    if ($param) {
-                        $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL)";
-                    } else {
-                        $sql .= " AND (`membership`.`start` IS NULL OR `membership`.`end` IS NOT NULL)";
-                    }
-                    break;
-                case 'voting':
-                    $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL AND `plan`.`voting` <> 0)";
-                    break;
+    if (isset($opts['filter'])) {
+        $filter = $opts['filter'];
+        if (isset($filter['active'])) {
+            if ($filter['active']) {
+                $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL)";
+            } else {
+                $sql .= " AND (`membership`.`start` IS NULL OR `membership`.`end` IS NOT NULL)";
             }
+        }
+        if (isset($filter['voting'])) {
+            $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL AND `plan`.`voting` <> 0)";
         }
     }
     $sql .= " GROUP BY `member`.`cid` ";
@@ -146,20 +141,22 @@ function member_data ($opts) {
  * 
  * @param $opts An associative array of options, possible keys are:
  *   'pid' If specified, returns a single plan with the matching id,
- *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a membership plan.
 */
 function member_plan_data ($opts) {
     
     // Construct query for plans
     $sql = "SELECT * FROM `plan` WHERE 1";
-    if (!empty($opts['filter'])) {
-        foreach ($opts['filter'] as $filter) {
-            $name = $filter[0];
-            $params = $filter[1];
+    if (isset($opts['filter'])) {
+        foreach ($opts['filter'] as $name => $param) {
             switch ($name) {
                 case 'active':
-                    $sql .= " AND `plan`.`active` <> 0";
+                    if ($param) {
+                        $sql .= " AND `plan`.`active` <> 0";
+                    } else {
+                        $sql .= " AND `plan`.`active` = 0";
+                    }
                     break;
             }
         }
@@ -189,7 +186,7 @@ function member_plan_data ($opts) {
  *
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified, returns memberships for the member with the cid,
- *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a membership.
 */ 
 function member_membership_data ($opts) {
@@ -213,10 +210,8 @@ function member_membership_data ($opts) {
     }
     
     // Add filters
-    if (!empty($opts['filter'])) {
-        foreach ($opts['filter'] as $filter) {
-            $name = $filter[0];
-            $params = $filter[1];
+    if (isset($opts['filter'])) {
+        foreach ($opts['filter'] as $name => $param) {
             switch ($name) {
                 default:
                 break;
@@ -280,7 +275,7 @@ function member_plan_options ($opts = NULL) {
  * 
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified, returns a single memeber with the matching member id,
- *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a contact.
 */ 
 function member_contact_data ($opts) {
@@ -296,10 +291,8 @@ function member_contact_data ($opts) {
     }
     
     // Add filters
-    if (!empty($opts['filter'])) {
-        foreach ($opts['filter'] as $filter) {
-            $name = $filter[0];
-            $params = $filter[1];
+    if (isset($opts['filter'])) {
+        foreach ($opts['filter'] as $name => $param) {
             switch ($name) {
                 default:
                 break;

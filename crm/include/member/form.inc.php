@@ -88,7 +88,7 @@ function member_add_form () {
                         'label' => 'Plan',
                         'name' => 'pid',
                         'selected' => $member['plan']['pid'],
-                        'options' => member_plan_options(array('filter'=>array(array('active'))))
+                        'options' => member_plan_options(array('filter'=>array('active'=>true)))
                     ),
                     array(
                         'type' => 'text',
@@ -261,7 +261,7 @@ function member_membership_add_form ($cid) {
                         'type' => 'select',
                         'label' => 'Plan',
                         'name' => 'pid',
-                        'options' => member_plan_options(array('filter'=>array(array('active'))))
+                        'options' => member_plan_options(array('filter'=>array('active'=>true)))
                     ),
                     array(
                         'type' => 'text',

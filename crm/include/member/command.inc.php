@@ -296,10 +296,10 @@ function command_member_filter () {
         $_SESSION['member_filter'] = array();
     }
     if ($_GET['filter'] == 'active') {
-        $_SESSION['member_filter'] = array(array('active'));
+        $_SESSION['member_filter']['active'] = true;
     }
     if ($_GET['filter'] == 'voting') {
-        $_SESSION['member_filter'] = array(array('voting'));
+        $_SESSION['member_filter']['voting'] = true;
     }
     
     // Construct query string
