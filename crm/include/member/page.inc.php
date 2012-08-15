@@ -23,34 +23,28 @@
 /**
  * Page hook.  Adds member module content to a page before it is rendered.
  *
- * @param &$data Reference to data about the page being rendered.
- * @param $page The name of the page being rendered.
+ * @param &$page_data Reference to data about the page being rendered.
+ * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
 */
-function member_page (&$data, $page, $options) {
+function member_page (&$page_data, $page_name, $options) {
     
-    switch ($page) {
+    switch ($page_name) {
         
         case 'members':
             
             // Set page title
-            $data['#title'] = 'Members';
+            page_set_title($page_data, 'Members');
             
             // Add view tab
             if (user_access('member_view')) {
-                if (!isset($data['View'])) {
-                    $data['View'] = array();
-                }
-                array_unshift($data['View'], theme('table', 'member', array('filter'=>$_SESSION['member_filter'])));
-                array_unshift($data['View'], theme('member_filter_form'));
+                page_add_content_top($page_data, 'View', theme('table', 'member', array('filter'=>$_SESSION['member_filter'])));
+                page_add_content_top($page_data, 'View', theme('member_filter_form'));
             }
             
             // Add add tab
             if (user_access('member_add')) {
-                if (!isset($data['Add'])) {
-                    $data['Add'] = array();
-                }
-                array_unshift($data['Add'], theme('member_add_form'));
+                page_add_content_top($page_data, 'Add', theme('member_add_form'));
             }
             
             break;
@@ -58,22 +52,12 @@ function member_page (&$data, $page, $options) {
         case 'plans':
             
             // Set page title
-            $data['#title'] = 'Plans';
+            page_set_title($page_data, 'Plans');
             
-            // Add view tab
+            // Add view and add tabs
             if (user_access('member_plan_edit')) {
-                if (!isset($data['View'])) {
-                    $data['View'] = array();
-                }
-                array_unshift($data['View'], theme('table', 'member_plan'));
-            }
-            
-            // Add add tab
-            if (user_access('member_plan_edit')) {
-                if (!isset($data['Add'])) {
-                    $data['Add'] = array();
-                }
-                array_unshift($data['Add'], theme('member_plan_add_form'));
+                page_add_content_top($page_data, 'View', theme('table', 'member_plan'));
+                page_add_content_top($data['Add'], theme('member_plan_add_form'));
             }
             
             break;
@@ -87,14 +71,11 @@ function member_page (&$data, $page, $options) {
             }
             
             // Set page title
-            $data['#title'] = 'Plan: ' . theme('member_plan_description', $pid);
+            page_set_title($page_data, 'Plan: ' . theme('member_plan_description', $pid));
             
             // Add edit tab
             if (user_access('member_plan_edit')) {
-                if (!isset($data['Edit'])) {
-                    $data['Edit'] = array();
-                }
-                array_unshift($data['Edit'], theme('member_plan_edit_form', $pid));
+                page_add_content_top($page_data, 'Edit', theme('member_plan_edit_form', $pid));
             }
             
             break;
@@ -108,41 +89,26 @@ function member_page (&$data, $page, $options) {
             }
             
             // Set page title
-            $data['#title'] = theme('member_contact_name', $cid);
+            page_set_title($page_data, theme('member_contact_name', $cid));
             
             // Add view tab
             if (user_access('member_view')) {
-                if (!isset($data['View'])) {
-                    $data['View'] = array();
-                }
-                array_unshift($data['View'], theme('table_vertical', 'member_contact', array('cid' => $cid)));
+                page_add_content_top($page_data, 'View', theme('table_vertical', 'member_contact', array('cid' => $cid)));
             }
             
             // Add edit tab
             if (user_id() == $options['cid'] || (user_access('contact_edit') && user_access('member_edit'))) {
-                if (!isset($data['Edit'])) {
-                    $data['Edit'] = array();
-                }
-                array_unshift($data['Edit'], theme('member_contact_edit_form', $cid));
+                page_add_content_top($page_data, 'Edit', theme('member_contact_edit_form', $cid));
             }
             
-            // Add plan tab
+            // Add plan and role tabs
             if (user_access('member_membership_edit')) {
-                if (!isset($data['Plan'])) {
-                    $data['Plan'] = array();
-                }
                 $plan = theme('table', 'member_membership', array('cid' => $cid));
                 $plan .= theme('member_membership_add_form', $cid);
-                array_unshift($data['Plan'], $plan);
-            }
-            
-            // Add role tab
-            if (user_access('member_membership_edit')) {
-                if (!isset($data['Roles'])) {
-                    $data['Roles'] = array();
-                }
+                page_add_content_top($page_data, 'Plan', $plan);
+                
                 $roles = theme('user_role_edit_form', $cid);
-                array_unshift($data['Roles'], $roles);
+                page_add_content_top($page_data, 'Roles', $roles);
             }
             
             break;
@@ -156,14 +122,11 @@ function member_page (&$data, $page, $options) {
             }
             
             // Set page title
-            $data['#title'] = member_membership_description($sid);
+            page_set_title($page_data, member_membership_description($sid));
             
             // Add edit tab
             if (user_access('member_membership_edit') && user_access('member_edit')) {
-                if (!isset($data['Edit'])) {
-                    $data['Edit'] = array();
-                }
-                array_unshift($data['Edit'], theme('member_membership_edit_form', $sid));
+                page_add_content_top($page_data, 'Edit', theme('member_membership_edit_form', $sid));
             }
             
             break;

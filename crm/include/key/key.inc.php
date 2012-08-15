@@ -531,13 +531,13 @@ function command_key_delete() {
 /**
  * Page hook.  Adds module content to a page before it is rendered.
  *
- * @param &$data Reference to data about the page being rendered.
- * @param $page The name of the page being rendered.
+ * @param &$page_data Reference to data about the page being rendered.
+ * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
 */
-function key_page (&$data, $page, $options) {
+function key_page (&$page_data, $page_name, $options) {
     
-    switch ($page) {
+    switch ($page_name) {
         
         case 'member':
             
@@ -549,12 +549,9 @@ function key_page (&$data, $page, $options) {
             
             // Add keys tab
             if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
-                if (!isset($data['Keys'])) {
-                    $data['Keys'] = array();
-                }
                 $keys = theme('table', 'key', array('cid' => $cid));
                 $keys .= theme('key_add_form', $cid);
-                array_push($data['Keys'], $keys);
+                page_add_content_bottom($page_data, 'Keys', $keys);
             }
             
             break;
@@ -568,14 +565,11 @@ function key_page (&$data, $page, $options) {
             }
             
             // Set page title
-            $data['#title'] = key_description($kid);
+            page_set_title($page_data, key_description($kid));
             
             // Add edit tab
             if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
-                if (!isset($data['Edit'])) {
-                    $data['Edit'] = array();
-                }
-                array_unshift($data['Edit'], theme('key_edit_form', $kid));
+                page_add_content_top($page_data, 'Edit', theme('key_edit_form', $kid));
             }
             
             break;

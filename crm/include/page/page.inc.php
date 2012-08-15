@@ -47,16 +47,51 @@ function page ($page, $options) {
 }
 
 /**
+ * Set the title of a page.
+ * @param &$page_data The page data.
+ * @param $title.
+ */
+function page_set_title (&$page_data, $title) {
+    $page_data['#title'] = $title;
+}
+
+/**
+ * Add content to the top of a page tab.
+ * @param &$page_data The page data structure.
+ * @param $tab_name The name of the tab.
+ * @param $content The themed html content to add.
+ */
+function page_add_content_top (&$page_data, $tab_name, $content) {
+    if (!isset($page_data[$tab_name])) {
+        $page_data[$tab_name] = array();
+    }
+    array_unshift($page_data[$tab_name], $content);
+}
+
+/**
+ * Add content to the bottom of a page tab.
+ * @param &$page_data The page data structure.
+ * @param $tab_name The name of the tab.
+ * @param $content The themed html content to add.
+ */
+function page_add_content_bottom (&$page_data, $tab_name, $content) {
+    if (!isset($page_data[$tab_name])) {
+        $page_data[$tab_name] = array();
+    }
+    array_push($page_data[$tab_name], $content);
+}
+
+/**
  * Theme an entire page.
  *
- * @param $page The page name.
+ * @param $page_name The page name.
  * @param $options The options to pass to page().
  * @return The themed html for the page.
  */
-function theme_page ($page, $options = array()) {
+function theme_page ($page_name, $options = array()) {
     
     // Create data structure
-    $data = page($page, $options);
+    $data = page($page_name, $options);
     
     // Initialize output
     $tabs = '';
