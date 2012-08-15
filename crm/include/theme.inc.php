@@ -400,10 +400,25 @@ function theme_form_submit ($field) {
 /**
  * Themes tabular data.
  *
- * @param $table The table data.
+ * @param $table_name The name of the table or the table data.
+ * @param $opts Options to pass to the data function.
  * @return The themed html for a table.
 */
-function theme_table ($table) {
+function theme_table ($table_name, $opts = NULL) {
+    
+    // Check if $table is a string
+    if (is_string($table_name)) {
+        // Construct the name of the function to generate a table
+        $generator = $table_name . '_table';
+        if (function_exists($generator)) {
+            $table = call_user_func($generator, $opts);
+        } else {
+            return '';
+        }
+    } else {
+        // Support old style of passing the data directly
+        $table = $table_name;
+    }
     
     // Check if table is empty
     if (empty($table['rows'])) {
