@@ -52,7 +52,7 @@ function key_description ($kid) {
  * @param $opts An associative array of options, possible keys are:
  *   'kid' If specified, returns a single memeber with the matching key id;
  *   'cid' If specified, returns all keys assigned to the contact with specified id;
- *   'filter' An array of filters of the form (<filter name>, <filter param>)
+ *   'filter' An array mapping filter names to filter values.
  * @return An array with each element representing a single key card assignment.
 */ 
 function key_data ($opts = array()) {
@@ -75,12 +75,14 @@ function key_data ($opts = array()) {
         $sql .= " AND `cid`=$opts[cid]";
     }
     if (!empty($opts['filter'])) {
-        foreach ($opts['filter'] as $filter) {
-            $name = $filter[0];
-            $param = $filter[1];
+        foreach ($opts['filter'] as $name => $param) {
             switch ($name) {
                 case 'active':
-                    $sql .= " AND (`start` IS NOT NULL AND `end` IS NULL)";
+                    if ($param) {
+                        $sql .= " AND (`start` IS NOT NULL AND `end` IS NULL)";
+                    } else {
+                        $sql .= " AND (`start` IS NULL OR `end` IS NOT NULL)";
+                    }
                     break;
             }
         }
@@ -194,7 +196,7 @@ function key_report_table () {
     }
     
     // Get contact data
-    $data = key_data(array('filter'=>array('active')));
+    $data = key_data(array('filter'=>array('active'=>true)));
     if (count($data) < 1) {
         return array();
     }
