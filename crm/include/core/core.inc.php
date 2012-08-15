@@ -315,4 +315,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     return 'login.php';
 }
 
+// Include page system
+require_once('page.inc.php');
+
 ?>

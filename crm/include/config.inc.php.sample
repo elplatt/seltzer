@@ -35,7 +35,6 @@ $config_base_path = '/crm/';
 // Modules
 $config_modules = array(
     "core",
-    "page",
     "form",
     "user",
     "member",
