@@ -550,7 +550,7 @@ function key_page (&$data, $page, $options) {
                 if (!isset($data['Keys'])) {
                     $data['Keys'] = array();
                 }
-                $keys = theme('key_table', array('cid' => $cid));
+                $keys = theme('table', 'key', array('cid' => $cid));
                 $keys .= theme('key_add_form', $cid);
                 array_push($data['Keys'], $keys);
             }
@@ -583,16 +583,6 @@ function key_page (&$data, $page, $options) {
 // Themeing ////////////////////////////////////////////////////////////////////
 
 /**
- * Return the themed html for a key assignment table.
- *
- * @param $opts The options to pass to key_table().
- * @return The themed html.
-*/
-function theme_key_table ($opts = NULL) {
-    return theme('table', key_table($opts));
-}
-
-/**
  * Return the themed html for an add key assignment form.
  *
  * @param $cid The id of the contact to add a key assignment for.
@@ -610,15 +600,6 @@ function theme_key_add_form ($cid) {
  */
 function theme_key_edit_form ($kid) {
     return theme('form', key_edit_form($kid));
-}
-
-/**
- * Return the themed html for the key assignment report.
- *
- * @return The themed html.
- */
-function theme_key_report () {
-    return theme('table', key_report_table());
 }
 
 ?>

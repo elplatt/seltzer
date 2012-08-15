@@ -41,7 +41,7 @@ function member_page (&$data, $page, $options) {
                 if (!isset($data['View'])) {
                     $data['View'] = array();
                 }
-                array_unshift($data['View'], theme('member_table', array('filter'=>$_SESSION['member_filter'])));
+                array_unshift($data['View'], theme('table', 'member', array('filter'=>$_SESSION['member_filter'])));
                 array_unshift($data['View'], theme('member_filter_form'));
             }
             
@@ -65,7 +65,7 @@ function member_page (&$data, $page, $options) {
                 if (!isset($data['View'])) {
                     $data['View'] = array();
                 }
-                array_unshift($data['View'], theme('member_plan_table'));
+                array_unshift($data['View'], theme('table', 'member_plan'));
             }
             
             // Add add tab
@@ -115,7 +115,7 @@ function member_page (&$data, $page, $options) {
                 if (!isset($data['View'])) {
                     $data['View'] = array();
                 }
-                array_unshift($data['View'], theme('member_contact_table', array('cid' => $cid)));
+                array_unshift($data['View'], theme('table_vertical', 'member_contact', array('cid' => $cid)));
             }
             
             // Add edit tab
@@ -131,7 +131,7 @@ function member_page (&$data, $page, $options) {
                 if (!isset($data['Plan'])) {
                     $data['Plan'] = array();
                 }
-                $plan = theme('member_membership_table', array('cid' => $cid));
+                $plan = theme('table', 'member_membership', array('cid' => $cid));
                 $plan .= theme('member_membership_add_form', $cid);
                 array_unshift($data['Plan'], $plan);
             }
