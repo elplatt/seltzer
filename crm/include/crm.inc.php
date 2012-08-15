@@ -26,25 +26,11 @@ require_once('config.inc.php');
 // Init code ///////////////////////////////////////////////////////////////////
 require_once('init.inc.php');
 
-// Core Modules ////////////////////////////////////////////////////////////////
+// Modules /////////////////////////////////////////////////////////////////////
 
-// Basic framework
-require_once('core/core.inc.php');
-
-// Tabbed page functionality
-require_once('page/page.inc.php');
-
-// Users and permissions
-require_once('user/user.inc.php');
-
-// Form functionality
-require_once('form/form.inc.php');
-
-// Members and contacts
-require_once('member/member.inc.php');
-
-// Key card module
-require_once('key/key.inc.php');
+foreach ($config_modules as $module) {
+    require_once($module . '/' . $module . '.inc.php');
+}
 
 // Non-module core functions ///////////////////////////////////////////////////
 
