@@ -40,7 +40,7 @@ require_once('include/crm.inc.php');
         </div>
         <div class="content">
             <?php print theme('errors'); ?>
-            <?php print theme('install_form'); ?>
+            <?php print theme('form', install_form()); ?>
         </div>
         <div class="footer">
             <?php print theme('footer'); ?>
