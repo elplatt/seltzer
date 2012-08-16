@@ -425,6 +425,15 @@ function theme_table ($table_name, $opts = NULL) {
         return '';
     }
     
+    // Count rows
+    $column_count = sizeof($table['columns']);
+    $row_count = sizeof($table['rows']);
+    
+    // Generate url for export
+    $new_opts = $opts;
+    $new_opts['export'] = true;
+    $export = 'export-csv.php?name=' . $table_name . '&opts=' . urlencode(json_encode($new_opts));
+    
     // Open table
     $output = "<table";
     if (!empty($table['id'])) {
@@ -455,7 +464,13 @@ function theme_table ($table_name, $opts = NULL) {
         $output .= $col['title'];
         $output .= '</th>';
     }
-    $output .= "</tr></thead>";
+    $output .= "</tr>";
+    if ($opts['show_export']) {
+        $output .= '<tr class="subhead"><td colspan="' . $column_count . '">';
+        $output .= $row_count . ' results, export: <a href="' . $export . '">csv</a>';
+        $output .= "</td></tr>";
+    }
+    $output .= "</thead>";
     
     // Output table body
     $output .= "<tbody>";
@@ -491,8 +506,61 @@ function theme_table ($table_name, $opts = NULL) {
         $output .= '</tr>';
     }
     
+    if ($opts['show_export']) {
+        $output .= '<tr class="subhead"><td colspan="' . $column_count . '">';
+        $output .= $row_count . ' results, export: <a href="' . $export . '">csv</a>';
+        $output .= "</td></tr>";
+    }
+    
     $output .= "</tbody>";
     $output .= "</table>";
+    
+    return $output;
+}
+
+/**
+ * Themes tabular data as a CSV.
+ *
+ * @param $table_name The name of the table or the table data.
+ * @param $opts Options to pass to the data function.
+ * @return The CSV for a table.
+*/
+function theme_table_csv ($table_name, $opts = NULL) {
+    
+    // Check if $table_name is a string
+    if (is_string($table_name)) {
+        // Construct the name of the function to generate a table
+        $generator = $table_name . '_table';
+        if (function_exists($generator)) {
+            $table = call_user_func($generator, $opts);
+        } else {
+            return '';
+        }
+    } else {
+        // Support old style of passing the data directly
+        $table = $table_name;
+    }
+    
+    // Check if table is empty
+    if (empty($table['rows'])) {
+        return '';
+    }
+    
+    // Loop through headers
+    $cells = array();
+    foreach ($table['columns'] as $col) {
+        $cells[] = str_replace('"', '\"', $col['title']);
+    }
+    $output .= join(',', $cells) . "\n";
+    
+    // Loop through rows
+    foreach ($table['rows'] as $row) {
+        $cells = array();
+        foreach ($row as $i => $cell) {
+            $cells[] = str_replace('"', '\"', $cell);
+        }
+        $output .= join(',', $cells) . "\n";
+    }
     
     return $output;
 }

@@ -88,6 +88,18 @@ table.seltzer-table td, table.seltzer-table th {
     padding: 0.2em 0.5em;
     text-align: left;
 }
+table.seltzer-table tr.subhead td {
+    background: #99dce6;
+    background: #7bcfeb;
+    border-bottom: none;
+    color: white;
+    font-weight: normal;
+    border-top: solid 1px #0099cb;
+}
+table.seltzer-table tr.subhead td a {
+    color: white;
+    font-weight: normal;
+}
 table.seltzer-table tr.even td, table.seltzer-table tr.even th {
     background-color: #eeeeff;
 }

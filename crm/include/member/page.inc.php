@@ -38,8 +38,9 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add view tab
             if (user_access('member_view')) {
-                page_add_content_top($page_data, 'View', theme('table', 'member', array('filter'=>$_SESSION['member_filter'])));
-                page_add_content_top($page_data, 'View', theme('member_filter_form'));
+                $view .= theme('member_filter_form');
+                $view .= theme('table', 'member', array('filter'=>$_SESSION['member_filter'], 'show_export'=>true));
+                page_add_content_top($page_data, 'View', $view);
             }
             
             // Add add tab

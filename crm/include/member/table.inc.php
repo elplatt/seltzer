@@ -33,6 +33,16 @@ function member_table ($opts = NULL) {
         return NULL;
     }
     
+    // Determine settings
+    $export = false;
+    foreach ($opts as $option => $value) {
+        switch ($option) {
+            case 'export':
+                $export = $value;
+                break;
+        }
+    }
+    
     // Get member data
     $members = member_data($opts);
     
@@ -47,7 +57,13 @@ function member_table ($opts = NULL) {
     $table['columns'] = array();
     
     if (user_access('member_view')) {
-        $table['columns'][] = array('title'=>'Name','class'=>'');
+        if ($export) {
+            $table['columns'][] = array('title'=>'Last','class'=>'');
+            $table['columns'][] = array('title'=>'First','class'=>'');
+            $table['columns'][] = array('title'=>'Middle','class'=>'');
+        } else {
+            $table['columns'][] = array('title'=>'Name','class'=>'');
+        }
         $table['columns'][] = array('title'=>'Membership','class'=>'');
         $table['columns'][] = array('title'=>'E-Mail','class'=>'');
         $table['columns'][] = array('title'=>'Phone','class'=>'');
@@ -55,7 +71,7 @@ function member_table ($opts = NULL) {
         $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
     }
     // Add ops column
-    if (user_access('member_edit') || user_access('member_delete')) {
+    if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
 
@@ -81,7 +97,13 @@ function member_table ($opts = NULL) {
             }
             
             // Add cells
-            $row[] = $name_link;
+            if ($export) {
+                $row[] = $member['contact']['lastName'];
+                $row[] = $member['contact']['firstName'];
+                $row[] = $member['contact']['middleName'];
+            } else {
+                $row[] = $name_link;
+            }
             $row[] = $plan;
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
@@ -103,7 +125,7 @@ function member_table ($opts = NULL) {
         }
         
         // Add ops row
-        if (user_access('member_edit') || user_access('member_delete')) {
+        if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
             $row[] = join(' ', $ops);
         }
         
