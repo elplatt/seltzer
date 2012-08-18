@@ -58,7 +58,7 @@ function member_page (&$page_data, $page_name, $options) {
             // Add view and add tabs
             if (user_access('member_plan_edit')) {
                 page_add_content_top($page_data, 'View', theme('table', 'member_plan'));
-                page_add_content_top($data['Add'], theme('member_plan_add_form'));
+                page_add_content_top($page_data, 'Add', theme('member_plan_add_form'));
             }
             
             break;
