@@ -53,15 +53,6 @@ function sitemap () {
 }
 
 /**
- * @return list of installed modules.
- */
-function module_list () {
-    global $config_modules;
-    
-    return $config_modules;
-}
-
-/**
  * @return The title of the site.
  */
 function title () {

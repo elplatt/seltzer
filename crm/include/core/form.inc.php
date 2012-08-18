@@ -93,39 +93,4 @@ function filter_form ($filters, $selected, $action, $get) {
     return $form;
 }
 
-/**
- * @return The installation form structure.
- */
-function install_form () {
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'install',
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Install Seltzer CRM',
-                'fields' => array(
-                    array(
-                        'type' => 'text',
-                        'label' => 'Admin E-mail',
-                        'name' => 'email'
-                    ),
-                    array(
-                        'type' => 'password',
-                        'label' => 'Admin Password',
-                        'name' => 'password'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Install'
-                    )
-                )
-            )
-        )
-    );
-    return $form;
-}
-
 ?>

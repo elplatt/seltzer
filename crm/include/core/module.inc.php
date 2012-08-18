@@ -1,0 +1,309 @@
+<?
+/*
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
+    
+    This file is part of the Seltzer CRM Project
+    module.inc.php - Module installation and upgrade functions
+
+    Seltzer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    Seltzer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * @return list of installed modules.
+ */
+function module_list () {
+    global $config_modules;
+    
+    return $config_modules;
+}
+
+/**
+ * @return The revision of an enabled module's current code, 0 if not enabled.
+ * @param $module The module's name.
+ */
+function module_get_code_revision ($module) {
+    $revision_func = $module . '_revision';
+    if (!function_exists($revision_func)) {
+        die('Function does not exist: ' . $revision_func);
+    }
+    return call_user_func($revision_func);
+}
+
+/**
+ * Get a module's database schema revision.
+ * @param $module The module's name.
+ */
+function module_get_schema_revision ($module) {
+    $esc_module = mysql_real_escape_string($module);
+    $sql = "SELECT `revision` FROM `module` WHERE `name`='$esc_module'";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    if (mysql_num_rows($res) === 0) {
+        return 0;
+    }
+    $row = mysql_fetch_assoc($res);
+    return $row['revision'];
+}
+
+/**
+ * Set a module's database schema revision.
+ * @param $module The module's name.
+ * @param $revision The new revision number.
+ */
+function module_set_schema_revision ($module, $revision) {
+    $esc_module = mysql_real_escape_string($module);
+    $esc_revision = mysql_real_escape_string($revision);
+    $sql = "SELECT `revision` FROM `module` WHERE `name`='$esc_module'";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    if (mysql_num_rows($res) === 0) {
+        $sql = "INSERT INTO `module` (`name`, `revision`) VALUES ('$esc_module', '$esc_revision')";
+    } else {
+        $sql = "UPDATE `module` SET `revision`='$esc_revision' WHERE `name`='$esc_module'";
+    }
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+}
+
+/**
+ * @return true if core is installed.
+ */
+function module_core_installed () {
+    $sql = "SHOW TABLES LIKE 'module'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_num_rows($res) > 0) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Installs all configured modules.
+ */
+function module_install () {
+    
+    // Check whether already installed
+    if (module_core_installed()) {
+        error_register('The database must be empty before you can install Seltzer CRM!');
+        return false;
+    }
+    
+    foreach (module_list() as $module) {
+        
+        // Call the module's installation function
+        $installer = $module . '_install';
+        if (function_exists($installer)) {
+            call_user_func($installer, 0);
+        }
+        
+        // Set the module's schema revision
+        $revision = module_get_code_revision($module);
+        module_set_schema_revision($module, $revision);
+    }
+    
+    return true;
+}
+
+/**
+ * Upgrade all configured modules.
+ */
+function module_upgrade () {
+    
+    // Make sure core is installed
+    if (!module_core_installed()) {
+        error_register('Please run the install script');
+        return false;
+    }
+    foreach (module_list() as $module) {
+        
+        // Get current schema and code revisions
+        $old_revision = module_get_schema_revision($module);
+        $new_revision = module_get_code_revision($module);
+        
+        // Upgrade the module to the current revision
+        $installer = $module . '_install';
+        if (function_exists($installer)) {
+            call_user_func($installer, $old_revision);
+        }
+        
+        // Update the revision number in the database
+        module_set_schema_revision($module, $new_revision);
+    }
+    return true;
+}
+
+/**
+ * @return a table structure of modules and their upgrade status.
+ */
+function module_upgrade_table () {
+    if (!user_access('module_upgrade')) {
+        return '';
+    }
+    $table = array(
+        'id' => ''
+        , 'class' => ''
+        , 'columns' => array(
+            array('title'=>'Module')
+            , array('title'=>'Old')
+            , array('title'=>'New')
+            , array('title'=>'Needs upgrade?')
+            )
+        , 'rows' => array()
+        );
+    $rows = array();
+    foreach (module_list() as $module) {
+        $old_rev = module_get_schema_revision($module);
+        $new_rev = module_get_code_revision($module);
+        $row = array();
+        $row[] = $module;
+        $row[] = $old_rev;
+        $row[] = $new_rev;
+        $row[] = ($new_rev > $old_rev) ? '<strong>Yes</strong>' : 'No';
+        $table['rows'][] = $row;
+    }
+    return $table;
+}
+
+/**
+ * @return The installation form structure.
+ */
+function module_install_form () {
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'module_install',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Install SeltzerCRM',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'Admin E-mail',
+                        'name' => 'email'
+                    ),
+                    array(
+                        'type' => 'password',
+                        'label' => 'Admin Password',
+                        'name' => 'password'
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'name' => 'submitted',
+                        'value' => 'Install'
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
+/**
+ * @return The upgrade form structure.
+ */
+function module_upgrade_form () {
+    if (!user_access('module_upgrade')) {
+        return '';
+    }
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'module_upgrade',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Upgrade SeltzerCRM Modules',
+                'fields' => array(
+                    array(
+                        'type' => 'submit',
+                        'name' => 'submitted',
+                        'value' => 'Upgrade'
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
+
+/**
+ * Handle installation request.
+ *
+ * @return The url to redirect to on completion.
+ */
+function command_module_install () {
+    global $esc_post;
+    
+    // Create tables
+    $res = module_install();
+    if (!$res) {
+        return 'index.php';
+    }
+    
+    // Add admin contact and user
+    $sql = "
+        INSERT INTO `contact`
+        (`firstName`, `lastName`, `email`)
+        VALUES
+        ('Admin', 'User', '$esc_post[email]')
+    ";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    $cid = mysql_insert_id();
+    
+    $hash = mysql_real_escape_string(sha1($_POST['password']));
+    $sql = "
+        INSERT INTO `user`
+        (`cid`, `username`, `hash`)
+        VALUES
+        ('$cid', 'admin', '$hash')
+    ";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+
+    // Add all roles for admin
+    $sql = "
+        INSERT INTO `role`
+        (`cid`, `member`, `director`, `president`, `vp`, `secretary`, `treasurer`, `webAdmin`)
+        VALUES
+        ('$cid', '1', '1', '1', '1', '1', '1', '1')
+    ";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    message_register('Seltzer CRM has been installed.');
+    message_register('You may log in as user "admin"');
+    return 'login.php';
+}
+
+/**
+ * Handle upgrade request.
+ *
+ * @return The url to redirect to on completion.
+ */
+function command_module_upgrade () {
+    global $esc_post;
+    
+    // Create tables
+    $res = module_upgrade();
+    if (!$res) {
+        return 'index.php';
+    }
+    
+    message_register('Seltzer CRM has been upgraded.');
+    return 'index.php';
+}

@@ -20,8 +20,13 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Run init code
-require_once('init.inc.php');
+/**
+ * @return This module's revision number.  Each new release should increment
+ * this number.
+ */
+function core_revision () {
+    return 1;
+}
 
 // Include utility functions
 require_once('util.inc.php');
@@ -29,11 +34,8 @@ require_once('util.inc.php');
 // Inclue error reporting system
 require_once('error.inc.php');
 
-// Include installation system
-require_once('install.inc.php');
-
-// Include theme system
-require_once('theme.inc.php');
+// Inclue user system
+require_once('user.inc.php');
 
 // Include form system
 require_once('form.inc.php');
@@ -41,7 +43,16 @@ require_once('form.inc.php');
 // Include page system
 require_once('page.inc.php');
 
-// Inclue user system
-require_once('user.inc.php');
+// Include theme system
+require_once('theme.inc.php');
+
+// Include installation system
+require_once('module.inc.php');
+
+// Include installation system
+require_once('install.inc.php');
+
+// Run init code
+require_once('init.inc.php');
 
 ?>

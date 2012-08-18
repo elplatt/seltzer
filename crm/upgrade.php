@@ -1,10 +1,10 @@
 <?php
 
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
-    install.php - Sets up initial database
+    upgrade.php - Update database after module upgrade
 
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,7 +40,8 @@ require_once('include/crm.inc.php');
         </div>
         <div class="content">
             <?php print theme('errors'); ?>
-            <?php print theme('form', module_install_form()); ?>
+            <?php print theme('table', 'module_upgrade'); ?>
+            <?php print theme('form', module_upgrade_form()); ?>
         </div>
         <div class="footer">
             <?php print theme('footer'); ?>

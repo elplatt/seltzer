@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     init.inc.php - Initialization code called before each page is processed
@@ -54,6 +54,14 @@ if (empty($_SESSION['messageList'])) {
 // Initialize member filter array
 if (empty($_SESSION['member_filter'])) {
     $_SESSION['member_filter'] = array();
+}
+
+// Call init functions of all modules
+foreach (module_list() as $module) {
+    $init = $module . '_init';
+    if (function_exists($init)) {
+        call_user_func($init);
+    }
 }
 
 ?>
