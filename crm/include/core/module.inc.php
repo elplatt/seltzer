@@ -287,7 +287,7 @@ function command_module_install () {
     
     message_register('Seltzer CRM has been installed.');
     message_register('You may log in as user "admin"');
-    return 'login.php';
+    return 'index.php?q=login';
 }
 
 /**

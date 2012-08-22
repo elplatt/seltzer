@@ -56,12 +56,9 @@ if (empty($_SESSION['member_filter'])) {
     $_SESSION['member_filter'] = array();
 }
 
-// Call init functions of all modules
-foreach (module_list() as $module) {
-    $init = $module . '_init';
-    if (function_exists($init)) {
-        call_user_func($init);
-    }
+/**
+ * Initialize the core module.
+ */
+function core_init () {
+    page_init();
 }
-
-?>

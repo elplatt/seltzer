@@ -28,4 +28,10 @@ foreach ($config_modules as $module) {
     require_once($module . '/' . $module . '.inc.php');
 }
 
-?>
+// Initialize //////////////////////////////////////////////////////////////////
+foreach ($config_modules as $module) {
+    $init = $module . '_init';
+    if (function_exists($init)) {
+        call_user_func($init);
+    }
+}

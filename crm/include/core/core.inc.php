@@ -46,6 +46,9 @@ require_once('page.inc.php');
 // Include theme system
 require_once('theme.inc.php');
 
+// Include the templating system
+require_once('template.inc.php');
+
 // Include installation system
 require_once('module.inc.php');
 

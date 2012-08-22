@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     theme.inc.php - Provides theming for core elements
@@ -19,6 +19,13 @@
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/**
+ * @return the path to the theme folder without leading or trailing slashes.
+ */
+function path_to_theme() {
+    return 'themes/inspire';
+}
 
 /**
  * Map theme calls to appropriate theme handler.
@@ -88,7 +95,7 @@ function theme_login_status () {
     $output = '<div class="login-status">';
     if (user_id()) {
         $user = user_get_user();
-        $output .= 'Welcome, ' . $user['username'] . '. <a href="action.php?command=logout">Log out</a>';
+        $output .= 'Welcome, ' . $user['username'] . '. <a href="index.php?command=logout">Log out</a>';
     } else {
         $output .= '<a href="login.php">Log in</a>&nbsp;&nbsp;&nbsp;';
         $output .= '<a href="reset.php">Reset password</a>';
@@ -103,8 +110,12 @@ function theme_login_status () {
 */
 function theme_navigation () {
     $output = '<ul class="nav">';
-    foreach (sitemap() as $link) {
-        $output .= '<li>' . theme('navigation_link', $link) . '</li>';
+    $links = links();
+    $sitemap = page_sitemap();
+    foreach ($links as $path => $title) {
+        if (in_array($path, $sitemap)) {
+            $output .= '<li>' . theme('navigation_link', $path, $title) . '</li>';
+        }
     }
     $output .= '</ul>';
     
@@ -114,13 +125,15 @@ function theme_navigation () {
 /**
  * Theme a link.
  *
- * @param $link An array representing the link.  The keys are:
- *   url - Destination url
- *   title - Text to display.
+ * @param $path The path to the page.
+ * @param $title The page title.
  * @return The themed html string for a single link.
 */
-function theme_navigation_link ($link) {
-    $output = '<a href="' . $link['url'] . '">' . $link['title'] . '</a>';
+function theme_navigation_link ($path, $title) {
+    if ($path == '<front>') {
+        $path = '';
+    }
+    $output = '<a href="' . base_path() . '?q=' . $path . '">' . $title . '</a>';
     return $output;
 }
 
@@ -191,7 +204,7 @@ function theme_form ($form) {
         if (!empty($form['action'])) {
             $output .= $form['action'] . '"';
         } else {
-            $output .= 'action.php"';
+            $output .= 'index.php"';
         }
         $output .= '>';
         

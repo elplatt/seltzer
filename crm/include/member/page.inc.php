@@ -21,6 +21,25 @@
 */
 
 /**
+ * @return An array of pages provided by this module.
+ */
+function member_page_list () {
+    $pages = array();
+    if (user_access('member_view')) {
+        $pages[] = 'members';
+        $pages[] = 'member';
+    }
+    if (user_access('member_plan_edit')) {
+        $pages[] = 'plans';
+        $pages[] = 'plan';
+    }
+    if (user_access('member_membership_edit') && user_access('member_edit')) {
+        $pages[] = 'membership';
+    }
+    return $pages;
+}
+
+/**
  * Page hook.  Adds member module content to a page before it is rendered.
  *
  * @param &$page_data Reference to data about the page being rendered.
@@ -40,12 +59,12 @@ function member_page (&$page_data, $page_name, $options) {
             if (user_access('member_view')) {
                 $view .= theme('member_filter_form');
                 $view .= theme('table', 'member', array('filter'=>$_SESSION['member_filter'], 'show_export'=>true));
-                page_add_content_top($page_data, 'View', $view);
+                page_add_content_top($page_data, $view, 'View');
             }
             
             // Add add tab
             if (user_access('member_add')) {
-                page_add_content_top($page_data, 'Add', theme('member_add_form'));
+                page_add_content_top($page_data, theme('member_add_form'), 'Add');
             }
             
             break;
@@ -57,8 +76,8 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add view and add tabs
             if (user_access('member_plan_edit')) {
-                page_add_content_top($page_data, 'View', theme('table', 'member_plan'));
-                page_add_content_top($page_data, 'Add', theme('member_plan_add_form'));
+                page_add_content_top($page_data, theme('table', 'member_plan'), 'View');
+                page_add_content_top($page_data, theme('member_plan_add_form'), 'Add');
             }
             
             break;
@@ -66,7 +85,7 @@ function member_page (&$page_data, $page_name, $options) {
         case 'plan':
             
             // Capture plan id
-            $pid = $options['pid'];
+            $pid = $_GET['pid'];
             if (empty($pid)) {
                 return;
             }
@@ -76,7 +95,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('member_plan_edit')) {
-                page_add_content_top($page_data, 'Edit', theme('member_plan_edit_form', $pid));
+                page_add_content_top($page_data, theme('member_plan_edit_form', $pid), 'Edit');
             }
             
             break;
@@ -84,7 +103,7 @@ function member_page (&$page_data, $page_name, $options) {
         case 'member':
             
             // Capture member id
-            $cid = $options['cid'];
+            $cid = $_GET['cid'];
             if (empty($cid)) {
                 return;
             }
@@ -94,22 +113,22 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add view tab
             if (user_access('member_view')) {
-                page_add_content_top($page_data, 'View', theme('table_vertical', 'member_contact', array('cid' => $cid)));
+                page_add_content_top($page_data, theme('table_vertical', 'member_contact', array('cid' => $cid)), 'View');
             }
             
             // Add edit tab
-            if (user_id() == $options['cid'] || (user_access('contact_edit') && user_access('member_edit'))) {
-                page_add_content_top($page_data, 'Edit', theme('member_contact_edit_form', $cid));
+            if (user_id() == $_GET['cid'] || (user_access('contact_edit') && user_access('member_edit'))) {
+                page_add_content_top($page_data, theme('member_contact_edit_form', $cid), 'Edit');
             }
             
             // Add plan and role tabs
             if (user_access('member_membership_edit')) {
                 $plan = theme('table', 'member_membership', array('cid' => $cid));
                 $plan .= theme('member_membership_add_form', $cid);
-                page_add_content_top($page_data, 'Plan', $plan);
+                page_add_content_top($page_data, $plan, 'Plan');
                 
                 $roles = theme('user_role_edit_form', $cid);
-                page_add_content_top($page_data, 'Roles', $roles);
+                page_add_content_top($page_data, $roles, 'Roles');
             }
             
             break;
@@ -117,7 +136,7 @@ function member_page (&$page_data, $page_name, $options) {
         case 'membership':
             
             // Capture sid id
-            $sid = $options['sid'];
+            $sid = $_GET['sid'];
             if (empty($sid)) {
                 return;
             }
@@ -127,9 +146,16 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('member_membership_edit') && user_access('member_edit')) {
-                page_add_content_top($page_data, 'Edit', theme('member_membership_edit_form', $sid));
+                page_add_content_top($page_data, theme('member_membership_edit_form', $sid), 'Edit');
             }
-            
+            break;
+        case 'reports':
+            if (user_access('member_view')) {
+                $reports = theme('member_email_report', array('filter'=>array('active'=>true)));
+                $reports .= theme('member_email_report', array('filter'=>array('active'=>false)));
+                $reports .= theme('member_voting_report');
+                page_add_content_bottom($page_data, $reports);
+            }
             break;
     }
 }

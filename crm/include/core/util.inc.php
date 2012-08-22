@@ -20,36 +20,18 @@
 */
 
 /**
- * Returns a sitemap containing only pages the logged in user has permission
- * to see.
- *
- * @return A tree structure representing the sitemap.
-*/
-function sitemap () {
-    global $config_sitemap;
-    
-    // Initialize sitemap array
-    $sitemap = array();
-    
-    // Loop through sections
-    foreach ($config_sitemap as $section) {
-        if (empty($section['visible'])) {
-            $sitemap[] = $section;
-        } else {
-            foreach ($section['visible'] as $perm) {
-                if ($perm == 'authenticated' && user_id() != 0) {
-                    $sitemap[] = $section;
-                    break;
-                }
-                if (user_access($perm)) {
-                    $sitemap[] = $section;
-                    break;                    
-                }
-            }
-        }
-    }
+ * @return The base path to the directory containing index.php.
+ */
+function base_path () {
+    global $config_base_path;
+    return $config_base_path;
+}
 
-    return $sitemap;
+/**
+ * @return the path to the current page.
+ */
+function path () {
+    return $_GET['q'];
 }
 
 /**
@@ -57,6 +39,13 @@ function sitemap () {
  */
 function title () {
     global $config_site_title;
-    
     return $config_site_title;
+}
+
+/**
+ * @return An array of navigation links
+ */
+function links () {
+    global $config_links;
+    return $config_links;
 }

@@ -167,6 +167,9 @@ function user_access ($action) {
     // Loop through allowed roles
     if (!empty($config_permissions[$action])) {
         foreach ($config_permissions[$action] as $role) {
+            if ($role === 'authenticated') {
+                return true;
+            }
             if ($roles[$role]) {
                 return true;
             }
@@ -224,7 +227,7 @@ function command_login () {
         $next = 'index.php';
     } else {
         error_register('Invalid username/password');
-        $next = 'login.php';
+        $next = 'index.php?q=login';
     }
     
     // Redirect to index
@@ -372,7 +375,7 @@ function command_reset_password () {
     // Make sure user exists
     if (empty($row)) {
         error_register('No such username');
-        return 'reset.php';
+        return 'index.php?q=reset';
     }
     
     // Generate code
@@ -387,7 +390,7 @@ function command_reset_password () {
     $res = mysql_query($sql);
     
     // Generate reset url
-    $url = 'http://' . $config_host . $config_base_path . 'reset-confirm.php?v=' . $code;
+    $url = 'http://' . $config_host . $config_base_path . 'index.php?q=reset-confirm&v=' . $code;
     
     // Send code to user
     $to = $row['email'];
@@ -443,7 +446,7 @@ function command_reset_password_confirm () {
     // Notify user to check their email
     message_register('Your password has been reset, you may now log in');
     
-    return 'login.php';
+    return 'index.php?q=login';
 }
 
 /**
@@ -562,7 +565,7 @@ function command_user_role_update () {
     // Check permissions
     if (!user_access('user_edit')) {
         error_register('Current user does not have permission: user_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     
     // Construct query
@@ -581,7 +584,7 @@ function command_user_role_update () {
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
     
-    return "member.php?cid=$_POST[cid]&tab=roles";
+    return "index.php?q=member&cid=$_POST[cid]&tab=roles";
 }
 
 /**

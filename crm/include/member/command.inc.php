@@ -31,15 +31,15 @@ function command_member_add () {
     // Verify permissions
     if (!user_access('member_add')) {
         error_register('Permission denied: member_add');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     if (!user_access('contact_add')) {
         error_register('Permission denied: contact_add');
-        return 'members.php';
+        return 'index.php?q=members.php';
     }
     if (!user_access('member_add')) {
         error_register('Permission denied: member_add');
-        return 'members.php';
+        return 'index.php?q=members.php';
     }
     
     // Add contact
@@ -112,7 +112,7 @@ function command_member_add () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'members.php';
+    return 'index.php?q=members';
 }
 
 /**
@@ -126,7 +126,7 @@ function command_member_plan_add () {
     // Verify permissions
     if (!user_access('member_plan_edit')) {
         error_register('Permission denied: member_plan_edit');
-        return 'plans.php';
+        return 'index.php?q=plans';
     }
     
     // Add plan
@@ -140,7 +140,7 @@ function command_member_plan_add () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return "plans.php";
+    return "index.php?q=plans";
 }
 
 /**
@@ -154,7 +154,7 @@ function command_member_plan_update () {
     // Verify permissions
     if (!user_access('member_plan_edit')) {
         error_register('Permission denied: member_plan_edit');
-        return 'plans.php';
+        return 'index.php?q=plans';
     }
     
     // Update plan
@@ -171,7 +171,7 @@ function command_member_plan_update () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return "plans.php";
+    return "index.php?q=plans";
 }
 
 /**
@@ -185,7 +185,7 @@ function command_member_plan_delete () {
     // Verify permissions
     if (!user_access('member_plan_edit')) {
         error_register('Permission denied: member_plan_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
 
     // Delete plan
@@ -193,7 +193,7 @@ function command_member_plan_delete () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
 
-    return 'plans.php';
+    return 'index.php?q=plans';
 }
 
 /**
@@ -207,11 +207,11 @@ function command_member_membership_add () {
     // Verify permissions
     if (!user_access('member_edit')) {
         error_register('Permission denied: member_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     if (!user_access('member_membership_edit')) {
         error_register('Permission denied: member_membership_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     
     // Add membership
@@ -233,7 +233,7 @@ function command_member_membership_add () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return "member.php?cid=$_POST[cid]";
+    return "index.php?q=member&cid=$_POST[cid]";
 }
 
 /**
@@ -248,11 +248,11 @@ function command_member_membership_update () {
     // Verify permissions
     if (!user_access('member_edit')) {
         error_register('Permission denied: member_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     if (!user_access('member_membership_edit')) {
         error_register('Permission denied: member_membership_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     
     // Update membership
@@ -278,7 +278,7 @@ function command_member_membership_update () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return "member.php?cid=$_POST[cid]&tab=plan";
+    return "index.php?q=member&cid=$_POST[cid]&tab=plan";
 }
 
 /**
@@ -311,10 +311,10 @@ function command_member_filter () {
         $params[] = urlencode($k) . '=' . urlencode($v);
     }
     if (!empty($params)) {
-        $query = '?' . join('&', $params);
+        $query = '&' . join('&', $params);
     }
     
-    return 'members.php' . $query;
+    return 'index.php?q=members' . $query;
 }
 
 /**
@@ -328,15 +328,15 @@ function command_member_delete () {
     // Verify permissions
     if (!user_access('member_delete')) {
         error_register('Permission denied: member_delete');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     if ($_POST['deleteUser'] && !user_access('user_delete')) {
         error_register('Permission denied: user_delete');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     if ($_POST['deleteContact'] && !user_access('contact_delete')) {
         error_register('Permission denied: contact_delete');
-        return 'members.php';
+        return 'index.php?q=members';
     }
 
     // Delete user and roles
@@ -361,7 +361,7 @@ function command_member_delete () {
         if (!$res) die(mysql_error());
     }
 
-    return 'members.php';
+    return 'index.php?q=members';
 }
 
 /**
@@ -375,7 +375,7 @@ function command_member_membership_delete () {
     // Verify permissions
     if (!user_access('member_membership_edit')) {
         error_register('Permission denied: member_membership_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
 
     // Delete membership
@@ -383,7 +383,7 @@ function command_member_membership_delete () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
 
-    return 'members.php';
+    return 'index.php?q=members';
 }
 
 /**
@@ -397,7 +397,7 @@ function command_contact_update () {
     // Verify permissions
     if (!user_access('contact_edit') && $_POST['cid'] != user_id()) {
         error_register('Permission denied: contact_edit');
-        return 'members.php';
+        return 'index.php?q=members';
     }
     
     // Query database
@@ -415,5 +415,5 @@ function command_contact_update () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'members.php';
+    return 'index.php?q=members';
 }

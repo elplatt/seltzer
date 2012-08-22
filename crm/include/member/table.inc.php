@@ -88,7 +88,7 @@ function member_table ($opts = NULL) {
             if (!empty($member['contact']['middleName'])) {
                 $name .= ' ' . $member['contact']['middleName'];
             }
-            $name_link = '<a href="member.php?cid=' . $member['cid'] . '">' . $name . '</a>';
+            $name_link = '<a href="index.php?q=member&cid=' . $member['cid'] . '">' . $name . '</a>';
             // Construct membership info
             $recentMembership = end($member['membership']);
             $plan = '';
@@ -116,12 +116,12 @@ function member_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_edit')) {
-            $ops[] = '<a href="member.php?cid=' . $member['cid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href="index.php?q=member&cid=' . $member['cid'] . '&tab=edit">edit</a> ';
         }
         
         // Add delete op
         if (user_access('member_delete')) {
-            $ops[] = '<a href="delete.php?type=member&amp;id=' . $member['cid'] . '">delete</a>';
+            $ops[] = '<a href="index.php?q=delete&type=member&amp;id=' . $member['cid'] . '">delete</a>';
         }
         
         // Add ops row
@@ -252,12 +252,12 @@ function member_plan_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_plan_edit')) {
-            $ops[] = '<a href="plan.php?pid=' . $plan['pid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href="index.php?q=plan&pid=' . $plan['pid'] . '&tab=edit">edit</a> ';
         }
         
         // Add delete op
         if (user_access('member_plan_edit')) {
-            $ops[] = '<a href="delete.php?type=member_plan&amp;id=' . $plan['pid'] . '">delete</a>';
+            $ops[] = '<a href="index.php?q=delete&type=member_plan&amp;id=' . $plan['pid'] . '">delete</a>';
         }
         
         // Add ops row
@@ -327,8 +327,8 @@ function member_membership_table ($opts = NULL) {
         
         // Add delete op
         if (user_access('member_membership_edit')) {
-            $ops[] = '<a href="membership.php?sid=' . $membership['sid'] . '&tab=edit">edit</a>';
-            $ops[] = '<a href="delete.php?type=member_membership&amp;id=' . $membership['sid'] . '">delete</a>';
+            $ops[] = '<a href="index.php?q=membership&sid=' . $membership['sid'] . '&tab=edit">edit</a>';
+            $ops[] = '<a href="index.php?q=delete&type=member_membership&amp;id=' . $membership['sid'] . '">delete</a>';
         }
         
         // Add ops row

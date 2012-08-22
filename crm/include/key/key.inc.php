@@ -562,6 +562,14 @@ function command_key_delete() {
 // Pages ///////////////////////////////////////////////////////////////////////
 
 /**
+ * @return An array of pages provided by this module.
+ */
+function key_page_list () {
+    $pages = array();
+    return $pages;
+}
+
+/**
  * Page hook.  Adds module content to a page before it is rendered.
  *
  * @param &$page_data Reference to data about the page being rendered.
@@ -584,7 +592,7 @@ function key_page (&$page_data, $page_name, $options) {
             if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
                 $keys = theme('table', 'key', array('cid' => $cid));
                 $keys .= theme('key_add_form', $cid);
-                page_add_content_bottom($page_data, 'Keys', $keys);
+                page_add_content_bottom($page_data, $keys, 'Keys');
             }
             
             break;
@@ -602,7 +610,7 @@ function key_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
-                page_add_content_top($page_data, 'Edit', theme('key_edit_form', $kid));
+                page_add_content_top($page_data, theme('key_edit_form', $kid), 'Edit');
             }
             
             break;

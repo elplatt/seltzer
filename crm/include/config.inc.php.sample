@@ -39,34 +39,13 @@ $config_modules = array(
     "key"
 );
 
-// Site map
-$config_sitemap = array(
-    'index' => array(
-        'title' => 'Home',
-        'url' => 'index.php'
-    ),
-    'members' => array(
-        'title' => 'Members',
-        'url' => 'members.php',
-        'visible' => array(
-            'member_view',
-            'member_edit'
-        )
-    ),
-    'plans' => array(
-        'title' => 'Plans',
-        'url' => 'plans.php',
-        'visible' => array(
-            'member_plan_edit'
-        )
-    ),
-    'reports' => array(
-        'title' => 'Reports',
-        'url' => 'reports.php',
-        'visible' => array(
-            'authenticated'
-        )
-    )
+// Links to show in the main menu
+$config_links = array(
+    '<front>' => 'Home'
+    , 'members' => 'Members'
+    , 'plans' => 'Plans'
+    , 'reports' => 'Reports'
+    , 'upgrade' => 'Upgrade'
 );
 
 // Roles
@@ -91,6 +70,12 @@ $config_permissions = array(
     ),
     "user_delete" => array(
         "director"
+    ),
+    "module_upgrade" => array(
+        "director", "webAdmin"
+    ),
+    "report_view" => array(
+        "authenticated"
     ),
     "contact_view" => array(
         "director"
