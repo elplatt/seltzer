@@ -1,5 +1,5 @@
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     style.css - Styling for CRM front end
@@ -217,10 +217,4 @@ fieldset.tab > legend {
 }
 .footer a {
     color: #999999;
-}
-
-/* Specific styles */
-
-.member-email-report {
-    margin: 0 0.5em;
 }

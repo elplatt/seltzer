@@ -43,6 +43,8 @@ function template_render ($name, $path) {
  */
 function template_preprocess ($path) {
     $variables = array();
+    $variables['scripts'] = theme('scripts');
+    $variables['stylesheets'] = theme('stylesheets');
     $variables['title'] = title();
     $variables['header'] = theme('header');
     $variables['errors'] = theme('errors');

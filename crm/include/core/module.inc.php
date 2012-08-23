@@ -307,3 +307,28 @@ function command_module_upgrade () {
     message_register('Seltzer CRM has been upgraded.');
     return 'index.php';
 }
+
+/**
+ * Initialize the module system
+ */
+function module_init () {
+    global $core_stylesheets;
+    global $core_scripts;
+    
+    foreach (module_list() as $module) {
+        $style_func = $module . '_stylesheets';
+        if (function_exists($style_func)) {
+            $stylesheets = call_user_func($style_func);
+            foreach ($stylesheets as $sheet) {
+                $core_stylesheets[] = "include/$module/$sheet";
+            }
+        }
+        $style_func = $module . '_scripts';
+        if (function_exists($style_func)) {
+            $scripts = call_user_func($scripts_func);
+            foreach ($scripts as $script) {
+                $core_scripts[] = "include/$module/$script";
+            }
+        }
+    }
+}

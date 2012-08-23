@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     member.inc.php - Member module
@@ -72,6 +72,13 @@ function member_install($old_revision = 0) {
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     }
+}
+
+/**
+ * @return Array of paths to stylesheets relative to this module's directory.
+ */
+function member_stylesheets () {
+    return array('style.css');
 }
 
 // Utility functions ///////////////////////////////////////////////////////////

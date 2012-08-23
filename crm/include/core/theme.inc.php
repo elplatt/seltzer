@@ -63,6 +63,30 @@ function theme () {
 }
 
 /**
+ * @return Themed html for script includes.
+ */
+function theme_scripts () {
+    global $core_scripts;
+    $output = '';
+    foreach ($core_scripts as $script) {
+        $output .= '<script type="text/javascript" src="' . $script . '"></script>';
+    }
+    return $output;
+}
+
+/**
+ * @return Themed html for stylesheet includes.
+ */
+function theme_stylesheets () {
+    global $core_stylesheets;
+    $output = '';
+    foreach ($core_stylesheets as $sheet) {
+        $output .= '<link rel="stylesheet" type="text/css" href="' . $sheet . '"/>';
+    }
+    return $output;
+}
+
+/**
  * @return The themed html string for a page header.
 */
 function theme_header () {
@@ -84,7 +108,7 @@ function theme_footer() {
  * @return The themed html string for logo.
 */
 function theme_logo () {
-    return '<div class="logo"><img alt="i3 Detroit" src="images/logo.png"/></div>';
+    return '<div class="logo"><img alt="i3 Detroit" src="' . path_to_theme() . '/images/logo.png"/></div>';
 }
 
 /**
