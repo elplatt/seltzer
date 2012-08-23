@@ -296,16 +296,16 @@ function command_member_filter () {
         $_SESSION['member_filter'] = array();
     }
     if ($_GET['filter'] == 'active') {
-        $_SESSION['member_filter']['active'] = true;
+        $_SESSION['member_filter'] = array('active'=>true);
     }
     if ($_GET['filter'] == 'voting') {
-        $_SESSION['member_filter']['voting'] = true;
+        $_SESSION['member_filter'] = array('voting'=>true);
     }
     
     // Construct query string
     $params = array();
     foreach ($_GET as $k=>$v) {
-        if ($k == 'command' || $k == 'filter') {
+        if ($k == 'command' || $k == 'filter' || $k == 'q') {
             continue;
         }
         $params[] = urlencode($k) . '=' . urlencode($v);
