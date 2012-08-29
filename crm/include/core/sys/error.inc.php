@@ -58,3 +58,47 @@ function message_list () {
     $_SESSION['messageList'] = array();
     return $errors;
 }
+
+/**
+ * @return The themed html string for any errors currently registered.
+*/
+function theme_errors () {
+
+    // Pop and check errors
+    $errors = error_list();
+    if (empty($errors)) {
+        return '';
+    }
+    
+    $output = '<fieldset><ul>';
+    
+    // Loop through errors
+    foreach ($errors as $error) {
+        $output .= '<li>' . $error . '</li>';
+    }
+    
+    $output .= '</ul></fieldset>';
+    return $output;
+}
+
+/**
+ * @return The themed html string for any registered messages.
+*/
+function theme_messages () {
+
+    // Pop and check messages
+    $messages = message_list();
+    if (empty($messages)) {
+        return '';
+    }
+    
+    $output = '<fieldset><ul>';
+    
+    // Loop through errors
+    foreach ($messages as $message) {
+        $output .= '<li>' . $message . '</li>';
+    }
+    
+    $output .= '</ul></fieldset>';
+    return $output;
+}

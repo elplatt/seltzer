@@ -33,17 +33,6 @@ function delete_form ($type, $id) {
         return $function($id);
     }
     return array();
-    /*
-    switch ($type) {
-    case 'member':
-        return member_delete_form($id);
-        break;
-    case 'member_membership':
-        return member_membership_delete_form($id);
-        break;
-    }
-    return array();
-    */
 }
 
 /**

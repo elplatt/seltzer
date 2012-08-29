@@ -28,34 +28,25 @@ function core_revision () {
     return 1;
 }
 
-// Include utility functions
-require_once('util.inc.php');
+// Subsystems //////////////////////////////////////////////////////////////////
 
-// Inclue error reporting system
-require_once('error.inc.php');
+require_once('sys/init.inc.php');       // Pre-module initialization
+require_once('sys/util.inc.php');       // Generic utility functions
+require_once('sys/theme.inc.php');      // Theme system
+require_once('sys/template.inc.php');   // Template system
+require_once('sys/error.inc.php');      // Error reporting system
+require_once('sys/form.inc.php');       // Form system
+require_once('sys/table.inc.php');      // Table system
+require_once('sys/user.inc.php');       // User auth and permissions system
+require_once('sys/module.inc.php');     // Module system
+require_once('sys/page.inc.php');       // Page system
 
-// Inclue user system
-require_once('user.inc.php');
+// Core module elements ////////////////////////////////////////////////////////
 
-// Include form system
-require_once('form.inc.php');
-
-// Include page system
-require_once('page.inc.php');
-
-// Include theme system
-require_once('theme.inc.php');
-
-// Include the templating system
-require_once('template.inc.php');
-
-// Include installation system
-require_once('module.inc.php');
-
-// Include installation system
-require_once('install.inc.php');
-
-// Run init code
-require_once('init.inc.php');
+require_once('init.inc.php');           // Core module initialization
+require_once('install.inc.php');        // Core database schema
+require_once('form.inc.php');           // Core database schema
+require_once('page.inc.php');           // Core pages
+require_once('theme.inc.php');          // Core element theming
 
 ?>

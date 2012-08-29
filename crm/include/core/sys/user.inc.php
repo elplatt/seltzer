@@ -111,6 +111,15 @@ function user_check_role ($role, $cid = NULL) {
         }
     }
     
+    // Check whether role table exists (might not be installed yet)
+    $sql = "SHOW TABLES LIKE 'role'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    if (!$row) {
+        return false;
+    }
+    
     // Query for users roles
     $sql = "
         SELECT * FROM
@@ -143,34 +152,10 @@ function user_check_role ($role, $cid = NULL) {
 function user_access ($action) {
     global $config_permissions;
     
-    // Get user id
-    $cid = user_id();
-    
-    // Check whether role table exists (might not be installed yet)
-    $sql = "SHOW TABLES LIKE 'role'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $row = mysql_fetch_assoc($res);
-    if (!$row) {
-        return false;
-    }
-    
-    // Query user's role info
-    $sql = "SELECT * FROM `role` WHERE `cid`='$cid'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $roles = mysql_fetch_assoc($res);
-    if (count($roles) == 0) {
-        return false;
-    }
-    
     // Loop through allowed roles
     if (!empty($config_permissions[$action])) {
         foreach ($config_permissions[$action] as $role) {
-            if ($role === 'authenticated') {
-                return true;
-            }
-            if ($roles[$role]) {
+            if (user_check_role($role)) {
                 return true;
             }
         }

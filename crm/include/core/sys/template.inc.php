@@ -23,7 +23,7 @@
 /**
  * Render a template.
  * @param $name The template name.
- * @param $name The template name.
+ * @param $path The template path.
  */
 function template_render ($name, $path) {
     // Load variables into local scope
