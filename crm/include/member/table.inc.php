@@ -58,6 +58,7 @@ function member_table ($opts = NULL) {
     
     if (user_access('member_view')) {
         if ($export) {
+            $table['columns'][] = array('title'=>'Contact ID','class'=>'');
             $table['columns'][] = array('title'=>'Last','class'=>'');
             $table['columns'][] = array('title'=>'First','class'=>'');
             $table['columns'][] = array('title'=>'Middle','class'=>'');
@@ -98,6 +99,7 @@ function member_table ($opts = NULL) {
             
             // Add cells
             if ($export) {
+                $row[] = $member['contact']['cid'];
                 $row[] = $member['contact']['lastName'];
                 $row[] = $member['contact']['firstName'];
                 $row[] = $member['contact']['middleName'];
