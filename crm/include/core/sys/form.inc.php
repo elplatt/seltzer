@@ -146,18 +146,28 @@ function theme_form_readonly ($field) {
  * @return The themed html for the text field.
  */
 function theme_form_text ($field) {
+    $classes = array();
+    if (!empty($field['class'])) {
+        array_push($classes, $field['class']);
+    }
+    if (!empty($field['autocomplete'])) {
+        array_push($classes, 'autocomplete');
+    }
     $output = '<fieldset class="form-row">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
     $output .= '<input type="text" name="' . $field['name'] . '"';
-    if (!empty($field['class'])) {
-        $output .= ' class="' . $field['class'] . '"';
+    if (!empty($classes)) {
+        $output .= ' class="' . join(' ', $classes) . '"';
     }
     if (!empty($field['value'])) {
         $output .= ' value="' . $field['value'] . '"';
     }
     $output .= '/>';
+    if (!empty($field['autocomplete'])) {
+        $output .= '<span class="autocomplete" style="display:none;">' . $field['autocomplete'] . '</span>';
+    }
     $output .= '</fieldset>';
     return $output;
 }

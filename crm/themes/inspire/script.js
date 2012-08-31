@@ -43,6 +43,9 @@ $(document).ready(function () {
         showTab($(this).attr('href'));
         return false;
     });
+    
+    // Set up autocomplete forms
+    initAutocomplete();
 });
 
 var showTab = function (hash) {
@@ -65,3 +68,11 @@ var showTab = function (hash) {
         $('ul.page-nav li a[href="#tab-view"]').addClass('active');
     }
 }
+
+// Add autocomplete functionality to input fields
+var initAutocomplete = function () {
+    $('input.autocomplete').each(function () {
+        var command = $(this).parent().children('span.autocomplete').html();
+        $(this).autocomplete({'source': 'autocomplete.php?command=' + command});
+    });
+};
