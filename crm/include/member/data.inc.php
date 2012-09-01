@@ -245,8 +245,15 @@ function member_membership_data ($opts) {
     if (isset($opts['filter'])) {
         foreach ($opts['filter'] as $name => $param) {
             switch ($name) {
+                case 'active':
+                    if ($param) {
+                        $sql .= " AND (`end` IS NULL) ";
+                    } else {
+                        $sql .= " AND (`end` IS NOT NULL) ";
+                    }
+                    break;
                 default:
-                break;
+                    break;
             }
         }
     }

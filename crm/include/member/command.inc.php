@@ -27,6 +27,7 @@
  */
 function command_member_add () {
     global $esc_post;
+    global $config_email_to;
     
     // Verify permissions
     if (!user_access('member_add')) {
@@ -53,26 +54,31 @@ function command_member_add () {
     $cid = mysql_insert_id();
     
     // Find Username
+    $username = $_POST['username'];
     $esc_name = $esc_post['username'];
     $n = 0;
     while (empty($esc_name) && $n < 100) {
         
         // Contruct test username
-        $test_name = strtolower($_POST[firstName]{0} . $_POST[lastName]);
+        $username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
         if ($n > 0) {
-            $test_name .= $n;
+            $username .= $n;
         }
         
         // Check whether username is taken
-        $esc_test_name = mysql_real_escape_string($test_name);
+        $esc_test_name = mysql_real_escape_string($username);
         $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         $row = mysql_fetch_assoc($res);
         if (!$row) {
-            $esc_name = $esc_test_name;
+            $username = $esc_test_name;
         }
         $n++;
+    }
+    if (empty($esc_name)) {
+        error_register('Please specify a username');
+        return 'index.php?q=members&tab=add';
     }
     
     // Add user
@@ -111,6 +117,9 @@ function command_member_add () {
     ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
+    
+    $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
+    mail($config_email_to, "New Member: $name", theme('member_created_email', $cid));
     
     return 'index.php?q=members';
 }

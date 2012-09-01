@@ -29,6 +29,7 @@ $config_db_db = '';
 // Site info
 $config_site_title = 'Seltzer CRM';
 $config_email_from = '';
+$config_email_to = '';
 $config_host = $_SERVER['SERVER_NAME'];
 $config_base_path = '/crm/';
 

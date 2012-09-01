@@ -198,3 +198,36 @@ function theme_member_plan_description ($pid) {
     
     return $output;
 }
+
+/**
+ * Return the text of an email notifying administrators that a user has been created.
+ */
+function theme_member_created_email ($cid) {
+    
+    // Get info on the logged in user
+    $data = member_contact_data(array('cid'=>user_id()));
+    $admin = $data[0];
+    $adminName = member_name($admin['firstName'], $admin['middleName'], $admin['lastName']);
+    
+    // Get info on member
+    $data = member_data(array('cid'=>$cid));
+    $member = $data[0];
+    $contact = $member['contact'];
+    $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    
+    // Get info on member's plan
+    $data = member_membership_data(array('cid'=>$cid, $filter=>array('active'=>true)));
+    $date = $data[0]['start'];
+    $plan = $data[0]['plan']['name'];
+    
+    $output = "Contact info:\n";
+    $output .= "Name: $name\n";
+    $output .= "Email: $contact[email]\n";
+    $output .= "Phone: $contact[phone]\n\n";
+    $output .= "Membership info:\n";
+    $output .= "Plan: $plan\n";
+    $output .= "Start date: $date\n\n";
+    $output .= "Entered by: $adminName\n";
+    
+    return $output;
+}
