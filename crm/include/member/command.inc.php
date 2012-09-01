@@ -28,6 +28,8 @@
 function command_member_add () {
     global $esc_post;
     global $config_email_to;
+    global $config_email_from;
+    global $config_org_name;
     
     // Verify permissions
     if (!user_access('member_add')) {
@@ -118,8 +120,18 @@ function command_member_add () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
-    mail($config_email_to, "New Member: $name", theme('member_created_email', $cid));
+    // Notify admins
+    $from = "\"$config_org_name\" <$config_email_from>";
+    $headers = "From: $from\r\n";
+    if (!empty($config_email_to)) {
+        $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
+        $content = theme('member_created_email', $cid);
+        mail($config_email_to, "New Member: $name", $content, $headers);
+    }
+    
+    // Notify user
+    $content = theme('member_welcome_email', $cid);
+    mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
     
     return 'index.php?q=members';
 }

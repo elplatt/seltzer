@@ -34,7 +34,12 @@ function template_render ($name, $path) {
     $filename = path_to_theme() . '/' . $name . '.tpl.php';
     
     // Render template
+    ob_start();
     include($filename);
+    $output = ob_get_contents();
+    ob_end_clean();
+    
+    return $output;
 }
 
 /**

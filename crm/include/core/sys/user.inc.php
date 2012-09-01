@@ -346,6 +346,7 @@ function command_reset_password () {
     global $config_host;
     global $config_base_path;
     global $config_email_from;
+    global $config_site_title;
     
     // Get user info
     $sql = "
@@ -379,10 +380,11 @@ function command_reset_password () {
     
     // Send code to user
     $to = $row['email'];
-    $subject = '[i3 Detroit CRM] Reset Password';
+    $subject = "[$config_site_title] Reset Password";
     $from = $config_email_from;
+    $headers = "From: $from\r\n";
     $message = "To reset your password, visit the following url: $url";
-    $res = mail($to, $subject, $message);
+    $res = mail($to, $subject, $message, $headers);
     
     // Notify user to check their email
     message_register('Instructions for resetting your password have been sent to your e-mail.');

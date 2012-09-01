@@ -43,4 +43,4 @@ if (!empty($command)) {
     die();
 }
 
-template_render('page', path());
+print template_render('page', path());

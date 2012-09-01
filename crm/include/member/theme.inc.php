@@ -201,6 +201,7 @@ function theme_member_plan_description ($pid) {
 
 /**
  * Return the text of an email notifying administrators that a user has been created.
+ * @param $cid The contact id of the new member.
  */
 function theme_member_created_email ($cid) {
     
@@ -230,4 +231,12 @@ function theme_member_created_email ($cid) {
     $output .= "Entered by: $adminName\n";
     
     return $output;
+}
+
+/**
+ * Return the text of an email welcoming a new member.
+ * @param $cid The contact id of the new member.
+ */
+function theme_member_welcome_email ($cid) {
+    return template_render('welcome-email');
 }
