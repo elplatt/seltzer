@@ -47,10 +47,16 @@ function template_render ($name, $path) {
  * @param $path The path to the current page
  */
 function template_preprocess ($path) {
+    global $config_org_name;
+    global $config_base_path;
+    
     $variables = array();
     $variables['scripts'] = theme('scripts');
     $variables['stylesheets'] = theme('stylesheets');
     $variables['title'] = title();
+    $variables['org_name'] = $config_org_name;
+    $variables['base_path'] = $config_base_path;
+    $variables['hostname'] = $_SERVER['SERVER_NAME'];
     $variables['header'] = theme('header');
     $variables['errors'] = theme('errors');
     $variables['messages'] = theme('messages');

@@ -74,7 +74,7 @@ function command_member_add () {
         if (!$res) die(mysql_error());
         $row = mysql_fetch_assoc($res);
         if (!$row) {
-            $username = $esc_test_name;
+            $esc_name = $esc_test_name;
         }
         $n++;
     }
@@ -122,7 +122,7 @@ function command_member_add () {
     
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
-    $headers = "From: $from\r\n";
+    $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
     if (!empty($config_email_to)) {
         $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
         $content = theme('member_created_email', $cid);

@@ -221,14 +221,14 @@ function theme_member_created_email ($cid) {
     $date = $data[0]['start'];
     $plan = $data[0]['plan']['name'];
     
-    $output = "Contact info:\n";
-    $output .= "Name: $name\n";
-    $output .= "Email: $contact[email]\n";
-    $output .= "Phone: $contact[phone]\n\n";
-    $output .= "Membership info:\n";
-    $output .= "Plan: $plan\n";
-    $output .= "Start date: $date\n\n";
-    $output .= "Entered by: $adminName\n";
+    $output = "<p>Contact info:<br/>\n";
+    $output .= "Name: $name<br/>\n";
+    $output .= "Email: $contact[email]<br/>\n";
+    $output .= "Phone: $contact[phone]\n</p>\n";
+    $output .= "<p>Membership info:<br/>\n";
+    $output .= "Plan: $plan<br/>\n";
+    $output .= "Start date: $date\n</p>\n";
+    $output .= "<p>Entered by: $adminName</p>\n";
     
     return $output;
 }
