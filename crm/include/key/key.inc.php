@@ -31,6 +31,17 @@ function key_revision () {
 }
 
 /**
+ * @return An array of the permissions provided by this module.
+ */
+function key_permissions () {
+    return array(
+        'key_view'
+        , 'key_edit'
+        , 'key_delete'
+    );
+}
+
+/**
  * Install or upgrade this module.
  * @param $old_revision The last installed revision of this module, or 0 if the
  *   module has never been installed.

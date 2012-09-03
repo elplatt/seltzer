@@ -35,6 +35,26 @@ function member_stylesheets () {
     return array('style.css');
 }
 
+/**
+ * @return An array of the permissions provided by this module.
+ */
+function member_permissions () {
+    return array(
+        'contact_view'
+        , 'contact_add'
+        , 'contact_edit'
+        , 'contact_delete'
+        , 'member_plan_edit'
+        , 'member_view'
+        , 'member_add'
+        , 'member_edit'
+        , 'member_delete'
+        , 'member_membership_view'
+        , 'member_membership_edit'
+        , 'roles_edit'
+    );
+}
+
 // Installation functions //////////////////////////////////////////////////////
 require_once('install.inc.php');
 

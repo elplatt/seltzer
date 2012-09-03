@@ -20,6 +20,15 @@
 */
 
 /**
+ * @return An array of the permissions provided by this module.
+ */
+function module_permissions () {
+    return array(
+        'module_upgrade'
+    );
+}
+
+/**
  * @return list of installed modules.
  */
 function module_list () {

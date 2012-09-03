@@ -21,6 +21,34 @@
 */
 
 /**
+ * Array of all permissions.
+ */
+$user_permissions = array();
+
+/**
+ * Initialization code run after all modules are loaded.
+ */
+function user_init () {
+    global $user_permissions;
+    
+    foreach (module_list() as $module) {
+        $func = $module . '_permissions';
+        if (function_exists($func)) {
+            $permissions = call_user_func($func);
+            $user_permissions = array_merge($user_permissions, $permissions);
+        }
+    }
+}
+
+/**
+ * @return a list of all permissions.
+ */
+function user_permission_list () {
+    global $user_permissions;
+    return $user_permissions;
+}
+
+/**
  * @return the cid of the logged in user.
 */
 function user_id () {
@@ -56,6 +84,37 @@ function user_get_user($cid = 0) {
     // Return user structure
     $user = mysql_fetch_assoc($res);
     return $user;
+}
+
+/**
+ * @return An array of the permissions provided by this module.
+ */
+function user_permissions () {
+    return array(
+        'user_add'
+        , 'user_edit'
+        , 'user_delete'
+    );
+}
+
+/**
+ * @return An array of role names.
+ */
+function user_role_list () {
+    $sql = "SHOW COLUMNS FROM `role`";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    
+    $roles = array();
+    $row = mysql_fetch_assoc($res);
+    while ($row) {
+        if ($row['Field'] !== 'cid') {
+            $roles[] = $row['Field'];
+        }
+        $row = mysql_fetch_assoc($res);
+    }
+    
+    return $roles;
 }
 
 /**

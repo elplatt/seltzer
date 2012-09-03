@@ -28,6 +28,18 @@ function core_revision () {
     return 1;
 }
 
+/**
+ * @return An array of the permissions provided by this module.
+ */
+function core_permissions () {
+    $permissions = array_merge(
+        user_permissions()
+        , module_permissions()
+        , array('report_view')
+    );
+    return $permissions;
+}
+
 // Subsystems //////////////////////////////////////////////////////////////////
 
 require_once('sys/init.inc.php');       // Pre-module initialization

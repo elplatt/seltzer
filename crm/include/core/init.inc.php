@@ -25,5 +25,6 @@
  */
 function core_init () {
     module_init();
+    user_init();
     page_init();
 }
