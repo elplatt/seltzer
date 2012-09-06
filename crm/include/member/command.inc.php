@@ -93,13 +93,19 @@ function command_member_add () {
     if (!$res) die(mysql_error());
      
     // Add role entry
-    $sql = "
-        INSERT INTO `role`
-        (`cid`, `member`)
-        VALUES
-        ('$cid', 1)";
+    $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    if ($row) {
+        $sql = "
+            INSERT INTO `user_role`
+            (`cid`, `rid`)
+            VALUES
+            ('$cid', $row[rid])";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+    }
     
     // Add member
     $sql = "
@@ -365,7 +371,7 @@ function command_member_delete () {
         $sql = "DELETE FROM `user` WHERE `cid`='$esc_post[cid]'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        $sql = "DELETE FROM `role` WHERE `cid`='$esc_post[cid]'";
+        $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     }

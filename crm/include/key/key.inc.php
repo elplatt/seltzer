@@ -27,7 +27,7 @@
  * this number.
  */
 function key_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -61,6 +61,32 @@ function key_install($old_revision = 0) {
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
+    }
+    // Permissions moved to DB, set defaults on install/upgrade
+    if ($old_revision < 2) {
+        // Set default permissions
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        $default_perms = array(
+            'director' => array('key_view', 'key_edit', 'key_delete')
+        );
+        foreach ($roles as $rid => $role) {
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                    $res = mysql_query($sql);
+                    if (!$res) die(mysql_error());
+                }
+            }
+        }
     }
 }
 

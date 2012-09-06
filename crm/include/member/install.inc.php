@@ -26,6 +26,8 @@
  *   module has never been installed.
  */
 function member_install($old_revision = 0) {
+    
+    // Initial installation
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `member` (
@@ -61,5 +63,32 @@ function member_install($old_revision = 0) {
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
+    }
+    
+    // Permissions moved to database, add defaults on install/upgrade
+    if ($old_revision < 2) {
+         $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+       $default_perms = array(
+            'member' => array('member_view', 'member_membership_view')
+            , 'director' => array('member_plan_edit', 'member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit')
+        );
+        foreach ($roles as $rid => $role) {
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                    $res = mysql_query($sql);
+                    if (!$res) die(mysql_error());
+                }
+            }
+        }
     }
 }

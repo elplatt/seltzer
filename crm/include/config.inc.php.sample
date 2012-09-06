@@ -46,18 +46,8 @@ $config_links = array(
     , 'members' => 'Members'
     , 'plans' => 'Plans'
     , 'reports' => 'Reports'
+    , 'permissions' => 'Permissions'
     , 'upgrade' => 'Upgrade'
-);
-
-// Roles
-$config_roles = array(
-    "member",
-    "director",
-    "president",
-    "vp",
-    "secretary",
-    "treasurer",
-    "webAdmin"
 );
 
 // Permissions (which roles can perform which actions)

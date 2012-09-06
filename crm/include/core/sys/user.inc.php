@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
     
     This file is part of the Seltzer CRM Project
     user.inc.php - Core user functions
@@ -43,9 +43,21 @@ function user_init () {
 /**
  * @return a list of all permissions.
  */
-function user_permission_list () {
+function user_permissions_list () {
     global $user_permissions;
     return $user_permissions;
+}
+
+/**
+ * @return An array of the permissions provided by this module.
+ */
+function user_permissions () {
+    return array(
+        'user_add'
+        , 'user_edit'
+        , 'user_delete'
+        , 'user_role_edit'
+    );
 }
 
 /**
@@ -65,163 +77,205 @@ function user_login ($cid) {
 }
 
 /**
- * @param $cid The cid of the user being queried, defaults to current user.
- * @return The data structure for the specified user.
-*/
-function user_get_user($cid = 0) {
+ * Return data for one or more users.
+ *
+ * @param $opts An associative array of options, possible keys are:
+ *   'cid' If specified, returns a single user with the matching cid,
+ *   'filter' An array mapping filter names to filter values
+ *   'join' Array of entities to be included in the results, options are:
+ *     - role: adds 'roles' key with array of roles as a value.
+ * @return An array with each element representing a user.
+*/ 
+function user_data ($opts) {
     
-    // Default to logged in user
-    if ($cid == 0) {
-        $cid = user_id();
+    // Create a map of user roles if role join was specified
+    $join_role = !array_key_exists('join', $opts) || in_array('role', $opts['join']);
+    if ($join_role) {
+        $sql = "
+            SELECT `user_role`.`cid`, `role`.`rid`, `role`.`name`
+            FROM `user_role` INNER JOIN `role` ON `user_role`.`rid`=`role`.`rid`
+        ";
+        $res = mysql_query($sql);
+        if (!$res) { die(mysql_error()); }
+        $roles = array();
+        $row = mysql_fetch_assoc($res);
+        while ($row) {
+            $cid = $row['cid'];
+            if (!array_key_exists($cid, $roles)) {
+                $roles[$cid] = array();
+            }
+            $roles[$cid][] = $row['name'];
+            $row = mysql_fetch_assoc($res);
+        }
     }
     
-    // Query database
-    $cid = mysql_real_escape_string($cid);
-    $sql = "SELECT * FROM `user` WHERE `cid`='$cid'";
+    // Construct query for users
+    $sql = "
+        SELECT `cid`, `username`, `hash` FROM `user` WHERE 1
+    ";
+    if (array_key_exists('cid', $opts)) {
+        $cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND `cid`='$cid' ";
+    }
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
     
-    // Return user structure
-    $user = mysql_fetch_assoc($res);
-    return $user;
+    // Create result array
+    $users = array();    
+    $row = mysql_fetch_assoc($res);
+    while ($row) {
+        $user = $row;
+        if ($join_role) {
+            if (array_key_exists($row['cid'], $roles)) {
+                $user['roles'] = $roles[$row['cid']];
+            } else {
+                $user['roles'] = array();
+            }
+        }
+        $users[] = $user;
+        $row = mysql_fetch_assoc($res);
+    }
+    
+    return $users;
 }
 
 /**
- * @return An array of the permissions provided by this module.
- */
-function user_permissions () {
-    return array(
-        'user_add'
-        , 'user_edit'
-        , 'user_delete'
-    );
+ * Return data for one or more roles.
+ *
+ * @param $opts An associative array of options.
+ * @return An array with each element representing a role.
+*/ 
+function user_role_data ($opts = NULL) {
+    
+    // Construct map from role ids to arrays of permissions granted
+    $permissionMap = array();
+    $sql = "SELECT `rid`, `permission` FROM `role_permission` WHERE 1";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    $row = mysql_fetch_assoc($res);
+    while ($row) {
+        if (!array_key_exists($row['rid'], $permissionMap)) {
+            $permissionMap[$row['rid']] = array();
+        }
+        $permissionMap[$row['rid']][] = $row['permission'];
+        $row = mysql_fetch_assoc($res);
+    }
+    
+    // Construct query for roles
+    $sql = "SELECT `rid`, `name` FROM `role` WHERE 1 ";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    $roles = array();
+    $row = mysql_fetch_assoc($res);
+    while ($row) {
+        $role = $row;
+        if (array_key_exists($row['rid'], $permissionMap)) {
+            $role['permissions'] = $permissionMap[$row['rid']];
+        } else {
+            $role['permissions'] = array();
+        }
+        $roles[] = $role;
+        $row = mysql_fetch_assoc($res);
+    }
+    return $roles;
+}
+
+/**
+ * @param $cid The cid of the user being queried, defaults to current user.
+ * @return The username for the specified user.
+*/
+function user_username($cid = NULL) {
+    $opts = array();
+    if ($cid) {
+        $opts['cid'] = $cid;
+    } else {
+        $opts['cid'] = user_id();
+    }
+    $opts['join'] = array();
+    $data = user_data($opts);
+    return $data[0]['username'];
 }
 
 /**
  * @return An array of role names.
  */
 function user_role_list () {
-    $sql = "SHOW COLUMNS FROM `role`";
+    $sql = "SELECT * FROM `role` WHERE 1";
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
     
     $roles = array();
     $row = mysql_fetch_assoc($res);
     while ($row) {
-        if ($row['Field'] !== 'cid') {
-            $roles[] = $row['Field'];
-        }
+        $roles[] = $row['name'];
         $row = mysql_fetch_assoc($res);
     }
     
     return $roles;
-}
-
-/**
- * Get role data for one or more users.
- *
- * @param $opts Options, possible keys are:
- *   cid Filter results to only those matching the given cid.
- * @return An array with each element representing one user's roles.
- */
-function user_role_data ($opts = NULL) {
-    
-    // Construct query
-    $sql = "SELECT * FROM `role` WHERE 1 ";
-    
-    // Add filter
-    if (!empty($opts['cid'])) {
-        $cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `cid`='$cid'";
-    }
-    
-    // Excecute query
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-
-    // Construct array of role data
-    $roles = array();
-    $row = mysql_fetch_assoc($res);
-    while ($row) {
-        $roles[] = $row;
-        $row = mysql_fetch_assoc($res);
-    }
-    
-    return $roles;
-}
-
-/**
- * Check if a user has the given role.
- *
- * @param $role A string containing the role to check.
- * @return True if the user is assigned to the given role.
-*/
-function user_check_role ($role, $cid = NULL) {
-    
-    // Choose logged in user if no user id
-    if (!$cid) {
-        $cid = user_id();
-    }
-    
-    // Special case for authenticated user
-    if ($cid == user_id() && user_id()) {
-        if ($role == 'authenticated') {
-            return true;
-        }
-    }
-    
-    // Check whether role table exists (might not be installed yet)
-    $sql = "SHOW TABLES LIKE 'role'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $row = mysql_fetch_assoc($res);
-    if (!$row) {
-        return false;
-    }
-    
-    // Query for users roles
-    $sql = "
-        SELECT * FROM
-        `user` LEFT JOIN `role` ON `user`.`cid`=`role`.`cid`
-        WHERE `user`.`cid`='$cid'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $row = mysql_fetch_array($res);
-    
-    // Check if user exists
-    if (!$row) {
-        return false;
-    }
-    
-    // Check role
-    if ($row[$role]) {
-        return true;
-    }
-    
-    // Default to false
-    return false;
 }
 
 /**
  * Check if the logged in user has permissions for a specified action.
  *
- * @param $action The action
- * @return True if the user has permission to perform $action.
+ * @param $permission The permission to check for.
+ * @return True if the user is granted $permission.
 */
-function user_access ($action) {
+function user_access ($permission) {
     global $config_permissions;
     
-    // Loop through allowed roles
-    if (!empty($config_permissions[$action])) {
-        foreach ($config_permissions[$action] as $role) {
-            if (user_check_role($role)) {
-                return true;
-            }
+    // If a user is not logged in, they don't have access to anything
+    if (!user_id()) {
+        return false;
+    }
+    
+    // The admin user has access to everything
+    if (user_id() == 1) {
+        return true;
+    }
+    
+    // Get list of the users roles and check each for the permission
+    $roles = user_roles();
+    foreach ($roles as $role) {
+        if (user_role_access($role, $permission)) {
+            return true;
         }
     }
     
     // Default to no permission
     return false;
+}
+
+/**
+ * Get a list of roles assigned to a given user.
+ * @param $cid The id of the user, defaults to the logged in user.
+ * @return An array of role names.
+ */
+function user_roles ($cid = 0) {
+    global $config_roles;
+    
+    // Default to logged in user
+    if ($cid === 0) {
+        $cid = user_id();
+    }
+    
+    $users = user_data(array('cid'=>$cid));
+    if (sizeof($users) < 1) {
+        return array();
+    }
+    
+    return $users[0]['roles'];
+}
+
+/**
+ * Check if a specified role is granted a specified permission.
+ * @param $role
+ * @param $permission
+ * @return true if $role is granted $permission.
+ */
+function user_role_access ($role, $permission) {
+    global $config_permissions;
+    return array_key_exists($permission, $config_permissions)
+        && in_array($role, $config_permissions[$permission]);
 }
 
 /**
@@ -531,8 +585,30 @@ function theme_user_reset_password_confirm_form ($code) {
 function user_role_edit_form ($cid) {
     
     // Get user data
-    $data = user_role_data(array('cid'=>$cid));
-    $role = $data[0];
+    $data = user_data(array('cid'=>$cid));
+    $user = $data[0];
+    
+    // Get role data
+    $roles = user_role_list();
+    
+    // Construct fields
+    $fields = array();
+    foreach ($roles as $role) {
+        if ($role === 'authenticated') {
+            continue;
+        }
+        $fields[] = array(
+            'type' => 'checkbox',
+            'label' => $role,
+            'name' => $role,
+            'checked' => in_array($role, $user['roles'])
+        );
+    }
+    $fields[] = array(
+        'type' => 'submit',
+        'name' => 'submitted',
+        'value' => 'Update'
+    );
     
     $form = array(
         'type' => 'form',
@@ -541,62 +617,65 @@ function user_role_edit_form ($cid) {
         'hidden' => array(
             'cid' => $cid
         ),
-        'fields' => array(
+        'fields' => $fields
+    );
+    return $form;
+}
+
+/**
+ * @return Form structure for updating user permissions.
+ */
+function user_permissions_form () {
+    
+    // Form table rows and columns
+    $columns = array();
+    $rows = array();
+    
+    // Get role data
+    $roles = user_role_data();
+    
+    // Add a column for permissions names, and each role
+    $columns[] = '';
+    foreach ($roles as $role) {
+        $columns[] = array('title'=>$role['name']);
+    }
+    
+    // Add a row for each permission
+    foreach (user_permissions_list() as $permission) {
+        $row = array();
+        $row[] = array(
+            'type' => 'message'
+            , 'value' => $permission
+        );
+        foreach ($roles as $role) {
+            $checked = in_array($permission, $role['permissions']);
+            $row[] = array(
+                'type' => 'checkbox',
+                'name' => "$permission-$role[name]",
+                'checked' => $checked
+            );
+        }
+        $rows[] = $row;
+    }
+    
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'user_permissions_update'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Update Roles',
-                'fields' => array(
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Member',
-                        'name' => 'member',
-                        'checked' => $role['member']
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Director',
-                        'name' => 'director',
-                        'checked' => $role['director']
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'President',
-                        'name' => 'president',
-                        'checked' => $role['president']
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'VP',
-                        'name' => 'vp',
-                        'checked' => $role['vp']
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Secretary',
-                        'name' => 'secretary',
-                        'checked' => $role['secretary']
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Treasurer',
-                        'name' => 'treasurer',
-                        'checked' => $role['treasurer']
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Web Admin',
-                        'name' => 'webAdmin',
-                        'checked' => $role['webAdmin']
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Update'
-                    )
-                )
+                'type' => 'table'
+                , 'columns' => $columns
+                , 'rows' => $rows
+            )
+            , array(
+                'type' => 'submit',
+                'name' => 'submitted',
+                'value' => 'Update'
             )
         )
     );
+    
     return $form;
 }
 
@@ -614,23 +693,87 @@ function command_user_role_update () {
         return 'index.php?q=members';
     }
     
-    // Construct query
-    $sql = "
-        UPDATE `role`
-        SET
-            `member`='$esc_post[member]'
-            , `director`='$esc_post[director]'
-            , `president`='$esc_post[president]'
-            , `vp`='$esc_post[vp]'
-            , `secretary`='$esc_post[secretary]'
-            , `treasurer`='$esc_post[treasurer]'
-            , `webAdmin`='$esc_post[webAdmin]'
-        WHERE `cid`='$esc_post[cid]'
-    ";
+    // Check permissions
+    if (!user_access('user_role_edit')) {
+        error_register('Current user does not have permission: user_role_edit');
+        return 'index.php?q=members';
+    }
+    
+    // Delete all roles for specified user
+    $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
     
+    // Re-add each role
+    $roles = user_role_data();
+    foreach ($roles as $role) {
+        if ($_POST[$role['name']]) {
+            $sql = "
+                INSERT INTO `user_role`
+                (`cid`, `rid`)
+                VALUES
+                ('$esc_post[cid]', '$role[rid]')
+            ";
+            $res = mysql_query($sql);
+            if (!$res) { die(mysql_error()); }
+        }
+    }
+    
     return "index.php?q=member&cid=$_POST[cid]&tab=roles";
+}
+
+/**
+ * Handle user permissions update request.
+ *
+ * @return The url to display on completion.
+ */
+function command_user_permissions_update () {
+    global $esc_post;
+    
+    // Check permissions
+    if (!user_access('user_edit')) {
+        error_register('Current user does not have permission: user_edit');
+        return 'index.php?q=permissions';
+    }
+    
+    // Check status of each permission for each role
+    $perms = user_permissions_list();
+    $roles = user_role_data();
+    foreach ($perms as $perm) {
+        foreach ($roles as $role) {
+            $key = "$perm-$role[name]";
+            if ($_POST[$key]) {
+                // Ensure the role has this permission
+                $sql = "
+                    SELECT * FROM `role_permission`
+                    WHERE `rid`=$role[rid] AND `permission`='$perm'
+                ";
+                $res = mysql_query($sql);
+                if (!$res) { die(mysql_error()); }
+                if (mysql_numrows($res) === 0) {
+                    $sql = "
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$role[rid]', '$perm')
+                    ";
+                }
+                $res = mysql_query($sql);
+                if (!$res) { die(mysql_error()); }
+            } else {
+                // Delete the permission for this role
+                $sql = "
+                    DELETE FROM `role_permission`
+                    WHERE `rid`=$role[rid] AND `permission`='$perm'
+                ";
+                $res = mysql_query($sql);
+                if (!$res) { die(mysql_error()); }
+            }
+        }
+    }
+    
+    
+    return "index.php?q=permissions";
 }
 
 /**

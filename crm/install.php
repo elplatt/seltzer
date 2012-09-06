@@ -22,4 +22,4 @@
 
 require_once('include/crm.inc.php');
 
-template_render('page', 'install');
+print template_render('page', 'install');

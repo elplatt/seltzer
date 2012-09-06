@@ -34,6 +34,9 @@ function core_page_list () {
     if (user_access('report_view')) {
         $pages[] = 'reports';
     }
+    if (user_access('user_permissions_edit')) {
+        $pages[] = 'permissions';
+    }
     if (user_access('module_upgrade')) {
         $pages[] = 'upgrade';
     }
@@ -72,6 +75,12 @@ function core_page (&$page_data, $page_name, $options) {
         case 'reports':
             if (user_access('report_view')) {
                 page_set_title($page_data, 'Reports');
+            }
+            break;
+        case 'permissions':
+            if (user_access('user_permissions_edit')) {
+                page_set_title($page_data, 'Permissions');
+                page_add_content_top($page_data, theme('form', user_permissions_form()));
             }
             break;
         case 'upgrade':

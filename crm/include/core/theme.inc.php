@@ -52,8 +52,7 @@ function theme_login_status () {
     
     $output = '<div class="login-status">';
     if (user_id()) {
-        $user = user_get_user();
-        $output .= 'Welcome, ' . $user['username'] . '. <a href="index.php?command=logout">Log out</a>';
+        $output .= 'Welcome, ' . user_username() . '. <a href="index.php?command=logout">Log out</a>';
     } else {
         $output .= '<a href="index.php?q=login">Log in</a>&nbsp;&nbsp;&nbsp;';
         $output .= '<a href="index.php?q=reset">Reset password</a>';

@@ -283,16 +283,6 @@ function command_module_install () {
     ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
-
-    // Add all roles for admin
-    $sql = "
-        INSERT INTO `role`
-        (`cid`, `member`, `director`, `president`, `vp`, `secretary`, `treasurer`, `webAdmin`)
-        VALUES
-        ('$cid', '1', '1', '1', '1', '1', '1', '1')
-    ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
     
     message_register('Seltzer CRM has been installed.');
     message_register('You may log in as user "admin"');

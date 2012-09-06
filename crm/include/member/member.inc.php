@@ -25,7 +25,7 @@
  * this number.
  */
 function member_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -51,7 +51,6 @@ function member_permissions () {
         , 'member_delete'
         , 'member_membership_view'
         , 'member_membership_edit'
-        , 'roles_edit'
     );
 }
 

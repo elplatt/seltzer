@@ -82,6 +82,9 @@ function theme_form ($form) {
         $output .= '</fieldset>';
         
         break;
+    case 'table':
+        $output .= theme('form_table', $form);
+        break;
     case 'message':
         $output .= theme('form_message', $form);
         break;
@@ -106,6 +109,31 @@ function theme_form ($form) {
     }
     
     return $output;
+}
+
+/**
+ * Theme a table in the form.
+ * @param $field The form table data.
+ * @return The themed html string for a form table element.
+ */
+function theme_form_table ($field) {
+    // First create a table structure, and then theme it
+    $table = array(
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
+    );
+    $table['columns'] = $field['columns'];
+    
+    foreach ($field['rows'] as $formRow) {
+        $row = array();
+        foreach ($formRow as $formCell) {
+            $row[] = theme('form', $formCell);
+        }
+        $table['rows'][] = $row;
+    }
+    
+    return theme('table', $table);
 }
 
 /**
