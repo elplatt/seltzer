@@ -234,48 +234,15 @@ function user_access ($permission) {
     }
     
     // Get list of the users roles and check each for the permission
-    $roles = user_roles();
+    $roles = user_role_data();
     foreach ($roles as $role) {
-        if (user_role_access($role, $permission)) {
+        if (in_array($permission, $role['permissions'])) {
             return true;
         }
     }
     
     // Default to no permission
     return false;
-}
-
-/**
- * Get a list of roles assigned to a given user.
- * @param $cid The id of the user, defaults to the logged in user.
- * @return An array of role names.
- */
-function user_roles ($cid = 0) {
-    global $config_roles;
-    
-    // Default to logged in user
-    if ($cid === 0) {
-        $cid = user_id();
-    }
-    
-    $users = user_data(array('cid'=>$cid));
-    if (sizeof($users) < 1) {
-        return array();
-    }
-    
-    return $users[0]['roles'];
-}
-
-/**
- * Check if a specified role is granted a specified permission.
- * @param $role
- * @param $permission
- * @return true if $role is granted $permission.
- */
-function user_role_access ($role, $permission) {
-    global $config_permissions;
-    return array_key_exists($permission, $config_permissions)
-        && in_array($role, $config_permissions[$permission]);
 }
 
 /**
