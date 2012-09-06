@@ -60,7 +60,7 @@ function template_preprocess ($path) {
     $variables['header'] = theme('header');
     $variables['errors'] = theme('errors');
     $variables['messages'] = theme('messages');
-    $variables['content'] = theme('page', $path);
+    $variables['content'] = theme('page', $path, $_GET);
     $variables['footer'] = theme('footer');
     return $variables;
 }
