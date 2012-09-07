@@ -57,6 +57,7 @@ function user_permissions () {
         , 'user_edit'
         , 'user_delete'
         , 'user_role_edit'
+        , 'user_permissions_edit'
     );
 }
 
