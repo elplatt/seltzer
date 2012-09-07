@@ -176,7 +176,7 @@ function core_install ($old_revision = 0) {
         $default_perms = array(
             'authenticated' => array('report_view')
             , 'member' => array('contact_view')
-            , 'director' => array('user_add', 'user_edit', 'user_delete', 'user_role_edit', 'module_upgrade', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete')
+            , 'director' => array('user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit', 'module_upgrade', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete')
         );
         foreach ($roles as $rid => $role) {
             if (array_key_exists($role, $default_perms)) {
