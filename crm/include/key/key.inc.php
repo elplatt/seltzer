@@ -208,7 +208,7 @@ function key_table ($opts) {
     );
     
     // Add columns
-    if (user_access('key_view')) {
+    if (user_access('key_view') || $opts['cid'] == user_id()) {
         $table['columns'][] = array("title"=>'Serial', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Slot', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Start', 'class'=>'', 'id'=>'');
@@ -224,7 +224,7 @@ function key_table ($opts) {
         
         // Add key data
         $row = array();
-        if (user_access('key_view')) {
+        if (user_access('key_view') || $opts['cid'] == user_id()) {
             
             // Add cells
             $row[] = $key['serial'];
@@ -233,21 +233,23 @@ function key_table ($opts) {
             $row[] = $key['end'];
         }
         
-        // Construct ops array
-        $ops = array();
-        
-        // Add edit op
-        if (user_access('key_edit')) {
-            $ops[] = '<a href="key.php?kid=' . $key['kid'] . '#tab-edit">edit</a> ';
+        if (user_access('key_edit') || user_access('key_delete')) {
+            // Construct ops array
+            $ops = array();
+            
+            // Add edit op
+            if (user_access('key_edit')) {
+                $ops[] = '<a href="index.php?q=key&kid=' . $key['kid'] . '#tab-edit">edit</a> ';
+            }
+            
+            // Add delete op
+            if (user_access('key_delete')) {
+                $ops[] = '<a href="index.php?q=delete&type=key&id=' . $key['kid'] . '">delete</a>';
+            }
+            
+            // Add ops row
+            $row[] = join(' ', $ops);
         }
-        
-        // Add delete op
-        if (user_access('key_delete')) {
-            $ops[] = '<a href="delete.php?type=key&id=' . $key['kid'] . '">delete</a>';
-        }
-        
-        // Add ops row
-        $row[] = join(' ', $ops);
         
         $table['rows'][] = $row;
     }
@@ -514,7 +516,7 @@ function command_key_add() {
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
-        return 'key.php?kid=' . $esc_post['kid'];
+        return 'index.php?q=key&kid=' . $esc_post['kid'];
     }
     
     // Query database
@@ -535,7 +537,7 @@ function command_key_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'member.php?cid=' . $esc_post['cid'];
+    return 'index.php?q=member&cid=' . $esc_post['cid'];
 }
 
 /**
@@ -549,7 +551,7 @@ function command_key_update() {
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
-        return 'key.php?kid=' . $esc_post['kid'];
+        return 'index.php?q=key&kid=' . $esc_post['kid'];
     }
     
     // Query database
@@ -569,7 +571,7 @@ function command_key_update() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'key.php?kid=' . $esc_post['kid'] . '&tab=edit';
+    return 'index.php?q=key&kid=' . $esc_post['kid'] . '&tab=edit';
 }
 
 /**
@@ -583,7 +585,7 @@ function command_key_delete() {
     // Verify permissions
     if (!user_access('key_delete')) {
         error_register('Permission denied: key_delete');
-        return 'key.php?kid=' . $esc_post['kid'];
+        return 'index.php?q=key&kid=' . $esc_post['kid'];
     }
     
     // Query database
@@ -593,7 +595,7 @@ function command_key_delete() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'members.php';
+    return 'index.php?q=members';
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
@@ -626,7 +628,7 @@ function key_page (&$page_data, $page_name, $options) {
             }
             
             // Add keys tab
-            if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
+            if (user_access('key_view') || user_access('key_edit') || user_access('key_delete') || $cid == user_id()) {
                 $keys = theme('table', 'key', array('cid' => $cid));
                 $keys .= theme('key_add_form', $cid);
                 page_add_content_bottom($page_data, $keys, 'Keys');
