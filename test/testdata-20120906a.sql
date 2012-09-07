@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 06, 2012 at 12:45 AM
+-- Generation Time: Sep 06, 2012 at 08:15 PM
 -- Server version: 5.1.65
 -- PHP Version: 5.2.17
 
@@ -259,6 +259,7 @@ INSERT INTO `role_permission` (`rid`, `permission`) VALUES
 (3, 'user_add'),
 (3, 'user_delete'),
 (3, 'user_edit'),
+(3, 'user_permissions_edit'),
 (3, 'user_role_edit');
 
 -- --------------------------------------------------------
