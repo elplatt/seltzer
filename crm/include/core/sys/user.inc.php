@@ -88,6 +88,34 @@ function user_login ($cid) {
 */ 
 function user_data ($opts) {
     
+    // Create a map of user permissions if join was specified
+    $join_perm = !array_key_exists('join', $opts) || in_array('permission', $opts['join']);
+    if ($join_perm) {
+        $sql = "
+            SELECT `user`.`cid`, `role_permission`.`permission`
+            FROM `user`
+            INNER JOIN `user_role` ON `user`.`cid`=`user_role`.`cid`
+            INNER JOIN `role_permission` ON `user_role`.`rid`=`role_permission`.`rid`
+            WHERE 1
+        ";
+        if (array_key_exists('cid', $opts)) {
+            $cid = mysql_real_escape_string($opts['cid']);
+            $sql .= " AND `user`.`cid`='$cid' ";
+        }
+        $res = mysql_query($sql);
+        if (!$res) { die(mysql_error()); }
+        $permMap = array();
+        $row = mysql_fetch_assoc($res);
+        while ($row) {
+            $cid = $row['cid'];
+            if (!array_key_exists($cid, $permMap)) {
+                $permMap[$cid] = array();
+            }
+            $permMap[$cid][] = $row['permission'];
+            $row = mysql_fetch_assoc($res);
+        }
+    }
+    
     // Create a map of user roles if role join was specified
     $join_role = !array_key_exists('join', $opts) || in_array('role', $opts['join']);
     if ($join_role) {
@@ -130,6 +158,13 @@ function user_data ($opts) {
                 $user['roles'] = $roles[$row['cid']];
             } else {
                 $user['roles'] = array();
+            }
+        }
+        if ($join_perm) {
+            if (array_key_exists($row['cid'], $permMap)) {
+                $user['permissions'] = $permMap[$row['cid']];
+            } else {
+                $user['permissions'] = array();
             }
         }
         $users[] = $user;
@@ -221,7 +256,6 @@ function user_role_list () {
  * @return True if the user is granted $permission.
 */
 function user_access ($permission) {
-    global $config_permissions;
     
     // If a user is not logged in, they don't have access to anything
     if (!user_id()) {
@@ -234,15 +268,8 @@ function user_access ($permission) {
     }
     
     // Get list of the users roles and check each for the permission
-    $roles = user_role_data();
-    foreach ($roles as $role) {
-        if (in_array($permission, $role['permissions'])) {
-            return true;
-        }
-    }
-    
-    // Default to no permission
-    return false;
+    $data = user_data(array('cid'=>user_id()));
+    return in_array($permission, $data[0]['permissions']);
 }
 
 /**
