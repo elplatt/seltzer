@@ -28,18 +28,8 @@ $get_command = $_GET['command'];
 $command = !empty($post_command) ? $post_command : $get_command;
 
 if (!empty($command)) {
-    // Check if handler exists
-    $handler = 'command_' . $command;
-    if (function_exists($handler)) {
-        // Execute handler
-        $next = $handler();
-    } else {   
-        // Redirect to homepage
-        error_register('No such command: ' . $command);
-        $next = 'index.php';
-    }    
-    // Redirect
-    header('Location: ' . $next);
+    // Handle command and redirect
+    header('Location: ' . command($command));
     die();
 }
 
