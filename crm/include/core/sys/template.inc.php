@@ -23,12 +23,23 @@
 /**
  * Render a template.
  * @param $name The template name.
- * @param $path The template path.
+ * @param $vars An array mapping template variable names to their values.  If
+ *   the value is a string, it will be treated as a path.
  */
-function template_render ($name, $path) {
-    // Load variables into local scope
-    $variables = template_preprocess($path, $path);
-    extract($variables);
+function template_render ($name, $vars) {
+    
+    // If $vars is a string, we want to generate vars from a path
+    if (!is_array($vars)) {
+        $path = $vars;
+        $generator = 'template_preprocess_' . $name;
+        if (function_exists($generator)) {
+            $vars = call_user_func($generator, $path);
+        } else {
+            $vars = array();
+        }
+    }
+    
+    extract($vars);
     
     // Construct the template filename
     $filename = path_to_theme() . '/' . $name . '.tpl.php';
@@ -46,7 +57,7 @@ function template_render ($name, $path) {
  * Assign variables to be set for a template.
  * @param $path The path to the current page
  */
-function template_preprocess ($path) {
+function template_preprocess_page ($path) {
     global $config_org_name;
     global $config_base_path;
     
