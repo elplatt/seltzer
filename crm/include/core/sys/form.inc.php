@@ -103,6 +103,9 @@ function theme_form ($form) {
     case 'password':
         $output .= theme('form_password', $form);
         break;
+    case 'file':
+        $output .= theme('form_file', $form);
+        break;
     case 'submit':
         $output .= theme('form_submit', $form);
         break;
@@ -232,6 +235,22 @@ function theme_form_password ($field) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
     $output .= '<input type="password" name="' . $field['name'] . '"/>';
+    $output .= '</fieldset>';
+    return $output;
+}
+
+/**
+ * Themes a file field in a form.
+ * 
+ * @param $field the field data.
+ * @return The themed html for the field.
+ */
+function theme_form_file ($field) {
+    $output = '<fieldset class="form-row">';
+    if (!empty($field['label'])) {
+        $output .= '<label>' . $field['label'] . '</label>';
+    }
+    $output .= '<input type="file" name="' . $field[''] . '"/>';
     $output .= '</fieldset>';
     return $output;
 }
