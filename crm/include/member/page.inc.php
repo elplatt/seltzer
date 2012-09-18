@@ -67,6 +67,11 @@ function member_page (&$page_data, $page_name, $options) {
                 page_add_content_top($page_data, theme('member_add_form'), 'Add');
             }
             
+            // Add import tab
+            if (user_access('contact_edit') && user_access('member_edit')) {
+                page_add_content_top($page_data, theme('form', member_import_form()), 'Import');
+            }
+            
             break;
         
         case 'plans':

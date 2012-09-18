@@ -45,6 +45,9 @@ function theme_form ($form) {
         } else {
             $output .= 'index.php"';
         }
+        if (array_key_exists('enctype', $form)) {
+            $output .= ' enctype="' . $form['enctype'] . '"';
+        }
         $output .= '>';
         
         // Add hidden values
@@ -250,7 +253,7 @@ function theme_form_file ($field) {
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
-    $output .= '<input type="file" name="' . $field[''] . '"/>';
+    $output .= '<input type="file" name="' . $field['name'] . '"/>';
     $output .= '</fieldset>';
     return $output;
 }

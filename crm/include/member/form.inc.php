@@ -682,3 +682,26 @@ function member_filter_form () {
     
     return $form;
 }
+
+/**
+ * @return the form structure for a member import form.
+*/
+function member_import_form () {
+    return array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'enctype' => 'multipart/form-data'
+        , 'command' => 'member_import'
+        , 'fields' => array(
+            array(
+                'type' => 'file'
+                , 'label' => 'CSV File'
+                , 'name' => 'member-file'
+            )
+            , array(
+                'type' => 'submit'
+                , 'value' => 'Import'
+            )
+        )
+    );
+}

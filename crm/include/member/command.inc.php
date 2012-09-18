@@ -444,3 +444,29 @@ function command_contact_update () {
     
     return 'index.php?q=members';
 }
+
+/**
+ * Handle member import request.
+ *
+ * @return The url to display on completion.
+ */
+function command_member_import () {
+    
+    if (!user_access('contact_edit')) {
+        error_register('User does not have permission: contact_edit');
+        return 'index.php';
+    }
+    if (!user_access('member_edit')) {
+        error_register('User does not have permission: member_edit');
+        return 'index.php';
+    }
+    
+    if (!array_key_exists('member-file', $_FILES)) {
+        error_register('No member file uploaded');
+        return 'index.php?q=members&tab=import';
+    }
+    
+    $csv = file_get_contents($_FILES['member-file']['tmp_name']);
+    
+    return 'index.php?q=members';
+}
