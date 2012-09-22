@@ -40,7 +40,7 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
     $row = array();
 
     $field = '';
-    $field_quoted = false;
+    $is_quoted = false;
     
     $in_body = false;
     
@@ -50,13 +50,14 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
     $length = strlen($content);
     while ($index < $length) {
         $char = $content{$index};
-        if ($char == $field_escaper) {
+        if ($char == $field_escape) {
             // Escaped character
             $index++;
             $field .= $content{$index};
-        } else if ($char == $field_wrapper) {
-            if ($field_quoted) {
+        } else if ($char == $field_quote) {
+            if ($is_quoted) {
                 // We've reached the end of a quoted field
+                $is_quoted = false;
                 while ($index < $length) {
                     if ($index == $length - 1) {
                         // End of content
@@ -70,14 +71,15 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
                     if ($char == $row_terminate) {
                         break;
                     }
+                    $index++;
                 }
             } else {
                 if (empty($field)) {
                     // We're starting a quoted field
-                    $field_quoted = true;
+                    $is_quoted = true;
                 }
             }
-        } else if ($char == $field_terminate && !$field_quoted) {
+        } else if ($char == $field_terminate && !$is_quoted) {
             // End field or header
             if ($in_body) {
                 // Body
@@ -87,9 +89,9 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
                 $header[] = strtolower($field);
             }
             $field = '';
-            $field_quoted = false;
+            $is_quoted = false;
             $field_index++;
-        } else if ($char == $row_terminate && !$field_quoted) {
+        } else if ($char == $row_terminate && !$is_quoted) {
             // End field or header
             if ($in_body) {
                 // Body
@@ -99,7 +101,7 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
                 $header[] = strtolower($field);
             }
             $field = '';
-            $field_quoted = false;
+            $is_quoted = false;
             
             // End row
             $field_index = 0;
