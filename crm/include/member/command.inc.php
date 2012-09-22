@@ -467,6 +467,11 @@ function command_member_import () {
     }
     
     $csv = file_get_contents($_FILES['member-file']['tmp_name']);
+    $data = csv_parse($csv);
+    print '<pre>';
+    print_r($data);
+    print '</pre>';
+    die();
     
     return 'index.php?q=members';
 }
