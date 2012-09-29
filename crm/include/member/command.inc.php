@@ -497,6 +497,100 @@ function command_member_import () {
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         
+        // Find Username
+        $esc_name = mysql_real_escape_string($row['username']);
+        $n = 0;
+        while (empty($esc_name) && $n < 100) {
+            
+            // Contruct test username
+            $username = strtolower($row['first name']{0} . $row['lastName']);
+            if ($n > 0) {
+                $username .= $n;
+            }
+            
+            // Check whether username is taken
+            $esc_test_name = mysql_real_escape_string($username);
+            $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            $user_row = mysql_fetch_assoc($res);
+            if (!$user_row) {
+                $esc_name = $esc_test_name;
+            }
+            $n++;
+        }
+        if (empty($esc_name)) {
+            error_register('Please specify a username');
+            return 'index.php?q=members&tab=import';
+        }
+        
+        // Add user
+        $sql = "
+            INSERT INTO `user`
+            (`username`, `cid`)
+            VALUES
+            ('$esc_name', '$cid')";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+         
+        // Add role entry
+        $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $role_row = mysql_fetch_assoc($res);
+        if ($role_row) {
+            $sql = "
+                INSERT INTO `user_role`
+                (`cid`, `rid`)
+                VALUES
+                ('$cid', $role_row[rid])";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+        }
+        
+        // Add plan if necessary
+        $plan_name = mysql_real_escape_string($row['plan']);
+        $sql = "SELECT `pid` FROM `plan` WHERE `name`='$plan_name'";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        if (mysql_num_rows($res) < 1) {
+            $sql = "
+                INSERT INTO `plan`
+                (`name`, `active`)
+                VALUES
+                ('$plan_name', '1')
+            ";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            $pid = mysql_insert_id();
+        } else {
+            $plan_row = mysql_fetch_assoc($res);
+            $pid = $plan_row['pid'];
+        }
+        
+        // Add membership
+        $start = mysql_real_escape_string($row['start date']);
+        $sql = "
+            INSERT INTO `membership`
+            (`cid`, `pid`, `start`)
+            VALUES
+            ('$cid', '$pid', '$start')
+        ";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        // Notify admins
+        $from = "\"$config_org_name\" <$config_email_from>";
+        $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
+        if (!empty($config_email_to)) {
+            $name = member_name($row['first name'], $row['middle name'], $row['last name']);
+            $content = theme('member_created_email', $cid);
+            mail($config_email_to, "New Member: $name", $content, $headers);
+        }
+        
+        // Notify user
+        $content = theme('member_welcome_email', $cid);
+        mail($row['email'], "Welcome to $config_org_name", $content, $headers);
     }
     
     return 'index.php?q=members';
