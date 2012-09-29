@@ -468,10 +468,36 @@ function command_member_import () {
     
     $csv = file_get_contents($_FILES['member-file']['tmp_name']);
     $data = csv_parse($csv);
-    print '<pre>';
-    print_r($data);
-    print '</pre>';
-    die();
+    
+    foreach ($data as $row) {
+        
+        // Add contact
+        $firstName = mysql_real_escape_string($row['first name']);
+        $middleName = mysql_real_escape_string($row['middle name']);
+        $lastName = mysql_real_escape_string($row['last name']);
+        $email = mysql_real_escape_string($row['email']);
+        $phone = mysql_real_escape_string($row['phone']);
+        $emergencyName = mysql_real_escape_string($row['emergency name']);
+        $emergencyPhone = mysql_real_escape_string($row['emergency phone']);
+        $sql = "
+            INSERT INTO `contact`
+            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
+            VALUES
+            ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $cid = mysql_insert_id();
+        
+        // Add member
+        $sql = "
+            INSERT INTO `member`
+            (`cid`)
+            VALUES
+            ('$cid')";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+    }
     
     return 'index.php?q=members';
 }
