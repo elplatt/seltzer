@@ -694,6 +694,10 @@ function member_import_form () {
         , 'command' => 'member_import'
         , 'fields' => array(
             array(
+                'type' => 'message'
+                , 'value' => '<p>To import members, upload a csv.  The csv should have a header row with the following fields:</p><ul><li>First Name</li><li>Middle Name</li><li>Last Name</li><li>Email</li><li>Phone</li><li>Emergency Name</li><li>Emergency Phone</li><li>Username</li><li>Plan</li><li>Start Date</li></ul>'
+            )
+            , array(
                 'type' => 'file'
                 , 'label' => 'CSV File'
                 , 'name' => 'member-file'
