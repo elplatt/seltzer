@@ -25,7 +25,7 @@
  * this number.
  */
 function core_revision () {
-    return 2;
+    return 3;
 }
 
 /**

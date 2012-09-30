@@ -188,4 +188,11 @@ function core_install ($old_revision = 0) {
             }
         }
     }
+    
+    // Add password salt 2012-09-30
+    if ($old_revision < 3) {
+        $sql = "ALTER TABLE `user` ADD COLUMN `salt` varchar(16) NOT NULL";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+    }
 }

@@ -78,6 +78,27 @@ function user_login ($cid) {
 }
 
 /**
+ * Check user password.
+ * @param $password The password to check.
+ * @param $user The user data structure.
+ */
+function user_check_password($password, $user) {
+    $valid = false;
+    if (!empty($user['hash'])) {
+        if (empty($user['salt'])) {
+            if (sha1($password) === $user['hash']) {
+                $valid = true;
+            }
+        } else {
+            if (sha1($user['salt'] . $password) == $user['hash']) {
+                $valid = true;
+            }
+        }
+    }
+    return $valid;
+}
+
+/**
  * Return data for one or more users.
  *
  * @param $opts An associative array of options, possible keys are:
@@ -88,7 +109,6 @@ function user_login ($cid) {
  * @return An array with each element representing a user.
 */ 
 function user_data ($opts) {
-    
     // Create a map of user permissions if join was specified
     $join_perm = !array_key_exists('join', $opts) || in_array('permission', $opts['join']);
     if ($join_perm) {
@@ -140,11 +160,18 @@ function user_data ($opts) {
     
     // Construct query for users
     $sql = "
-        SELECT `cid`, `username`, `hash` FROM `user` WHERE 1
+        SELECT `cid`, `username`, `hash`, `salt` FROM `user` WHERE 1
     ";
     if (array_key_exists('cid', $opts)) {
         $cid = mysql_real_escape_string($opts['cid']);
         $sql .= " AND `cid`='$cid' ";
+    }
+    if (array_key_exists('filter', $opts)) {
+        foreach ($opts['filter'] as $key => $value) {
+            if ($key === 'username') {
+                $sql .= " AND `username`='" . mysql_real_escape_string($value) . "' ";
+            }
+        }
     }
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
@@ -227,6 +254,9 @@ function user_username($cid = NULL) {
     } else {
         $opts['cid'] = user_id();
     }
+    if ($opts['cid'] == 1) {
+        return 'admin';
+    }
     $opts['join'] = array();
     $data = user_data($opts);
     return $data[0]['username'];
@@ -302,21 +332,25 @@ function user_check_reset_code ($code) {
 function command_login () {
     global $esc_post;
     
-    // Calculate hash
-    $esc_hash = sha1($_POST['password']);
-    
-    // Query database for given user
-    $sql = "
-        SELECT *
-        FROM `user`
-        WHERE `username`='$esc_post[username]' AND `hash`='$esc_hash'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $row = mysql_fetch_assoc($res);
+    $user_opts = array(
+        'filter' => array(
+            'username' => $_POST['username']
+        )
+    );
+    $users = user_data($opts);
     
     // Check for user
-    if (!empty($row)) {
-        user_login($row['cid']);
+    if (sizeof($users) < 1) {
+        error_register('Invalid username/password');
+        $next = 'index.php?q=login';
+    }
+    
+    // Check password
+    $user = $users[0];
+    $valid = user_check_password($_POST['password'], $user);
+    
+    if ($valid) {
+        user_login($user['cid']);
         $next = 'index.php';
     } else {
         error_register('Invalid username/password');
@@ -779,4 +813,18 @@ function command_user_permissions_update () {
  */
 function theme_user_role_edit_form ($cid) {
     return theme('form', user_role_edit_form($cid));
+}
+
+/**
+ * @return a random password salt.
+ */
+function user_salt () {
+    $chars = 'abcdefghijklmnopqrstuvwxyz01234567890!@#$%^&*()-_=+[]{}\\|`~;:"\',./<>?';
+    $char_count = strlen($chars);
+    $salt_length = 16;
+    $salt = '';
+    for ($i = 0; $i < 16; $i++) {
+        $salt .= $chars{rand(0, $char_count - 1)};
+    }
+    return $salt;
 }
