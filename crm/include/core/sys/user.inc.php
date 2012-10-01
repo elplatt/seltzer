@@ -83,19 +83,12 @@ function user_login ($cid) {
  * @param $user The user data structure.
  */
 function user_check_password($password, $user) {
-    $valid = false;
     if (!empty($user['hash'])) {
-        if (empty($user['salt'])) {
-            if (sha1($password) === $user['hash']) {
-                $valid = true;
-            }
-        } else {
-            if (sha1($user['salt'] . $password) == $user['hash']) {
-                $valid = true;
-            }
+        if (user_hash($password, $user['salt']) === $user['hash']) {
+            return true;
         }
     }
-    return $valid;
+    return false;
 }
 
 /**
@@ -337,7 +330,7 @@ function command_login () {
             'username' => $_POST['username']
         )
     );
-    $users = user_data($opts);
+    $users = user_data($user_opts);
     
     // Check for user
     if (sizeof($users) < 1) {
@@ -561,12 +554,15 @@ function command_reset_password_confirm () {
     $esc_cid = mysql_real_escape_string($row['cid']);
     
     // Calculate hash
-    $esc_hash = mysql_real_escape_string(sha1($_POST['password']));
+    $salt = user_salt();
+    $esc_hash = mysql_real_escape_string(user_hash($_POST['password'], $salt));
+    $esc_salt = mysql_real_escape_string($salt);
     
     // Update password
     $sql = "
         UPDATE `user`
         SET `hash`='$esc_hash'
+        , `salt`='$esc_salt'
         WHERE `cid`='$esc_cid'
         ";
     $res = mysql_query($sql);
@@ -827,4 +823,15 @@ function user_salt () {
         $salt .= $chars{rand(0, $char_count - 1)};
     }
     return $salt;
+}
+
+/**
+ * Generate a salted password hash.
+ * @param $password
+ * @param $salt
+ * @return The hash string.
+ */
+function user_hash ($password, $salt) {
+    $input = empty($salt) ? $password : $salt . $password;
+    return sha1($input);
 }

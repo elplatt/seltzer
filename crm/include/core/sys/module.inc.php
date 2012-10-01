@@ -274,12 +274,14 @@ function command_module_install () {
     if (!$res) die(mysql_error());
     $cid = mysql_insert_id();
     
-    $hash = mysql_real_escape_string(sha1($_POST['password']));
+    $salt = user_salt();
+    $esc_hash = mysql_real_escape_string(user_hash($_POST['password'], $salt));
+    $esc_salt = mysql_real_escape_string($salt);
     $sql = "
         INSERT INTO `user`
-        (`cid`, `username`, `hash`)
+        (`cid`, `username`, `hash`, `salt`)
         VALUES
-        ('$cid', 'admin', '$hash')
+        ('$cid', 'admin', '$esc_hash', '$esc_salt')
     ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
