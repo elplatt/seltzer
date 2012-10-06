@@ -130,10 +130,14 @@ function key_data ($opts = array()) {
     
     // Determine joins
     $join_contact = false;
+    $join_member = false;
     if (array_key_exists('join', $opts)) {
         foreach ($opts['join'] as $table) {
             if ($table === 'contact') {
                 $join_contact = true;
+            }
+            if ($table === 'member') {
+                $join_member = true;
             }
         }
     }
@@ -145,6 +149,14 @@ function key_data ($opts = array()) {
         $cidToContact = array();
         foreach ($contacts as $contact) {
             $cidToContact[$contact['cid']] = $contact;
+        }
+    }
+    
+    if ($join_member) {
+        $members = member_data();
+        $cidToMember = array();
+        foreach ($members as $member) {
+            $cidToMember[$member['cid']] = $member;
         }
     }
     
@@ -200,6 +212,11 @@ function key_data ($opts = array()) {
                 $key['contact'] = $cidToContact[$row['cid']];
             }
         }
+        if ($join_contact) {
+            if (array_key_exists($row['cid'], $cidToMember)) {
+                $key['member'] = $cidToMember[$row['cid']];
+            }
+        }
         $keys[] = $key;
         $row = mysql_fetch_assoc($res);
     }
@@ -249,6 +266,9 @@ function key_table ($opts) {
             $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>'');
             $table['columns'][] = array("title"=>'Middle Name', 'class'=>'', 'id'=>'');
         }
+        if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
+            $table['columns'][] = array("title"=>'Membership', 'class'=>'', 'id'=>'');
+        }
         $table['columns'][] = array("title"=>'Serial', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Slot', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Start', 'class'=>'', 'id'=>'');
@@ -271,6 +291,18 @@ function key_table ($opts) {
                 $row[] = $key['contact']['lastName'];
                 $row[] = $key['contact']['firstName'];
                 $row[] = $key['contact']['middleName'];
+            }
+            if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
+                // Construct membership info
+                $member = $key['member'];
+                $plan = '';
+                if (!empty($member)) {
+                    $recentMembership = end($member['membership']);
+                    if (!empty($recentMembership) && empty($recentMembership['end'])) {
+                        $plan = $recentMembership['plan']['name'];
+                    }
+                }
+                $row[] = $plan;
             }
             $row[] = $key['serial'];
             $row[] = $key['slot'];
@@ -701,7 +733,7 @@ function key_page (&$page_data, $page_name, $options) {
         case 'keys':
             page_set_title($page_data, 'Keys');
             if (user_access('key_view')) {
-                $keys = theme('table', 'key', array('join'=>array('contact'), 'show_export'=>true));
+                $keys = theme('table', 'key', array('join'=>array('contact', 'member'), 'show_export'=>true));
                 page_add_content_top($page_data, $keys, 'View');
             }
             break;
