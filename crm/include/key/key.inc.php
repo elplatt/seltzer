@@ -122,10 +122,31 @@ function key_description ($kid) {
  * @param $opts An associative array of options, possible keys are:
  *   'kid' If specified, returns a single memeber with the matching key id;
  *   'cid' If specified, returns all keys assigned to the contact with specified id;
- *   'filter' An array mapping filter names to filter values.
+ *   'filter' An array mapping filter names to filter values;
+ *   'join' A list of tables to join to the key table.
  * @return An array with each element representing a single key card assignment.
 */ 
 function key_data ($opts = array()) {
+    
+    // Determine joins
+    $join_contact = false;
+    if (array_key_exists('join', $opts)) {
+        foreach ($opts['join'] as $table) {
+            if ($table === 'contact') {
+                $join_contact = true;
+            }
+        }
+    }
+    
+    // Create map from cids to contact names if necessary
+    // TODO: Add filters for speed
+    if ($join_contact) {
+        $contacts = member_contact_data();
+        $cidToContact = array();
+        foreach ($contacts as $contact) {
+            $cidToContact[$contact['cid']] = $contact;
+        }
+    }
     
     // Query database
     $sql = "
@@ -174,7 +195,11 @@ function key_data ($opts = array()) {
             'serial' => $row['serial'],
             'slot' => $row['slot'],
         );
-        
+        if ($join_contact) {
+            if (array_key_exists($row['cid'], $cidToContact)) {
+                $key['contact'] = $cidToContact[$row['cid']];
+            }
+        }
         $keys[] = $key;
         $row = mysql_fetch_assoc($res);
     }
@@ -193,6 +218,16 @@ function key_data ($opts = array()) {
 */
 function key_table ($opts) {
     
+    // Determine settings
+    $export = false;
+    foreach ($opts as $option => $value) {
+        switch ($option) {
+            case 'export':
+                $export = $value;
+                break;
+        }
+    }
+    
     // Get contact data
     $data = key_data($opts);
     if (count($data) < 1) {
@@ -209,13 +244,18 @@ function key_table ($opts) {
     
     // Add columns
     if (user_access('key_view') || $opts['cid'] == user_id()) {
+        if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
+            $table['columns'][] = array("title"=>'Last Name', 'class'=>'', 'id'=>'');
+            $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>'');
+            $table['columns'][] = array("title"=>'Middle Name', 'class'=>'', 'id'=>'');
+        }
         $table['columns'][] = array("title"=>'Serial', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Slot', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Start', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'End', 'class'=>'', 'id'=>'');
     }
     // Add ops column
-    if (user_access('key_edit') || user_access('key_delete')) {
+    if (!$export && (user_access('key_edit') || user_access('key_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
     
@@ -227,13 +267,18 @@ function key_table ($opts) {
         if (user_access('key_view') || $opts['cid'] == user_id()) {
             
             // Add cells
+            if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
+                $row[] = $key['contact']['lastName'];
+                $row[] = $key['contact']['firstName'];
+                $row[] = $key['contact']['middleName'];
+            }
             $row[] = $key['serial'];
             $row[] = $key['slot'];
             $row[] = $key['start'];
             $row[] = $key['end'];
         }
         
-        if (user_access('key_edit') || user_access('key_delete')) {
+        if (!$export && (user_access('key_edit') || user_access('key_delete'))) {
             // Construct ops array
             $ops = array();
             
@@ -619,6 +664,9 @@ function command_key_delete() {
  */
 function key_page_list () {
     $pages = array();
+    if (user_access('key_view')) {
+        $pages[] = 'keys';
+    }
     return $pages;
 }
 
@@ -648,6 +696,14 @@ function key_page (&$page_data, $page_name, $options) {
                 page_add_content_bottom($page_data, $keys, 'Keys');
             }
             
+            break;
+        
+        case 'keys':
+            page_set_title($page_data, 'Keys');
+            if (user_access('key_view')) {
+                $keys = theme('table', 'key', array('join'=>array('contact'), 'show_export'=>true));
+                page_add_content_top($page_data, $keys, 'View');
+            }
             break;
         
         case 'key':

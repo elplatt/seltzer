@@ -45,6 +45,7 @@ $config_links = array(
     '<front>' => 'Home'
     , 'members' => 'Members'
     , 'plans' => 'Plans'
+    , 'keys' => 'Keys'
     , 'reports' => 'Reports'
     , 'permissions' => 'Permissions'
     , 'upgrade' => 'Upgrade'
