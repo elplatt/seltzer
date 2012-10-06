@@ -237,6 +237,36 @@ function user_role_data ($opts = NULL) {
 }
 
 /**
+ * Generate a table structure for a given user's info.
+ * @param $opts An associative array of options to be passed to user_data().
+ * @return The table structure.
+ */
+function user_table ($opts) {
+    $users = user_data($opts);
+    
+    $table = array(
+        'id' => ''
+        , 'class' => ''
+        , 'columns' => array(
+            array(
+                'title' => 'Username'
+                , 'id' => ''
+                , 'class' => ''
+            )
+        )
+        , 'rows' => array()
+    );
+    
+    foreach ($users as $user) {
+        $user_row = array();
+        $user_row[] = $user['username'];
+        $table['rows'][] = $user_row;
+    }
+    
+    return $table;
+}
+
+/**
  * @param $cid The cid of the user being queried, defaults to current user.
  * @return The username for the specified user.
 */
