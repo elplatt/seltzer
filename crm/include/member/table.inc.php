@@ -68,8 +68,12 @@ function member_table ($opts = NULL) {
         $table['columns'][] = array('title'=>'Membership','class'=>'');
         $table['columns'][] = array('title'=>'E-Mail','class'=>'');
         $table['columns'][] = array('title'=>'Phone','class'=>'');
-        $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
-        $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
+            $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
+        }
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
+            $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
+        }
     }
     // Add ops column
     if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
@@ -109,8 +113,12 @@ function member_table ($opts = NULL) {
             $row[] = $plan;
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
-            $row[] = $member['contact']['emergencyName'];
-            $row[] = $member['contact']['emergencyPhone'];
+            if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
+                $row[] = $member['contact']['emergencyName'];
+            }
+            if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
+                $row[] = $member['contact']['emergencyPhone'];
+            }
         }
         
         // Construct ops array
