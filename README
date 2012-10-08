@@ -1,7 +1,7 @@
 
-Seltzer CRM 0.1.x Development Snapshot (See tags for release versions)
+Seltzer CRM 0.2.0
 An open source CRM for hackerspaces
-Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
 Distributed under GPLv3 (see COPYING for more info)
 
 CONTENTS
@@ -10,15 +10,20 @@ CONTENTS
 2. Why create another CRM
 3. How to install
 4. Basic usage
-5. Code structure
 
 1. OVERVIEW
 ===========
-Seltzer is a Customer Relationship Management (CRM) application designed
-specifically for hackerspaces.  It is built to be lightweight and hackable.
+Seltzer CRM is a tool for managing membership data at hackerspaces and similar
+membership organizations.  It is designed to be useful to a typical hackerspace
+administrator without any training, and easy to tailor to the needs of a
+particular space (through modularity rather than forking or configuration).
 
-The current features are tracking of member contact info, membership levels,
-voting status, and key assignments.
+The current features are:
+* Tracking of member contact and emergency contact info
+* Tracking of membership levels and dates
+* Tracking of voting status
+* Tracking of key assignments
+* Customizable permissions and roles
 
 Seltzer has been in production use at the i3 Detroit hackerspace in Ferndale, MI
 since 2010-12-20.
@@ -37,16 +42,16 @@ Check out the INSTALL file.
 
 4. BASIC USAGE
 ==============
-NOTE: to preserve historical data, plans, members, and key assignments should
-only be deleted if they were created in error.  If a plan, member, or key
+NOTE: to preserve historical data, only delete plans, members, and key
+assignments if they were created in error.  If a plan, member, or key
 assignment is no longer valid, it should be marked as inactive rather than
 deleted.
 
-To manage membership plans, click the "Plans" tab.  This tab displays a list of
-existing plans.  Each existing plan has links to edit or delete that plan.  You
-may add a new plan by clicking the "Add" sub-tab.
+Add or edit different levels of membership plans by clicking the "Plans" tab.
+This tab displays a list of existing plans.  Each existing plan has links to
+edit or delete that plan.  You may add a new plan by clicking the "Add" sub-tab.
 
-To manage members, click the "Members" tab.  This tab displays a list of
+Add or edit members by clicking the "Members" tab.  This tab displays a list of
 all members, past and present.  Members may be filtered down to only active
 or voting members.  Each member has a link to edit or delete that member.  To
 add a new member, click the "Add" sub-tab.
@@ -57,31 +62,25 @@ To manage a member's membership status, click a member, and then click the
 To edit a member's roles (which determine their permissions) click a member and
 then click the "Roles" sub-tab.
 
-To manage key assignments, click a member in the "Members" tab, then click the
-"Keys" sub-tab.
+To manage a member's key assignments, click a member in the "Members" tab, then
+click the "Keys" sub-tab.
 
-To view a report of all active voting members, click the "Reports" tab.
+To grant or revoke permissions for user roles, click the "Permissions" tab.
 
-5. CODE STRUCTURE
-=================
-The code is documented in doxygen format and the documentation is in the doc
-subfolder of the distribution.
+To import member data, click the "Members" tab, then click the "Import sub-tab.
+You will need to upload a CSV file.  The first row should contain the following
+headers:
 
-Currently, there is a front end php file for each page in the CRM.  These pages
-include the file include/crm.inc.php which includes the rest of the CRM
-code.
+* "First Name"
+* "Middle Name"
+* "Last Name"
+* "Email"
+* "Phone"
+* "Emergency Name"
+* "Emergency Phone"
+* "Username" If blank, will use <first initial><last name>
+* "Plan" The name of the plan to assign a member to.  If no plan of that name
+  exists, it will be created.
+* "Start Date" The date the user joined in YYYY-MM-DD format.
 
-The key module is small and a provides a good demonstration of most things
-a module can do.
-
-The code is broken into several "modules" but the module system is not complete
-as of this writing.  The modules are hard coded into include/crm.inc.php and
-include/config.php.
-
-Modules are divided into the following types of functions:
-* _data functions: query database and return associative arrays.
-* _table functions: return data structures representing tables.
-* _form functions: return data structures representing forms.
-* _page function: a hook to add content to various pages.
-* command_ functions: read from GET/POST and update the database.
-* theme_ functions: return themed html strings.
+A user will be created for each subsequent row.
