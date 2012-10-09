@@ -27,11 +27,23 @@ $config_db_password = '';
 $config_db_db = '';
 
 // Site info
+
+// The title to display in the title bar
 $config_site_title = 'Seltzer CRM';
+
+// The name of the organization to insert into templates
 $config_org_name = 'Seltzer CRM';
+
+// The From: address to use when sending email to members
 $config_email_from = '';
+
+// The email address to notify when a user is created
 $config_email_to = '';
+
+// The hostname of the server
 $config_host = $_SERVER['SERVER_NAME'];
+
+// The url path of the crm directory
 $config_base_path = '/crm/';
 
 // Modules
