@@ -26,7 +26,13 @@
  * @param $vars An array mapping template variable names to their values.  If
  *   the value is a string, it will be treated as a path.
  */
-function template_render ($name, $vars) {
+function template_render ($name, $vars = NULL) {
+    
+    // Use template_preprocess_page by default
+    // TODO: The template variable system should use modular hooks
+    if (!$vars) {
+        $vars = template_preprocess_page();
+    }
     
     // If $vars is a string, we want to generate vars from a path
     if (!is_array($vars)) {
