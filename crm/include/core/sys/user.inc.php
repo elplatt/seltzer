@@ -103,7 +103,7 @@ function user_check_password($password, $user) {
 */ 
 function user_data ($opts) {
     // Create a map of user permissions if join was specified
-    $join_perm = !array_key_exists('join', $opts) || in_array('permission', $opts['join']);
+    $join_perm = array_key_exists('join', $opts) && in_array('permission', $opts['join']);
     if ($join_perm) {
         $sql = "
             SELECT `user`.`cid`, `role_permission`.`permission`
@@ -131,7 +131,7 @@ function user_data ($opts) {
     }
     
     // Create a map of user roles if role join was specified
-    $join_role = !array_key_exists('join', $opts) || in_array('role', $opts['join']);
+    $join_role = array_key_exists('join', $opts) && in_array('role', $opts['join']);
     if ($join_role) {
         $sql = "
             SELECT `user_role`.`cid`, `role`.`rid`, `role`.`name`
@@ -151,9 +151,21 @@ function user_data ($opts) {
         }
     }
     
+    // Determine if salting is present
+    // This is only necessary for upgrading from release 0.1 to 0.2 and can
+    // probably be removed in a few releases.
+    $sql = "SHOW COLUMNS IN `user` LIKE 'salt'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_num_rows($res) > 0) {
+        $cols = '`cid`, `username`, `hash`, `salt`';
+    } else {
+        $cols = '`cid`, `username`, `hash`';
+    }
+    
     // Construct query for users
     $sql = "
-        SELECT `cid`, `username`, `hash`, `salt` FROM `user` WHERE 1
+        SELECT $cols FROM `user` WHERE 1
     ";
     if (array_key_exists('cid', $opts)) {
         $cid = mysql_real_escape_string($opts['cid']);
