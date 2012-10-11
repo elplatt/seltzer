@@ -63,7 +63,7 @@ function template_render ($name, $vars = NULL) {
  * Assign variables to be set for a template.
  * @param $path The path to the current page
  */
-function template_preprocess_page ($path) {
+function template_preprocess_page ($path = '') {
     global $config_org_name;
     global $config_base_path;
     
