@@ -26,6 +26,11 @@
 $user_permissions = array();
 
 /**
+ * Permission cache for current user.
+ */
+$user_permission_cache = array();
+
+/**
  * Initialization code run after all modules are loaded.
  */
 function user_init () {
@@ -103,7 +108,7 @@ function user_check_password($password, $user) {
 */ 
 function user_data ($opts) {
     // Create a map of user permissions if join was specified
-    $join_perm = array_key_exists('join', $opts) && in_array('permission', $opts['join']);
+    $join_perm = !array_key_exists('join', $opts) || in_array('permission', $opts['join']);
     if ($join_perm) {
         $sql = "
             SELECT `user`.`cid`, `role_permission`.`permission`
@@ -131,7 +136,7 @@ function user_data ($opts) {
     }
     
     // Create a map of user roles if role join was specified
-    $join_role = array_key_exists('join', $opts) && in_array('role', $opts['join']);
+    $join_role = !array_key_exists('join', $opts) || in_array('role', $opts['join']);
     if ($join_role) {
         $sql = "
             SELECT `user_role`.`cid`, `role`.`rid`, `role`.`name`
@@ -151,21 +156,9 @@ function user_data ($opts) {
         }
     }
     
-    // Determine if salting is present
-    // This is only necessary for upgrading from release 0.1 to 0.2 and can
-    // probably be removed in a few releases.
-    $sql = "SHOW COLUMNS IN `user` LIKE 'salt'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    if (mysql_num_rows($res) > 0) {
-        $cols = '`cid`, `username`, `hash`, `salt`';
-    } else {
-        $cols = '`cid`, `username`, `hash`';
-    }
-    
     // Construct query for users
     $sql = "
-        SELECT $cols FROM `user` WHERE 1
+        SELECT `cid`, `username`, `hash`, `salt` FROM `user` WHERE 1
     ";
     if (array_key_exists('cid', $opts)) {
         $cid = mysql_real_escape_string($opts['cid']);
@@ -322,6 +315,7 @@ function user_role_list () {
  * @return True if the user is granted $permission.
 */
 function user_access ($permission) {
+    global $user_permission_cache;
     
     // If a user is not logged in, they don't have access to anything
     if (!user_id()) {
@@ -333,9 +327,16 @@ function user_access ($permission) {
         return true;
     }
     
+    // Check cache
+    if (array_key_exists($permission, $user_permission_cache)) {
+        return $user_permission_cache[$permission];
+    }
+    
     // Get list of the users roles and check each for the permission
-    $data = user_data(array('cid'=>user_id(), 'join'=>array('permission')));
-    return in_array($permission, $data[0]['permissions']);
+    $data = user_data(array('cid'=>user_id()));
+    $access = in_array($permission, $data[0]['permissions']);
+    $user_permission_cache[$permission] = $access;
+    return $access;
 }
 
 /**
@@ -652,7 +653,7 @@ function theme_user_reset_password_confirm_form ($code) {
 function user_role_edit_form ($cid) {
     
     // Get user data
-    $data = user_data(array('cid'=>$cid, 'join'=>array('role')));
+    $data = user_data(array('cid'=>$cid));
     $user = $data[0];
     
     // Get role data
