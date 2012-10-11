@@ -652,7 +652,7 @@ function theme_user_reset_password_confirm_form ($code) {
 function user_role_edit_form ($cid) {
     
     // Get user data
-    $data = user_data(array('cid'=>$cid));
+    $data = user_data(array('cid'=>$cid, 'join'=>array('role')));
     $user = $data[0];
     
     // Get role data
