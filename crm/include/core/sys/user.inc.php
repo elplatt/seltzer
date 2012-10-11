@@ -334,7 +334,7 @@ function user_access ($permission) {
     }
     
     // Get list of the users roles and check each for the permission
-    $data = user_data(array('cid'=>user_id()));
+    $data = user_data(array('cid'=>user_id(), 'join'=>array('permission')));
     return in_array($permission, $data[0]['permissions']);
 }
 
