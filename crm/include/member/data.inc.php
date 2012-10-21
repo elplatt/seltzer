@@ -43,7 +43,8 @@ function member_data ($opts) {
         WHERE 1
     ";
     if (!empty($opts['cid'])) {
-        $sql .= " AND `member`.`cid`=$opts[cid]";
+        $esc_cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND `member`.`cid`='$esc_cid'";
     }
     if (isset($opts['filter'])) {
         $filter = $opts['filter'];
@@ -130,13 +131,14 @@ function member_data ($opts) {
     foreach ($members as $index => $member) {
         
         // Query all memberships for current member
+        $esc_cid = mysql_real_escape_string($member['cid']);
         $sql = "
             SELECT
             `membership`.`sid`, `membership`.`cid`, `membership`.`start`, `membership`.`end`,
             `plan`.`pid`, `plan`.`name`, `plan`.`price`, `plan`.`active`, `plan`.`voting`
             FROM `membership`
             INNER JOIN `plan` ON `plan`.`pid` = `membership`.`pid`
-            WHERE `membership`.`cid`='$member[cid]'
+            WHERE `membership`.`cid`='$esc_cid'
             ORDER BY `membership`.`start` ASC
         ";
         $res = mysql_query($sql);
