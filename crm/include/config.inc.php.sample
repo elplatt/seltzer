@@ -49,7 +49,8 @@ $config_base_path = '/crm/';
 // Modules
 $config_modules = array(
     "member",
-    "key"
+    "key",
+    "payment"
 );
 
 // Links to show in the main menu
@@ -58,6 +59,7 @@ $config_links = array(
     , 'members' => 'Members'
     , 'plans' => 'Plans'
     , 'keys' => 'Keys'
+    , 'payments' => 'Payments'
     , 'reports' => 'Reports'
     , 'permissions' => 'Permissions'
     , 'upgrade' => 'Upgrade'
