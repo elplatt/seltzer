@@ -191,7 +191,11 @@ function theme_form_text ($field) {
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
-    $output .= '<input type="text" name="' . $field['name'] . '"';
+    if (empty($field['autocomplete'])) {
+        $output .= '<input type="text" name="' . $field['name'] . '"';
+    } else {
+        $output .= '<input type="text" name="' . $field['name'] . '-label"';
+    }
     if (!empty($classes)) {
         $output .= ' class="' . join(' ', $classes) . '"';
     }
@@ -200,6 +204,7 @@ function theme_form_text ($field) {
     }
     $output .= '/>';
     if (!empty($field['autocomplete'])) {
+        $output .= '<input class="autocomplete-value" type="hidden" name="' . $field['name'] . '" value=""/>';
         $output .= '<span class="autocomplete" style="display:none;">' . $field['autocomplete'] . '</span>';
     }
     $output .= '</fieldset>';
