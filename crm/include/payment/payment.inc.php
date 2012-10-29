@@ -52,7 +52,7 @@ function payment_install($old_revision = 0) {
               `date` date DEFAULT NULL,
               `description` varchar(255) NOT NULL,
               `code` varchar(8) NOT NULL,
-              `amount` mediumint(8) unsigned NOT NULL,
+              `amount` decimal(16,6) NOT NULL,
               `credit` mediumint(8) unsigned NOT NULL,
               `debit` mediumint(8) unsigned NOT NULL,
               `method` varchar(255) NOT NULL,
@@ -110,6 +110,16 @@ function payment_add_form () {
                         , 'name' => 'date'
                         , 'value' => date("Y-m-d")
                         , 'class' => 'date'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Description'
+                        , 'name' => 'description'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Amount'
+                        , 'name' => 'amount'
                     )
                     , array(
                         'type' => 'select'
