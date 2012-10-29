@@ -57,13 +57,37 @@ function payment_install($old_revision = 0) {
               `debit` mediumint(8) unsigned NOT NULL,
               `method` varchar(255) NOT NULL,
               `confirmation` varchar(255) NOT NULL,
-              `notes` text NOT NULL
+              `notes` text NOT NULL,
               PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     }
+}
+
+// Utility functions ///////////////////////////////////////////////////////////
+
+/**
+ * Normalize a currency value.
+ * @param $amount
+ * @param $code The currency code.
+ * @param $symbol If true, include the currency symbol.
+ * @return A string containing the currency value.
+ */
+function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
+    $parts = explode('.', trim($amount, " \t\n\r\0\x0B\$"));
+    $dollars = 0;
+    $cents = 0;
+    if (count($parts) > 0) {
+        $dollars = (int)$parts[0];
+    }
+    if (count($parts) > 1) {
+        $cents = (int)$parts[1];
+    }
+    $result = $symbol ? '$' : '';
+    $result .= $dollars . '.' . sprintf('%2d', $cents);
+    return $result;
 }
 
 // Forms ///////////////////////////////////////////////////////////////////////
@@ -179,5 +203,56 @@ function payment_page (&$page_data, $page_name, $options) {
             }
             break;
     }
+}
+
+// Command handlers ////////////////////////////////////////////////////////////
+
+/**
+ * Handle payment add request.
+ *
+ * @return The url to display on completion.
+ */
+function command_payment_add() {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('payment_edit')) {
+        error_register('Permission denied: payment_edit');
+        return 'index.php?q=payments';
+    }
+    
+    $amount = payment_normalize_currency($_POST['amount']);
+    $esc_amount = mysql_real_escape_string($amount);
+    
+    $sql = "
+        INSERT INTO `payment`
+        (
+            `date`
+            , `description`
+            , `code`
+            , `amount`
+            , `credit`
+            , `debit`
+            , `method`
+            , `confirmation`
+            , `notes`
+        )
+        VALUES
+        (
+            '$esc_post[date]'
+            , '$esc_post[description]'
+            , 'USD'
+            , '$esc_amount'
+            , '$esc_post[credit]'
+            , '$esc_post[debit]'
+            , '$esc_post[method]'
+            , '$esc_post[confirmation]'
+            , '$esc_post[notes]'
+        )
+    ";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    return 'index.php?q=payments';
 }
 
