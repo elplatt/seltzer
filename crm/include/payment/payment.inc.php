@@ -58,6 +58,7 @@ function payment_install($old_revision = 0) {
               `method` varchar(255) NOT NULL,
               `confirmation` varchar(255) NOT NULL,
               `notes` text NOT NULL,
+              `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
         ';
@@ -130,7 +131,7 @@ function payment_data ($opts = array()) {
     if (array_key_exists('filter', $opts)) {
         // TODO
     }
-    $sql .= " ORDER BY `date` DESC";
+    $sql .= " ORDER BY `date`, `created` DESC";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
