@@ -86,8 +86,152 @@ function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
         $cents = (int)$parts[1];
     }
     $result = $symbol ? '$' : '';
-    $result .= $dollars . '.' . sprintf('%2d', $cents);
+    $result .= $dollars . '.' . sprintf('%02d', $cents);
     return $result;
+}
+
+// DB to Object mapping ////////////////////////////////////////////////////////
+
+/**
+ * Return data for one or more payments.
+ *
+ * @param $opts An associative array of options, possible keys are:
+ *   'pmtid' If specified, returns a single payment with the matching id;
+ *   'cid' If specified, returns all payments assigned to the contact with specified id;
+ *   'filter' An array mapping filter names to filter values;
+ *   'join' A list of tables to join to the payment table.
+ * @return An array with each element representing a single payment.
+*/ 
+function payment_data ($opts = array()) {
+    
+    $sql = "
+        SELECT
+        `pmtid`
+        , `date`
+        , `description`
+        , `code`
+        , `amount`
+        , `credit`
+        , `debit`
+        , `method`
+        , `confirmation`
+        , `notes`
+        FROM `payment`
+    ";
+    $sql .= "WHERE 1 ";
+    if (array_key_exists('pmtid', $opts)) {
+        $pmtid = mysql_real_escape_string($opts['pmtid']);
+        $sql .= " AND `pmtid`='$pmtid' ";
+    }
+    if (array_key_exists('cid', $opts)) {
+        $cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND (`debit`='$cid' OR `credit`='$cid') ";
+    }
+    if (array_key_exists('filter', $opts)) {
+        // TODO
+    }
+    $sql .= " ORDER BY `date` DESC";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    $payments = array();
+    $row = mysql_fetch_assoc($res);
+    while ($row) {
+        $payment = array(
+            'pmtid' => $row['pmtid']
+            , 'date' => $row['date']
+            , 'description' => $row['description']
+            , 'code' => $row['code']
+            , 'amount' => payment_normalize_currency($row['amount'], true)
+            , 'credit' => $row['credit']
+            , 'debit' => $row['debit']
+            , 'method' => $row['method']
+            , 'confirmation' => $row['confirmation']
+            , 'notes' => $row['notes']
+        );
+        $payments[] = $payment;
+        $row = mysql_fetch_assoc($res);
+    }
+    return $payments;
+}
+
+// Table data structures ///////////////////////////////////////////////////////
+
+/**
+ * Return a table structure for a table of payments.
+ *
+ * @param $opts The options to pass to payment_data().
+ * @return The table structure.
+*/
+function payment_table ($opts) {
+    
+    // Determine settings
+    $export = false;
+    foreach ($opts as $option => $value) {
+        switch ($option) {
+            case 'export':
+                $export = $value;
+                break;
+        }
+    }
+    
+    // Get data
+    $data = payment_data($opts);
+    if (count($data) < 1) {
+        return array();
+    }
+    
+    // Initialize table
+    $table = array(
+        "id" => '',
+        "class" => '',
+        "rows" => array(),
+        "columns" => array()
+    );
+    
+    // Add columns
+    if (true) { // Permission check
+        $table['columns'][] = array("title"=>'date');
+        $table['columns'][] = array("title"=>'description');
+        $table['columns'][] = array("title"=>'credit');
+        $table['columns'][] = array("title"=>'debit');
+        $table['columns'][] = array("title"=>'amount');
+        $table['columns'][] = array("title"=>'method');
+        $table['columns'][] = array("title"=>'confirmation');
+        $table['columns'][] = array("title"=>'notes');
+    }
+    // Add ops column
+    if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
+    
+    // Add rows
+    foreach ($data as $payment) {
+        
+        $row = array();
+        if (true) {
+            
+            $row[] = $payment['date'];
+            $row[] = $payment['description'];
+            $row[] = $payment['credit'];
+            $row[] = $payment['debit'];
+            $row[] = payment_normalize_currency($payment['amount'], true);
+            $row[] = $payment['method'];
+            $row[] = $payment['confirmation'];
+            $row[] = $payment['notes'];
+        }
+        
+        if (user_access('payment_edit') || user_access('payment_delete')) {
+            // Add ops column
+            // TODO
+            $ops = array();
+            $row[] = join(' ', $ops);
+        }
+        
+        $table['rows'][] = $row;
+    }
+    
+    return $table;
 }
 
 // Forms ///////////////////////////////////////////////////////////////////////
@@ -199,7 +343,9 @@ function payment_page (&$page_data, $page_name, $options) {
         case 'payments':
             page_set_title($page_data, 'Payments');
             if (user_access('payment_edit')) {
-                page_add_content_top($page_data, theme('form', payment_add_form()));
+                $content = theme('form', payment_add_form());
+                $content .= theme('table', 'payment');
+                page_add_content_top($page_data, $content);
             }
             break;
     }
