@@ -33,7 +33,8 @@ function payment_revision () {
  */
 function payment_permissions () {
     return array(
-        'payment_edit'
+        'payment_view'
+        , 'payment_edit'
         , 'payment_delete'
     );
 }
@@ -191,7 +192,7 @@ function payment_table ($opts) {
     );
     
     // Add columns
-    if (true) { // Permission check
+    if (user_access('payment_view')) { // Permission check
         $table['columns'][] = array("title"=>'date');
         $table['columns'][] = array("title"=>'description');
         $table['columns'][] = array("title"=>'credit');
@@ -210,7 +211,7 @@ function payment_table ($opts) {
     foreach ($data as $payment) {
         
         $row = array();
-        if (true) {
+        if (user_access('payment_view')) {
             
             $row[] = $payment['date'];
             $row[] = $payment['description'];
