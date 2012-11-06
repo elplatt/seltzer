@@ -227,6 +227,12 @@ function payment_table ($opts) {
             // Add ops column
             // TODO
             $ops = array();
+            if (user_access('payment_edit')) {
+               $ops[] = "<a href=\"index.php?q=payment&pmtid=$payment[pmtid]\">edit</a>";
+            }
+            if (user_access('payment_delete')) {
+                $ops[] = "<a href=\"index.php?q=delete&type=payment&id=$payment[pmtid]\">delete</a>";
+            }
             $row[] = join(' ', $ops);
         }
         
@@ -318,6 +324,86 @@ function payment_add_form () {
     );
     
     return $form;
+}
+
+/**
+ * Return the payment form structure.
+ *
+ * @param $pmtid The id of the key assignment to delete.
+ * @return The form structure.
+*/
+function payment_delete_form ($pmtid) {
+    
+    // Ensure user is allowed to delete keys
+    if (!user_access('payment_delete')) {
+        return NULL;
+    }
+    
+    // Get data
+    $data = payment_data(array('pmtid'=>$pmtid));
+    $payment = $data[0];
+    
+    // Construct key name
+    $amount = payment_normalize_currency($payment['amount'], true);
+    $payment_name = "Payment:$payment[pmtid] $amount From:$payment[credit] To:$payment[debit]";
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'payment_delete',
+        'hidden' => array(
+            'pmtid' => $payment['pmtid']
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Delete Payment',
+                'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => '<p>Are you sure you want to delete the payment "' . $payment_name . '"? This cannot be undone.',
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Delete'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+// Command handlers ////////////////////////////////////////////////////////////
+
+/**
+ * Handle payment delete request.
+ *
+ * @return The url to display on completion.
+ */
+function command_payment_delete() {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('payment_delete')) {
+        error_register('Permission denied: payment_delete');
+        return 'index.php?q=payment&pmtid=' . $esc_post['pmtid'];
+    }
+    
+    // Query database
+    $sql = "
+        DELETE FROM `payment`
+        WHERE `pmtid`='$esc_post[pmtid]'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    if (mysql_affected_rows($res) > 0) {
+        message_register('Deleted payment with id ' . $_POST['pmtid']);
+    }
+    
+    return 'index.php?q=payments';
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
