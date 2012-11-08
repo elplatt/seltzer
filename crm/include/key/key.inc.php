@@ -334,57 +334,6 @@ function key_table ($opts) {
     return $table;
 }
 
-/**
- * @return The table structure for a key report.
-*/
-function key_report_table () {
-    
-    // Ensure user is allowed to view keys
-    if (!user_access('key_view')) {
-        return NULL;
-    }
-    
-    // Get contact data
-    $data = key_data(array('filter'=>array('active'=>true)));
-    if (count($data) < 1) {
-        return array();
-    }
-    
-    // Create list of taken slots, in ascending order
-    $taken = array();
-    foreach ($data as $key) {
-        $taken[] = $key['slot'];
-    }
-    sort($taken);
-    
-    // Start at slot 0
-    $next = 0;
-    foreach ($taken as $n) {
-        // Jump to next highest if current is taken
-        if ($next == $n) {
-            $next++;
-        }
-    }
-    
-    // Initialize table
-    $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
-    );
-    
-    // Add columns
-    if (user_access('key_view')) {
-        $table['columns'][] = array("title"=>'Next Available Key Slot', 'class'=>'', 'id'=>'');
-    }
-    
-    // Add cell
-    $table['rows'][] = array($next);
-    
-    return $table;
-}
-
 // Forms ///////////////////////////////////////////////////////////////////////
 
 /**
