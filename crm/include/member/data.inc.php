@@ -24,7 +24,7 @@
  * Return data for one or more members.
  *
  * @param $opts An associative array of options, possible keys are:
- *   'cid' If specified, returns a single memeber with the matching cid,
+ *   'cid' If specified, return a member (or members if array) with the given id,
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a member.
 */ 
@@ -43,8 +43,18 @@ function member_data ($opts) {
         WHERE 1
     ";
     if (!empty($opts['cid'])) {
-        $esc_cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `member`.`cid`='$esc_cid'";
+        if (is_array($opts['cid'])) {
+            $terms = array();
+            foreach ($opts['cid'] as $cid) {
+                $term = "'" . mysql_real_escape_string($cid) . "'";
+                $terms[] = $term;
+            }
+            $esc_list = "(" . implode(',', $terms) .")";
+            $sql .= " AND `member`.`cid` IN $esc_list ";
+        } else {
+            $esc_cid = mysql_real_escape_string($opts['cid']);
+            $sql .= " AND `member`.`cid`='$esc_cid'";
+        }
     }
     if (isset($opts['filter'])) {
         $filter = $opts['filter'];
@@ -317,7 +327,7 @@ function member_plan_options ($opts = NULL) {
  * Return data for one or more contacts.
  * 
  * @param $opts An associative array of options, possible keys are:
- *   'cid' If specified, returns a single memeber with the matching member id,
+ *   'cid' If specified returns the corresponding member (or members for an array);
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a contact.
 */ 
@@ -330,8 +340,17 @@ function member_contact_data ($opts) {
         
     // Add contact id
     if ($opts['cid']) {
-        $esc_cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `cid`='$esc_cid'";
+        if (is_array($opts['cid'])) {
+            $terms = array();
+            foreach ($opts['cid'] as $cid) {
+                $terms[] = "'" . mysql_real_escape_string($cid) . "'";
+            }
+            $esc_list = '(' . implode(',', $terms) . ')';
+            $sql .= " AND `cid` IN $esc_list";
+        } else {
+            $esc_cid = mysql_real_escape_string($opts['cid']);
+            $sql .= " AND `cid`='$esc_cid'";
+        }
     }
     
     // Add filters

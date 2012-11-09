@@ -106,6 +106,11 @@ function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
 */ 
 function payment_data ($opts = array()) {
     
+    $join_contact = false;
+    if (!array_key_exists('join', $opts) || in_array('contact', $opts['join'])) {
+        $join_contact = true;
+    }
+    
     $sql = "
         SELECT
         `pmtid`
@@ -137,6 +142,7 @@ function payment_data ($opts = array()) {
     if (!$res) die(mysql_error());
     
     $payments = array();
+    $cid_map = array();
     $row = mysql_fetch_assoc($res);
     while ($row) {
         $payment = array(
@@ -145,15 +151,36 @@ function payment_data ($opts = array()) {
             , 'description' => $row['description']
             , 'code' => $row['code']
             , 'amount' => payment_normalize_currency($row['amount'], true)
-            , 'credit' => $row['credit']
-            , 'debit' => $row['debit']
+            , 'credit_cid' => $row['credit']
+            , 'debit_cid' => $row['debit']
             , 'method' => $row['method']
             , 'confirmation' => $row['confirmation']
             , 'notes' => $row['notes']
         );
         $payments[] = $payment;
+        $cid_map[$row['credit']] = true;
+        $cid_map[$row['debit']] = true;
         $row = mysql_fetch_assoc($res);
     }
+    
+    if ($join_contact) {
+        $contact_map = array();
+        $cids = array_keys($cid_map);
+        $data = member_contact_data(array('cid'=>$cids));
+        foreach ($data as $row) {
+            $contact_map[$row['cid']] = $row;
+        }
+        
+        foreach ($payments as $i => $row) {
+            if (!empty($row['credit_cid'])) {
+                $payments[$i]['credit'] = $contact_map[$row['credit_cid']];
+            }
+            if (!empty($row['debit_cid'])) {
+                $payments[$i]['debit'] = $contact_map[$row['debit_cid']];
+            }
+        }
+    }
+    
     return $payments;
 }
 
@@ -215,8 +242,18 @@ function payment_table ($opts) {
             
             $row[] = $payment['date'];
             $row[] = $payment['description'];
-            $row[] = $payment['credit'];
-            $row[] = $payment['debit'];
+            if (array_key_exists('credit', $payment)) {
+                $contact = $payment['credit'];
+                $row[] = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            } else {
+                $row[] = '';
+            }
+            if (array_key_exists('debit', $payment)) {
+                $contact = $payment['debit'];
+                $row[] = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            } else {
+                $row[] = '';
+            }
             $row[] = payment_normalize_currency($payment['amount'], true);
             $row[] = $payment['method'];
             $row[] = $payment['confirmation'];
@@ -345,7 +382,17 @@ function payment_delete_form ($pmtid) {
     
     // Construct key name
     $amount = payment_normalize_currency($payment['amount'], true);
-    $payment_name = "Payment:$payment[pmtid] $amount From:$payment[credit] To:$payment[debit]";
+    $payment_name = "Payment:$payment[pmtid] - $amount";
+    if (array_key_exists('credit', $payment)) {
+        $contact = $payment['credit'];
+        $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+        $payment_name .= " - Credit: $name";
+    }
+    if (array_key_exists('debit', $payment)) {
+        $contact = $payment['debit'];
+        $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+        $payment_name .= " - Debit: $name";
+    }
     
     // Create form structure
     $form = array(
