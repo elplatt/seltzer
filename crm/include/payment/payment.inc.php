@@ -364,6 +364,92 @@ function payment_add_form () {
 }
 
 /**
+ * Create a form structure for editing a payment.
+ *
+ * @param $pmtid The id of the payment to edit.
+ * @return The form structure.
+*/
+function payment_edit_form ($pmtid) {
+    
+    // Ensure user is allowed to edit payments
+    if (!user_access('payment_edit')) {
+        error_register('User does not have permission: payment_edit');
+        return NULL;
+    }
+    
+    $data = payment_data(array('pmtid'=>$pmtid));
+    if (count($data) < 1) {
+        return NULL;
+    }
+    $payment = $data[0];
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'payment_edit'
+        , 'fields' => array(
+            array(
+                'type' => 'fieldset'
+                , 'label' => 'Edit Payment'
+                , 'fields' => array(
+                    array(
+                        'type' => 'text'
+                        , 'label' => 'Credit'
+                        , 'name' => 'credit'
+                        , 'autocomplete' => 'member_name'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Date'
+                        , 'name' => 'date'
+                        , 'value' => $payment['date']
+                        , 'class' => 'date'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Description'
+                        , 'name' => 'description'
+                        , 'value' => $payment['description']
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Amount'
+                        , 'name' => 'amount'
+                        , 'value' => payment_normalize_currency($payment['amount'], true)
+                    )
+                    , array(
+                        'type' => 'select'
+                        , 'label' => 'Method'
+                        , 'name' => 'method'
+                        , 'options' => payment_method_options()
+                        , 'value' => $payment['method']
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Check/Rcpt Num'
+                        , 'name' => 'confirmation'
+                        , 'value' => $payment['confirmation']
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Debit'
+                        , 'name' => 'debit'
+                        , 'autocomplete' => 'member_name'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Save'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+/**
  * Return the payment form structure.
  *
  * @param $pmtid The id of the key assignment to delete.
@@ -462,6 +548,7 @@ function payment_page_list () {
     $pages = array();
     if (user_access('payment_edit')) {
         $pages[] = 'payments';
+        $pages[] = 'payment';
     }
     return $pages;
 }
@@ -480,6 +567,13 @@ function payment_page (&$page_data, $page_name, $options) {
             if (user_access('payment_edit')) {
                 $content = theme('form', payment_add_form());
                 $content .= theme('table', 'payment');
+                page_add_content_top($page_data, $content);
+            }
+            break;
+        case 'payment':
+            page_set_title($page_data, 'Payment');
+            if (user_access('payment_edit')) {
+                $content = theme('form', payment_edit_form($_GET['pmtid']));
                 page_add_content_top($page_data, $content);
             }
             break;
