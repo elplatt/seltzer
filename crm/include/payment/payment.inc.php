@@ -403,6 +403,9 @@ function payment_edit_form ($pmtid) {
         'type' => 'form'
         , 'method' => 'post'
         , 'command' => 'payment_edit'
+        , 'hidden' => array(
+            'pmtid' => $payment['pmtid']
+        )
         , 'fields' => array(
             array(
                 'type' => 'fieldset'
@@ -652,6 +655,49 @@ function command_payment_add() {
     ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
+    
+    return 'index.php?q=payments';
+}
+
+/**
+ * Handle payment edit request.
+ *
+ * @return The url to display on completion.
+ */
+function command_payment_edit() {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('payment_edit')) {
+        error_register('Permission denied: payment_edit');
+        return 'index.php?q=payments';
+    }
+    
+    $amount = payment_normalize_currency($_POST['amount']);
+    $esc_amount = mysql_real_escape_string($amount);
+    
+    $sql = "
+        UPDATE `payment`
+        SET
+        `date` = '$esc_post[date]'
+        , `description` = '$esc_post[description]'
+        , `code` = 'USD'
+        , `amount` = '$esc_amount'
+        , `credit` = '$esc_post[credit]'
+        , `debit` = '$esc_post[debit]'
+        , `method` = '$esc_post[method]'
+        , `confirmation` = '$esc_post[confirmation]'
+        , `notes` = '$esc_post[notes]'
+        WHERE
+        `pmtid` = '$esc_post[pmtid]'
+    ";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    $affected = mysql_affected_rows($res);
+    if ($affectd > 0) {
+        message_register("Updated $affected payment(s)");
+    }
     
     return 'index.php?q=payments';
 }
