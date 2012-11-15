@@ -235,12 +235,14 @@ function member_membership_data ($opts) {
         
     // Add member id
     if (!empty($opts['cid'])) {
-        $sql .= " AND `cid`=$opts[cid]";
+        $esc_cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND `cid`='$esc_cid'";
     }
     
     // Add membership id
     if (!empty($opts['sid'])) {
-        $sql .= " AND `sid`=$opts[sid]";
+        $esc_sid = mysql_real_escape_string($opts['sid']);
+        $sql .= " AND `sid`='$esc_sid'";
     }
     
     // Add filters
@@ -328,7 +330,8 @@ function member_contact_data ($opts) {
         
     // Add contact id
     if ($opts['cid']) {
-        $sql .= " AND `cid`=$opts[cid]";
+        $esc_cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND `cid`='$esc_cid'";
     }
     
     // Add filters
