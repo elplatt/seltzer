@@ -260,7 +260,7 @@ function payment_table ($opts) {
             $row[] = $payment['notes'];
         }
         
-        if (user_access('payment_edit') || user_access('payment_delete')) {
+        if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
             // Add ops column
             // TODO
             $ops = array();
@@ -594,7 +594,7 @@ function payment_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, 'Payments');
             if (user_access('payment_edit')) {
                 $content = theme('form', payment_add_form());
-                $content .= theme('table', 'payment');
+                $content .= theme('table', 'payment', array('show_export'=>true));
                 page_add_content_top($page_data, $content);
             }
             break;
