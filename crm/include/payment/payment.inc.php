@@ -383,6 +383,21 @@ function payment_edit_form ($pmtid) {
     }
     $payment = $data[0];
     
+    $credit = '';
+    $credit_cid = '';
+    $debit = '';
+    $debit_cid = '';
+    if (array_key_exists('credit', $payment)) {
+        $contact = $payment['credit'];
+        $credit = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+        $credit_cid = $contact['cid'];
+    }
+    if (array_key_exists('debit', $payment)) {
+        $contact = $payment['debit'];
+        $debit = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+        $debit_cid = $contact['cid'];
+    }
+    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -397,6 +412,8 @@ function payment_edit_form ($pmtid) {
                         'type' => 'text'
                         , 'label' => 'Credit'
                         , 'name' => 'credit'
+                        , 'description' => $credit
+                        , 'value' => $credit_cid
                         , 'autocomplete' => 'member_name'
                     )
                     , array(
@@ -435,7 +452,15 @@ function payment_edit_form ($pmtid) {
                         'type' => 'text'
                         , 'label' => 'Debit'
                         , 'name' => 'debit'
+                        , 'description' => $debit
+                        , 'value' => $debit_cid
                         , 'autocomplete' => 'member_name'
+                    )
+                    , array(
+                        'type' => 'textarea'
+                        , 'label' => 'Notes'
+                        , 'name' => 'notes'
+                        , 'value' => $payment['notes']
                     )
                     , array(
                         'type' => 'submit'

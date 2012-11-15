@@ -97,6 +97,9 @@ function theme_form ($form) {
     case 'text':
         $output .= theme('form_text', $form);
         break;
+    case 'textarea':
+        $output .= theme('form_textarea', $form);
+        break;
     case 'checkbox':
         $output .= theme('form_checkbox', $form);
         break;
@@ -199,14 +202,47 @@ function theme_form_text ($field) {
     if (!empty($classes)) {
         $output .= ' class="' . join(' ', $classes) . '"';
     }
-    if (!empty($field['value'])) {
-        $output .= ' value="' . $field['value'] . '"';
+    if (empty($field['autocomplete'])) {
+        if (!empty($field['value'])) {
+            $output .= ' value="' . $field['value'] . '"';
+        }
+    } else {
+        if (!empty($field['description'])) {
+            $output .= ' value="' . $field['description'] . '"';
+        }
     }
     $output .= '/>';
     if (!empty($field['autocomplete'])) {
-        $output .= '<input class="autocomplete-value" type="hidden" name="' . $field['name'] . '" value=""/>';
+        $output .= '<input class="autocomplete-value" type="hidden" name="' . $field['name'] . '"';
+        $output .= ' value="' . $field['value'] . '"/>';
         $output .= '<span class="autocomplete" style="display:none;">' . $field['autocomplete'] . '</span>';
     }
+    $output .= '</fieldset>';
+    return $output;
+}
+
+/**
+ * Themes a textarea in a form.
+ * 
+ * @param $field the textarea field.
+ * @return The themed html for the textarea.
+ */
+function theme_form_textarea ($field) {
+    $classes = array();
+    if (!empty($field['class'])) {
+        array_push($classes, $field['class']);
+    }
+    $output = '<fieldset class="form-row">';
+    if (!empty($field['label'])) {
+        $output .= '<label>' . $field['label'] . '</label>';
+    }
+    $output .= '<textarea name="' . $field['name'] . '"';
+    if (!empty($classes)) {
+        $output .= ' class="' . join(' ', $classes) . '"';
+    }
+    $output .= '>';
+    $output .= $field['value'];
+    $output .= '</textarea>';
     $output .= '</fieldset>';
     return $output;
 }
