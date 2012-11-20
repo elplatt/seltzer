@@ -162,9 +162,11 @@ function core_install ($old_revision = 0) {
         if (!$res) die(mysql_error());
         $row = mysql_fetch_array($res);
         while ($row) {
+            $esc_cid = mysql_real_escape_string($row[cid]);
             foreach ($roles as $rid => $role) {
                 if (array_key_exists($role, $row) && $row[$role]) {
-                    $insert_sql = "INSERT INTO `user_role` (`cid`, `rid`) VALUES ('$row[cid]', '$rid')";
+                    $esc_rid = mysql_real_escape_string($rid);
+                    $insert_sql = "INSERT INTO `user_role` (`cid`, `rid`) VALUES ('$esc_cid', '$esc_rid')";
                     $insert_res = mysql_query($insert_sql);
                     if (!$insert_res) die(mysql_error());
                 }
@@ -179,9 +181,11 @@ function core_install ($old_revision = 0) {
             , 'director' => array('user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit', 'module_upgrade', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete')
         );
         foreach ($roles as $rid => $role) {
+            $esc_rid = mysql_real_escape_string($rid);
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
-                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                    $esc_perm = mysql_real_escape_string($perm);
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
                     $res = mysql_query($sql);
                     if (!$res) die(mysql_error());
                 }
