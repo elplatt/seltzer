@@ -79,9 +79,11 @@ function key_install($old_revision = 0) {
             'director' => array('key_view', 'key_edit', 'key_delete')
         );
         foreach ($roles as $rid => $role) {
+            $esc_rid = mysql_real_escape_string($rid);
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
-                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                    $esc_perm = mysql_real_escape_string($perm);
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
                     $res = mysql_query($sql);
                     if (!$res) die(mysql_error());
                 }
@@ -172,10 +174,12 @@ function key_data ($opts = array()) {
         FROM `key`
         WHERE 1";
     if (!empty($opts['kid'])) {
-        $sql .= " AND `kid`=$opts[kid]";
+        $esc_kid = mysql_real_escape_string($opts['kid']);
+        $sql .= " AND `kid`='$esc_kid'";
     }
     if (!empty($opts['cid'])) {
-        $sql .= " AND `cid`=$opts[cid]";
+        $esc_cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND `cid`='$esc_cid'";
     }
     if (!empty($opts['filter'])) {
         foreach ($opts['filter'] as $name => $param) {
@@ -577,7 +581,7 @@ function command_key_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'index.php?q=member&cid=' . $esc_post['cid'];
+    return 'index.php?q=member&cid=' . $_POST['cid'];
 }
 
 /**
@@ -591,7 +595,7 @@ function command_key_update() {
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
-        return 'index.php?q=key&kid=' . $esc_post['kid'];
+        return 'index.php?q=key&kid=' . $_POST['kid'];
     }
     
     // Query database
