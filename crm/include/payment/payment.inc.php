@@ -683,7 +683,7 @@ function payment_page (&$page_data, $page_name, $options) {
             if (user_access('payment_edit')) {
                 $content = theme('form', payment_add_form());
                 $content .= theme('table', 'payment', array('show_export'=>true));
-                page_add_content_top($page_data, $content);
+                page_add_content_top($page_data, $content, 'View');
             }
             break;
         case 'payment':
