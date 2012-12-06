@@ -236,6 +236,7 @@ function payment_save ($payment) {
         ";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
+        $op = 'update';
     } else {
         // Payment does not yet exist, create
         $sql = "
@@ -267,8 +268,28 @@ function payment_save ($payment) {
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         $payment['pmtid'] = mysql_insert_id();
+        $op = 'insert';
     }
 
+    $payment = payment_invoke_api($payment, $op);
+    
+    return $payment;
+}
+
+/**
+ * Call hooks when a payment is modified.
+ * @param $payment An associative array representing the payment
+ * @param $op A string describing the operation, values are:
+ *   insert
+ *   update
+ */
+function payment_invoke_api($payment, $op) {
+    foreach (module_list() as $module) {
+        $hook = $module . '_payment_api';
+        if (function_exists($hook)) {
+            call_user_func($hook, $payment, $op);
+        }
+    }
     return $payment;
 }
 

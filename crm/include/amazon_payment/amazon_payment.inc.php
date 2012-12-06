@@ -61,6 +61,37 @@ function amazon_payment_install($old_revision = 0) {
     }
 }
 
+/**
+ * Implementation of hook_payment_api()
+ * Invoke a payment api hook in all modules.
+ * @param $payment An associative array representing a payment.
+ * @param $op The operation.
+ */
+function amazon_payment_payment_api ($payment, $op) {
+    $esc_name = $payment['amazon_name'];
+    $esc_pmtid = $payment['pmtid'];
+    switch ($op) {
+        case 'insert':
+            $sql = "
+                INSERT INTO `payment_amazon`
+                (`pmtid`, `amazon_name`)
+                VALUES
+                ('$esc_pmtid', '$esc_name')
+            ";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            break;
+        case 'update':
+            $sql = "
+                UPDATE `payment_amazon`
+                SET `amazon_name` = '$esc_name'
+                WHERE `pmtid` = '$esc_pmtid'
+            ";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            break;
+    }
+}
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
@@ -148,6 +179,7 @@ function command_amazon_payment_import () {
             , 'method' => 'amazon'
             , 'confirmation' => $row['Transaction ID']
             , 'notes' => $row['notes']
+            , 'amazon_name' => $row['Name']
         );
         $payment = payment_save($payment);
         $count++;
