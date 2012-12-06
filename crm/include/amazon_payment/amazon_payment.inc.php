@@ -104,8 +104,14 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         case 'payments':
             if (user_access('payment_add')) {
-                page_add_content_top($page_data, theme('form', amazon_payment_import_form()), 'Import');                
+                $content = theme('amazon_payment_admin');
+                $content .= theme('form', amazon_payment_import_form());
+                page_add_content_top($page_data, $content, 'Amazon');
             }
+            break;
+        case 'amazon-admin':
+            page_set_title($page_data, 'Adminsiter Amazon Payments');
+            page_add_content_top($page_data, 'TODO', 'View');
             break;
     }
 }
@@ -121,17 +127,23 @@ function amazon_payment_import_form () {
         , 'command' => 'amazon_payment_import'
         , 'fields' => array(
             array(
-                'type' => 'message'
-                , 'value' => '<p>Use this page to upload amazon payments data in comma-separated (CSV) format.</p>'
-            )
-            , array(
-                'type' => 'file'
-                , 'label' => 'CSV File'
-                , 'name' => 'payment-file'
-            )
-            , array(
-                'type' => 'submit'
-                , 'value' => 'Import'
+                'type' => 'fieldset'
+                , 'label' => 'Import CSV'
+                , 'fields' => array(
+                    array(
+                        'type' => 'message'
+                        , 'value' => 'Use this form to upload amazon payments data in comma-separated (CSV) format.'
+                    )
+                    , array(
+                        'type' => 'file'
+                        , 'label' => 'CSV File'
+                        , 'name' => 'payment-file'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Import'
+                    )
+                )
             )
         )
     );
@@ -188,4 +200,11 @@ function command_amazon_payment_import () {
     message_register("Successfully imported $count payment(s)");
     
     return 'index.php?q=payments';
+}
+
+/**
+ * Return themed html for amazon admin links.
+ */
+function theme_amazon_payment_admin () {
+    return '<p><a href="index.php?q=amazon-admin">Administer</a></p>';
 }
