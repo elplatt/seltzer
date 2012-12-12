@@ -50,7 +50,8 @@ $config_base_path = '/crm/';
 $config_modules = array(
     "member",
     "key",
-    "payment"
+    "payment",
+    "amazon_payment"
 );
 
 // Links to show in the main menu

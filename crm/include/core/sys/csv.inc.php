@@ -86,7 +86,7 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
                 $row[$header[$field_index]] = $field;
             } else {
                 // Header
-                $header[] = strtolower($field);
+                $header[] = $field;
             }
             $field = '';
             $is_quoted = false;
@@ -98,7 +98,7 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
                 $row[$header[$field_index]] = $field;
             } else {
                 // Header
-                $header[] = strtolower($field);
+                $header[] = $field;
             }
             $field = '';
             $is_quoted = false;

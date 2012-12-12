@@ -184,6 +184,115 @@ function payment_data ($opts = array()) {
     return $payments;
 }
 
+/**
+ * Save a payment to the database.  If the payment has a key called "pmtid"
+ * an existing payment will be updated in the database.  Otherwise a new payment
+ * will be added to the database.  If a new payment is added to the database,
+ * the returned array will have a "pmtid" field corresponding to the database id
+ * of the new payment.
+ * 
+ * @param $payment An associative array representing a payment.
+ * @return A new associative array representing the payment.
+ */
+function payment_save ($payment) {
+
+    // Verify permissions and validate input
+    if (!user_access('payment_edit')) {
+        error_register('Permission denied: payment_edit');
+        return NULL;
+    }
+    if (empty($payment)) {
+        return NULL;
+    }
+    
+    // Sanitize input
+    $esc_pmtid = mysql_real_escape_string($payment['pmtid']);
+    $esc_date = mysql_real_escape_string($payment['date']);
+    $esc_description = mysql_real_escape_string($payment['description']);
+    $esc_code = mysql_real_escape_string($payment['code']);
+    $esc_amount = mysql_real_escape_string(payment_normalize_currency($payment['amount']));
+    $esc_credit = mysql_real_escape_string($payment['credit_cid']);
+    $esc_debit = mysql_real_escape_string($payment['debit_cid']);
+    $esc_method = mysql_real_escape_string($payment['method']);
+    $esc_confirmation = mysql_real_escape_string($payment['confirmation']);
+    $esc_notes = mysql_real_escape_string($payment['notes']);
+    
+    if (!empty($payment['pmtid'])) {
+        // Payment already exists, update
+        $sql = "
+            UPDATE `payment`
+            SET
+            `date`='$esc_date'
+            , `description` = '$esc_description'
+            , `code` = $esc_code
+            , `amount` = '$esc_amount'
+            , `credit` = '$esc_credit'
+            , `debit` = '$esc_debit'
+            , `method` = '$esc_method'
+            , `confirmation` = '$esc_confirmation'
+            , `notes` = '$esc_notes'
+            WHERE
+            `pmtid` = '$esc_pmtid'
+        ";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $op = 'update';
+    } else {
+        // Payment does not yet exist, create
+        $sql = "
+            INSERT INTO `payment`
+            (
+                `date`
+                , `description`
+                , `code`
+                , `amount`
+                , `credit`
+                , `debit`
+                , `method`
+                , `confirmation`
+                , `notes`
+            )
+            VALUES
+            (
+                '$esc_date'
+                , '$esc_description'
+                , '$esc_code'
+                , '$esc_amount'
+                , '$esc_credit'
+                , '$esc_debit'
+                , '$esc_method'
+                , '$esc_confirmation'
+                , '$esc_notes'
+            )
+        ";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $payment['pmtid'] = mysql_insert_id();
+        $op = 'insert';
+    }
+
+    $payment = payment_invoke_api($payment, $op);
+    
+    return $payment;
+}
+
+/**
+ * Call hooks when a payment is modified.
+ * @param $payment An associative array representing the payment
+ * @param $op A string describing the operation, values are:
+ *   insert
+ *   update
+ */
+function payment_invoke_api($payment, $op) {
+    foreach (module_list() as $module) {
+        $hook = $module . '_payment_api';
+        if (function_exists($hook)) {
+            call_user_func($hook, $payment, $op);
+        }
+    }
+    return $payment;
+}
+
 // Table data structures ///////////////////////////////////////////////////////
 
 /**
@@ -595,7 +704,7 @@ function payment_page (&$page_data, $page_name, $options) {
             if (user_access('payment_edit')) {
                 $content = theme('form', payment_add_form());
                 $content .= theme('table', 'payment', array('show_export'=>true));
-                page_add_content_top($page_data, $content);
+                page_add_content_top($page_data, $content, 'View');
             }
             break;
         case 'payment':
@@ -616,45 +725,19 @@ function payment_page (&$page_data, $page_name, $options) {
  * @return The url to display on completion.
  */
 function command_payment_add() {
-    global $esc_post;
     
-    // Verify permissions
-    if (!user_access('payment_edit')) {
-        error_register('Permission denied: payment_edit');
-        return 'index.php?q=payments';
-    }
-    
-    $amount = payment_normalize_currency($_POST['amount']);
-    $esc_amount = mysql_real_escape_string($amount);
-    
-    $sql = "
-        INSERT INTO `payment`
-        (
-            `date`
-            , `description`
-            , `code`
-            , `amount`
-            , `credit`
-            , `debit`
-            , `method`
-            , `confirmation`
-            , `notes`
-        )
-        VALUES
-        (
-            '$esc_post[date]'
-            , '$esc_post[description]'
-            , 'USD'
-            , '$esc_amount'
-            , '$esc_post[credit]'
-            , '$esc_post[debit]'
-            , '$esc_post[method]'
-            , '$esc_post[confirmation]'
-            , '$esc_post[notes]'
-        )
-    ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $payment = array(
+        'date' => $_POST['date']
+        , 'description' => $_POST['description']
+        , 'code' => 'USD'
+        , 'amount' => payment_normalize_currency($_POST['amount'])
+        , 'credit_cid' => $_POST['credit']
+        , 'debit_cid' => $_POST['debit']
+        , 'method' => $_POST['method']
+        , 'confirmation' => $_POST['confirmation']
+        , 'notes' => $_POST['notes']
+    );
+    $payment = payment_save($payment);
     
     return 'index.php?q=payments';
 }
