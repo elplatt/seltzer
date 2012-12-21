@@ -51,14 +51,59 @@ function amazon_payment_install($old_revision = 0) {
         // Additional contact info for amazon payments
         $sql = '
             CREATE TABLE IF NOT EXISTS `contact_amazon` (
-              `cid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+              `cid` mediumint(8) unsigned NOT NULL,
               `amazon_name` varchar(255) NOT NULL,
-              PRIMARY KEY (`cid`)
+              PRIMARY KEY (`amazon_name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     }
+}
+
+// DB to Object mapping ////////////////////////////////////////////////////////
+
+/**
+ * Return data for one or more amazon contacts.
+ *
+ * @param $opts An associative array of options, possible keys are:
+ *   'cid' If specified, returns all payments assigned to the contact with specified id;
+ *   'filter' An array mapping filter names to filter values;
+ * @return An array with each element representing a single payment.
+*/
+function amazon_payment_contact_data ($opts = array()) {
+    
+    $sql = "SELECT `cid`, `amazon_name` FROM `contact_amazon` WHERE 1";
+    // TODO add filtering etc
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    $names = array();
+    $row = mysql_fetch_assoc($res);
+    while ($row) {
+        $name = array(
+            'cid' => $row['cid']
+            , 'amazon_name' => $row['amazon_name']
+        );
+        if (!empty($row['cid'])) {
+            $names['contact'] = member_contact_data(array('cid'=>$row['cid']));
+        }
+        $row = mysql_fetch_assoc($res);
+        $names[] = $name;
+    }
+    
+    return $names;
+}
+
+/**
+ * Save an amazon payment contact.  Do nothing if it already exists.
+ * @param $name The amazon name object.
+ */
+function amazon_payment_contact_save ($contact) {
+    $esc_name = $contact['amazon_name'];
+    $sql = "INSERT INTO `contact_amazon` (`amazon_name`) VALUES ('$esc_name')";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
 }
 
 /**
@@ -80,6 +125,7 @@ function amazon_payment_payment_api ($payment, $op) {
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
+            amazon_payment_contact_save($payment);
             break;
         case 'update':
             $sql = "
@@ -89,9 +135,13 @@ function amazon_payment_payment_api ($payment, $op) {
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
+            amazon_payment_contact_save($payment);
             break;
     }
 }
+
+// TODO put amazon_payment_contact_table here
+// PS: Molly says "Hi, Matt!"
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
@@ -112,6 +162,8 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
         case 'amazon-admin':
             page_set_title($page_data, 'Adminsiter Amazon Payments');
             page_add_content_top($page_data, 'TODO', 'View');
+            $data = amazon_payment_contact_data();
+            page_add_content_top($page_data, '<pre>' . print_r($data, true) . '</pre>', 'View');
             break;
     }
 }
