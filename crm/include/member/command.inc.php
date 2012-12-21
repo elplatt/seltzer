@@ -514,6 +514,7 @@ function command_member_import () {
     }
     
     $csv = file_get_contents($_FILES['member-file']['tmp_name']);
+    
     $data = csv_parse($csv);
     
     foreach ($data as $row) {
@@ -544,42 +545,40 @@ function command_member_import () {
             ('$esc_cid')";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        
+            
         // Find Username
-        $esc_name = mysql_real_escape_string($row['username']);
+ 
+        $username = $row['username'];
         $n = 0;
-        while (empty($esc_name) && $n < 100) {
+        while (empty($username) && $n < 100) {
             
             // Contruct test username
-            $username = strtolower($row['first name']{0} . $row['lastName']);
+            $test_username = strtolower($row['first name']{0} . $row['lastName']);
             if ($n > 0) {
-                $username .= $n;
+                $test_username .= $n;
             }
             
             // Check whether username is taken
-            $esc_test_name = mysql_real_escape_string($username);
+            $esc_test_name = mysql_real_escape_string($test_username);
             $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
             $user_row = mysql_fetch_assoc($res);
             if (!$user_row) {
-                $esc_name = $esc_test_name;
+                $username = $test_username;
             }
             $n++;
         }
-        if (empty($esc_name)) {
+        if (empty($username)) {
             error_register('Please specify a username');
             return 'index.php?q=members&tab=import';
         }
         
         // Add user
-        $sql = "
-            INSERT INTO `user`
-            (`username`, `cid`)
-            VALUES
-            ('$esc_name', '$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $user = array();
+        $user['username'] = $username;
+        $user['cid'] = $cid;
+        user_save($user);
          
         // Add role entry
         $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
