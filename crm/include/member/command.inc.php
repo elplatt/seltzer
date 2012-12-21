@@ -20,52 +20,7 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Ed told me to make this. Migrate this function over to
- * include/core/sys/user.inc.php eventually.
- *
- * @param $user the user to save.
- * @return an array representing the user that was saved in the database.
- */
-function user_save ($user) {
-    
-    // first figure out wether the user is in the database or not
-    $opts = array();
-    $opts['cid'] = $user['cid'];
-    $user_array = user_data($opts);
-    
-    if(empty($user_array)){
-        // if not, insert it (code is int he command_member_add function)
-        
-        $esc_name = mysql_real_escape_string($user['username']);
-        $esc_cid = mysql_real_escape_string($user['cid']);
-        $esc_hash = mysql_real_escape_string($user['hash']);
-        $esc_salt = mysql_real_escape_string($user['salt']);
-        
-        // Add user
-        $sql = "
-            INSERT INTO `user`
-            (`username`, `cid`)
-            VALUES
-            ('$esc_name', '$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-        
-    } else {
-        // else that user already exists, update it
-        $sql = "
-            UPDATE `user`
-            SET `username`='$esc_name',
-            `hash`='$esc_hash',
-            `salt`='$esc_salt'
-            WHERE `cid`='$esc_cid'
-            ";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-    }
-    
-    return $user;
-}
+
 
 /**
  * Handle member add request.
