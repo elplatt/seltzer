@@ -1,0 +1,21 @@
+base_url: http://localhost/crm/
+
+mysql:
+  host: localhost
+  database: seltzerdb
+  username: crm
+  password: crm
+  test_data: support/testdata.sql
+
+users:
+  an admin user:
+    username: admin
+    password: admin
+
+  a regular user:
+    username: bbrady
+    password: bbrady
+
+  a bogus user:
+    username: herp
+    password: derp
