@@ -51,7 +51,8 @@ $config_modules = array(
     "member",
     "key",
     "payment",
-    "amazon_payment"
+    "amazon_payment",
+    "billing"
 );
 
 // Links to show in the main menu

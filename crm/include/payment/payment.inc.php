@@ -20,6 +20,9 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/** The number of decimals stored for payment amounts */
+define('PAYMENT_DECIMALS', 6);
+
 /**
  * @return This module's revision number.  Each new release should increment
  * this number.
@@ -73,12 +76,27 @@ function payment_install($old_revision = 0) {
 /**
  * Normalize a currency value.
  * @param $amount
- * @param $code The currency code.
  * @param $symbol If true, include the currency symbol.
+ * @param $code The currency code.
  * @return A string containing the currency value.
  */
 function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
-    $parts = explode('.', trim($amount, " \t\n\r\0\x0B\$"));
+    
+    // Trim whitespace
+    $amount = preg_replace('/[\s\$]/', '', $amount);
+    
+    // Determine whether amount is positive or negative
+    $sign = 1;
+    if (preg_match('/^()$/', $amount)) {
+        $sign *= -1;
+        $amount = trim($amount, "()");
+    }
+    if (preg_match('/^\-/', $amount)) {
+        $sign *= -1;
+        $amount = trim($amount, "-");
+    }
+    
+    $parts = explode('.', $amount);
     $dollars = 0;
     $cents = 0;
     if (count($parts) > 0) {
@@ -88,7 +106,14 @@ function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
         $cents = (int)$parts[1];
     }
     $result = $symbol ? '$' : '';
-    $result .= $dollars . '.' . sprintf('%02d', $cents);
+    $result .= sprintf('%d.%02d', $dollars, $cents);
+    if ($sign < 0) {
+        if ($symbol) {
+            $result = '(' . $result . ')';
+        } else {
+            $result = '-' . $result;
+        }
+    }
     return $result;
 }
 
@@ -111,6 +136,7 @@ function payment_data ($opts = array()) {
         $join_contact = true;
     }
     
+    $decimals = PAYMENT_DECIMALS;
     $sql = "
         SELECT
         `pmtid`
@@ -118,6 +144,9 @@ function payment_data ($opts = array()) {
         , `description`
         , `code`
         , `amount`
+        , SIGN(`amount`) AS `amount_sign`
+        , SIGN(`amount`)*FLOOR(SIGN(`amount`)*`amount`) AS `amount_whole`
+        , (`amount`-SIGN(`amount`)*FLOOR(SIGN(`amount`)*`amount`))*POWER(10, $decimals) AS `amount_fraction`
         , `credit`
         , `debit`
         , `method`
@@ -151,6 +180,9 @@ function payment_data ($opts = array()) {
             , 'description' => $row['description']
             , 'code' => $row['code']
             , 'amount' => payment_normalize_currency($row['amount'], true)
+            , 'amount_sign' => $row['amount_sign']
+            , 'amount_whole' => $row['amount_whole']
+            , 'amount_fraction' => $row['amount_fraction']
             , 'credit_cid' => $row['credit']
             , 'debit_cid' => $row['debit']
             , 'method' => $row['method']
