@@ -5,7 +5,7 @@ mysql:
   database: seltzerdb
   username: crm
   password: crm
-  test_data: support/testdata.sql
+  test_data: features/support/testdata.sql
 
 users:
   an admin user:
