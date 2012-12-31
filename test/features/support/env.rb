@@ -11,7 +11,7 @@ end
 
 
 
-test_config = YAML.load_file('support/test_config.yml')
+test_config = YAML.load_file('features/support/test_config.yml')
 browser = Watir::Browser.start(test_config['base_url'])
 
 
