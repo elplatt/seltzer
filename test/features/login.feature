@@ -1,4 +1,4 @@
-Feature: Login
+Feature: Login and Passwords
 
   Scenario: Log in as an admin user
     Given I am not logged in
