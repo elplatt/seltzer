@@ -420,6 +420,85 @@ function payment_table ($opts) {
     return $table;
 }
 
+/**
+ * Return a table showing a contacts payment history.
+ * @param $opts An associative array of options.  Possible keys are:
+ *   cid - The id of the contact to display
+ * @return A table object.
+ */
+function payment_history_table ($opts) {
+    
+    $cid = $opts['cid'];
+    if (!$cid) {
+        error_register('Unable to create payment history: no contact specified');
+        return array();
+    }
+    
+    $payments = payment_data($opts);
+    $balance_fraction = 0;
+    
+    $table = array(
+        'columns' => array(
+            array('title' => 'Date')
+            , array('title' => 'Description')
+            , array('title' => 'Amount')
+            , array('title' => 'Method')
+            , array('title' => 'To/From')
+            , array('title' => 'Balance')
+        )
+        , 'rows' => array()
+    );
+    
+    foreach ($payments as $payment) {
+        
+        $contact = '';
+        $amount_sign = $payment['amount_sign'];
+        if ($payment['credit_cid'] === $cid) {
+            $amount_sign = -1*$payment['amount_sign'];
+            $contact = $payment['debit'];
+        } else {
+            $contact = $payment['credit'];
+        }
+        
+        $contactName = '';
+        if (!empty($contact)) {
+            $contactName = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+        }
+        
+        // Construct amount
+        $amount = '';
+        if ($amount_sign < 0) {
+            $amount .= '-';
+        }
+        $amount .= $payment['amount_whole'] . '.' . $payment['amount_fraction'];
+        $formattedAmount = payment_normalize_currency($amount, true);
+        
+        // Update balance, stored as fractions of a currency unit
+        $whole = $payment['amount_whole'];
+        $fraction = $payment['amount_fraction'];
+        $balance_fraction += $amount_sign * ($whole * pow(10, PAYMENT_DECIMALS) + $fraction);
+        
+        // Convert balance to string
+        $bal_sign = $balance_fraction < 0 ? -1 : 1;
+        $balance_dollars = floor($bal_sign * $balance_fraction / pow(10, PAYMENT_DECIMALS));
+        $dollar_fractions = $balance_dollars * pow(10, PAYMENT_DECIMALS);
+        $balance_cents = round(($bal_sign * $balance_fraction - $dollar_fractions) * 100 / pow(10, PAYMENT_DECIMALS));
+        $formattedBalance = payment_normalize_currency(sprintf('%d.%02d', $bal_sign*$balance_dollars, $balance_cents), true);
+        
+        $row = array();
+        $row[] = $payment['date'];
+        $row[] = $payment['description'];
+        $row[] = $formattedAmount;
+        $row[] = $payment['method'];
+        $row[] = $contactName;
+        $row[] = $formattedBalance;
+        
+        $table['rows'][] = $row;
+    }
+    
+    return $table;
+}
+
 // Forms ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -744,6 +823,14 @@ function payment_page (&$page_data, $page_name, $options) {
             if (user_access('payment_edit')) {
                 $content = theme('form', payment_edit_form($_GET['pmtid']));
                 page_add_content_top($page_data, $content);
+            }
+            break;
+        case 'member':
+            // TODO, not sure if this should be here in here or member, we need to
+            // consider dependencies more carefully. -Ed 2013-01-02
+            if (user_id() == $_GET['cid'] || user_access('payment_view')) {
+                $content = theme('table', 'payment_history', array('cid' => $_GET['cid']));
+                page_add_content_top($page_data, $content, 'Account');
             }
             break;
     }
