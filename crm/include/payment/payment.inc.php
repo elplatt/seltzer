@@ -87,7 +87,7 @@ function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
     
     // Determine whether amount is positive or negative
     $sign = 1;
-    if (preg_match('/^()$/', $amount)) {
+    if (preg_match('/^\(.*\)$/', $amount)) {
         $sign *= -1;
         $amount = trim($amount, "()");
     }
@@ -103,7 +103,11 @@ function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
         $dollars = (int)$parts[0];
     }
     if (count($parts) > 1) {
-        $cents = (int)$parts[1];
+        $cents = $parts[1];
+        if (sizeof($cents) < PAYMENT_DECIMALS) {
+            $cents .= str_repeat('0', $cents);
+        }
+        $cents = substr($cents, 0, 2);
     }
     $result = $symbol ? '$' : '';
     $result .= sprintf('%d.%02d', $dollars, $cents);
@@ -145,8 +149,8 @@ function payment_data ($opts = array()) {
         , `code`
         , `amount`
         , SIGN(`amount`) AS `amount_sign`
-        , SIGN(`amount`)*FLOOR(SIGN(`amount`)*`amount`) AS `amount_whole`
-        , (`amount`-SIGN(`amount`)*FLOOR(SIGN(`amount`)*`amount`))*POWER(10, $decimals) AS `amount_fraction`
+        , FLOOR(SIGN(`amount`)*`amount`) AS `amount_whole`
+        , (SIGN(`amount`)*`amount`-FLOOR(SIGN(`amount`)*`amount`))*POWER(10, $decimals) AS `amount_fraction`
         , `credit`
         , `debit`
         , `method`
