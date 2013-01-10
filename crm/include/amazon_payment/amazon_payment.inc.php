@@ -85,8 +85,12 @@ function amazon_payment_contact_data ($opts = array()) {
             'cid' => $row['cid']
             , 'amazon_name' => $row['amazon_name']
         );
+        // add contact field if 'cid' is not empty
         if (!empty($row['cid'])) {
-            $names['contact'] = member_contact_data(array('cid'=>$row['cid']));
+            // Grab array of contacts
+            $contactarray = member_contact_data(array('cid'=>$row['cid']));
+            // assign the first element (which is a contact array) to the 'contact' field
+            $name['contact'] = $contactarray[0];
         }
         $row = mysql_fetch_assoc($res);
         $names[] = $name;
@@ -142,6 +146,56 @@ function amazon_payment_payment_api ($payment, $op) {
 
 // TODO put amazon_payment_contact_table here
 // PS: Molly says "Hi, Matt!"
+// "Hi, Molly!" - Matt
+// @param $opts - 
+// 
+function amazon_payment_contact_table($opts){
+    
+    $data = amazon_payment_contact_data($opts);
+    
+    
+    // Initialize table
+    $table = array(
+        "id" => '',
+        "class" => '',
+        "rows" => array(),
+        "columns" => array()
+    );
+    
+    // Add columns
+    if (!user_access('payment_view')) { // Permission check
+        error_register('User does not have permission to view payments');
+        return;
+    }
+    $table['columns'][] = array("title"=>'Full Name');
+    $table['columns'][] = array("title"=>'Amazon Name');
+    
+    // Add ops column (Not going to worry about this right now)
+   
+    // Add rows
+    foreach ($data as $union) {
+        $row = array();
+        
+        //first column is the full name associated with the union['cid']
+        $memberopts = array(
+            'cid' => $union['cid'],
+        );
+        $contact = $union['contact'];
+        $contactName = '';
+        if (!empty($contact)) {
+            $contactName = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+        }
+        $row[] = $contactName; 
+        //second column is  union['amazon_name']
+        $row[] = $union['amazon_name'];
+        
+        //Save row array into the $table structure
+        $table['rows'][] = $row;
+    }
+    
+    return $table; 
+}
+
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
@@ -160,10 +214,8 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             }
             break;
         case 'amazon-admin':
-            page_set_title($page_data, 'Adminsiter Amazon Payments');
-            page_add_content_top($page_data, 'TODO', 'View');
-            $data = amazon_payment_contact_data();
-            page_add_content_top($page_data, '<pre>' . print_r($data, true) . '</pre>', 'View');
+            page_set_title($page_data, 'Administer Amazon Payments');
+            page_add_content_top($page_data, theme('table', 'amazon_payment_contact', array('show_export'=>true)), 'View');
             break;
     }
 }
