@@ -369,7 +369,7 @@ function member_contact_data ($opts) {
     if (!$res) die(mysql_error());
     
     // Store data
-    $contactss = array();
+    $contacts = array();
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
         $contacts[] = array(
