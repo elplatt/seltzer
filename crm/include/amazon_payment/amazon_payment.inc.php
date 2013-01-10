@@ -117,6 +117,9 @@ function amazon_payment_contact_save ($contact) {
  * @param $op The operation.
  */
 function amazon_payment_payment_api ($payment, $op) {
+    if ($payment['method'] !== 'amazon') {
+        return;
+    }
     $esc_name = $payment['amazon_name'];
     $esc_pmtid = $payment['pmtid'];
     switch ($op) {
