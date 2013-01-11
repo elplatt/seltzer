@@ -512,6 +512,8 @@ function payment_method_options () {
     $options = array();
     $options['cash'] = 'Cash';
     $options['check'] = 'Check';
+	$options['PayPal'] = 'Payal';
+	$options['Other'] = 'Other';
     return $options;
 }
 
