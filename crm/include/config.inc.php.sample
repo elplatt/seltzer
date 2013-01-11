@@ -22,23 +22,23 @@
 
 // Database configuration
 $config_db_host = 'localhost';
-$config_db_user = '';
+$config_db_user = 'root';
 $config_db_password = '';
-$config_db_db = '';
+$config_db_db = 'seltzer';
 
 // Site info
 
 // The title to display in the title bar
-$config_site_title = 'Seltzer CRM';
+$config_site_title = 'Farset Labs CRM';
 
 // The name of the organization to insert into templates
-$config_org_name = 'Seltzer CRM';
+$config_org_name = 'Farset Labs';
 
 // The From: address to use when sending email to members
-$config_email_from = '';
+$config_email_from = 'admin@farsetlabs.org.uk';
 
 // The email address to notify when a user is created
-$config_email_to = '';
+$config_email_to = 'admin@farsetlabs.org.uk';
 
 // The hostname of the server
 $config_host = $_SERVER['SERVER_NAME'];
