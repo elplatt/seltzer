@@ -512,7 +512,7 @@ function payment_method_options () {
     $options = array();
     $options['cash'] = 'Cash';
     $options['cheque'] = 'Cheque';
-	$options['PayPal'] = 'PayPal';
+	$options['PayPal'] = 'Payal';
 	$options['Other'] = 'Other';
     return $options;
 }
