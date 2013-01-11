@@ -73,6 +73,17 @@ var showTab = function (hash) {
 var initAutocomplete = function () {
     $('input.autocomplete').each(function () {
         var command = $(this).parent().children('span.autocomplete').html();
-        $(this).autocomplete({'source': 'autocomplete.php?command=' + command});
+        $(this).autocomplete({
+            'source': 'autocomplete.php?command=' + command
+            , 'focus': function (event, ui) {
+                $(this).val(ui.item.label);
+                return false;
+            }
+            , 'select': function (event, ui) {
+                $(this).parent().children('input.autocomplete-value').val(ui.item.value);
+                $(this).val(ui.item.label);
+                return false;
+            }
+        });
     });
 };

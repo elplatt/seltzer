@@ -25,13 +25,16 @@
  * @param $fragment
  */
 function member_name_autocomplete ($fragment) {
-    $names = array();
+    $data = array();
     if (user_access('member_view')) {
         $members = member_data(array('filter'=>array('nameLike'=>$fragment)));
         foreach ($members as $member) {
             $contact = $member['contact'];
-            $names[] = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            $row = array();
+            $row['value'] = $contact['cid'];
+            $row['label'] = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            $data[] = $row;
         }
     }
-    return $names;
+    return $data;
 }

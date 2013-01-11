@@ -172,7 +172,7 @@ function theme_table_csv ($table_name, $opts = NULL) {
     // Loop through headers
     $cells = array();
     foreach ($table['columns'] as $col) {
-        $cells[] = str_replace('"', '\"', $col['title']);
+        $cells[] = table_escape_csv($col['title']);
     }
     $output .= join(',', $cells) . "\n";
     
@@ -180,12 +180,21 @@ function theme_table_csv ($table_name, $opts = NULL) {
     foreach ($table['rows'] as $row) {
         $cells = array();
         foreach ($row as $i => $cell) {
-            $cells[] = str_replace('"', '\"', $cell);
+            $cells[] = table_escape_csv($cell);
         }
         $output .= join(',', $cells) . "\n";
     }
     
     return $output;
+}
+
+/**
+ * Escape a string as a csv cell.
+ * @param $cell The cell data
+ * @return The escaped string.
+ */
+function table_escape_csv ($cell) {
+    return '"' . str_replace('"', '\"', $cell) . '"';    
 }
 
 /**

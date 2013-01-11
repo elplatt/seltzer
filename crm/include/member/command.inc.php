@@ -20,6 +20,8 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+
 /**
  * Handle member add request.
  *
@@ -54,55 +56,55 @@ function command_member_add () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $cid = mysql_insert_id();
+    $esc_cid = mysql_real_escape_string($cid);
     
     // Find Username
     $username = $_POST['username'];
-    $esc_name = $esc_post['username'];
     $n = 0;
-    while (empty($esc_name) && $n < 100) {
+    while (empty($username) && $n < 100) {
         
         // Contruct test username
-        $username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
+        $test_username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
         if ($n > 0) {
-            $username .= $n;
+            $test_username .= $n;
         }
         
         // Check whether username is taken
-        $esc_test_name = mysql_real_escape_string($username);
+        $esc_test_name = mysql_real_escape_string($test_username);
         $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         $row = mysql_fetch_assoc($res);
         if (!$row) {
-            $esc_name = $esc_test_name;
+            $username = $test_username;
         }
         $n++;
     }
-    if (empty($esc_name)) {
+    if (empty($username)) {
         error_register('Please specify a username');
         return 'index.php?q=members&tab=add';
     }
     
     // Add user
-    $sql = "
-        INSERT INTO `user`
-        (`username`, `cid`)
-        VALUES
-        ('$esc_name', '$cid')";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+
+    $user = array();
+    $user['username'] = $username;
+    $user['cid'] = $cid;
+    user_save($user);
      
     // Add role entry
     $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $row = mysql_fetch_assoc($res);
+    $esc_rid = mysql_real_escape_string($row['rid']);
+    
     if ($row) {
         $sql = "
             INSERT INTO `user_role`
             (`cid`, `rid`)
             VALUES
-            ('$cid', $row[rid])";
+            ('$esc_cid', '$esc_rid')";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     }
@@ -112,7 +114,7 @@ function command_member_add () {
         INSERT INTO `member`
         (`cid`)
         VALUES
-        ('$cid')";
+        ('$esc_cid')";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
@@ -131,15 +133,15 @@ function command_member_add () {
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
     if (!empty($config_email_to)) {
         $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
-        $content = theme('member_created_email', $cid);
+        $content = theme('member_created_email', $esc_cid);
         mail($config_email_to, "New Member: $name", $content, $headers);
     }
     
     // Notify user
-    $content = theme('member_welcome_email', $cid);
+    $content = theme('member_welcome_email', $esc_cid);
     mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
     
-    return "index.php?q=member&cid=$cid";
+    return "index.php?q=member&cid=$esc_cid";
 }
 
 /**
@@ -467,18 +469,26 @@ function command_member_import () {
     }
     
     $csv = file_get_contents($_FILES['member-file']['tmp_name']);
+    
     $data = csv_parse($csv);
     
     foreach ($data as $row) {
         
+        // Convert row keys to lowercase and remove spaces
+        foreach ($row as $key => $value) {
+            $new_key = str_replace(' ', '', strtolower($key));
+            unset($row[$key]);
+            $row[$new_key] = $value;
+        }
+        
         // Add contact
-        $firstName = mysql_real_escape_string($row['first name']);
-        $middleName = mysql_real_escape_string($row['middle name']);
-        $lastName = mysql_real_escape_string($row['last name']);
+        $firstName = mysql_real_escape_string($row['firstname']);
+        $middleName = mysql_real_escape_string($row['middlename']);
+        $lastName = mysql_real_escape_string($row['lastname']);
         $email = mysql_real_escape_string($row['email']);
         $phone = mysql_real_escape_string($row['phone']);
-        $emergencyName = mysql_real_escape_string($row['emergency name']);
-        $emergencyPhone = mysql_real_escape_string($row['emergency phone']);
+        $emergencyName = mysql_real_escape_string($row['emergencyname']);
+        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
         $sql = "
             INSERT INTO `contact`
             (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
@@ -487,70 +497,71 @@ function command_member_import () {
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         $cid = mysql_insert_id();
+        $esc_cid = mysql_real_escape_string($cid);
         
         // Add member
         $sql = "
             INSERT INTO `member`
             (`cid`)
             VALUES
-            ('$cid')";
+            ('$esc_cid')";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        
+            
         // Find Username
-        $esc_name = mysql_real_escape_string($row['username']);
+ 
+        $username = $row['username'];
         $n = 0;
-        while (empty($esc_name) && $n < 100) {
+        while (empty($username) && $n < 100) {
             
             // Contruct test username
-            $username = strtolower($row['first name']{0} . $row['lastName']);
+            $test_username = strtolower($row['firstname']{0} . $row['lastName']);
             if ($n > 0) {
-                $username .= $n;
+                $test_username .= $n;
             }
             
             // Check whether username is taken
-            $esc_test_name = mysql_real_escape_string($username);
+            $esc_test_name = mysql_real_escape_string($test_username);
             $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
             $user_row = mysql_fetch_assoc($res);
             if (!$user_row) {
-                $esc_name = $esc_test_name;
+                $username = $test_username;
             }
             $n++;
         }
-        if (empty($esc_name)) {
+        if (empty($username)) {
             error_register('Please specify a username');
             return 'index.php?q=members&tab=import';
         }
         
         // Add user
-        $sql = "
-            INSERT INTO `user`
-            (`username`, `cid`)
-            VALUES
-            ('$esc_name', '$cid')";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $user = array();
+        $user['username'] = $username;
+        $user['cid'] = $cid;
+        user_save($user);
          
         // Add role entry
         $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         $role_row = mysql_fetch_assoc($res);
+        $esc_rid = mysql_real_escape_string($role_row['rid']);
+        
         if ($role_row) {
             $sql = "
                 INSERT INTO `user_role`
                 (`cid`, `rid`)
                 VALUES
-                ('$cid', $role_row[rid])";
+                ('$esc_cid', '$esc_rid')";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
         }
         
         // Add plan if necessary
-        $plan_name = mysql_real_escape_string($row['plan']);
-        $sql = "SELECT `pid` FROM `plan` WHERE `name`='$plan_name'";
+        $esc_plan_name = mysql_real_escape_string($row['plan']);
+        $sql = "SELECT `pid` FROM `plan` WHERE `name`='$esc_plan_name'";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         if (mysql_num_rows($res) < 1) {
@@ -558,7 +569,7 @@ function command_member_import () {
                 INSERT INTO `plan`
                 (`name`, `active`)
                 VALUES
-                ('$plan_name', '1')
+                ('$esc_plan_name', '1')
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
@@ -569,12 +580,14 @@ function command_member_import () {
         }
         
         // Add membership
-        $start = mysql_real_escape_string($row['start date']);
+        $esc_start = mysql_real_escape_string($row['startdate']);
+        $esc_pid = mysql_real_escape_string($pid);
+        
         $sql = "
             INSERT INTO `membership`
             (`cid`, `pid`, `start`)
             VALUES
-            ('$cid', '$pid', '$start')
+            ('$esc_cid', '$esc_pid', '$esc_start')
         ";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
@@ -583,13 +596,13 @@ function command_member_import () {
         $from = "\"$config_org_name\" <$config_email_from>";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         if (!empty($config_email_to)) {
-            $name = member_name($row['first name'], $row['middle name'], $row['last name']);
-            $content = theme('member_created_email', $cid);
+            $name = member_name($row['firstname'], $row['middlename'], $row['lastname']);
+            $content = theme('member_created_email', $esc_cid);
             mail($config_email_to, "New Member: $name", $content, $headers);
         }
         
         // Notify user
-        $content = theme('member_welcome_email', $cid);
+        $content = theme('member_welcome_email', $esc_cid);
         mail($row['email'], "Welcome to $config_org_name", $content, $headers);
     }
     

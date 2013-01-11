@@ -21,6 +21,17 @@
 */
 
 /**
+ * Normalize line endings.  Converts all line endings to UNIX (\n) style.
+ * @param $content
+ * @return The $content string will all line endings converted to "\n".
+ */
+function csv_normalize ($content) {
+    $content = str_replace("\r\n", "\n", $content);
+    $content = str_replace("\r", "\n", $content);
+    return $content;
+}
+
+/**
  * Converts csv data into a data structure.  The returned value is an array
  * with each element representing a row of the csv.  Each element is an array
  * with column names as keys and fields as values.
@@ -34,6 +45,9 @@
  * @return The data structure corresponding to the csv data.
  */
 function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $field_quote = '"', $field_escape = "\\") {
+    
+    $content = csv_normalize($content);
+    $content = trim($content);
     
     $result = array();
     $header = array();
@@ -86,19 +100,22 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
                 $row[$header[$field_index]] = $field;
             } else {
                 // Header
-                $header[] = strtolower($field);
+                $header[] = $field;
             }
             $field = '';
             $is_quoted = false;
             $field_index++;
-        } else if ($char == $row_terminate && !$is_quoted) {
+        } else if (
+            ($char == $row_terminate && !$is_quoted)
+            || $index === $length - 1)
+        {
             // End field or header
             if ($in_body) {
                 // Body
                 $row[$header[$field_index]] = $field;
             } else {
                 // Header
-                $header[] = strtolower($field);
+                $header[] = $field;
             }
             $field = '';
             $is_quoted = false;

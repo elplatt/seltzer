@@ -161,8 +161,8 @@ function user_data ($opts) {
         SELECT `cid`, `username`, `hash`, `salt` FROM `user` WHERE 1
     ";
     if (array_key_exists('cid', $opts)) {
-        $cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `cid`='$cid' ";
+        $esc_cid = mysql_real_escape_string($opts['cid']);
+        $sql .= " AND `cid`='$esc_cid' ";
     }
     if (array_key_exists('filter', $opts)) {
         foreach ($opts['filter'] as $key => $value) {
@@ -198,6 +198,52 @@ function user_data ($opts) {
     }
     
     return $users;
+}
+
+/**
+ * Saves a user into the database
+ * 
+ * @param $user the user to save.
+ * @return an array representing the user that was saved in the database.
+ */
+function user_save ($user) {
+    
+    // first figure out wether the user is in the database or not
+    $opts = array();
+    $opts['cid'] = $user['cid'];
+    $user_array = user_data($opts);
+    
+    if(empty($user_array)){
+        // if not, insert it (code is int he command_member_add function)
+        
+        $esc_name = mysql_real_escape_string($user['username']);
+        $esc_cid = mysql_real_escape_string($user['cid']);
+        $esc_hash = mysql_real_escape_string($user['hash']);
+        $esc_salt = mysql_real_escape_string($user['salt']);
+        
+        // Add user
+        $sql = "
+            INSERT INTO `user`
+            (`username`, `cid`)
+            VALUES
+            ('$esc_name', '$esc_cid')";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+    } else {
+        // else that user already exists, update it
+        $sql = "
+            UPDATE `user`
+            SET `username`='$esc_name',
+            `hash`='$esc_hash',
+            `salt`='$esc_salt'
+            WHERE `cid`='$esc_cid'
+            ";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+    }
+    
+    return $user;
 }
 
 /**
@@ -546,11 +592,13 @@ function command_reset_password () {
     $code = sha1(uniqid(time()));
     
     // Insert code into reminder table
+    $esc_cid = mysql_real_escape_string($row['cid']);
+    $esc_code = msyql_real_escape_string($code);
     $sql = "
         REPLACE INTO `resetPassword`
         (`cid`, `code`)
         VALUES
-        ('$row[cid]', '$code')";
+        ('$esc_cid', '$esc_code')";
     $res = mysql_query($sql);
     
     // Generate reset url
@@ -776,11 +824,12 @@ function command_user_role_update () {
     $roles = user_role_data();
     foreach ($roles as $role) {
         if ($_POST[$role['name']]) {
+            $esc_rid = mysql_real_escape_string($role['rid']);
             $sql = "
                 INSERT INTO `user_role`
                 (`cid`, `rid`)
                 VALUES
-                ('$esc_post[cid]', '$role[rid]')
+                ('$esc_post[cid]', '$esc_rid')
             ";
             $res = mysql_query($sql);
             if (!$res) { die(mysql_error()); }
@@ -808,13 +857,15 @@ function command_user_permissions_update () {
     $perms = user_permissions_list();
     $roles = user_role_data();
     foreach ($perms as $perm) {
+        $esc_perm = mysql_real_escape_string($perm);
         foreach ($roles as $role) {
             $key = "$perm-$role[name]";
+            $esc_rid = mysql_real_escape_string($role['rid']);
             if ($_POST[$key]) {
                 // Ensure the role has this permission
                 $sql = "
                     SELECT * FROM `role_permission`
-                    WHERE `rid`=$role[rid] AND `permission`='$perm'
+                    WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
                 ";
                 $res = mysql_query($sql);
                 if (!$res) { die(mysql_error()); }
@@ -823,7 +874,7 @@ function command_user_permissions_update () {
                         INSERT INTO `role_permission`
                         (`rid`, `permission`)
                         VALUES
-                        ('$role[rid]', '$perm')
+                        ('$esc_rid', '$esc_perm')
                     ";
                 }
                 $res = mysql_query($sql);
@@ -832,7 +883,7 @@ function command_user_permissions_update () {
                 // Delete the permission for this role
                 $sql = "
                     DELETE FROM `role_permission`
-                    WHERE `rid`=$role[rid] AND `permission`='$perm'
+                    WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
                 ";
                 $res = mysql_query($sql);
                 if (!$res) { die(mysql_error()); }

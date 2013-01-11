@@ -3,8 +3,8 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 06, 2012 at 08:15 PM
--- Server version: 5.1.65
+-- Generation Time: Oct 19, 2012 at 09:30 PM
+-- Server version: 5.1.66
 -- PHP Version: 5.2.17
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
@@ -16,7 +16,7 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `elplattc_seltzer`
+-- Database: `elplattc_seltzertest`
 --
 
 -- --------------------------------------------------------
@@ -25,7 +25,6 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- Table structure for table `contact`
 --
 
-DROP TABLE IF EXISTS `contact`;
 CREATE TABLE IF NOT EXISTS `contact` (
   `cid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `firstName` varchar(255) NOT NULL,
@@ -43,11 +42,12 @@ CREATE TABLE IF NOT EXISTS `contact` (
 --
 
 INSERT INTO `contact` (`cid`, `firstName`, `middleName`, `lastName`, `email`, `phone`, `emergencyName`, `emergencyPhone`) VALUES
-(1, 'Admin', '', 'User', 'seltzer@elplatt.com', '', '', ''),
-(3, 'Ada', '', 'Lovelace', 'alovelace@elplatt.com', '248.555.0001', 'Lord Byron', '248.555.0002'),
-(4, 'Charles', '', 'Babbage', 'cbabbage@elplatt.com', '248.555.0003', 'Georgiana', '248.555.0004'),
-(5, 'Edsger', '', 'Dijkstra', 'edijkstra@elplatt.com', '248.555.0005', 'Adriaan', '248.555.0006'),
-(6, 'Alan', '', 'Turing', 'aturing@elplatt.com', '248.555.0007', 'Alonzo', '248.555.0008');
+(1, 'Admin', '', 'User', 'ed@elplatt.com', '', '', ''),
+(2, 'Maricela', '', 'Severin', 'mseverin@elplatt.com', '248.555.3141', 'Marcie Brode', '248.555.5926'),
+(3, 'Alana', '', 'Jurgensen', 'ajurgensen@elplatt.com', '248.555.5358', 'Javier Lev', '248.555.9793'),
+(4, 'Hugh', '', 'Nold', 'hnold@elplatt.com', '248.555.2384', 'Hugh Korte', '248.555.6264'),
+(5, 'Marylou', '', 'Klocke', 'mklocke@elplatt.com', '248.555.3383', 'Sharron Smit', '248.555.2795'),
+(6, 'Darren', '', 'Madia', 'dmadia@elplatt.com', '248.555.0288', 'Nannie Prudhomme', '248.555.4197');
 
 -- --------------------------------------------------------
 
@@ -55,7 +55,6 @@ INSERT INTO `contact` (`cid`, `firstName`, `middleName`, `lastName`, `email`, `p
 -- Table structure for table `key`
 --
 
-DROP TABLE IF EXISTS `key`;
 CREATE TABLE IF NOT EXISTS `key` (
   `kid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `cid` mediumint(8) unsigned NOT NULL,
@@ -64,17 +63,18 @@ CREATE TABLE IF NOT EXISTS `key` (
   `serial` varchar(255) NOT NULL,
   `slot` mediumint(8) unsigned NOT NULL,
   PRIMARY KEY (`kid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
 
 --
 -- Dumping data for table `key`
 --
 
 INSERT INTO `key` (`kid`, `cid`, `start`, `end`, `serial`, `slot`) VALUES
-(1, 4, '2012-07-01', NULL, '00001:00001', 1),
-(2, 5, '2012-08-21', '2012-07-01', '00001:00002', 2),
-(3, 3, '2012-07-01', NULL, '00001:00003', 3),
-(4, 6, '2012-07-01', '2012-07-31', '00001:00004', 4);
+(1, 2, '2012-01-01', NULL, '31415-92653', 1),
+(2, 3, '2012-01-01', '2012-03-01', '58979-32384', 2),
+(3, 4, '2012-10-19', '2012-04-30', '62643-38327', 3),
+(4, 5, '2012-04-01', NULL, '95028-84197', 4),
+(5, 3, '2012-03-01', NULL, '16939-93751', 2);
 
 -- --------------------------------------------------------
 
@@ -82,7 +82,6 @@ INSERT INTO `key` (`kid`, `cid`, `start`, `end`, `serial`, `slot`) VALUES
 -- Table structure for table `member`
 --
 
-DROP TABLE IF EXISTS `member`;
 CREATE TABLE IF NOT EXISTS `member` (
   `cid` mediumint(8) unsigned NOT NULL,
   PRIMARY KEY (`cid`)
@@ -93,6 +92,7 @@ CREATE TABLE IF NOT EXISTS `member` (
 --
 
 INSERT INTO `member` (`cid`) VALUES
+(2),
 (3),
 (4),
 (5),
@@ -104,7 +104,6 @@ INSERT INTO `member` (`cid`) VALUES
 -- Table structure for table `membership`
 --
 
-DROP TABLE IF EXISTS `membership`;
 CREATE TABLE IF NOT EXISTS `membership` (
   `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `cid` mediumint(8) unsigned NOT NULL,
@@ -112,20 +111,18 @@ CREATE TABLE IF NOT EXISTS `membership` (
   `start` date NOT NULL,
   `end` date DEFAULT NULL,
   PRIMARY KEY (`sid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
 
 --
 -- Dumping data for table `membership`
 --
 
 INSERT INTO `membership` (`sid`, `cid`, `pid`, `start`, `end`) VALUES
-(1, 2, 0, '2012-08-01', NULL),
-(2, 3, 1, '2012-08-01', NULL),
-(3, 4, 1, '2012-07-01', '2012-07-31'),
-(4, 5, 2, '2012-07-01', '2012-07-31'),
-(5, 5, 1, '2012-08-01', NULL),
-(6, 6, 1, '2012-07-01', '2012-07-31'),
-(7, 4, 2, '2012-08-01', NULL);
+(1, 2, 1, '2012-01-01', NULL),
+(2, 3, 2, '2012-01-01', NULL),
+(3, 4, 1, '2012-03-01', '2012-04-30'),
+(4, 5, 2, '2012-04-01', NULL),
+(5, 6, 1, '2012-05-01', NULL);
 
 -- --------------------------------------------------------
 
@@ -133,7 +130,6 @@ INSERT INTO `membership` (`sid`, `cid`, `pid`, `start`, `end`) VALUES
 -- Table structure for table `module`
 --
 
-DROP TABLE IF EXISTS `module`;
 CREATE TABLE IF NOT EXISTS `module` (
   `did` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -146,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `module` (
 --
 
 INSERT INTO `module` (`did`, `name`, `revision`) VALUES
-(1, 'core', 2),
+(1, 'core', 3),
 (2, 'member', 2),
 (3, 'key', 2);
 
@@ -156,7 +152,6 @@ INSERT INTO `module` (`did`, `name`, `revision`) VALUES
 -- Table structure for table `plan`
 --
 
-DROP TABLE IF EXISTS `plan`;
 CREATE TABLE IF NOT EXISTS `plan` (
   `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -171,8 +166,8 @@ CREATE TABLE IF NOT EXISTS `plan` (
 --
 
 INSERT INTO `plan` (`pid`, `name`, `price`, `active`, `voting`) VALUES
-(1, 'Standard', '50.00', 1, 1),
-(2, 'Starving Hacker', '25.00', 1, 0);
+(1, 'Standard', '39.00', 1, 0),
+(2, 'Core', '89.00', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -180,7 +175,6 @@ INSERT INTO `plan` (`pid`, `name`, `price`, `active`, `voting`) VALUES
 -- Table structure for table `resetPassword`
 --
 
-DROP TABLE IF EXISTS `resetPassword`;
 CREATE TABLE IF NOT EXISTS `resetPassword` (
   `cid` mediumint(8) unsigned NOT NULL,
   `code` varchar(40) NOT NULL,
@@ -198,7 +192,6 @@ CREATE TABLE IF NOT EXISTS `resetPassword` (
 -- Table structure for table `role`
 --
 
-DROP TABLE IF EXISTS `role`;
 CREATE TABLE IF NOT EXISTS `role` (
   `rid` mediumint(9) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -222,10 +215,32 @@ INSERT INTO `role` (`rid`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `roleOld`
+--
+
+CREATE TABLE IF NOT EXISTS `roleOld` (
+  `cid` mediumint(8) unsigned NOT NULL,
+  `member` tinyint(1) NOT NULL,
+  `director` tinyint(1) NOT NULL,
+  `president` tinyint(1) NOT NULL,
+  `vp` tinyint(1) NOT NULL,
+  `secretary` tinyint(1) NOT NULL,
+  `treasurer` tinyint(1) NOT NULL,
+  `webAdmin` tinyint(1) NOT NULL,
+  PRIMARY KEY (`cid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `roleOld`
+--
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `role_permission`
 --
 
-DROP TABLE IF EXISTS `role_permission`;
 CREATE TABLE IF NOT EXISTS `role_permission` (
   `rid` mediumint(8) unsigned NOT NULL,
   `permission` varchar(255) NOT NULL,
@@ -268,11 +283,11 @@ INSERT INTO `role_permission` (`rid`, `permission`) VALUES
 -- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `cid` mediumint(11) unsigned NOT NULL,
   `username` varchar(32) NOT NULL,
   `hash` varchar(40) NOT NULL,
+  `salt` varchar(16) NOT NULL,
   PRIMARY KEY (`cid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
@@ -280,12 +295,13 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`cid`, `username`, `hash`) VALUES
-(1, 'admin', '8e3840e7a8f1d678ee94350d05aa65dd1f975b16'),
-(3, 'alovelace', '8e3840e7a8f1d678ee94350d05aa65dd1f975b16'),
-(4, 'cbabbage', '8e3840e7a8f1d678ee94350d05aa65dd1f975b16'),
-(5, 'edijkstra', '8e3840e7a8f1d678ee94350d05aa65dd1f975b16'),
-(6, 'aturing', '8e3840e7a8f1d678ee94350d05aa65dd1f975b16');
+INSERT INTO `user` (`cid`, `username`, `hash`, `salt`) VALUES
+(1, 'admin', 'a2a3162089e61555d9292ab950d17cdbc62a7ec7', ']9y-!2"1b-caf~4<'),
+(2, 'mseverin', '', ''),
+(3, 'ajurgensen', '', ''),
+(4, 'hnold', '', ''),
+(5, 'mklocke', '', ''),
+(6, 'dmadia', '', '');
 
 -- --------------------------------------------------------
 
@@ -293,7 +309,6 @@ INSERT INTO `user` (`cid`, `username`, `hash`) VALUES
 -- Table structure for table `user_role`
 --
 
-DROP TABLE IF EXISTS `user_role`;
 CREATE TABLE IF NOT EXISTS `user_role` (
   `cid` mediumint(8) unsigned NOT NULL,
   `rid` mediumint(8) unsigned NOT NULL,
@@ -305,18 +320,8 @@ CREATE TABLE IF NOT EXISTS `user_role` (
 --
 
 INSERT INTO `user_role` (`cid`, `rid`) VALUES
-(1, 2),
-(1, 3),
-(1, 4),
-(1, 5),
-(1, 6),
-(1, 7),
-(1, 8),
+(2, 2),
 (3, 2),
-(3, 3),
-(3, 7),
 (4, 2),
 (5, 2),
-(5, 3),
-(5, 4),
 (6, 2);
