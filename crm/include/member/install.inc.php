@@ -58,8 +58,6 @@ function member_install($old_revision = 0) {
               `price` varchar(6) NOT NULL,
               `active` tinyint(1) NOT NULL,
               `voting` tinyint(1) NOT NULL,
-			  `freewifi` tinyint(1) NOT NULL,
-			  `24hraccess` tinyint(1) NOT NULL,
               PRIMARY KEY (`pid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
         ';

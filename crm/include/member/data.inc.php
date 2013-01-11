@@ -168,9 +168,7 @@ function member_data ($opts) {
                     'name' => $row['name'],
                     'price' => $row['price'],
                     'active' => $row['active'],
-                    'voting' => $row['voting'],
-					'freewifi' => $row['freewifi'],
-					'24hraccess' => $row['24hraccess']
+                    'voting' => $row['voting']
                 )
             );
             $members[$index]['membership'][] = $membership;
@@ -294,9 +292,7 @@ function member_membership_data ($opts) {
                 'name' => $row['name'],
                 'price' => $row['price'],
                 'active' => $row['active'],
-                'voting' => $row['voting'],
-				'freewifi' => $row['freewifi'],
-				'24hraccess' => $row['24hraccess']
+                'voting' => $row['voting']
             )
         );
         $row = mysql_fetch_assoc($res);

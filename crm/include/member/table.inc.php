@@ -240,8 +240,6 @@ function member_plan_table ($opts = NULL) {
         $table['columns'][] = array('title'=>'Price','class'=>'');
         $table['columns'][] = array('title'=>'Active','class'=>'');
         $table['columns'][] = array('title'=>'Voting','class'=>'');
-		$table['columns'][] = array('title'=>'Free Wifi','class'=>'');
-		$table['columns'][] = array('title'=>'24 Hr Access','class'=>'');
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
 
@@ -257,8 +255,6 @@ function member_plan_table ($opts = NULL) {
             $row[] = $plan['price'];
             $row[] = $plan['active'] ? 'Yes' : 'No';
             $row[] = $plan['voting'] ? 'Yes' : 'No';
-			$row[] = $plan['freewifi'] ? 'Yes' : 'No';
-			$row[] = $plan['24hraccess'] ? 'Yes' : 'No';
         }
         
         // Construct ops array
