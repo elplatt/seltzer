@@ -144,6 +144,16 @@ function member_plan_add_form () {
                         'label' => 'Voting',
                         'name' => 'voting'
                     ),
+					array(
+                        'type' => 'checkbox',
+                        'label' => 'Free Wifi',
+                        'name' => 'freewifi',
+					),
+					array(
+                        'type' => 'checkbox',
+                        'label' => '24 Hr Access',
+                        'name' => '24hraccess',
+                    ),
                     array(
                         'type' => 'checkbox',
                         'label' => 'Active',
@@ -218,6 +228,18 @@ function member_plan_edit_form ($pid) {
                         'label' => 'Active',
                         'name' => 'active',
                         'checked' => $plan['active']
+                    ),
+					array(
+                        'type' => 'checkbox',
+                        'label' => 'Free Wifi',
+                        'name' => 'wifi',
+                        'checked' => $plan['wifi']
+                    ),
+					array(
+                        'type' => 'checkbox',
+                        'label' => '24 Hr Access',
+                        'name' => '24hrAccess',
+                        'checked' => $plan['24hrAccess']
                     ),
                     array(
                         'type' => 'submit',

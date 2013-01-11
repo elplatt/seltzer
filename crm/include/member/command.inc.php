@@ -161,9 +161,9 @@ function command_member_plan_add () {
     // Add plan
     $sql = "
         INSERT INTO `plan`
-        (`name`,`price`, `voting`, `active`)
+        (`name`,`price`, `voting`, `active`, 'freewifi', '24hraccess')
         VALUES
-        ('$esc_post[name]', '$esc_post[price]', '$esc_post[voting]', '$esc_post[active]')
+        ('$esc_post[name]', '$esc_post[price]', '$esc_post[voting]', '$esc_post[active]', '$esc_post[freewifi]', '$esc_post[24hraccess]')
     ";
     
     $res = mysql_query($sql);
@@ -193,7 +193,9 @@ function command_member_plan_update () {
             `name`='$esc_post[name]',
             `price`='$esc_post[price]',
             `active`='$esc_post[active]',
-            `voting`='$esc_post[voting]'
+            `voting`='$esc_post[voting]',
+			`freewifi`='$esc_post[freewifi]',
+			`24hraccess`='$esc_post[24hraccess]'
         WHERE `pid`='$esc_post[pid]'
     ";
     
