@@ -329,6 +329,15 @@ function command_amazon_payment_import () {
             continue;
         }
         
+        // Skip transactions that have already been imported
+        $payment_opts = array(
+            'filter' => array('confirmation' => $row['Transaction ID'])
+        );
+        $data = payment_data($payment_opts);
+        if (count($data) > 0) {
+            continue;
+        }
+        
         // Create payment object and save
         $payment = array(
             'date' => date('Y-m-d', strtotime($row['Date']))

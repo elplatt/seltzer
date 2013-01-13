@@ -168,7 +168,14 @@ function payment_data ($opts = array()) {
         $sql .= " AND (`debit`='$cid' OR `credit`='$cid') ";
     }
     if (array_key_exists('filter', $opts)) {
-        // TODO
+        foreach($opts['filter'] as $name => $value) {
+            $esc_value = mysql_real_escape_string($value);
+            switch ($name) {
+                case 'confirmation':
+                    $sql .= " AND (`confirmation`='$esc_value') ";
+                    break;
+            }
+        }
     }
     $sql .= " ORDER BY `date`, `created` DESC";
     $res = mysql_query($sql);
