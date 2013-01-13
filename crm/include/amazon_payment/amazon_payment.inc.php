@@ -100,14 +100,39 @@ function amazon_payment_contact_data ($opts = array()) {
 }
 
 /**
- * Save an amazon payment contact.  Do nothing if it already exists.
- * @param $name The amazon name object.
+ * Save an amazon contact.  If the name is already in the database,
+ * the mapping is updated.  When updating the mapping, any fields that are not
+ * set are not modified.
  */
 function amazon_payment_contact_save ($contact) {
     $esc_name = $contact['amazon_name'];
-    $sql = "INSERT INTO `contact_amazon` (`amazon_name`) VALUES ('$esc_name')";
+    $esc_cid = $contact['cid'];
+    
+    // Check whether the amazon contact already exists in the database
+    $sql = "SELECT * FROM `contact_amazon` WHERE `amazon_name` = '$esc_name'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    
+    if ($row) {
+        // Update existing if the cid is set
+        if (isset($contact['cid'])) {
+            $sql = "
+                UPDATE `contact_amazon`
+                SET `cid`='$esc_cid'
+                WHERE `amazon_name`='$esc_name'
+            ";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+        }
+    } else {
+        // Insert new
+        $sql = "
+            INSERT INTO `contact_amazon`
+            (`amazon_name`, `cid`) VALUES ('$esc_name', '$esc_cid')";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+    }
 }
 
 /**
@@ -120,8 +145,22 @@ function amazon_payment_payment_api ($payment, $op) {
     if ($payment['method'] !== 'amazon') {
         return;
     }
-    $esc_name = $payment['amazon_name'];
-    $esc_pmtid = $payment['pmtid'];
+
+    $name = $payment['amazon_name'];
+    $pmtid = $payment['pmtid'];
+    $credit_cid = $payment['credit_cid'];
+    $esc_name = mysql_real_escape_string($name);
+    $esc_pmtid = mysql_real_escape_string($pmtid);
+    
+    // Create link between the amazon payment name and contact id
+    $amazon_contact = array();
+    if (isset($payment['amazon_name'])) {
+        $amazon_contact['amazon_name'] = $name;
+    }
+    if (isset($payment['credit_cid'])) {
+        $amazon_contact['credit_cid'] = $credit_cid;
+    }
+    
     switch ($op) {
         case 'insert':
             $sql = "
@@ -132,7 +171,7 @@ function amazon_payment_payment_api ($payment, $op) {
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
-            amazon_payment_contact_save($payment);
+            amazon_payment_contact_save($amazon_contact);
             break;
         case 'update':
             $sql = "
@@ -142,7 +181,7 @@ function amazon_payment_payment_api ($payment, $op) {
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
-            amazon_payment_contact_save($payment);
+            amazon_payment_contact_save($amazon_contact);
             break;
     }
 }
