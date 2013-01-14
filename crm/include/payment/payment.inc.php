@@ -20,9 +20,6 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** The number of decimals stored for payment amounts */
-define('PAYMENT_DECIMALS', 6);
-
 /**
  * @return This module's revision number.  Each new release should increment
  * this number.
@@ -56,7 +53,7 @@ function payment_install($old_revision = 0) {
               `date` date DEFAULT NULL,
               `description` varchar(255) NOT NULL,
               `code` varchar(8) NOT NULL,
-              `amount` decimal(16,6) NOT NULL,
+              `value` mediumint(8) NOT NULL,
               `credit` mediumint(8) unsigned NOT NULL,
               `debit` mediumint(8) unsigned NOT NULL,
               `method` varchar(255) NOT NULL,
@@ -74,51 +71,115 @@ function payment_install($old_revision = 0) {
 // Utility functions ///////////////////////////////////////////////////////////
 
 /**
- * Normalize a currency value.
- * @param $amount
- * @param $symbol If true, include the currency symbol.
- * @param $code The currency code.
- * @return A string containing the currency value.
+ * Parse a string and return a currency.
+ * @param $value A string representation of a currency value.
+ * @param $code Optional currency code.
  */
-function payment_normalize_currency ($amount, $symbol = false, $code = 'USD') {
-    
-    // Trim whitespace
-    $amount = preg_replace('/[\s\$]/', '', $amount);
-    
-    // Determine whether amount is positive or negative
+function payment_parse_currency ($value, $code = null) {
+    if (!isset($code)) {
+        // TODO replace this with global default -Ed 2013-01-13
+        $code = 'USD';
+    }
+    // Determine sign
     $sign = 1;
-    if (preg_match('/^\(.*\)$/', $amount)) {
-        $sign *= -1;
-        $amount = trim($amount, "()");
+    if (preg_match('/^\(.*\)$/', $value) || preg_match('/^\-/', $value)) {
+        $sign = -1;
     }
-    if (preg_match('/^\-/', $amount)) {
-        $sign *= -1;
-        $amount = trim($amount, "-");
+    // Remove all irrelevant characters
+    switch ($code) {
+        case 'USD':
+            $to_remove = '/[^0-9\.]/';
+            break;
+        default:
+            $to_remove = '//';
     }
-    
-    $parts = explode('.', $amount);
-    $dollars = 0;
-    $cents = 0;
-    if (count($parts) > 0) {
-        $dollars = (int)$parts[0];
+    $clean_value = preg_replace($to_remove, '', $value);
+    // Split the amount into parts
+    $count = 0;
+    switch ($code) {
+        case 'USD':
+            $parts = split('\.', $clean_value);
+            $dollars = $parts[0];
+            $count = 100 * $dollars;
+            if (count($parts) > 1 && !empty($parts[1])) {
+                // This assumes there are exactly two digits worth of cents
+                if (strlen($parts[1]) != 2) {
+                    error_register("Warning: parsing of cents failed: '$parts[1]'");
+                }
+                $count += intval($parts[1]);
+            }
+            break;
     }
-    if (count($parts) > 1) {
-        $cents = $parts[1];
-        if (sizeof($cents) < PAYMENT_DECIMALS) {
-            $cents .= str_repeat('0', $cents);
-        }
-        $cents = substr($cents, 0, 2);
+    // Construct currency structure
+    $currency_value = array(
+        'code' => $code
+        , 'value' => $count * $sign
+    );
+    return $currency_value;
+}
+
+/**
+ * Format a currency.
+ * @param $value A currency structure.
+ * @param $symbol If true, include symbol (default true).
+ * @return A string representation of $value.
+ */
+function payment_format_currency ($value, $symbol = true) {
+    $result = '';
+    $count = $value['value'];
+    $sign = 1;
+    if ($count < 0) {
+        $count *= -1;
+        $sign = -1;
     }
-    $result = $symbol ? '$' : '';
-    $result .= sprintf('%d.%02d', $dollars, $cents);
-    if ($sign < 0) {
-        if ($symbol) {
-            $result = '(' . $result . ')';
-        } else {
-            $result = '-' . $result;
-        }
+    switch ($value['code']) {
+        case 'USD':
+            if (strlen($count) > 2) {
+                $dollars = substr($count, 0, -2);
+                $cents = substr($count, -2);
+            } else {
+                $dollars = '0';
+                $cents = sprintf('%02d', $count);
+            }
+            if ($symbol) {
+                $result .= '$';
+            }
+            $result .= $dollars . '.' . $cents;
+            if ($sign < 0) {
+                $result = '(' . $result . ')';
+            }
+            break;
+        default:
+            $result = $value['value'];
     }
     return $result;
+}
+
+/**
+ * Add two currency values.
+ * @param $a A currency structure.
+ * @param $b A currency structure.
+ * @return The sum of $a and $b
+ */
+function payment_add_currency ($a, $b) {
+    if ($a['code'] != $b['code']) {
+        error_register('Attempted to add currencies of different types');
+        return array();
+    }
+    return array(
+        'code' => $a['code']
+        , 'value' => $a['value'] + $b['value']
+    );
+}
+
+/**
+ * Inverts a currency value.
+ * @param $value The currency value.
+ * @return A copy of $value with the amount multiplied by -1.
+ */
+function payment_invert_currency ($value) {
+    $value['value'] *= -1;
+    return $value;
 }
 
 // DB to Object mapping ////////////////////////////////////////////////////////
@@ -147,10 +208,7 @@ function payment_data ($opts = array()) {
         , `date`
         , `description`
         , `code`
-        , `amount`
-        , SIGN(`amount`) AS `amount_sign`
-        , FLOOR(SIGN(`amount`)*`amount`) AS `amount_whole`
-        , (SIGN(`amount`)*`amount`-FLOOR(SIGN(`amount`)*`amount`))*POWER(10, $decimals) AS `amount_fraction`
+        , `value`
         , `credit`
         , `debit`
         , `method`
@@ -190,10 +248,7 @@ function payment_data ($opts = array()) {
             , 'date' => $row['date']
             , 'description' => $row['description']
             , 'code' => $row['code']
-            , 'amount' => payment_normalize_currency($row['amount'], true)
-            , 'amount_sign' => $row['amount_sign']
-            , 'amount_whole' => $row['amount_whole']
-            , 'amount_fraction' => $row['amount_fraction']
+            , 'value' => $row['value']
             , 'credit_cid' => $row['credit']
             , 'debit_cid' => $row['debit']
             , 'method' => $row['method']
@@ -253,7 +308,7 @@ function payment_save ($payment) {
     $esc_date = mysql_real_escape_string($payment['date']);
     $esc_description = mysql_real_escape_string($payment['description']);
     $esc_code = mysql_real_escape_string($payment['code']);
-    $esc_amount = mysql_real_escape_string(payment_normalize_currency($payment['amount']));
+    $esc_value = mysql_real_escape_string($payment['value']);
     $esc_credit = mysql_real_escape_string($payment['credit_cid']);
     $esc_debit = mysql_real_escape_string($payment['debit_cid']);
     $esc_method = mysql_real_escape_string($payment['method']);
@@ -268,7 +323,7 @@ function payment_save ($payment) {
             `date`='$esc_date'
             , `description` = '$esc_description'
             , `code` = $esc_code
-            , `amount` = '$esc_amount'
+            , `value` = '$esc_value'
             , `credit` = '$esc_credit'
             , `debit` = '$esc_debit'
             , `method` = '$esc_method'
@@ -288,7 +343,7 @@ function payment_save ($payment) {
                 `date`
                 , `description`
                 , `code`
-                , `amount`
+                , `value`
                 , `credit`
                 , `debit`
                 , `method`
@@ -300,7 +355,7 @@ function payment_save ($payment) {
                 '$esc_date'
                 , '$esc_description'
                 , '$esc_code'
-                , '$esc_amount'
+                , '$esc_value'
                 , '$esc_credit'
                 , '$esc_debit'
                 , '$esc_method'
@@ -406,7 +461,7 @@ function payment_table ($opts) {
             } else {
                 $row[] = '';
             }
-            $row[] = payment_normalize_currency($payment['amount'], true);
+            $row[] = payment_format_currency($payment, true);
             $row[] = $payment['method'];
             $row[] = $payment['confirmation'];
             $row[] = $payment['notes'];
@@ -446,7 +501,7 @@ function payment_history_table ($opts) {
     }
     
     $payments = payment_data($opts);
-    $balance_fraction = 0;
+    $balance = null;
     
     $table = array(
         'columns' => array(
@@ -463,9 +518,8 @@ function payment_history_table ($opts) {
     foreach ($payments as $payment) {
         
         $contact = '';
-        $amount_sign = $payment['amount_sign'];
         if ($payment['credit_cid'] === $cid) {
-            $amount_sign = -1*$payment['amount_sign'];
+            $payment = payment_invert_currency($payment);
             $contact = $payment['debit'];
         } else {
             $contact = $payment['credit'];
@@ -476,33 +530,19 @@ function payment_history_table ($opts) {
             $contactName = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
         }
         
-        // Construct amount
-        $amount = '';
-        if ($amount_sign < 0) {
-            $amount .= '-';
+        if (isset($balance)) {
+            $balance = payment_add_currency($balance, $payment);
+        } else {
+            $balance = $payment;
         }
-        $amount .= $payment['amount_whole'] . '.' . $payment['amount_fraction'];
-        $formattedAmount = payment_normalize_currency($amount, true);
-        
-        // Update balance, stored as fractions of a currency unit
-        $whole = $payment['amount_whole'];
-        $fraction = $payment['amount_fraction'];
-        $balance_fraction += $amount_sign * ($whole * pow(10, PAYMENT_DECIMALS) + $fraction);
-        
-        // Convert balance to string
-        $bal_sign = $balance_fraction < 0 ? -1 : 1;
-        $balance_dollars = floor($bal_sign * $balance_fraction / pow(10, PAYMENT_DECIMALS));
-        $dollar_fractions = $balance_dollars * pow(10, PAYMENT_DECIMALS);
-        $balance_cents = round(($bal_sign * $balance_fraction - $dollar_fractions) * 100 / pow(10, PAYMENT_DECIMALS));
-        $formattedBalance = payment_normalize_currency(sprintf('%d.%02d', $bal_sign*$balance_dollars, $balance_cents), true);
         
         $row = array();
         $row[] = $payment['date'];
         $row[] = $payment['description'];
-        $row[] = $formattedAmount;
+        $row[] = payment_format_currency($payment);
         $row[] = $payment['method'];
         $row[] = $contactName;
-        $row[] = $formattedBalance;
+        $row[] = payment_format_currency($balance);
         
         $table['rows'][] = $row;
     }
@@ -667,7 +707,7 @@ function payment_edit_form ($pmtid) {
                         'type' => 'text'
                         , 'label' => 'Amount'
                         , 'name' => 'amount'
-                        , 'value' => payment_normalize_currency($payment['amount'], true)
+                        , 'value' => payment_format_currency($payment['amount'], true)
                     )
                     , array(
                         'type' => 'select'
@@ -726,7 +766,7 @@ function payment_delete_form ($pmtid) {
     $payment = $data[0];
     
     // Construct key name
-    $amount = payment_normalize_currency($payment['amount'], true);
+    $amount = payment_format_currency($payment);
     $payment_name = "Payment:$payment[pmtid] - $amount";
     if (array_key_exists('credit', $payment)) {
         $contact = $payment['credit'];
@@ -856,11 +896,12 @@ function payment_page (&$page_data, $page_name, $options) {
  */
 function command_payment_add() {
     
+    $value = payment_parse_currency($_POST['amount'], $_POST['code']);
     $payment = array(
         'date' => $_POST['date']
         , 'description' => $_POST['description']
-        , 'code' => 'USD'
-        , 'amount' => payment_normalize_currency($_POST['amount'])
+        , 'code' => $value['code']
+        , 'value' => $value['value']
         , 'credit_cid' => $_POST['credit']
         , 'debit_cid' => $_POST['debit']
         , 'method' => $_POST['method']
@@ -878,40 +919,26 @@ function command_payment_add() {
  * @return The url to display on completion.
  */
 function command_payment_edit() {
-    global $esc_post;
-    
     // Verify permissions
     if (!user_access('payment_edit')) {
         error_register('Permission denied: payment_edit');
         return 'index.php?q=payments';
     }
-    
-    $amount = payment_normalize_currency($_POST['amount']);
-    $esc_amount = mysql_real_escape_string($amount);
-    
-    $sql = "
-        UPDATE `payment`
-        SET
-        `date` = '$esc_post[date]'
-        , `description` = '$esc_post[description]'
-        , `code` = 'USD'
-        , `amount` = '$esc_amount'
-        , `credit` = '$esc_post[credit]'
-        , `debit` = '$esc_post[debit]'
-        , `method` = '$esc_post[method]'
-        , `confirmation` = '$esc_post[confirmation]'
-        , `notes` = '$esc_post[notes]'
-        WHERE
-        `pmtid` = '$esc_post[pmtid]'
-    ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
-    $affected = mysql_affected_rows($res);
-    if ($affectd > 0) {
-        message_register("Updated $affected payment(s)");
-    }
+    // Parse and save payment
+    $value = payment_parse_currency($_POST['amount'], $_POST['code']);
+    $payment = array(
+        'pmtid' => $_POST['pmtid']
+        , 'date' => $_POST['date']
+        , 'description' => $_POST['description']
+        , 'code' => $value['code']
+        , 'value' => $value['value']
+        , 'credit' => $_POST['credit']
+        , 'debit' => $_POST['debit']
+        , 'method' => $_POST['method']
+        , 'confirmation' => $_POST['confirmation']
+        , 'notes' => $_POST['notes']
+    );
+    payment_save($payment);
     
     return 'index.php?q=payments';
 }
-
