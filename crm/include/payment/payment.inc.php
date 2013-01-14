@@ -518,7 +518,8 @@ function payment_history_table ($opts) {
 function payment_method_options () {
     $options = array();
     $options['cash'] = 'Cash';
-    $options['check'] = 'Check';
+    $options['cheque'] = 'Cheque';
+    $options['other'] = 'Other';
     return $options;
 }
 
