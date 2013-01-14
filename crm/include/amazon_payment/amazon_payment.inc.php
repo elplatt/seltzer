@@ -338,11 +338,14 @@ function command_amazon_payment_import () {
             continue;
         }
         
+        // Parse value
+        $value = payment_parse_currency($row['Amount']);
+        
         // Create payment object and save
         $payment = array(
             'date' => date('Y-m-d', strtotime($row['Date']))
-            , 'code' => 'USD'
-            , 'amount' => payment_normalize_currency($row['Amount'])
+            , 'code' => $value['code']
+            , 'value' => $value['value']
             , 'method' => 'amazon'
             , 'confirmation' => $row['Transaction ID']
             , 'notes' => $row['notes']
