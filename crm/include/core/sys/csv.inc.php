@@ -46,8 +46,7 @@ function csv_normalize ($content) {
  */
 function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $field_quote = '"', $field_escape = "\\") {
     
-    $content = csv_normalize($content);
-    $content = trim($content);
+    $content = trim(csv_normalize($content)) . "\n";
     
     $result = array();
     $header = array();
