@@ -53,6 +53,34 @@ function billing_install($old_revision = 0) {
 
 // Forms ///////////////////////////////////////////////////////////////////////
 
+/**
+ * Form for initiating membership billings.
+ * @return The form structure.
+ */
+function billing_form () {
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'billing'
+        , 'fields' => array(
+            array(
+                'type' => 'fieldset'
+                , 'label' => 'Process Billings'
+                , 'fields' => array(
+                    array(
+                        'type' => 'submit'
+                        , 'value' => 'Process'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
 // Command handlers ////////////////////////////////////////////////////////////
 
 // Pages ///////////////////////////////////////////////////////////////////////
@@ -63,4 +91,18 @@ function billing_install($old_revision = 0) {
 function billing_page_list () {
     $pages = array();
     return $pages;
+}
+
+function billing_page (&$page_data, $page_name, $options) {
+    
+    switch ($page_name) {
+        case 'plans':
+            
+            // Add view and add tabs
+            if (user_access('member_plan_add')) {
+                page_add_content_top($page_data, theme('form', billing_form()), 'Billing');
+            }
+            
+            break;
+    }
 }
