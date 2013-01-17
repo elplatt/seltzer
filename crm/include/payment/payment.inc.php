@@ -322,7 +322,7 @@ function payment_save ($payment) {
             SET
             `date`='$esc_date'
             , `description` = '$esc_description'
-            , `code` = $esc_code
+            , `code` = '$esc_code'
             , `value` = '$esc_value'
             , `credit` = '$esc_credit'
             , `debit` = '$esc_debit'
