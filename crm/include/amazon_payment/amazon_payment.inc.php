@@ -186,10 +186,11 @@ function amazon_payment_payment_api ($payment, $op) {
     }
 }
 
-// TODO put amazon_payment_contact_table here
-// PS: Molly says "Hi, Matt!"
-// "Hi, Molly!" - Matt
-// @param $opts - 
+// Generate payments contacts table
+//
+// @param $opts an array of options passed to the amazon_payment_contact_data function
+// @return a table (array) listing the contacts represented by all payments
+//   and their associated amazon name
 // 
 function amazon_payment_contact_table($opts){
     
