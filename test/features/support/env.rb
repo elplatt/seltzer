@@ -20,7 +20,7 @@ mysql_param = test_config['mysql']
 my = Mysql.connect(mysql_param['host'],
                    mysql_param['username'],
                    mysql_param['password'],
-                   mysql_param['database'],
+                   mysql_param['database']
                   )
 
 
