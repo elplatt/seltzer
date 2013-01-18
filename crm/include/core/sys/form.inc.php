@@ -21,6 +21,35 @@
 */
 
 /**
+ * Get a form, allowing modules to alter it.
+ */
+function crm_get_form () {
+    if (func_num_args() < 1) {
+        return array();
+    }
+    $args = func_get_args();
+    $form_id = array_shift($args);
+    
+    // Build initial form
+    if (!function_exists($form_id)) {
+        return array();
+    }
+    $form_data = array();
+    array_unshift($args, $form_data);
+    $form = call_user_func_array($form_id, $args);
+    
+    // Allow modules to alter the form
+    foreach (module_list() as $module) {
+        $hook = $module . '_form_alter';
+        if (function_exists($hook)) {
+            $$hook($form, $form_state, $form_id);
+        }
+    }
+    
+    return $form;
+}
+
+/**
  * @param $form The form structure.
  * @return The themed html string for a form.
 */
