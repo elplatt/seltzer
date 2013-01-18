@@ -708,7 +708,7 @@ function payment_edit_form ($pmtid) {
                         'type' => 'text'
                         , 'label' => 'Amount'
                         , 'name' => 'amount'
-                        , 'value' => payment_format_currency($payment['amount'], true)
+                        , 'value' => payment_format_currency($payment, false)
                     )
                     , array(
                         'type' => 'select'
@@ -911,6 +911,8 @@ function command_payment_add() {
     );
     $payment = payment_save($payment);
     
+    message_register('Added 1 payment.');
+    
     return 'index.php?q=payments';
 }
 
@@ -940,6 +942,8 @@ function command_payment_edit() {
         , 'notes' => $_POST['notes']
     );
     payment_save($payment);
+    
+    message_register('Updated 1 payment.');
     
     return 'index.php?q=payments';
 }
