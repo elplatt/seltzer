@@ -638,10 +638,11 @@ function payment_add_form () {
 /**
  * Create a form structure for editing a payment.
  *
+ * @param &$form_data Array for storing extra info
  * @param $pmtid The id of the payment to edit.
  * @return The form structure.
 */
-function payment_edit_form ($pmtid) {
+function payment_edit_form (&$form_data, $pmtid) {
     
     // Ensure user is allowed to edit payments
     if (!user_access('payment_edit')) {
@@ -654,6 +655,7 @@ function payment_edit_form ($pmtid) {
         return NULL;
     }
     $payment = $data[0];
+    $form_data['payment'] = $payment;
     
     $credit = '';
     $credit_cid = '';
@@ -686,7 +688,7 @@ function payment_edit_form ($pmtid) {
                     array(
                         'type' => 'text'
                         , 'label' => 'Credit'
-                        , 'name' => 'credit'
+                        , 'name' => 'credit_cid'
                         , 'description' => $credit
                         , 'value' => $credit_cid
                         , 'autocomplete' => 'member_name'
@@ -707,7 +709,7 @@ function payment_edit_form ($pmtid) {
                     , array(
                         'type' => 'text'
                         , 'label' => 'Amount'
-                        , 'name' => 'amount'
+                        , 'name' => 'value'
                         , 'value' => payment_format_currency($payment, false)
                     )
                     , array(
@@ -726,7 +728,7 @@ function payment_edit_form ($pmtid) {
                     , array(
                         'type' => 'text'
                         , 'label' => 'Debit'
-                        , 'name' => 'debit'
+                        , 'name' => 'debit_cid'
                         , 'description' => $debit
                         , 'value' => $debit_cid
                         , 'autocomplete' => 'member_name'
@@ -873,7 +875,7 @@ function payment_page (&$page_data, $page_name, $options) {
         case 'payment':
             page_set_title($page_data, 'Payment');
             if (user_access('payment_edit')) {
-                $content = theme('form', payment_edit_form($_GET['pmtid']));
+                $content = theme('form', crm_get_form('payment_edit_form', $_GET['pmtid']));
                 page_add_content_top($page_data, $content);
             }
             break;
@@ -929,18 +931,7 @@ function command_payment_edit() {
     }
     // Parse and save payment
     $value = payment_parse_currency($_POST['amount'], $_POST['code']);
-    $payment = array(
-        'pmtid' => $_POST['pmtid']
-        , 'date' => $_POST['date']
-        , 'description' => $_POST['description']
-        , 'code' => $value['code']
-        , 'value' => $value['value']
-        , 'credit_cid' => $_POST['credit']
-        , 'debit_cid' => $_POST['debit']
-        , 'method' => $_POST['method']
-        , 'confirmation' => $_POST['confirmation']
-        , 'notes' => $_POST['notes']
-    );
+    $payment = $_POST;
     payment_save($payment);
     
     message_register('Updated 1 payment.');
