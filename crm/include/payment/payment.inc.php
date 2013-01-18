@@ -679,6 +679,7 @@ function payment_edit_form (&$form_data, $pmtid) {
         , 'command' => 'payment_edit'
         , 'hidden' => array(
             'pmtid' => $payment['pmtid']
+            , 'code' => $payment['code']
         )
         , 'fields' => array(
             array(
@@ -930,8 +931,10 @@ function command_payment_edit() {
         return 'index.php?q=payments';
     }
     // Parse and save payment
-    $value = payment_parse_currency($_POST['amount'], $_POST['code']);
     $payment = $_POST;
+    $value = payment_parse_currency($_POST['value'], $_POST['code']);
+    $payment['code'] = $value['code'];
+    $payment['value'] = $value['value'];
     payment_save($payment);
     
     message_register('Updated 1 payment.');
