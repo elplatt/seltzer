@@ -34,18 +34,22 @@ function crm_get_form () {
     if (!function_exists($form_id)) {
         return array();
     }
-    $form_data = array();
-    array_unshift($args, $form_data);
-    $form = call_user_func_array($form_id, $args);
+    $form_state = array();
+    // Create hook args with a reference to form state
+    // This is the only way call_user_func_array() can pass by reference
+    $hook_args = array(&$form_state);
+    foreach ($args as $value) {
+        $hook_args[] = $value;
+    }
+    $form = call_user_func_array($form_id, $hook_args);
     
     // Allow modules to alter the form
     foreach (module_list() as $module) {
         $hook = $module . '_form_alter';
         if (function_exists($hook)) {
-            $$hook($form, $form_state, $form_id);
+            $hook($form, $form_state, $form_id);
         }
     }
-    
     return $form;
 }
 
@@ -200,6 +204,9 @@ function theme_form_readonly ($field) {
     }
     if (!empty($field['value'])) {
         $output .= '<span class="value">' . $field['value'] . '</span>';
+    }
+    if (!empty($field['name'])) {
+        $output .= '<input type="hidden" name="' . $field['name'] . '" value="' . $field['value'] . '"/>';
     }
     $output .= '</fieldset>';
     return $output;
