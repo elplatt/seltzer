@@ -256,15 +256,20 @@ function member_membership_data ($opts) {
     }
     
     // Add filters
+    $esc_today = mysql_real_escape_string(date('Y-m-d'));
     if (isset($opts['filter'])) {
         foreach ($opts['filter'] as $name => $param) {
+            $esc_param = mysql_real_escape_string($param);
             switch ($name) {
                 case 'active':
                     if ($param) {
-                        $sql .= " AND (`end` IS NULL) ";
+                        $sql .= " AND (`end` IS NULL OR `end` > '$esc_today') ";
                     } else {
                         $sql .= " AND (`end` IS NOT NULL) ";
                     }
+                    break;
+                case 'starts_after':
+                    $sql .= "AND (`start` > '$esc_param') ";
                     break;
                 default:
                     break;
@@ -369,7 +374,7 @@ function member_contact_data ($opts) {
     if (!$res) die(mysql_error());
     
     // Store data
-    $contactss = array();
+    $contacts = array();
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
         $contacts[] = array(

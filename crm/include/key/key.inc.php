@@ -581,7 +581,7 @@ function command_key_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'index.php?q=member&cid=' . $_POST['cid'];
+    return 'index.php?q=member&cid=' . $_POST['cid'] . '&tab=keys';
 }
 
 /**

@@ -64,6 +64,25 @@ function amazon_payment_install($old_revision = 0) {
 // DB to Object mapping ////////////////////////////////////////////////////////
 
 /**
+ * Return data for one or more amazon payments.
+ */
+function amazon_payment_data ($opts = array()) {
+    $sql = "SELECT `pmtid`, `amazon_name` FROM `payment_amazon` WHERE 1";
+    if (isset($opts['pmtid'])) {
+        $esc_pmtid = mysql_real_escape_string($opts['pmtid']);
+        $sql .= " AND `pmtid`='$esc_pmtid' ";
+    }
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    // Read from database and store in a structure
+    $amazon_payment_data = array();
+    while ($db_row = mysql_fetch_assoc($res)) {
+        $amazon_payment_data[] = $db_row;
+    }
+    return $amazon_payment_data;
+};
+
+/**
  * Return data for one or more amazon contacts.
  *
  * @param $opts An associative array of options, possible keys are:
@@ -85,8 +104,12 @@ function amazon_payment_contact_data ($opts = array()) {
             'cid' => $row['cid']
             , 'amazon_name' => $row['amazon_name']
         );
+        // add contact field if 'cid' is not empty
         if (!empty($row['cid'])) {
-            $names['contact'] = member_contact_data(array('cid'=>$row['cid']));
+            // Grab array of contacts
+            $contactarray = member_contact_data(array('cid'=>$row['cid']));
+            // assign the first element (which is a contact array) to the 'contact' field
+            $name['contact'] = $contactarray[0];
         }
         $row = mysql_fetch_assoc($res);
         $names[] = $name;
@@ -96,14 +119,39 @@ function amazon_payment_contact_data ($opts = array()) {
 }
 
 /**
- * Save an amazon payment contact.  Do nothing if it already exists.
- * @param $name The amazon name object.
+ * Save an amazon contact.  If the name is already in the database,
+ * the mapping is updated.  When updating the mapping, any fields that are not
+ * set are not modified.
  */
 function amazon_payment_contact_save ($contact) {
     $esc_name = $contact['amazon_name'];
-    $sql = "INSERT INTO `contact_amazon` (`amazon_name`) VALUES ('$esc_name')";
+    $esc_cid = $contact['cid'];
+    
+    // Check whether the amazon contact already exists in the database
+    $sql = "SELECT * FROM `contact_amazon` WHERE `amazon_name` = '$esc_name'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    
+    if ($row) {
+        // Update existing if the cid is set
+        if (isset($contact['cid'])) {
+            $sql = "
+                UPDATE `contact_amazon`
+                SET `cid`='$esc_cid'
+                WHERE `amazon_name`='$esc_name'
+            ";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+        }
+    } else {
+        // Insert new
+        $sql = "
+            INSERT INTO `contact_amazon`
+            (`amazon_name`, `cid`) VALUES ('$esc_name', '$esc_cid')";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+    }
 }
 
 /**
@@ -113,8 +161,25 @@ function amazon_payment_contact_save ($contact) {
  * @param $op The operation.
  */
 function amazon_payment_payment_api ($payment, $op) {
-    $esc_name = $payment['amazon_name'];
-    $esc_pmtid = $payment['pmtid'];
+    if ($payment['method'] !== 'amazon') {
+        return;
+    }
+
+    $name = $payment['amazon_name'];
+    $pmtid = $payment['pmtid'];
+    $credit_cid = $payment['credit_cid'];
+    $esc_name = mysql_real_escape_string($name);
+    $esc_pmtid = mysql_real_escape_string($pmtid);
+    
+    // Create link between the amazon payment name and contact id
+    $amazon_contact = array();
+    if (isset($payment['amazon_name'])) {
+        $amazon_contact['amazon_name'] = $name;
+    }
+    if (isset($payment['credit_cid'])) {
+        $amazon_contact['cid'] = $credit_cid;
+    }
+    
     switch ($op) {
         case 'insert':
             $sql = "
@@ -125,7 +190,7 @@ function amazon_payment_payment_api ($payment, $op) {
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
-            amazon_payment_contact_save($payment);
+            amazon_payment_contact_save($amazon_contact);
             break;
         case 'update':
             $sql = "
@@ -135,13 +200,64 @@ function amazon_payment_payment_api ($payment, $op) {
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
-            amazon_payment_contact_save($payment);
+            amazon_payment_contact_save($amazon_contact);
             break;
     }
 }
 
-// TODO put amazon_payment_contact_table here
-// PS: Molly says "Hi, Matt!"
+// Generate payments contacts table
+//
+// @param $opts an array of options passed to the amazon_payment_contact_data function
+// @return a table (array) listing the contacts represented by all payments
+//   and their associated amazon name
+// 
+function amazon_payment_contact_table($opts){
+    
+    $data = amazon_payment_contact_data($opts);
+    
+    
+    // Initialize table
+    $table = array(
+        "id" => '',
+        "class" => '',
+        "rows" => array(),
+        "columns" => array()
+    );
+    
+    // Add columns
+    if (!user_access('payment_view')) { // Permission check
+        error_register('User does not have permission to view payments');
+        return;
+    }
+    $table['columns'][] = array("title"=>'Full Name');
+    $table['columns'][] = array("title"=>'Amazon Name');
+    
+    // Add ops column (Not going to worry about this right now)
+   
+    // Add rows
+    foreach ($data as $union) {
+        $row = array();
+        
+        //first column is the full name associated with the union['cid']
+        $memberopts = array(
+            'cid' => $union['cid'],
+        );
+        $contact = $union['contact'];
+        $contactName = '';
+        if (!empty($contact)) {
+            $contactName = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+        }
+        $row[] = $contactName; 
+        //second column is  union['amazon_name']
+        $row[] = $union['amazon_name'];
+        
+        //Save row array into the $table structure
+        $table['rows'][] = $row;
+    }
+    
+    return $table; 
+}
+
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
@@ -160,10 +276,8 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             }
             break;
         case 'amazon-admin':
-            page_set_title($page_data, 'Adminsiter Amazon Payments');
-            page_add_content_top($page_data, 'TODO', 'View');
-            $data = amazon_payment_contact_data();
-            page_add_content_top($page_data, '<pre>' . print_r($data, true) . '</pre>', 'View');
+            page_set_title($page_data, 'Administer Amazon Payments');
+            page_add_content_top($page_data, theme('table', 'amazon_payment_contact', array('show_export'=>true)), 'View');
             break;
     }
 }
@@ -202,6 +316,53 @@ function amazon_payment_import_form () {
 }
 
 /**
+ * Implementation of hook_form_alter().
+ * @param &$form The form being altered.
+ * @param &$form_data Metadata about the form.
+ * @param $form_id The name of the form.
+ */
+function amazon_payment_form_alter(&$form, &$form_data, $form_id) {
+    if ($form_id === 'payment_edit_form') {
+        // Modify amazon payments only
+        $payment = $form_data['payment'];
+        if ($payment['method'] !== 'amazon') {
+            return;
+        }
+        // Load amazon_payment
+        $amazon_payment_opts = array('pmtid' => $payment['pmtid']);
+        $amazon_payment_data = amazon_payment_data($amazon_payment_opts);
+        if (count($amazon_payment_data) < 1) {
+            error_register("Payment with id $payment[pmtid] missing from payment_amazon table.");
+            return;
+        }
+        $amazon_payment = $amazon_payment_data[0];
+        // Loop through all fields in the form
+        for ($i = 0; $i < count($form['fields']); $i++) {
+            if ($form['fields'][$i]['label'] === 'Edit Payment') {
+                // Add amazon name
+                $name_field = array(
+                    'type' => 'readonly'
+                    , 'label' => 'Amazon Name'
+                    , 'name' => 'amazon_name'
+                    , 'value' => $amazon_payment['amazon_name']
+                );
+                array_unshift($form['fields'][$i]['fields'], $name_field);
+                // Loop through fields in Edit Payment fieldset
+                $fieldset = $form['fields'][$i];
+                for ($j = 0; $j < count($fieldset['fields']); $j++) {
+                    // Since the payment is generated by a module,
+                    // users shouldn't be able to change the method
+                    if ($fieldset['fields'][$j]['name'] === 'method') {
+                        $form['fields'][$i]['fields'][$j]['options'] = array('amazon' => 'Amazon');
+                        $form['fields'][$i]['fields'][$j]['value'] = amazon;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
  * Handle amazon payment import request.
  *
  * @return The url to display on completion.
@@ -235,11 +396,23 @@ function command_amazon_payment_import () {
             continue;
         }
         
+        // Skip transactions that have already been imported
+        $payment_opts = array(
+            'filter' => array('confirmation' => $row['Transaction ID'])
+        );
+        $data = payment_data($payment_opts);
+        if (count($data) > 0) {
+            continue;
+        }
+        
+        // Parse value
+        $value = payment_parse_currency($row['Amount']);
+        
         // Create payment object and save
         $payment = array(
             'date' => date('Y-m-d', strtotime($row['Date']))
-            , 'code' => 'USD'
-            , 'amount' => payment_normalize_currency($row['Amount'])
+            , 'code' => $value['code']
+            , 'value' => $value['value']
             , 'method' => 'amazon'
             , 'confirmation' => $row['Transaction ID']
             , 'notes' => $row['notes']

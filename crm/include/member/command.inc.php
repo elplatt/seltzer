@@ -474,14 +474,21 @@ function command_member_import () {
     
     foreach ($data as $row) {
         
+        // Convert row keys to lowercase and remove spaces
+        foreach ($row as $key => $value) {
+            $new_key = str_replace(' ', '', strtolower($key));
+            unset($row[$key]);
+            $row[$new_key] = $value;
+        }
+        
         // Add contact
-        $firstName = mysql_real_escape_string($row['first name']);
-        $middleName = mysql_real_escape_string($row['middle name']);
-        $lastName = mysql_real_escape_string($row['last name']);
+        $firstName = mysql_real_escape_string($row['firstname']);
+        $middleName = mysql_real_escape_string($row['middlename']);
+        $lastName = mysql_real_escape_string($row['lastname']);
         $email = mysql_real_escape_string($row['email']);
         $phone = mysql_real_escape_string($row['phone']);
-        $emergencyName = mysql_real_escape_string($row['emergency name']);
-        $emergencyPhone = mysql_real_escape_string($row['emergency phone']);
+        $emergencyName = mysql_real_escape_string($row['emergencyname']);
+        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
         $sql = "
             INSERT INTO `contact`
             (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
@@ -508,7 +515,7 @@ function command_member_import () {
         while (empty($username) && $n < 100) {
             
             // Contruct test username
-            $test_username = strtolower($row['first name']{0} . $row['lastName']);
+            $test_username = strtolower($row['firstname']{0} . $row['lastName']);
             if ($n > 0) {
                 $test_username .= $n;
             }
@@ -573,7 +580,7 @@ function command_member_import () {
         }
         
         // Add membership
-        $esc_start = mysql_real_escape_string($row['start date']);
+        $esc_start = mysql_real_escape_string($row['startdate']);
         $esc_pid = mysql_real_escape_string($pid);
         
         $sql = "
@@ -589,7 +596,7 @@ function command_member_import () {
         $from = "\"$config_org_name\" <$config_email_from>";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         if (!empty($config_email_to)) {
-            $name = member_name($row['first name'], $row['middle name'], $row['last name']);
+            $name = member_name($row['firstname'], $row['middlename'], $row['lastname']);
             $content = theme('member_created_email', $esc_cid);
             mail($config_email_to, "New Member: $name", $content, $headers);
         }
