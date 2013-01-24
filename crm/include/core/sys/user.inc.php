@@ -158,7 +158,10 @@ function user_data ($opts) {
     
     // Construct query for users
     $sql = "
-        SELECT `cid`, `username`, `hash`, `salt` FROM `user` WHERE 1
+        SELECT `user`.`cid`, `user`.`username`, `user`.`hash`, `user`.`salt`
+        FROM `user`
+        INNER JOIN `contact` ON `contact`.`cid` = `user`.`cid`
+        WHERE 1
     ";
     if (array_key_exists('cid', $opts)) {
         $esc_cid = mysql_real_escape_string($opts['cid']);
@@ -168,6 +171,8 @@ function user_data ($opts) {
         foreach ($opts['filter'] as $key => $value) {
             if ($key === 'username') {
                 $sql .= " AND `username`='" . mysql_real_escape_string($value) . "' ";
+            } else if ($key === 'email') {
+                $sql .= " AND `contact`.`email`='" . mysql_real_escape_string($value) . "' ";
             }
         }
     }
@@ -414,15 +419,30 @@ function user_check_reset_code ($code) {
 function command_login () {
     global $esc_post;
     
-    $user_opts = array(
-        'filter' => array(
-            'username' => $_POST['username']
-        )
-    );
-    $users = user_data($user_opts);
+    //Check to see if there was an @ sign in the 'username'. This will signify that the user
+    //probably entered their email, and not their username.
+    if (strpos($_POST['username'], "@") === False){
+        //there is not an "@" in the 'username', so we will assume the user entered their username
+        $user_opts = array(
+            'filter' => array(
+                'username' => $_POST['username']
+            )
+        );
+        $users = user_data($user_opts);
+    } else {
+        //There was an "@" in the 'username',so we will assume the user entered their email address
+        $user_opts = array(
+            'filter' => array(
+                'email' => $_POST['username']
+            )
+        );
+        $users = user_data($user_opts);
+    }
+    
     
     // Check for user
     if (sizeof($users) < 1) {
+        //The user was not found, so assume they tried entering their email
         error_register('Invalid username/password');
         $next = 'index.php?q=login';
     }
@@ -472,7 +492,7 @@ function login_form () {
                 'fields' => array(
                     array(
                         'type' => 'text',
-                        'label' => 'Username',
+                        'label' => 'Username or Email',
                         'name' => 'username'
                     ),
                     array(
@@ -507,7 +527,7 @@ function user_reset_password_form () {
                 'fields' => array(
                     array(
                         'type' => 'text',
-                        'label' => 'Username',
+                        'label' => 'Username or Email',
                         'name' => 'username'
                     ),
                     array(
