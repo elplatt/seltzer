@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     csv.inc.php - Parses comma-separated variable files
