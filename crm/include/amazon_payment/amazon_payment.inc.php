@@ -93,7 +93,14 @@ function amazon_payment_data ($opts = array()) {
 function amazon_payment_contact_data ($opts = array()) {
     
     $sql = "SELECT `cid`, `amazon_name` FROM `contact_amazon` WHERE 1";
-    // TODO add filtering etc
+    if (isset($opts['filter'])) {
+        foreach ($opts['filter'] as $filter => $value) {
+            if ($filter === 'amazon_name') {
+                $esc_name = mysql_real_escape_string($value);
+                $sql .= " AND `amazon_name`='$esc_name' ";
+            }
+        }
+    }
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
@@ -408,16 +415,24 @@ function command_amazon_payment_import () {
         // Parse value
         $value = payment_parse_currency($row['Amount']);
         
-        // Create payment object and save
+        // Create payment object
         $payment = array(
             'date' => date('Y-m-d', strtotime($row['Date']))
             , 'code' => $value['code']
             , 'value' => $value['value']
+            , 'description' => $row['Name'] . ' Amazon Payment'
             , 'method' => 'amazon'
             , 'confirmation' => $row['Transaction ID']
             , 'notes' => $row['notes']
             , 'amazon_name' => $row['Name']
         );
+        // Check if the amazon name is linked to a contact
+        $opts = array('filter'=>array('amazon_name'=>$row['Name']));
+        $contact_data = amazon_payment_contact_data($opts);
+        if (count($contact_data) > 0) {
+            $payment['credit_cid'] = $contact_data[0]['cid'];
+        }
+        // Save the payment
         $payment = payment_save($payment);
         $count++;
     }
