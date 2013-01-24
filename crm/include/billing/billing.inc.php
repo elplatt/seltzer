@@ -96,10 +96,10 @@ function billing_page_list () {
 function billing_page (&$page_data, $page_name, $options) {
     
     switch ($page_name) {
-        case 'plans':
+        case 'payments':
             
             // Add view and add tabs
-            if (user_access('member_plan_add')) {
+            if (user_access('payment_edit')) {
                 page_add_content_top($page_data, theme('form', billing_form()), 'Billing');
             }
             
