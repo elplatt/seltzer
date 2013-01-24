@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2012 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     payment.inc.php - Payment tracking module
@@ -235,7 +235,7 @@ function payment_data ($opts = array()) {
             }
         }
     }
-    $sql .= " ORDER BY `date`, `created` DESC";
+    $sql .= " ORDER BY `date` DESC, `created` DESC";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     

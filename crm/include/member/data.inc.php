@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2011 Edward L. Platt <elplatt@alum.mit.edu>
+    Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     data.inc.php - Member module - database to object mapping
