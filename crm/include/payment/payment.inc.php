@@ -235,7 +235,7 @@ function payment_data ($opts = array()) {
             }
         }
     }
-    $sql .= " ORDER BY `date`, `created` DESC";
+    $sql .= " ORDER BY `date` DESC, `created` DESC";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
