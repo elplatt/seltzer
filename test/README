@@ -1,0 +1,42 @@
+How to run the cucumber tests.
+
+You don't necessarily have to run the tests on the same machine as the application,
+but it might be a bit easier.
+
+You'll need to have Ruby installed plus the following gems:
+cucumber
+watir
+headless
+mysql
+rspec
+
+If you're installing the mysql gem on linux, then you may also
+have to install the following first:
+sudo apt-get install libmysql-ruby
+sudo apt-get install libmysqlclient-dev
+
+Once you have Seltzer up and running. Edit the test configuration file at:
+    test/features/support/test_config.yml
+
+Change the following values to match your Seltzer installation
+      base_url: http://localhost/crm/
+      mysql:
+          host: localhost
+          database: seltzerdb
+          username: crm
+          password: crm
+
+Now, from the 'test' directory, you should be able to run the tests like so:
+
+  cucumber
+
+Note that a couple tests require input from the tester.
+These are tagged with the @manual tag for your convenience.
+For unattended operation, exclude the manual tests like so:
+
+  cucumber --tags ~@manual
+
+
+
+Learn more about cucumber testing here: http://cukes.info
+To learn more about walruses, visit your local library.
