@@ -165,7 +165,7 @@ function user_data ($opts) {
     ";
     if (array_key_exists('cid', $opts)) {
         $esc_cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `cid`='$esc_cid' ";
+        $sql .= " AND `user`.`cid`='$esc_cid' ";
     }
     if (array_key_exists('filter', $opts)) {
         foreach ($opts['filter'] as $key => $value) {
