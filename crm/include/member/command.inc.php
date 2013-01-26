@@ -608,3 +608,51 @@ function command_member_import () {
     
     return 'index.php?q=members';
 }
+
+/**
+ * Handle plan import request.
+ *
+ * @return The url to display on completion.
+ */
+function command_plan_import () {
+    
+    if (!user_access('member_plan_edit')) {
+        error_register('User does not have permission: member_plan_edit');
+        return 'index.php';
+    }
+    
+    if (!array_key_exists('plan-file', $_FILES)) {
+        error_register('No plan file uploaded');
+        return 'index.php?q=plans&tab=import';
+    }
+    
+    $csv = file_get_contents($_FILES['plan-file']['tmp_name']);
+    
+    $data = csv_parse($csv);
+    
+    foreach ($data as $row) {
+        
+        // Convert row keys to lowercase and remove spaces
+        foreach ($row as $key => $value) {
+            $new_key = str_replace(' ', '', strtolower($key));
+            unset($row[$key]);
+            $row[$new_key] = $value;
+        }
+        
+        // Add plan
+        $Name = mysql_real_escape_string($row['name']);
+        $Price = mysql_real_escape_string($row['price']);
+        $Active = mysql_real_escape_string($row['active']);
+        $Voting = mysql_real_escape_string($row['voting']);
+        $sql = "
+            INSERT INTO `plan`
+            (`name`,`price`,`active`,`voting`)
+            VALUES
+            ('$Name','$Price','$Active','$Voting')";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $pid = mysql_insert_id();
+    }
+    
+    return 'index.php?q=plans';
+}

@@ -25,7 +25,7 @@
  * this number.
  */
 function member_revision () {
-    return 2;
+    return 3;
 }
 
 /**
