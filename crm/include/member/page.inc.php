@@ -84,10 +84,11 @@ function member_page (&$page_data, $page_name, $options) {
             // Set page title
             page_set_title($page_data, 'Plans');
             
-            // Add view and add tabs
+            // Add view, add and import tabs
             if (user_access('member_plan_edit')) {
                 page_add_content_top($page_data, theme('table', 'member_plan'), 'View');
                 page_add_content_top($page_data, theme('member_plan_add_form'), 'Add');
+                page_add_content_top($page_data, theme('form', plan_import_form()), 'Import');
             }
             
             break;

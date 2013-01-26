@@ -709,3 +709,30 @@ function member_import_form () {
         )
     );
 }
+
+/**
+ * @return the form structure for a plan import form.
+*/
+function plan_import_form () {
+    return array(
+        'type' => 'form'
+       , 'method' => 'post'
+        , 'enctype' => 'multipart/form-data'
+        , 'command' => 'plan_import'
+        , 'fields' => array(
+            array(
+                'type' => 'message'
+                , 'value' => '<p>To import plans, upload a csv.  The csv should have a header row with the following fields:</p><ul><li>Plan Name</li><li>Price</li><li>Active (Set to 1/0 signalling Y/N)</li><li>Voting (Set to 1/0 signalling Y/N)</li></ul>'
+            )
+            , array(
+                'type' => 'file'
+                , 'label' => 'CSV File'
+                , 'name' => 'plan-file'
+            )
+            , array(
+                'type' => 'submit'
+                , 'value' => 'Import'
+            )
+        )
+    );
+}
