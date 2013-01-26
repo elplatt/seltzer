@@ -1,86 +1,38 @@
 
-Seltzer CRM 0.2.0
+Seltzer CRM 0.3.0
 An open source CRM for hackerspaces
 Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
 Distributed under GPLv3 (see COPYING for more info)
 
-CONTENTS
-========
+## Contents ##
 1. Overview
-2. Why create another CRM
-3. How to install
-4. Basic usage
+2. Installation and Usage
 
-1. OVERVIEW
-===========
+## Overview ##
 Seltzer CRM is a tool for managing membership data at hackerspaces and similar
 membership organizations.  It is designed to be useful to a typical hackerspace
 administrator without any training, and easy to tailor to the needs of a
-particular space (through modularity rather than forking or configuration).
+particular space through modularity rather than modification or configuration.
 
 The current features are:
 * Tracking of member contact and emergency contact info
 * Tracking of membership levels and dates
-* Tracking of voting status
-* Tracking of key assignments
+* Billing and Amazon Payments integration
+* Tracking of RFID key assignments
 * Customizable permissions and roles
+
+Why create another CRM?  There are a number of powerful CRMs out there already,
+including the open source CiviCRM.  However, we found the complexity of existing
+CRMs to be an obstacle to recruiting and training volunteers at member-run
+organizations such as hackerspaces.  Seltzer CRM has a very basic feature set
+tailored to the needs of a hackerspace.
 
 Seltzer has been in production use at the i3 Detroit hackerspace in Ferndale, MI
 since 2010-12-20.
 
-2. WHY CREATE ANOTHER CRM?
-==========================
-There are a number of powerful CRMs out there already, including the open source
-CiviCRM.  However, we found the complexity of existing CRMs to be an obstacle
-to recruiting and training volunteers at member-run organizations such as
-hackerspaces.  Seltzer CRM has a very basic feature set tailored to the needs
-of a hackerspace.
-
-3. HOW TO INSTALL
-=================
-Check out the INSTALL file.
-
-4. BASIC USAGE
-==============
-NOTE: to preserve historical data, only delete plans, members, and key
-assignments if they were created in error.  If a plan, member, or key
-assignment is no longer valid, it should be marked as inactive rather than
-deleted.
-
-Add or edit different levels of membership plans by clicking the "Plans" tab.
-This tab displays a list of existing plans.  Each existing plan has links to
-edit or delete that plan.  You may add a new plan by clicking the "Add" sub-tab.
-
-Add or edit members by clicking the "Members" tab.  This tab displays a list of
-all members, past and present.  Members may be filtered down to only active
-or voting members.  Each member has a link to edit or delete that member.  To
-add a new member, click the "Add" sub-tab.
-
-To manage a member's membership status, click a member, and then click the
-"Plan" sub-tab.
-
-To edit a member's roles (which determine their permissions) click a member and
-then click the "Roles" sub-tab.
-
-To manage a member's key assignments, click a member in the "Members" tab, then
-click the "Keys" sub-tab.
-
-To grant or revoke permissions for user roles, click the "Permissions" tab.
-
-To import member data, click the "Members" tab, then click the "Import sub-tab.
-You will need to upload a CSV file.  The first row should contain the following
-headers:
-
-* "First Name"
-* "Middle Name"
-* "Last Name"
-* "Email"
-* "Phone"
-* "Emergency Name"
-* "Emergency Phone"
-* "Username" If blank, will use <first initial><last name>
-* "Plan" The name of the plan to assign a member to.  If no plan of that name
-  exists, it will be created.
-* "Start Date" The date the user joined in YYYY-MM-DD format.
-
-A user will be created for each subsequent row.
+## Installation and Usage ##
+For more information on using Seltzer CRM, see the
+[wiki](https://github.com/elplatt/seltzer/wiki).
+Installation instructions are in the INSTALL file and on the wiki
+To install Seltzer CRM, follow the instructions in the INSTALL file or on the
+wiki [here](https://github.com/elplatt/seltzer/wiki/Installing-Seltzer-CRM).
