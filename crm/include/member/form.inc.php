@@ -718,7 +718,7 @@ function plan_import_form () {
         'type' => 'form'
        , 'method' => 'post'
         , 'enctype' => 'multipart/form-data'
-        , 'command' => 'plan_import'
+        , 'command' => 'member_plan_import'
         , 'fields' => array(
             array(
                 'type' => 'message'

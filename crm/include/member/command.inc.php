@@ -614,7 +614,7 @@ function command_member_import () {
  *
  * @return The url to display on completion.
  */
-function command_plan_import () {
+function command_member_plan_import () {
     
     if (!user_access('member_plan_edit')) {
         error_register('User does not have permission: member_plan_edit');
@@ -640,15 +640,15 @@ function command_plan_import () {
         }
         
         // Add plan
-        $Name = mysql_real_escape_string($row['name']);
-        $Price = mysql_real_escape_string($row['price']);
-        $Active = mysql_real_escape_string($row['active']);
-        $Voting = mysql_real_escape_string($row['voting']);
+        $name = mysql_real_escape_string($row['planname']);
+        $price = mysql_real_escape_string($row['price']);
+        $active = mysql_real_escape_string($row['active']);
+        $voting = mysql_real_escape_string($row['voting']);
         $sql = "
             INSERT INTO `plan`
             (`name`,`price`,`active`,`voting`)
             VALUES
-            ('$Name','$Price','$Active','$Voting')";
+            ('$name','$price','$active','$voting')";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         $pid = mysql_insert_id();
