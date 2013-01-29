@@ -583,20 +583,20 @@ function user_reset_password_confirm_form ($code) {
 }
 
 /**
- * Respond to reset password request.
+ * Generate a password reset url.
+ * @param $username
+ * @return A string containing a password reset url.
 */
-function command_reset_password () {
-    global $esc_post;
+function user_reset_password_url ($username) {
     global $config_host;
     global $config_base_path;
-    global $config_email_from;
-    global $config_site_title;
     
     // Get user info
+    $esc_username = mysql_real_escape_string($username);
     $sql = "
         SELECT * FROM `user`
         INNER JOIN `contact` ON `user`.`cid`=`contact`.`cid`
-        WHERE `user`.`username`='$esc_post[username]'
+        WHERE `user`.`username`='$esc_username'
         ";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
@@ -605,7 +605,7 @@ function command_reset_password () {
     // Make sure user exists
     if (empty($row)) {
         error_register('No such username');
-        return 'index.php?q=reset';
+        return '';
     }
     
     // Generate code
@@ -613,7 +613,7 @@ function command_reset_password () {
     
     // Insert code into reminder table
     $esc_cid = mysql_real_escape_string($row['cid']);
-    $esc_code = msyql_real_escape_string($code);
+    $esc_code = mysql_real_escape_string($code);
     $sql = "
         REPLACE INTO `resetPassword`
         (`cid`, `code`)
@@ -623,18 +623,30 @@ function command_reset_password () {
     
     // Generate reset url
     $url = 'http://' . $config_host . $config_base_path . 'index.php?q=reset-confirm&v=' . $code;
+    return $url;
+}
+
+/**
+ * Respond to reset password request.
+*/
+function command_reset_password () {
+    global $config_host;
+    global $config_base_path;
+    global $config_email_from;
+    global $config_site_title;
     
     // Send code to user
-    $to = $row['email'];
-    $subject = "[$config_site_title] Reset Password";
-    $from = $config_email_from;
-    $headers = "From: $from\r\n";
-    $message = "To reset your password, visit the following url: $url";
-    $res = mail($to, $subject, $message, $headers);
-    
-    // Notify user to check their email
-    message_register('Instructions for resetting your password have been sent to your e-mail.');
-    
+    $url = user_reset_password_url($_POST['username']);
+    if (!empty($url)) {
+        $to = $row['email'];
+        $subject = "[$config_site_title] Reset Password";
+        $from = $config_email_from;
+        $headers = "From: $from\r\n";
+        $message = "To reset your password, visit the following url: $url";
+        $res = mail($to, $subject, $message, $headers);
+        // Notify user to check their email
+        message_register('Instructions for resetting your password have been sent to your e-mail.');
+    }
     return 'index.php';
 }
 

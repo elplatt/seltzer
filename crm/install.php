@@ -22,4 +22,5 @@
 
 require_once('include/crm.inc.php');
 
-print template_render('page', 'install');
+$template_vars = array('path' => 'install');
+print template_render('page', $template_vars);

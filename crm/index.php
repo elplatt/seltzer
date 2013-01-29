@@ -33,4 +33,5 @@ if (!empty($command)) {
     die();
 }
 
-print template_render('page', path());
+$template_vars = array('path' => path());
+print template_render('page', $template_vars);

@@ -26,31 +26,25 @@
  * @param $vars An array mapping template variable names to their values.  If
  *   the value is a string, it will be treated as a path.
  */
-function template_render ($name, $vars = NULL) {
-    
-    // Use template_preprocess_page by default
-    // TODO: The template variable system should use modular hooks
-    if (!$vars) {
-        $vars = template_preprocess_page();
+function template_render ($name, $vars = array()) {
+    // Run default preprocess hook
+    $vars = array_merge($vars, template_preprocess($vars));
+    // TODO run module preprocess hooks
+    // Run default preprocess hook for template
+    $generator = 'template_preprocess_' . $name;
+    if (function_exists($generator)) {
+        $vars = array_merge($vars, call_user_func($generator, $vars));
     }
-    
-    // If $vars is a string, we want to generate vars from a path
-    if (!is_array($vars)) {
-        $path = $vars;
-        $generator = 'template_preprocess_' . $name;
-        if (function_exists($generator)) {
-            $vars = call_user_func($generator, $path);
-        } else {
-            $vars = array();
-        }
-    }
-    
+    // TODO run page-specific module preprocess hooks
     extract($vars);
     
-    // Construct the template filename
-    $filename = path_to_theme() . '/' . $name . '.tpl.php';
-    
     // Render template
+    if (isset($vars['type'])) {
+        $filename = path_to_theme() . '/' . "$name-$vars[type]" . '.tpl.php';
+    } else {
+        // TODO This should be a fallback, not an else -Ed 2013-01-29
+        $filename = path_to_theme() . '/' . $name . '.tpl.php';
+    }
     ob_start();
     include($filename);
     $output = ob_get_contents();
@@ -61,23 +55,35 @@ function template_render ($name, $vars = NULL) {
 
 /**
  * Assign variables to be set for a template.
- * @param $path The path to the current page
+ * @param $vars The previously set variables.
  */
-function template_preprocess_page ($path = '') {
+function template_preprocess ($vars) {
     global $config_org_name;
     global $config_base_path;
     
-    $variables = array();
-    $variables['scripts'] = theme('scripts');
-    $variables['stylesheets'] = theme('stylesheets');
-    $variables['title'] = title();
-    $variables['org_name'] = $config_org_name;
-    $variables['base_path'] = $config_base_path;
-    $variables['hostname'] = $_SERVER['SERVER_NAME'];
-    $variables['header'] = theme('header');
-    $variables['errors'] = theme('errors');
-    $variables['messages'] = theme('messages');
-    $variables['content'] = theme('page', $path, $_GET);
-    $variables['footer'] = theme('footer');
-    return $variables;
+    $vars['title'] = title();
+    $vars['org_name'] = $config_org_name;
+    $vars['base_path'] = $config_base_path;
+    $vars['hostname'] = $_SERVER['SERVER_NAME'];
+    
+    return $vars;
+}
+
+/**
+ * Assign variables to be set for a template.
+ * @param $vars The previously set variables.
+ */
+function template_preprocess_page ($vars) {
+    global $config_org_name;
+    global $config_base_path;
+    
+    $vars['scripts'] = theme('scripts');
+    $vars['stylesheets'] = theme('stylesheets');
+    $vars['header'] = theme('header');
+    $vars['errors'] = theme('errors');
+    $vars['messages'] = theme('messages');
+    $vars['content'] = theme('page', $vars['path'], $_GET);
+    $vars['footer'] = theme('footer');
+    
+    return $vars;
 }
