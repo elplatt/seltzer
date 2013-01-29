@@ -236,7 +236,12 @@ function theme_member_created_email ($cid) {
 /**
  * Return the text of an email welcoming a new member.
  * @param $cid The contact id of the new member.
+ * @param $confirm_url The url for the new user to confirm their email.
  */
-function theme_member_welcome_email ($cid) {
-    return template_render('welcome-email');
+function theme_member_welcome_email ($cid, $confirm_url) {
+    $vars = array(
+        'type' => 'welcome'
+        , 'confirm_url' => $confirm_url
+    );
+    return template_render('email', $vars);
 }
