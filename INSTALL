@@ -2,26 +2,16 @@
 Seltzer CRM
 Installation Instructions
 
-1. Download the package by going to http://github.com/elplatt/seltzer and
+1. Create an empty MySQL database on your webserver.
+2. Download the package by going to http://github.com/elplatt/seltzer and
 clicking the "ZIP" button.
-
-2. Create an empty MySQL database on your webserver.
-
 3. Unzip the downloaded package.
-
-4. Under seltzer/crm/include, copy config.inc.php.sample to config.inc.php,
+4. Under seltzer/crm/include, copy config.sample.inc.php to config.inc.php,
 and modify it to reflect the settings for your database and organization.
-
-5. Upload the seltzer/crm directory to your webserver.
-Example: /var/www/html/crm
-
-5. Open a web browser and navigate to install.php in the crm directory.
-Example: http://yourserver.com/crm/install.php
-
-6. Enter an email and password for the admin user.
-
-7. You can now log in using "admin" as the username and the password you
+5. Upload the seltzer/crm directory to the document root of your webserver. Example: /var/www/html/crm. If you want to use a directory other than /crm, you will need to update $config_base_path in config.inc.php.
+6. Make sure PHP "magic quotes" are disabled (http://php.net/manual/en/security.magicquotes.disabling.php).
+7. Open a web browser and navigate to install.php in the crm directory. Example: http://yourserver.com/crm/install.php
+8. Enter an email and choose a password for the admin user.
+9. You can now log in using "admin" as the username and the password you
 selected during installation.
-
-8. Optionally go to Members > Import to upload a CSV file of existing members.
-See README for more info.
+10. Optionally go to Members > Import to upload a CSV file of existing members.  See https://github.com/elplatt/seltzer/wiki/HOWTO-Import-Members for more info.
