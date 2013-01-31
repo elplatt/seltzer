@@ -191,7 +191,8 @@ function payment_invert_currency ($value) {
  *   'pmtid' If specified, returns a single payment with the matching id;
  *   'cid' If specified, returns all payments assigned to the contact with specified id;
  *   'filter' An array mapping filter names to filter values;
- *   'join' A list of tables to join to the payment table.
+ *   'join' A list of tables to join to the payment table;
+ *   'order' An array of associative arrays of the form 'field'=>'order'.
  * @return An array with each element representing a single payment.
 */ 
 function payment_data ($opts = array()) {
@@ -235,7 +236,35 @@ function payment_data ($opts = array()) {
             }
         }
     }
-    $sql .= " ORDER BY `date` DESC, `created` DESC";
+    // Specify the order the results should be returned in
+    if (isset($opts['order'])) {
+        $field_list = array();
+        foreach ($opts['order'] as $field => $order) {
+            $clause = '';
+            switch ($field) {
+                case 'date':
+                    $clause .= "`date` ";
+                    break;
+                case 'created':
+                    $clause .= "`created` ";
+                    break;
+                default:
+                    continue;
+            }
+            if (strtolower($order) === 'asc') {
+                $clause .= 'ASC';
+            } else {
+                $clause .= 'DESC';
+            }
+            $field_list[] = $clause;
+        }
+        if (!empty($field_list)) {
+            $sql .= " ORDER BY " . implode(',', $field_list) . " ";
+        }
+    } else {
+        // Default to date, created from newest to oldest
+        $sql .= " ORDER BY `date` DESC, `created` DESC ";
+    }
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
@@ -500,6 +529,10 @@ function payment_history_table ($opts) {
         return array();
     }
     
+    // Show oldest to newest unless otherwise specified
+    if (!isset($opts['order'])) {
+        $opts['order'] = array('date'=>'asc', 'created'=>'asc');
+    }
     $payments = payment_data($opts);
     $balance = null;
     
