@@ -28,7 +28,7 @@
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a member.
 */ 
-function member_data ($opts) {
+function member_data ($opts = array()) {
     
     // Query database
     $sql = "
@@ -336,7 +336,7 @@ function member_plan_options ($opts = NULL) {
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a contact.
 */ 
-function member_contact_data ($opts) {
+function member_contact_data ($opts = array()) {
     
     // Query database
     $sql = "
