@@ -78,8 +78,8 @@ function member_install($old_revision = 0) {
             , '8' => 'webAdmin'
         );
        $default_perms = array(
-            'member' => array('member_view', 'member_membership_view')
-            , 'director' => array('member_plan_edit', 'member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit')
+            'member' => array('member_list', 'member_view', 'member_membership_view')
+            , 'director' => array('member_list', 'member_plan_edit', 'member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit')
         );
         foreach ($roles as $rid => $role) {
             if (array_key_exists($role, $default_perms)) {
