@@ -46,6 +46,9 @@ $(document).ready(function () {
     
     // Set up autocomplete forms
     initAutocomplete();
+    
+    // Enable focusing
+    $('.focus').focus();
 });
 
 var showTab = function (hash) {

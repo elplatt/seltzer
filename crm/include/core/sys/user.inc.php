@@ -493,7 +493,8 @@ function login_form () {
                     array(
                         'type' => 'text',
                         'label' => 'Username or Email',
-                        'name' => 'username'
+                        'name' => 'username',
+                        'class' => 'focus'
                     ),
                     array(
                         'type' => 'password',

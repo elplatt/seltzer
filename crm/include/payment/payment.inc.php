@@ -588,6 +588,7 @@ function payment_add_form () {
                         , 'label' => 'Credit'
                         , 'name' => 'credit'
                         , 'autocomplete' => 'member_name'
+                        , 'class' => 'focus'
                     )
                     , array(
                         'type' => 'text'
