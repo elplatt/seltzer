@@ -119,6 +119,13 @@ function member_page (&$page_data, $page_name, $options) {
                 return;
             }
             
+            // Disallow access if neccessary
+            // TODO: maybe add a nice error message
+            if (!user_access('member_list') && $_GET['cid'] != user_id()) {
+                page_set_title($page_data, "Error");
+                return;
+            }
+
             // Set page title
             page_set_title($page_data, theme('member_contact_name', $cid));
             
