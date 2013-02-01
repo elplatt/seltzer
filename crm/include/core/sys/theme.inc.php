@@ -24,7 +24,12 @@
  * @return the path to the theme folder without leading or trailing slashes.
  */
 function path_to_theme() {
+  global $config_theme;
+  if(strlen($config_theme) > 0) {
+    return "themes/$config_theme";
+  } else {
     return 'themes/inspire';
+  }
 }
 
 /**
