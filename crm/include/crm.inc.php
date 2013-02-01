@@ -21,14 +21,14 @@
 */
 
 // Configuration ///////////////////////////////////////////////////////////////
-require_once('config.inc.php');
+require_once($crm_root . '/config.inc.php');
 
 // Add core modules
 array_unshift($config_modules, 'core');
 
 // Optional Modules ////////////////////////////////////////////////////////////
 foreach ($config_modules as $module) {
-    require_once($module . '/' . $module . '.inc.php');
+    require_once($crm_root. '/modules/' . $module . '/' . $module . '.inc.php');
 }
 
 // Initialize //////////////////////////////////////////////////////////////////
