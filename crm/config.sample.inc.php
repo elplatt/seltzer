@@ -46,6 +46,10 @@ $config_host = $_SERVER['SERVER_NAME'];
 // The url path of the crm directory
 $config_base_path = '/crm/';
 
+// The name of the theme you want to use
+// (currently there is only one, "inspire".)
+$config_theme = "inspire";
+
 // Modules
 $config_modules = array(
     "variable",

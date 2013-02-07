@@ -133,7 +133,7 @@ function command_member_add () {
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
     if (!empty($config_email_to)) {
         $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
-        $content = theme('member_created_email', $esc_cid);
+        $content = theme('member_created_email', $user['cid']);
         mail($config_email_to, "New Member: $name", $content, $headers);
     }
     
@@ -454,6 +454,7 @@ function command_contact_update () {
  * @return The url to display on completion.
  */
 function command_member_import () {
+    global $config_org_name;
     
     if (!user_access('contact_edit')) {
         error_register('User does not have permission: contact_edit');
@@ -597,14 +598,15 @@ function command_member_import () {
         $from = "\"$config_org_name\" <$config_email_from>";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         if (!empty($config_email_to)) {
-            $name = member_name($row['firstname'], $row['middlename'], $row['lastname']);
-            $content = theme('member_created_email', $esc_cid);
+            $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
+            $content = theme('member_created_email', $user['cid']);
             mail($config_email_to, "New Member: $name", $content, $headers);
         }
         
         // Notify user
-        $content = theme('member_welcome_email', $esc_cid);
-        mail($row['email'], "Welcome to $config_org_name", $content, $headers);
+        $confirm_url = user_reset_password_url($user['username']);
+        $content = theme('member_welcome_email', $user['cid'], $confirm_url);
+        mail($email, "Welcome to $config_org_name", $content, $headers);
     }
     
     return 'index.php?q=members';
