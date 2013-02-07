@@ -454,6 +454,7 @@ function command_contact_update () {
  * @return The url to display on completion.
  */
 function command_member_import () {
+    global $config_org_name;
     
     if (!user_access('contact_edit')) {
         error_register('User does not have permission: contact_edit');
@@ -605,7 +606,7 @@ function command_member_import () {
         // Notify user
         $confirm_url = user_reset_password_url($user['username']);
         $content = theme('member_welcome_email', $user['cid'], $confirm_url);
-        mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
+        mail($email, "Welcome to $config_org_name", $content, $headers);
     }
     
     return 'index.php?q=members';
