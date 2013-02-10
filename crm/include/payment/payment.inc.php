@@ -87,9 +87,7 @@ function payment_parse_currency ($value, $code = null) {
     if (preg_match('/^\(.*\)$/', $value) || preg_match('/^\-/', $value)) {
         $sign = -1;
     }
-    if (preg_match('/^\(.*\)£/', $value) || preg_match('/^\-/', $value)) {
-        $sign = -1;
-    }
+    
     // Remove all irrelevant characters
     switch ($code) {
         case 'USD':
