@@ -25,7 +25,7 @@
  * this number.
  */
 function contact_revision () {
-    return 3;
+    return 1;
 }
 
 /**
@@ -53,7 +53,72 @@ function contact_permissions () {
 //require_once('utility.inc.php');
 
 // DB to Object mapping ////////////////////////////////////////////////////////
-//require_once('data.inc.php');
+
+/**
+ * Return data for one or more contacts.
+ * 
+ * @param $opts An associative array of options, possible keys are:
+ *   'cid' A cid or array of cids to return contacts for.
+ *   'filter' An array mapping filter names to filter values
+ * @return An array with each element representing a contact.
+*/ 
+function contact_data ($opts = array()) {
+    
+    // Query database
+    $sql = "
+        SELECT * FROM `contact`
+        WHERE 1";
+        
+    // Add contact id
+    if ($opts['cid']) {
+        if (is_array($opts['cid'])) {
+            $terms = array();
+            foreach ($opts['cid'] as $cid) {
+                $terms[] = "'" . mysql_real_escape_string($cid) . "'";
+            }
+            $esc_list = '(' . implode(',', $terms) . ')';
+            $sql .= " AND `cid` IN $esc_list";
+        } else {
+            $esc_cid = mysql_real_escape_string($opts['cid']);
+            $sql .= " AND `cid`='$esc_cid'";
+        }
+    }
+    
+    // Add filters
+    if (isset($opts['filter'])) {
+        foreach ($opts['filter'] as $name => $param) {
+            switch ($name) {
+                default:
+                break;
+            }
+        }
+    }
+
+    $sql .= "
+        ORDER BY `lastName`, `firstName`, `middleName` ASC";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    
+    // Store data
+    $contacts = array();
+    $row = mysql_fetch_assoc($res);
+    while (!empty($row)) {
+        $contacts[] = array(
+            'cid' => $row['cid'],
+            'firstName' => $row['firstName'],
+            'middleName' => $row['middleName'],
+            'lastName' => $row['lastName'],
+            'email' => $row['email'],
+            'phone' => $row['phone'],
+            'emergencyName' => $row['emergencyName'],
+            'emergencyPhone' => $row['emergencyPhone']
+        );
+        $row = mysql_fetch_assoc($res);
+    }
+    
+    // Return data
+    return $contacts;
+}
 
 // Autocomplete functions //////////////////////////////////////////////////////
 //require_once('autocomplete.inc.php');

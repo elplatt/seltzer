@@ -329,67 +329,14 @@ function member_plan_options ($opts = NULL) {
 }
 
 /**
- * Return data for one or more contacts.
+ * Return data for one or more contacts.  Use contact_data() instead.
  * 
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified returns the corresponding member (or members for an array);
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a contact.
+ * @deprecated
 */ 
 function member_contact_data ($opts = array()) {
-    
-    // Query database
-    $sql = "
-        SELECT * FROM `contact`
-        WHERE 1";
-        
-    // Add contact id
-    if ($opts['cid']) {
-        if (is_array($opts['cid'])) {
-            $terms = array();
-            foreach ($opts['cid'] as $cid) {
-                $terms[] = "'" . mysql_real_escape_string($cid) . "'";
-            }
-            $esc_list = '(' . implode(',', $terms) . ')';
-            $sql .= " AND `cid` IN $esc_list";
-        } else {
-            $esc_cid = mysql_real_escape_string($opts['cid']);
-            $sql .= " AND `cid`='$esc_cid'";
-        }
-    }
-    
-    // Add filters
-    if (isset($opts['filter'])) {
-        foreach ($opts['filter'] as $name => $param) {
-            switch ($name) {
-                default:
-                break;
-            }
-        }
-    }
-
-    $sql .= "
-        ORDER BY `lastName`, `firstName`, `middleName` ASC";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
-    // Store data
-    $contacts = array();
-    $row = mysql_fetch_assoc($res);
-    while (!empty($row)) {
-        $contacts[] = array(
-            'cid' => $row['cid'],
-            'firstName' => $row['firstName'],
-            'middleName' => $row['middleName'],
-            'lastName' => $row['lastName'],
-            'email' => $row['email'],
-            'phone' => $row['phone'],
-            'emergencyName' => $row['emergencyName'],
-            'emergencyPhone' => $row['emergencyPhone']
-        );
-        $row = mysql_fetch_assoc($res);
-    }
-    
-    // Return data
-    return $contacts;
+    return contact_data($opts);
 }
