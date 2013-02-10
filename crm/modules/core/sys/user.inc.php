@@ -637,9 +637,18 @@ function command_reset_password () {
     global $config_site_title;
     
     // Send code to user
-    $url = user_reset_password_url($_POST['username']);
+    $user_data = user_data(array('filter'=>array('username'=>$_POST['username'])));
+    if (count($user_data) < 1) {
+        error_register('No such username');
+        return 'index.php';
+    }
+    $user = $user_data[0];
+    // TODO this should be contact_data() once the contact module exists
+    $contact_data = member_contact_data(array('cid'=>$user['cid']));
+    $contact = $contact_data[0];
+    $url = user_reset_password_url($user['username']);
     if (!empty($url)) {
-        $to = $row['email'];
+        $to = $contact['email'];
         $subject = "[$config_site_title] Reset Password";
         $from = $config_email_from;
         $headers = "From: $from\r\n";
