@@ -34,6 +34,9 @@ $config_site_title = 'Seltzer CRM';
 // The name of the organization to insert into templates
 $config_org_name = 'Seltzer CRM';
 
+// The currency code for dealing with payments, can be either GBP or USD
+$config_currency_code = 'USD';
+
 // The From: address to use when sending email to members
 $config_email_from = '';
 
