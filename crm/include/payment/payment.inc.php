@@ -76,9 +76,11 @@ function payment_install($old_revision = 0) {
  * @param $code Optional currency code.
  */
 function payment_parse_currency ($value, $code = null) {
+    
+    global $config_currency_code;
+    
     if (!isset($code)) {
-        // TODO replace this with global default -Ed 2013-01-13
-        $code = 'USD';
+        $code = $config_currency_code;
     }
     // Determine sign
     $sign = 1;
