@@ -60,6 +60,7 @@ $config_modules = array(
     "key",
     "payment",
     "amazon_payment",
+    "paypal_payment",
     "billing"
 );
 
