@@ -86,10 +86,15 @@ function payment_parse_currency ($value, $code = null) {
     $sign = 1;
     if (preg_match('/^\(.*\)$/', $value) || preg_match('/^\-/', $value)) {
         $sign = -1;
+    if (preg_match('/^\(.*\)£/', $value) || preg_match('/^\-/', $value)) {
+        $sign = -1;
     }
     // Remove all irrelevant characters
     switch ($code) {
         case 'USD':
+            $to_remove = '/[^0-9\.]/';
+            break;
+        case 'GBP':
             $to_remove = '/[^0-9\.]/';
             break;
         default:
@@ -107,6 +112,18 @@ function payment_parse_currency ($value, $code = null) {
                 // This assumes there are exactly two digits worth of cents
                 if (strlen($parts[1]) != 2) {
                     error_register("Warning: parsing of cents failed: '$parts[1]'");
+                }
+                $count += intval($parts[1]);
+            }
+            break;
+        case 'GBP':
+            $parts = split('\.', $clean_value);
+            $pounds = $parts[0];
+            $count = 100 * $pounds;
+            if (count($parts) > 1 && !empty($parts[1])) {
+                // This assumes there are exactly two digits worth of pence
+                if (strlen($parts[1]) != 2) {
+                    error_register("Warning: parsing of pence failed: '$parts[1]'");
                 }
                 $count += intval($parts[1]);
             }
@@ -147,6 +164,22 @@ function payment_format_currency ($value, $symbol = true) {
                 $result .= '$';
             }
             $result .= $dollars . '.' . $cents;
+            if ($sign < 0) {
+                $result = '(' . $result . ')';
+            }
+            break;
+        case 'GBP':
+            if (strlen($count) > 2) {
+                $pounds = substr($count, 0, -2);
+                $pence = substr($count, -2);
+            } else {
+                $pounds = '0';
+                $pence = sprintf('%02d', $count);
+            }
+            if ($symbol) {
+                $result .= '£';
+            }
+            $result .= $pounds . '.' . $pence;
             if ($sign < 0) {
                 $result = '(' . $result . ')';
             }
