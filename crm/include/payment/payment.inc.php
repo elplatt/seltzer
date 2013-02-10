@@ -86,6 +86,7 @@ function payment_parse_currency ($value, $code = null) {
     $sign = 1;
     if (preg_match('/^\(.*\)$/', $value) || preg_match('/^\-/', $value)) {
         $sign = -1;
+    }
     if (preg_match('/^\(.*\)£/', $value) || preg_match('/^\-/', $value)) {
         $sign = -1;
     }
