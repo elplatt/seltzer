@@ -105,7 +105,7 @@ function member_data ($opts = array()) {
     $sql .= " ORDER BY `lastName`, `firstName`, `middleName` ASC ";
 
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     // Store data
     $members = array();
@@ -152,7 +152,7 @@ function member_data ($opts = array()) {
             ORDER BY `membership`.`start` ASC
         ";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         
         // Add each membership
         $row = mysql_fetch_assoc($res);
@@ -178,6 +178,48 @@ function member_data ($opts = array()) {
     
     // Return data
     return $members;
+}
+
+/**
+ * Update member data when a contact is updated.
+ * @param $contact The contact data array.
+ * @param $op The operation being performed.
+ */
+function member_contact_api ($contact, $op) {
+    // Check whether the contact is a member
+    if (!isset($contact['member'])) {
+        return $contact;
+    }
+    $member = $contact['member'];
+    $esc_cid = mysql_real_escape_string($contact['cid']);
+    switch ($op) {
+        case 'create':
+            // Add member
+            $sql = "
+                INSERT INTO `member`
+                (`cid`)
+                VALUES
+                ('$esc_cid')";
+            $res = mysql_query($sql);
+            if (!$res) crm_error(mysql_error());
+            $contact['member']['cid'] = $contact['cid'];
+            // Save memberships
+            if (isset($member['membership'])) {
+                foreach ($member['membership'] as $i => $membership) {
+                    $membership = member_membership_save($membership);
+                    $member['membership'][$i] = $membership;
+                }
+            }
+            break;
+        case 'update':
+            // TODO
+            break;
+    }
+    // Save the user object
+    // TODO Move this to the user module once it is created
+    $contact['user']['cid'] = $contact['cid'];
+    user_save($contact['user']);
+    return $contact;
 }
 
 /**
@@ -212,7 +254,7 @@ function member_plan_data ($opts) {
 
     // Query database for plans
     $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    if (!$res) { crm_error(mysql_error()); }
     
     // Store plans
     $plans = array();
@@ -280,7 +322,7 @@ function member_membership_data ($opts) {
     $sql .= "
         ORDER BY `start` DESC";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     // Store data
     $memberships = array();
@@ -305,6 +347,31 @@ function member_membership_data ($opts) {
     
     // Return data
     return $memberships;
+}
+
+/**
+ * Save a membership.  A membership represents a specific member's plan at
+ * for a specific time period.
+ * @param $membership
+ * @return $membership
+ */
+function member_membership_save ($membership) {
+    if (isset($membership['sid'])) {
+        // Update
+        // TODO
+    } else {
+        // Insert
+        $sql = "
+            INSERT INTO `membership`
+            (`cid`, `pid`, `start`)
+            VALUES
+            ('$esc_cid', '$esc_post[pid]', '$esc_post[start]')
+        ";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        $membership['sid'] = mysql_insert_id();
+    }
+    return $membership;
 }
 
 /**

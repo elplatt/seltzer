@@ -49,3 +49,42 @@ function links () {
     global $config_links;
     return $config_links;
 }
+
+/**
+ * Return a url to an internal path.
+ * @param $path The path to convert to a url.
+ * @param $opts An associative array of options.  Keys are:
+ *   'query' - An array of query paramters to add to the url.
+ * @return A string containing the url.
+ */
+function crm_url ($path, $opts) {
+    $url = base_path() . "index.php?q=$path";
+    if (isset($opts['query'])) {
+        foreach ($opts['query'] as $key => $value) {
+            $url .= "&$key=$value";
+        }
+    }
+    return $url;
+}
+
+/**
+ * Return a link.
+ * @param $text The text of the link.
+ * @param $path The path to link to.
+ * @param $opts Options array to pass to crm_url().
+ * @return A string containing the html link.
+ */
+function crm_link ($text, $path, $opts = array()) {
+    return '<a href="' . crm_url($path, $opts) . '">' . $text . '</a>';
+}
+
+/**
+ * Die and print and print a debug backtrace.
+ * @param $text
+ */
+function crm_error ($text) {
+    print "<pre>$text";
+    print_r(debug_backtrace());
+    print "</pre>";
+    die();
+}

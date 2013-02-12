@@ -88,12 +88,8 @@ function member_table ($opts = NULL) {
         if (user_access('member_view')) {
             
             // Construct name
-            $name = $member['contact']['lastName'] . ", ";
-            $name .= $member['contact']['firstName'];
-            if (!empty($member['contact']['middleName'])) {
-                $name .= ' ' . $member['contact']['middleName'];
-            }
-            $name_link = '<a href="index.php?q=member&cid=' . $member['cid'] . '">' . $name . '</a>';
+            $contact = $member['contact'];
+            $name_link = theme('contact_name', $contact, true, 'member');
             // Construct membership info
             $recentMembership = end($member['membership']);
             $plan = '';

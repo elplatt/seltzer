@@ -47,18 +47,7 @@ function command_member_add () {
         return 'index.php?q=members.php';
     }
     
-    // Add contact
-    $sql = "
-        INSERT INTO `contact`
-        (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
-        VALUES
-        ('$esc_post[firstName]','$esc_post[middleName]','$esc_post[lastName]','$esc_post[email]','$esc_post[phone]','$esc_post[emergencyName]','$esc_post[emergencyPhone]')";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $cid = mysql_insert_id();
-    $esc_cid = mysql_real_escape_string($cid);
-    
-    // Find Username
+    // Find username or create a new one
     $username = $_POST['username'];
     $n = 0;
     while (empty($username) && $n < 100) {
@@ -73,7 +62,7 @@ function command_member_add () {
         $esc_test_name = mysql_real_escape_string($test_username);
         $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         $row = mysql_fetch_assoc($res);
         if (!$row) {
             $username = $test_username;
@@ -85,18 +74,38 @@ function command_member_add () {
         return 'index.php?q=members&tab=add';
     }
     
-    // Add user
-
-    $user = array();
-    $user['username'] = $username;
-    $user['cid'] = $cid;
-    user_save($user);
-     
+    // Build contact object
+    $contact = array(
+        'firstName' => $_POST['firstName']
+        , 'middleName' => $_POST['middleName']
+        , 'lastName' => $_POST['lastName']
+        , 'email' => $_POST['email']
+        , 'phone' => $_POST['phone']
+        , 'emergencyName' => $_POST['emergencyName']
+        , 'emergencyPhone' => $_POST['emergencyPhone']
+    );
+    // Add user fields
+    $user = array('username' => $username);
+    $contact['user'] = $user;
+    // Add member fields
+    $membership = array(
+        'pid' => $_POST['pid']
+        , 'start' => $_POST['start']
+    );
+    $member = array('membership' => $membership);
+    $contact['member'] = $member;
+    // Add user fields
+    $user = array('username' => $username);
+    $contact['user'] = $user;
+    // Save to database
+    $contact = contact_save($contact);
+    
     // Add role entry
     $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     $row = mysql_fetch_assoc($res);
+    $esc_cid = mysql_real_escape_string($contact['cid']);
     $esc_rid = mysql_real_escape_string($row['rid']);
     
     if ($row) {
@@ -106,28 +115,9 @@ function command_member_add () {
             VALUES
             ('$esc_cid', '$esc_rid')";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
-    
-    // Add member
-    $sql = "
-        INSERT INTO `member`
-        (`cid`)
-        VALUES
-        ('$esc_cid')";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
-    // Add membership
-    $sql = "
-        INSERT INTO `membership`
-        (`cid`, `pid`, `start`)
-        VALUES
-        ('$cid', '$esc_post[pid]', '$esc_post[start]')
-    ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
+        
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
@@ -168,7 +158,7 @@ function command_member_plan_add () {
     ";
     
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     return "index.php?q=plans";
 }
@@ -199,7 +189,7 @@ function command_member_plan_update () {
     ";
     
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     return "index.php?q=plans";
 }
@@ -221,7 +211,7 @@ function command_member_plan_delete () {
     // Delete plan
     $sql = "DELETE FROM `plan` WHERE `pid`='$esc_post[pid]'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
 
     return 'index.php?q=plans';
 }
@@ -261,7 +251,7 @@ function command_member_membership_add () {
     $sql .= ")";
     
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     return "index.php?q=member&cid=$_POST[cid]";
 }
@@ -306,7 +296,7 @@ function command_member_membership_update () {
     ";
     
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     return "index.php?q=member&cid=$_POST[cid]&tab=plan";
 }
@@ -373,22 +363,22 @@ function command_member_delete () {
     if ($_POST['deleteUser']) {
         $sql = "DELETE FROM `user` WHERE `cid`='$esc_post[cid]'";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
     
     // Delete member
     $sql = "DELETE FROM `member` WHERE `cid`='$esc_post[cid]'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     // Delete contact info
     if ($_POST['deleteContact']) {
         $sql = "DELETE FROM `contact` WHERE `cid`='$esc_post[cid]'";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
 
     return 'index.php?q=members';
@@ -411,7 +401,7 @@ function command_member_membership_delete () {
     // Delete membership
     $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
 
     return 'index.php?q=members';
 }
@@ -443,7 +433,7 @@ function command_contact_update () {
         `emergencyPhone`='$esc_post[emergencyPhone]'
         WHERE `cid`='$esc_post[cid]'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     return 'index.php?q=members';
 }
@@ -497,7 +487,7 @@ function command_member_import () {
             VALUES
             ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         $cid = mysql_insert_id();
         $esc_cid = mysql_real_escape_string($cid);
         
@@ -508,7 +498,7 @@ function command_member_import () {
             VALUES
             ('$esc_cid')";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
             
         // Find Username
  
@@ -526,7 +516,7 @@ function command_member_import () {
             $esc_test_name = mysql_real_escape_string($test_username);
             $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
             $user_row = mysql_fetch_assoc($res);
             if (!$user_row) {
                 $username = $test_username;
@@ -547,7 +537,7 @@ function command_member_import () {
         // Add role entry
         $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         $role_row = mysql_fetch_assoc($res);
         $esc_rid = mysql_real_escape_string($role_row['rid']);
         
@@ -558,14 +548,14 @@ function command_member_import () {
                 VALUES
                 ('$esc_cid', '$esc_rid')";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
         }
         
         // Add plan if necessary
         $esc_plan_name = mysql_real_escape_string($row['plan']);
         $sql = "SELECT `pid` FROM `plan` WHERE `name`='$esc_plan_name'";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         if (mysql_num_rows($res) < 1) {
             $sql = "
                 INSERT INTO `plan`
@@ -574,7 +564,7 @@ function command_member_import () {
                 ('$esc_plan_name', '1')
             ";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
             $pid = mysql_insert_id();
         } else {
             $plan_row = mysql_fetch_assoc($res);
@@ -592,7 +582,7 @@ function command_member_import () {
             ('$esc_cid', '$esc_pid', '$esc_start')
         ";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         
         // Notify admins
         $from = "\"$config_org_name\" <$config_email_from>";
@@ -653,7 +643,7 @@ function command_member_plan_import () {
             VALUES
             ('$name','$price','$active','$voting')";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         $pid = mysql_insert_id();
     }
     

@@ -334,3 +334,45 @@ function module_init () {
         }
     }
 }
+
+/**
+ * Invoke a hook in all modules.
+ * @param $hook The hook name.
+ * @return An array of results returned from each hook.  If hooks return an
+ *   array, it will be merged with other results.
+ */
+function module_invoke_all ($hook) {
+    $args = func_get_args();
+    $hook_name = array_shift($args);
+    // Call hook for each module
+    $results = array();
+    foreach (module_list() as $module) {
+        $hook = $module . '_' . $hook_name;
+        if (function_exists($hook)) {
+            $result = call_user_func_array($hook, $args);
+            if (is_array($result)) {
+                $results = array_merge($results, $result);
+            } else {
+                $results[] = $result;
+            }
+        }
+    }
+    return $result;
+}
+
+/**
+ * Invoke an entity api in all modules.
+ */
+function module_invoke_api ($type, $entity, $op) {
+    $args = func_get_args();
+    $type = array_shift($args);
+    $modules = module_list();
+    foreach ($modules as $module) {
+        $hook = "${module}_${type}_api";
+        if (function_exists($hook)) {
+            $entity = call_user_func_array($hook, $args);
+            $args[0] = $entity;
+        }
+    }
+    return $entity;
+}

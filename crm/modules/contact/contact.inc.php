@@ -97,7 +97,7 @@ function contact_data ($opts = array()) {
     $sql .= "
         ORDER BY `lastName`, `firstName`, `middleName` ASC";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     
     // Store data
     $contacts = array();
@@ -120,8 +120,68 @@ function contact_data ($opts = array()) {
     return $contacts;
 }
 
+/**
+ * Saves a contact.
+ */
+function contact_save ($contact) {
+    $fields = array('cid', 'firstName', 'middleName', 'lastName', 'email', 'phone', 'emergencyName', 'emergencyPhone');
+    $escaped = array();
+    foreach ($fields as $field) {
+        $escaped[$field] = mysql_real_escape_string($contact[$field]);
+    }
+    if (isset($contact['cid'])) {
+        // Update contact
+        $sql = "
+            UPDATE `contact`
+            SET `firstName`='$escaped[firstName]'
+                , `middleName`='$escaped[middleName]'
+                , `lastName`='$escaped[middleName]'
+                , `email`='$escaped[email]'
+                , `phone`='$escaped[phone]'
+                , `emergencyName`='$escaped[emergencyName]
+                , `emergencyPhone`='$escaped[emergencyPhone]
+            WHERE `cid`='$escaped[cid]
+        ";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        if (mysql_affected_rows() < 1) {
+            return null;
+        }
+        $contact = module_invoke_api('contact', $contact, 'update');
+    } else {
+        // Add contact
+        $sql = "
+            INSERT INTO `contact`
+            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
+            VALUES
+            ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[emergencyName]','$escaped[emergencyPhone]')";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        $contact['cid'] = mysql_insert_id();
+        $contact = module_invoke_api('contact', $contact, 'create');
+    }
+    return $contact;
+}
+
 // Autocomplete functions //////////////////////////////////////////////////////
-//require_once('autocomplete.inc.php');
+
+/**
+ * Return a list of contacts matching a text fragment.
+ * @param $fragment
+ */
+function contact_name_autocomplete ($fragment) {
+    $data = array();
+    if (user_access('contact_view')) {
+        $contacts = contact_data(array('filter'=>array('nameLike'=>$fragment)));
+        foreach ($contacts as $contact) {
+            $row = array();
+            $row['value'] = $contact['cid'];
+            $row['label'] = theme('contact_name', $contact);
+            $data[] = $row;
+        }
+    }
+    return $data;
+}
 
 // Table data structures ///////////////////////////////////////////////////////
 //require_once('table.inc.php');
@@ -139,6 +199,30 @@ function contact_data ($opts = array()) {
 //require_once('report.inc.php');
 
 // Themeing ////////////////////////////////////////////////////////////////////
-//require_once('theme.inc.php');
+
+/**
+ * Theme a contact's name.
+ * 
+ * @param $contact
+ * @param $link True if the name should be a link (default: false).
+ * @param $path The path that should be linked to.  The cid will always be added
+ *   as a parameter.
+ *
+ * @return the name string.
+ */
+function theme_contact_name ($contact, $link = false, $path = 'contact') {
+    $first = $contact['firstName'];
+    $middle = $contact['middleName'];
+    $last = $contact['lastName'];
+    $name = "$last, $first";
+    if (!empty($middle)) {
+        $name .= " $middle";
+    }
+    if ($link) {
+        $url_opts = array('query' => array('cid' => $contact['cid']));
+        $name = crm_link($name, $path, $url_opts);
+    }
+    return $name;
+}
 
 ?>
