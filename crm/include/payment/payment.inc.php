@@ -96,6 +96,9 @@ function payment_parse_currency ($value, $code = null) {
         case 'GBP':
             $to_remove = '/[^0-9\.]/';
             break;
+        case 'EUR':
+            $to_remove = '/[^0-9\.]/';
+            break;
         default:
             $to_remove = '//';
     }
@@ -123,6 +126,18 @@ function payment_parse_currency ($value, $code = null) {
                 // This assumes there are exactly two digits worth of pence
                 if (strlen($parts[1]) != 2) {
                     error_register("Warning: parsing of pence failed: '$parts[1]'");
+                }
+                $count += intval($parts[1]);
+            }
+            break;
+        case 'EUR':
+            $parts = split('\.', $clean_value);
+            $euros = $parts[0];
+            $count = 100 * $euros;
+            if (count($parts) > 1 && !empty($parts[1])) {
+                // This assumes there are exactly two digits worth of cents
+                if (strlen($parts[1]) != 2) {
+                    error_register("Warning: parsing of cents failed: '$parts[1]'");
                 }
                 $count += intval($parts[1]);
             }
@@ -179,6 +194,22 @@ function payment_format_currency ($value, $symbol = true) {
                 $result .= '£';
             }
             $result .= $pounds . '.' . $pence;
+            if ($sign < 0) {
+                $result = '(' . $result . ')';
+            }
+            break;
+        case 'EUR':
+            if (strlen($count) > 2) {
+                $euros = substr($count, 0, -2);
+                $cents = substr($count, -2);
+            } else {
+                $euros = '0';
+                $cents = sprintf('%02d', $count);
+            }
+            if ($symbol) {
+                $result .= '€';
+            }
+            $result .= $euros . '.' . $cents;
             if ($sign < 0) {
                 $result = '(' . $result . ')';
             }
