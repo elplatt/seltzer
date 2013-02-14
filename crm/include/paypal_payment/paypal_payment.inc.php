@@ -171,7 +171,7 @@ function paypal_payment_payment_api ($payment, $op) {
     if ($payment['method'] !== 'paypal') {
         return;
     }
-
+    
     $email = $payment['paypal_email'];
     $pmtid = $payment['pmtid'];
     $credit_cid = $payment['credit_cid'];
@@ -401,13 +401,13 @@ function command_paypal_payment_import () {
         }
         
         // Parse value
-        $value = payment_parse_currency($row['Amount']);
+        $value = payment_parse_currency($row['Gross']);
         
         // Create payment object
         $payment = array(
             'date' => date('Y-m-d', strtotime($row['Date']))
-            , 'code' => $value['Currency']
-            , 'value' => $value['Gross']
+            , 'code' => $value['code']
+            , 'value' => $value['value']
             , 'description' => $row['Name'] . ' Paypal Payment'
             , 'method' => 'paypal'
             , 'confirmation' => $row['Transaction ID']
