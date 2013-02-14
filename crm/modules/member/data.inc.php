@@ -215,6 +215,7 @@ function member_contact_api ($contact, $op) {
             // TODO
             break;
     }
+    $contact['member'] = $member;
     // Save the user object
     // TODO Move this to the user module once it is created
     $contact['user']['cid'] = $contact['cid'];
