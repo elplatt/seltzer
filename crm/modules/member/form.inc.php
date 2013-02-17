@@ -30,81 +30,49 @@ function member_add_form () {
         return NULL;
     }
     
+    // Start with contact form
+    $form = contact_add_form();
+    
     // Generate default start date, first of current month
     $start = date("Y-m-01");
     
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'member_add',
+    // Change form command
+    $form['command'] = 'member_add';
+    
+    // Add member data
+    $submit = array_pop($form['fields']);
+    $form['fields'][] = array(
+        'type' => 'fieldset',
+        'label' => 'User Info',
         'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Add Member',
-                'fields' => array(
-                    array(
-                        'type' => 'text',
-                        'label' => 'First Name',
-                        'name' => 'firstName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Middle Name',
-                        'name' => 'middleName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Last Name',
-                        'name' => 'lastName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Email',
-                        'name' => 'email'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Phone',
-                        'name' => 'phone'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Emergency Contact',
-                        'name' => 'emergencyName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Emergency Phone',
-                        'name' => 'emergencyPhone'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Username',
-                        'name' => 'username'
-                    ),
-                    array(
-                        'type' => 'select',
-                        'label' => 'Plan',
-                        'name' => 'pid',
-                        'selected' => $member['plan']['pid'],
-                        'options' => member_plan_options(array('filter'=>array('active'=>true)))
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Start Date',
-                        'name' => 'start',
-                        'value' => $start,
-                        'class' => 'date'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Add'
-                    )
-                )
+                'type' => 'text',
+                'label' => 'Username',
+                'name' => 'username'
             )
         )
     );
+    $form['fields'][] = array(
+        'type' => 'fieldset',
+        'label' => 'Membership Info',
+        'fields' => array(
+            array(
+                'type' => 'select',
+                'label' => 'Plan',
+                'name' => 'pid',
+                'selected' => $member['plan']['pid'],
+                'options' => member_plan_options(array('filter'=>array('active'=>true)))
+            ),
+            array(
+                'type' => 'text',
+                'label' => 'Start Date',
+                'name' => 'start',
+                'value' => $start,
+                'class' => 'date'
+            )
+        )
+    );
+    $form['fields'][] = $submit;
     
     return $form;
 }

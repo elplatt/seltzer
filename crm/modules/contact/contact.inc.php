@@ -187,7 +187,72 @@ function contact_name_autocomplete ($fragment) {
 //require_once('table.inc.php');
 
 // Forms ///////////////////////////////////////////////////////////////////////
-//require_once('form.inc.php');
+/**
+ * @return The form structure for adding a member.
+*/
+function contact_add_form () {
+    
+    // Ensure user is allowed to add contact
+    if (!user_access('contact_add')) {
+        return NULL;
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'contact_add',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Contact Info',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'First Name',
+                        'name' => 'firstName'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Middle Name',
+                        'name' => 'middleName'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Last Name',
+                        'name' => 'lastName'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Email',
+                        'name' => 'email'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Phone',
+                        'name' => 'phone'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Emergency Contact',
+                        'name' => 'emergencyName'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Emergency Phone',
+                        'name' => 'emergencyPhone'
+                    )
+                )
+            ),
+            array(
+                'type' => 'submit',
+                'value' => 'Add'
+            )
+        )
+    );
+    
+    return $form;
+}
 
 // Request Handlers ////////////////////////////////////////////////////////////
 //require_once('command.inc.php');
