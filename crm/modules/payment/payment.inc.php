@@ -76,18 +76,27 @@ function payment_install($old_revision = 0) {
  * @param $code Optional currency code.
  */
 function payment_parse_currency ($value, $code = null) {
+    
+    global $config_currency_code;
+    
     if (!isset($code)) {
-        // TODO replace this with global default -Ed 2013-01-13
-        $code = 'USD';
+        $code = $config_currency_code;
     }
     // Determine sign
     $sign = 1;
     if (preg_match('/^\(.*\)$/', $value) || preg_match('/^\-/', $value)) {
         $sign = -1;
     }
+    
     // Remove all irrelevant characters
     switch ($code) {
         case 'USD':
+            $to_remove = '/[^0-9\.]/';
+            break;
+        case 'GBP':
+            $to_remove = '/[^0-9\.]/';
+            break;
+        case 'EUR':
             $to_remove = '/[^0-9\.]/';
             break;
         default:
@@ -101,6 +110,30 @@ function payment_parse_currency ($value, $code = null) {
             $parts = split('\.', $clean_value);
             $dollars = $parts[0];
             $count = 100 * $dollars;
+            if (count($parts) > 1 && !empty($parts[1])) {
+                // This assumes there are exactly two digits worth of cents
+                if (strlen($parts[1]) != 2) {
+                    error_register("Warning: parsing of cents failed: '$parts[1]'");
+                }
+                $count += intval($parts[1]);
+            }
+            break;
+        case 'GBP':
+            $parts = split('\.', $clean_value);
+            $pounds = $parts[0];
+            $count = 100 * $pounds;
+            if (count($parts) > 1 && !empty($parts[1])) {
+                // This assumes there are exactly two digits worth of pence
+                if (strlen($parts[1]) != 2) {
+                    error_register("Warning: parsing of pence failed: '$parts[1]'");
+                }
+                $count += intval($parts[1]);
+            }
+            break;
+        case 'EUR':
+            $parts = split('\.', $clean_value);
+            $euros = $parts[0];
+            $count = 100 * $euros;
             if (count($parts) > 1 && !empty($parts[1])) {
                 // This assumes there are exactly two digits worth of cents
                 if (strlen($parts[1]) != 2) {
@@ -145,6 +178,38 @@ function payment_format_currency ($value, $symbol = true) {
                 $result .= '$';
             }
             $result .= $dollars . '.' . $cents;
+            if ($sign < 0) {
+                $result = '(' . $result . ')';
+            }
+            break;
+        case 'GBP':
+            if (strlen($count) > 2) {
+                $pounds = substr($count, 0, -2);
+                $pence = substr($count, -2);
+            } else {
+                $pounds = '0';
+                $pence = sprintf('%02d', $count);
+            }
+            if ($symbol) {
+                $result .= '£';
+            }
+            $result .= $pounds . '.' . $pence;
+            if ($sign < 0) {
+                $result = '(' . $result . ')';
+            }
+            break;
+        case 'EUR':
+            if (strlen($count) > 2) {
+                $euros = substr($count, 0, -2);
+                $cents = substr($count, -2);
+            } else {
+                $euros = '0';
+                $cents = sprintf('%02d', $count);
+            }
+            if ($symbol) {
+                $result .= '€';
+            }
+            $result .= $euros . '.' . $cents;
             if ($sign < 0) {
                 $result = '(' . $result . ')';
             }

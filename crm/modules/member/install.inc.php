@@ -91,4 +91,19 @@ function member_install($old_revision = 0) {
             }
         }
     }
+    if ($old_revision < 3) {
+        $default_perms = array(
+            'director' => array('payment_view', 'payment_edit', 'payment_delete'),
+            'webAdmin' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit',  'member_plan_edit', 'key_view', 'key_edit', 'key_delete', 'payment_view', 'payment_edit', 'payment_delete',  'user_add',  'user_edit',  'user_delete',  'user_role_edit',  'user_permissions_edit',  'module_upgrade',  'contact_view',  'contact_add',  'contact_edit',  'contact_delete')
+        );
+        foreach ($roles as $rid => $role) {
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                    $res = mysql_query($sql);
+                    if (!$res) die(mysql_error());
+                }
+            }
+        }
+    }
 }
