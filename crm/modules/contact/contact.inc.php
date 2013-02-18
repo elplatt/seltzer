@@ -184,7 +184,105 @@ function contact_name_autocomplete ($fragment) {
 }
 
 // Table data structures ///////////////////////////////////////////////////////
-//require_once('table.inc.php');
+
+/**
+ * Return a table structure representing members.
+ *
+ * @param $opts Options to pass to member_data().
+ * @return The table structure.
+*/
+function contact_table ($opts = NULL) {
+    // Ensure user is allowed to view members
+    if (!user_access('contact_view')) {
+        return NULL;
+    }
+    // Create table structure
+    $table = array();
+    // Determine settings
+    $export = false;
+    foreach ($opts as $option => $value) {
+        switch ($option) {
+            case 'export':
+                $export = $value;
+                break;
+        }
+    }
+    // Get contact data
+    $contact_data = contact_data($opts);
+    $table['data'] = $contact_data;
+    // Add columns
+    $table['columns'] = array();
+    if ($export) {
+        $table['columns'][] = array('title'=>'Contact ID','class'=>'');
+        $table['columns'][] = array('title'=>'Last','class'=>'');
+        $table['columns'][] = array('title'=>'First','class'=>'');
+        $table['columns'][] = array('title'=>'Middle','class'=>'');
+    } else {
+        $table['columns'][] = array('title'=>'Name','class'=>'');
+    }
+    $table['columns'][] = array('title'=>'E-Mail','class'=>'');
+    $table['columns'][] = array('title'=>'Phone','class'=>'');
+    if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
+        $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
+    }
+    if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
+        $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
+    }
+    // Add ops column
+    if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
+    // Loop through contact data and add rows to the table
+    $table['rows'] = array();
+    foreach ($contact_data as $contact) {
+        
+        $row = array();
+        // Construct name
+        $name_link = theme('contact_name', $contact, true);
+        
+        // Add cells
+        if ($export) {
+            $row[] = $contact['cid'];
+            $row[] = $contact['lastName'];
+            $row[] = $contact['firstName'];
+            $row[] = $contact['middleName'];
+        } else {
+            $row[] = $name_link;
+        }
+        $row[] = $contact['email'];
+        $row[] = $contact['phone'];
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
+            $row[] = $contact['emergencyName'];
+        }
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
+            $row[] = $contact['emergencyPhone'];
+        }
+        
+        // Construct ops array
+        $ops = array();
+        
+        // Add edit op
+        if (user_access('contact_edit')) {
+            $ops[] = '<a href="index.php?q=contact&cid=' . $member['cid'] . '&tab=edit">edit</a> ';
+        }
+        
+        // Add delete op
+        if (user_access('contact_delete')) {
+            $ops[] = '<a href="index.php?q=delete&type=contact&amp;id=' . $member['cid'] . '">delete</a>';
+        }
+        
+        // Add ops row
+        if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+            $row[] = join(' ', $ops);
+        }
+        
+        // Add row to table
+        $table['rows'][] = $row;
+    }
+    
+    // Return table
+    return $table;
+}
 
 // Forms ///////////////////////////////////////////////////////////////////////
 /**
@@ -254,11 +352,138 @@ function contact_add_form () {
     return $form;
 }
 
+/**
+ * Return the form structure for editing a contact.
+ *
+ * @param &$form_data Array for storing extra info.
+ * @param $cid id of the contact to edit.
+ * @return The form structure.
+*/
+function contact_edit_form (&$form_data, $cid) {
+    // Ensure user is allowed to edit contacts
+    if (!user_access('contact_edit') && $cid != user_id()) {
+        return NULL;
+    }
+    
+    // Get contact data
+    $data = contact_data(array('cid'=>$cid));
+    $contact = $data[0];
+    if (empty($contact) || count($contact) < 1) {
+        return array();
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'contact_update',
+        'hidden' => array(
+            'cid' => $cid
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Edit Contact Info',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'First Name',
+                        'name' => 'firstName',
+                        'value' => $contact['firstName'],
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Middle Name',
+                        'name' => 'middleName',
+                        'value' => $contact['middleName'],
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Last Name',
+                        'name' => 'lastName',
+                        'value' => $contact['lastName'],
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Email',
+                        'name' => 'email',
+                        'value' => $contact['email'],
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Phone',
+                        'name' => 'phone',
+                        'value' => $contact['phone'],
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Emergency Contact',
+                        'name' => 'emergencyName',
+                        'value' => $contact['emergencyName']
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Emergency Phone',
+                        'name' => 'emergencyPhone',
+                        'value' => $contact['emergencyPhone']
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Update'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
 // Request Handlers ////////////////////////////////////////////////////////////
 //require_once('command.inc.php');
 
-// Member pages ////////////////////////////////////////////////////////////////
-//require_once('page.inc.php');
+// Pages ///////////////////////////////////////////////////////////////////////
+
+/**
+ * @return An array of pages provided by this module.
+ */
+function contact_page_list () {
+    $pages = array();
+    if (user_access('contact_view')) {
+        $pages[] = 'contacts';
+        $pages[] = 'contact';
+    }
+    return $pages;
+}
+
+/**
+ * Page hook.  Adds member module content to a page before it is rendered.
+ *
+ * @param &$page_data Reference to data about the page being rendered.
+ * @param $page_name The name of the page being rendered.
+*/
+function contact_page (&$page_data, $page_name) {
+    
+    switch ($page_name) {
+        
+        case 'contacts':
+            
+            // Set page title
+            page_set_title($page_data, 'Contacts');
+            
+            // Add view tab
+            if (user_access('contact_view')) {
+                $view .= theme('table', 'contact');
+                page_add_content_top($page_data, $view, 'View');
+            }
+            
+            // Add add tab
+            if (user_access('contact_add')) {
+                page_add_content_top($page_data, theme('form', crm_get_form('contact_add_form')), 'Add');
+            }
+            break;
+    }
+}
 
 // Member reports //////////////////////////////////////////////////////////////
 //require_once('report.inc.php');

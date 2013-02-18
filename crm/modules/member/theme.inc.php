@@ -41,13 +41,6 @@ function theme_member_contact_table ($opts = NULL) {
 }
 
 /**
- * @return The themed html for an add member form.
-*/
-function theme_member_add_form () {
-    return theme('form', member_add_form());
-}
-
-/**
  * Returned the themed html for edit member form.
  *
  * @param $cid The cd of the member to edit.
@@ -55,16 +48,6 @@ function theme_member_add_form () {
 */
 function theme_member_edit_form ($cid) {
     return theme('form', member_edit_form($cid));
-}
-
-/**
- * Return the themed html for an edit contact form.
- *
- * @param $cid The cid of the contact to edit.
- * @return The themed html string.
-*/
-function theme_member_contact_edit_form ($cid) {
-    return theme('form', member_contact_edit_form($cid));
 }
 
 /**

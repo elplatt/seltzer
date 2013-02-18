@@ -21,26 +21,41 @@
 */
 
 /**
+ * Get a table, allowing modules to alter it.
+ * @param $table_id The name of the table.
+ * @param $opts Associative array of options.
+ */
+function crm_get_table ($table_id, $opts = array()) {
+    // Get base table
+    $table = call_user_func("${table_id}_table", $opts);
+    // Allow modules to alter the table
+    foreach (module_list() as $module) {
+        $hook = $module . '_table_alter';
+        if (function_exists($hook)) {
+            $table = call_user_func($hook, $table, $table_id, $opts);
+            if (is_null($table)) {
+                error_register('Null table returned by ' . $hook);
+            }
+        }
+    }
+    return $table;
+}
+
+/**
  * Themes tabular data.
  *
- * @param $table_name The name of the table or the table data.
+ * @param $table_id The name of the table or the table data.
  * @param $opts Options to pass to the data function.
  * @return The themed html for a table.
 */
-function theme_table ($table_name, $opts = NULL) {
+function theme_table ($table_id, $opts = NULL) {
     
     // Check if $table_name is a string
-    if (is_string($table_name)) {
-        // Construct the name of the function to generate a table
-        $generator = $table_name . '_table';
-        if (function_exists($generator)) {
-            $table = call_user_func($generator, $opts);
-        } else {
-            return '';
-        }
+    if (is_string($table_id)) {
+        $table = crm_get_table($table_id, $opts);
     } else {
         // Support old style of passing the data directly
-        $table = $table_name;
+        $table = $table_id;
     }
     
     // Check if table is empty
@@ -55,7 +70,7 @@ function theme_table ($table_name, $opts = NULL) {
     // Generate url for export
     $new_opts = $opts;
     $new_opts['export'] = true;
-    $export = 'export-csv.php?name=' . $table_name . '&opts=' . urlencode(json_encode($new_opts));
+    $export = 'export-csv.php?name=' . $table_id . '&opts=' . urlencode(json_encode($new_opts));
     
     // Open table
     $output = "<table";

@@ -69,7 +69,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add add tab
             if (user_access('member_add')) {
-                page_add_content_top($page_data, theme('member_add_form'), 'Add');
+                page_add_content_top($page_data, theme('form', crm_get_form('member_add_form')), 'Add');
             }
             
             // Add import tab
@@ -139,7 +139,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_id() == $_GET['cid'] || (user_access('contact_edit') && user_access('member_edit'))) {
-                page_add_content_top($page_data, theme('member_contact_edit_form', $cid), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('contact_edit_form', $cid)), 'Edit');
             }
             
             // Add plan and role tabs
