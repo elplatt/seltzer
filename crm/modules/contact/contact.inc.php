@@ -200,6 +200,7 @@ function contact_table ($opts = NULL) {
     $table = array();
     // Determine settings
     $export = false;
+    $show_ops = isset($opts['ops']) ? $opts['ops'] : true;
     foreach ($opts as $option => $value) {
         switch ($option) {
             case 'export':
@@ -229,7 +230,7 @@ function contact_table ($opts = NULL) {
         $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
     }
     // Add ops column
-    if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+    if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
     // Loop through contact data and add rows to the table
@@ -272,7 +273,7 @@ function contact_table ($opts = NULL) {
         }
         
         // Add ops row
-        if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+        if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
             $row[] = join(' ', $ops);
         }
         
@@ -285,162 +286,114 @@ function contact_table ($opts = NULL) {
 }
 
 // Forms ///////////////////////////////////////////////////////////////////////
-/**
- * @return The form structure for adding a member.
-*/
-function contact_add_form () {
-    
-    // Ensure user is allowed to add contact
-    if (!user_access('contact_add')) {
-        return NULL;
-    }
-    
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'contact_add',
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Contact Info',
-                'fields' => array(
-                    array(
-                        'type' => 'text',
-                        'label' => 'First Name',
-                        'name' => 'firstName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Middle Name',
-                        'name' => 'middleName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Last Name',
-                        'name' => 'lastName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Email',
-                        'name' => 'email'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Phone',
-                        'name' => 'phone'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Emergency Contact',
-                        'name' => 'emergencyName'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Emergency Phone',
-                        'name' => 'emergencyPhone'
-                    )
-                )
-            ),
-            array(
-                'type' => 'submit',
-                'value' => 'Add'
-            )
-        )
-    );
-    
-    return $form;
-}
 
 /**
- * Return the form structure for editing a contact.
- *
- * @param &$form_data Array for storing extra info.
- * @param $cid id of the contact to edit.
+ * Return the form structure for adding or editing a contact.  If $opts['cid']
+ * is specified, an edit form will be returned, otherwise an add form will be
+ * returned.
+ * 
+ * @param $opts An associative array of options, possible keys are:
  * @return The form structure.
 */
-function contact_edit_form (&$form_data, $cid) {
-    // Ensure user is allowed to edit contacts
-    if (!user_access('contact_edit') && $cid != user_id()) {
-        return NULL;
-    }
-    
-    // Get contact data
-    $data = contact_data(array('cid'=>$cid));
-    $contact = $data[0];
-    if (empty($contact) || count($contact) < 1) {
-        return array();
-    }
-    
-    // Create form structure
+function contact_form ($opts = array()) {
+    // Create form
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'contact_update',
-        'hidden' => array(
-            'cid' => $cid
-        ),
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'contact_add'
+        , 'fields' => array()
+        , 'submit' => 'Add'
+    );
+    // Get contact data
+    $cid = $opts['cid'];
+    if ($cid) {
+        $data = contact_data(array('cid'=>$cid));
+        $contact = $data[0];
+    }
+    // Change to an edit form
+    if ($contact) {
+        $form['command'] = 'contact_update';
+        $form['submit'] = 'Update';
+        $form['hidden'] = array('cid' => $cid);
+        $form['values'] = array();
+        foreach ($contact as $key => $value) {
+            if (is_string($value)) {
+                $form['values'][$key] = $value;
+            }
+        }
+    }
+    // Add fields
+    $form['fields'][] = array(
+        'type' => 'fieldset',
+        'label' => 'Edit Contact Info',
         'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Edit Contact Info',
-                'fields' => array(
-                    array(
-                        'type' => 'text',
-                        'label' => 'First Name',
-                        'name' => 'firstName',
-                        'value' => $contact['firstName'],
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Middle Name',
-                        'name' => 'middleName',
-                        'value' => $contact['middleName'],
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Last Name',
-                        'name' => 'lastName',
-                        'value' => $contact['lastName'],
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Email',
-                        'name' => 'email',
-                        'value' => $contact['email'],
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Phone',
-                        'name' => 'phone',
-                        'value' => $contact['phone'],
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Emergency Contact',
-                        'name' => 'emergencyName',
-                        'value' => $contact['emergencyName']
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Emergency Phone',
-                        'name' => 'emergencyPhone',
-                        'value' => $contact['emergencyPhone']
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Update'
-                    )
-                )
+                'type' => 'text'
+                , 'label' => 'First Name'
+                , 'name' => 'firstName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Middle Name'
+                , 'name' => 'middleName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Last Name'
+                , 'name' => 'lastName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Email'
+                , 'name' => 'email'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Phone'
+                , 'name' => 'phone'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
             )
         )
     );
-    
     return $form;
 }
 
 // Request Handlers ////////////////////////////////////////////////////////////
-//require_once('command.inc.php');
+
+/**
+ * Handle contact add request.
+ *
+ * @return The url to display when complete.
+ */
+function command_contact_add () {
+    // Check permissions
+    if (!user_access('contact_add')) {
+        error_register('Permission denied: contact_add');
+        return 'index.php?q=members.php';
+    }
+    // Build contact object
+    $contact = array(
+        'firstName' => $_POST['firstName']
+        , 'middleName' => $_POST['middleName']
+        , 'lastName' => $_POST['lastName']
+        , 'email' => $_POST['email']
+        , 'phone' => $_POST['phone']
+        , 'emergencyName' => $_POST['emergencyName']
+        , 'emergencyPhone' => $_POST['emergencyPhone']
+    );
+    // Save to database
+    $contact = contact_save($contact);
+    return "index.php?q=contact&cid=$cid";
+}
 
 // Pages ///////////////////////////////////////////////////////////////////////
 
@@ -463,23 +416,48 @@ function contact_page_list () {
  * @param $page_name The name of the page being rendered.
 */
 function contact_page (&$page_data, $page_name) {
-    
     switch ($page_name) {
-        
         case 'contacts':
-            
             // Set page title
             page_set_title($page_data, 'Contacts');
-            
             // Add view tab
             if (user_access('contact_view')) {
                 $view .= theme('table', 'contact');
                 page_add_content_top($page_data, $view, 'View');
             }
-            
             // Add add tab
             if (user_access('contact_add')) {
-                page_add_content_top($page_data, theme('form', crm_get_form('contact_add_form')), 'Add');
+                page_add_content_top($page_data, theme('form', crm_get_form('contact')), 'Add');
+            }
+            break;
+        case 'contact':
+            // Capture contact id
+            $cid = $_GET['cid'];
+            if (empty($cid)) {
+                return;
+            }
+            $contact_data = contact_data(array('cid'=>$cid));
+            $contact = $contact_data[0];
+            // Set page title
+            page_set_title($page_data, theme('contact_name', $contact));
+            // Add view tab
+            $view_content = '';
+            if (user_access('contact_view')) {
+                $view_content .= '<h3>Contact Info</h3>';
+                $opts = array(
+                    'cid' => $cid
+                    , 'ops' => false
+                );
+                $view_content .= theme('table_vertical', 'contact', array('cid' => $cid));
+            }
+            if (!empty($view_content)) {
+                page_add_content_top($page_data, $view_content, 'View');
+            }
+            // Add edit tab
+            if (user_access('contact_edit')) {
+                $opts = array('cid' => $cid);
+                $form = crm_get_form('contact', $opts);
+                page_add_content_top($page_data, theme('form', $form), 'Edit');
             }
             break;
     }

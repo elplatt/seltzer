@@ -42,8 +42,8 @@ function command_member_add () {
         error_register('Permission denied: contact_add');
         return 'index.php?q=members.php';
     }
-    if (!user_access('member_add')) {
-        error_register('Permission denied: member_add');
+    if (!user_access('user_add')) {
+        error_register('Permission denied: user_add');
         return 'index.php?q=members.php';
     }
     

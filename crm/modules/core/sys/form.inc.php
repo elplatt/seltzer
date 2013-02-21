@@ -29,28 +29,44 @@ function crm_get_form () {
     }
     $args = func_get_args();
     $form_id = array_shift($args);
+    $hook = "${form_id}_form";
     
     // Build initial form
-    if (!function_exists($form_id)) {
+    if (!function_exists($hook)) {
         return array();
     }
-    $form_state = array();
-    // Create hook args with a reference to form state
-    // This is the only way call_user_func_array() can pass by reference
-    $hook_args = array(&$form_state);
-    foreach ($args as $value) {
-        $hook_args[] = $value;
-    }
-    $form = call_user_func_array($form_id, $hook_args);
+    $form = call_user_func_array($hook, $args);
     
     // Allow modules to alter the form
     foreach (module_list() as $module) {
         $hook = $module . '_form_alter';
         if (function_exists($hook)) {
-            $hook($form, $form_state, $form_id);
+            $form = $hook($form, $form_state, $form_id);
+            if (empty($form)) {
+                error_register('Empty form returned by ' . $hook);
+            }
         }
     }
     return $form;
+}
+
+/**
+ * Set form field values or use default.
+ * @param $field A form field.
+ * @param $values An associative array of form values.
+ * @return The modified $field structure.
+ */
+function form_set_value ($field, $values) {
+    // Set value if specified
+    $name = $field['name'];
+    if (isset($values[$name])) {
+        $field['value'] = $values[$name];
+    } else if (isset($field['value'])) {
+        return $field;
+    } else {
+        $field['value'] = $field['default'];
+    }
+    return $field;
 }
 
 /**
@@ -95,8 +111,17 @@ function theme_form ($form) {
         
         // Loop through each field and add output
         foreach ($form['fields'] as $field) {
+            $field = form_set_value($field, $form['values']);
+            $field['values'] = $form['values'];
             $output .= theme('form', $field);
         }
+        
+        // Add submit button
+        $submit_field = array(
+            'type' => 'submit'
+            , 'value' => isset($form['submit']) ? $form['submit'] : 'Submit'
+        );
+        $output .= theme('form', $submit_field);
         
         $output .= '</form>';
         
@@ -112,6 +137,8 @@ function theme_form ($form) {
         
         // Loop through each field and add output
         foreach ($form['fields'] as $field) {
+            $field = form_set_value($field, $form['values']);
+            $field['values'] = $form['values'];
             $output .= theme('form', $field);
         }
         
