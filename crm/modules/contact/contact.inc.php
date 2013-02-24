@@ -172,7 +172,7 @@ function contact_save ($contact) {
 function contact_name_autocomplete ($fragment) {
     $data = array();
     if (user_access('contact_view')) {
-        $contacts = contact_data(array('filter'=>array('nameLike'=>$fragment)));
+        $contacts = crm_get_data('contact', array('filter'=>array('nameLike'=>$fragment)));
         foreach ($contacts as $contact) {
             $row = array();
             $row['value'] = $contact['cid'];
@@ -191,7 +191,7 @@ function contact_name_autocomplete ($fragment) {
  * @param $opts Options to pass to member_data().
  * @return The table structure.
 */
-function contact_table ($opts = NULL) {
+function contact_table ($opts = array()) {
     // Ensure user is allowed to view members
     if (!user_access('contact_view')) {
         return NULL;
@@ -209,7 +209,7 @@ function contact_table ($opts = NULL) {
         }
     }
     // Get contact data
-    $contact_data = contact_data($opts);
+    $contact_data = crm_get_data('contact', $opts);
     $table['data'] = $contact_data;
     // Add columns
     $table['columns'] = array();
@@ -307,7 +307,7 @@ function contact_form ($opts = array()) {
     // Get contact data
     $cid = $opts['cid'];
     if ($cid) {
-        $data = contact_data(array('cid'=>$cid));
+        $data = crm_get_data('contact', array('cid'=>$cid));
         $contact = $data[0];
     }
     // Change to an edit form
@@ -436,7 +436,7 @@ function contact_page (&$page_data, $page_name) {
             if (empty($cid)) {
                 return;
             }
-            $contact_data = contact_data(array('cid'=>$cid));
+            $contact_data = crm_get_data('contact', array('cid'=>$cid));
             $contact = $contact_data[0];
             // Set page title
             page_set_title($page_data, theme('contact_name', $contact));

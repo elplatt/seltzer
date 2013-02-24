@@ -28,6 +28,9 @@ $crm_version = array(
 );
 require_once($crm_root . '/config.inc.php');
 
+// Inlcude core includes
+require_once('data.inc.php');
+
 // Add core modules
 array_unshift($config_modules, 'core');
 

@@ -181,6 +181,43 @@ function member_data ($opts = array()) {
 }
 
 /**
+ * Implementation of hook_data_alter().
+ * @param $type The type of the data being altered.
+ * @param $data An array of structures of the given $type.
+ * @param $opts An associative array of options.
+ * @return An array of modified structures.
+ */
+function member_data_alter ($type, $data = array(), $opts = array()) {
+    switch ($type) {
+        case 'contact':
+            // Get cids of all contacts passed into $data
+            $cids = array();
+            foreach ($data as $contact) {
+                $cids[] = $contact['cid'];
+            }
+            // Add the cids to the options
+            $member_opts = $opts;
+            $member_opts['cid'] = $cids;
+            // Get an array of member structures for each cid
+            $member_data = crm_get_data('member', $member_opts);
+            // Create a map from cid to member structure
+            $cid_to_member = array();
+            foreach ($member_data as $member) {
+                $cid_to_member[$member['cid']] = $member;
+            }
+            // Add member structures to the contact structures
+            foreach ($data as $i => $contact) {
+                $member = $cid_to_member[$contact['cid']];
+                if ($member) {
+                    $data[$i]['member'] = $member;
+                }
+            }
+            break;
+    }
+    return $data;
+}
+
+/**
  * Update member data when a contact is updated.
  * @param $contact The contact data array.
  * @param $op The operation being performed.
