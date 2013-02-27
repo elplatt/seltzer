@@ -407,38 +407,6 @@ function command_member_membership_delete () {
 }
 
 /**
- * Handle contact update request.
- *
- * @return The url to display on completion.
- */
-function command_contact_update () {
-    global $esc_post;
-    
-    // Verify permissions
-    if (!user_access('contact_edit') && $_POST['cid'] != user_id()) {
-        error_register('Permission denied: contact_edit');
-        return 'index.php?q=members';
-    }
-    
-    // Query database
-    $sql = "
-        UPDATE `contact`
-        SET
-        `firstName`='$esc_post[firstName]',
-        `middleName`='$esc_post[middleName]',
-        `lastName`='$esc_post[lastName]',
-        `email`='$esc_post[email]',
-        `phone`='$esc_post[phone]',
-        `emergencyName`='$esc_post[emergencyName]',
-        `emergencyPhone`='$esc_post[emergencyPhone]'
-        WHERE `cid`='$esc_post[cid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    
-    return 'index.php?q=members';
-}
-
-/**
  * Handle member import request.
  *
  * @return The url to display on completion.

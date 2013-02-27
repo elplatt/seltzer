@@ -63,12 +63,10 @@ function contact_permissions () {
  * @return An array with each element representing a contact.
 */ 
 function contact_data ($opts = array()) {
-    
     // Query database
     $sql = "
         SELECT * FROM `contact`
         WHERE 1";
-        
     // Add contact id
     if ($opts['cid']) {
         if (is_array($opts['cid'])) {
@@ -83,7 +81,6 @@ function contact_data ($opts = array()) {
             $sql .= " AND `cid`='$esc_cid'";
         }
     }
-    
     // Add filters
     if (isset($opts['filter'])) {
         foreach ($opts['filter'] as $name => $param) {
@@ -93,12 +90,10 @@ function contact_data ($opts = array()) {
             }
         }
     }
-
     $sql .= "
         ORDER BY `lastName`, `firstName`, `middleName` ASC";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-    
     // Store data
     $contacts = array();
     $row = mysql_fetch_assoc($res);
@@ -115,7 +110,6 @@ function contact_data ($opts = array()) {
         );
         $row = mysql_fetch_assoc($res);
     }
-    
     // Return data
     return $contacts;
 }
@@ -135,12 +129,12 @@ function contact_save ($contact) {
             UPDATE `contact`
             SET `firstName`='$escaped[firstName]'
                 , `middleName`='$escaped[middleName]'
-                , `lastName`='$escaped[middleName]'
+                , `lastName`='$escaped[lastName]'
                 , `email`='$escaped[email]'
                 , `phone`='$escaped[phone]'
-                , `emergencyName`='$escaped[emergencyName]
-                , `emergencyPhone`='$escaped[emergencyPhone]
-            WHERE `cid`='$escaped[cid]
+                , `emergencyName`='$escaped[emergencyName]'
+                , `emergencyPhone`='$escaped[emergencyPhone]'
+            WHERE `cid`='$escaped[cid]'
         ";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
@@ -161,6 +155,27 @@ function contact_save ($contact) {
         $contact = module_invoke_api('contact', $contact, 'create');
     }
     return $contact;
+}
+
+/**
+ * Delete a contact.
+ * @param $cid The contact id.
+ */
+function contact_delete ($cid) {
+    $contact_data = crm_get_data('contact', array('cid'=>$cid));
+    $contact = $contact_data[0];
+    if (empty($contact)) {
+        error_register("No contact with cid $cid");
+        return;
+    }
+    // Notify other modules the contact is being deleted
+    $contact = module_invoke_api('contact', $contact, 'delete');
+    // Remove the contact from the database
+    $esc_cid = mysql_real_escape_string($cid);
+    $sql = "DELETE FROM `contact` WHERE `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    message_register('Deleted contact: ' . theme('contact_name', $contact));
 }
 
 // Autocomplete functions //////////////////////////////////////////////////////
@@ -186,13 +201,13 @@ function contact_name_autocomplete ($fragment) {
 // Table data structures ///////////////////////////////////////////////////////
 
 /**
- * Return a table structure representing members.
+ * Return a table structure representing contacts.
  *
- * @param $opts Options to pass to member_data().
+ * @param $opts Options to pass to contact_data().
  * @return The table structure.
 */
 function contact_table ($opts = array()) {
-    // Ensure user is allowed to view members
+    // Ensure user is allowed to view contacts
     if (!user_access('contact_view')) {
         return NULL;
     }
@@ -264,12 +279,12 @@ function contact_table ($opts = array()) {
         
         // Add edit op
         if (user_access('contact_edit')) {
-            $ops[] = '<a href="index.php?q=contact&cid=' . $member['cid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href="index.php?q=contact&cid=' . $contact['cid'] . '&tab=edit">edit</a> ';
         }
         
         // Add delete op
         if (user_access('contact_delete')) {
-            $ops[] = '<a href="index.php?q=delete&type=contact&amp;id=' . $member['cid'] . '">delete</a>';
+            $ops[] = '<a href="index.php?q=delete&type=contact&amp;id=' . $contact['cid'] . '">delete</a>';
         }
         
         // Add ops row
@@ -321,11 +336,14 @@ function contact_form ($opts = array()) {
                 $form['values'][$key] = $value;
             }
         }
+        $label = 'Edit Contact Info';
+    } else {
+        $label = 'Add Contact';
     }
     // Add fields
     $form['fields'][] = array(
         'type' => 'fieldset',
-        'label' => 'Edit Contact Info',
+        'label' => $label,
         'fields' => array(
             array(
                 'type' => 'text'
@@ -367,6 +385,51 @@ function contact_form ($opts = array()) {
     return $form;
 }
 
+/**
+ * Return the form structure to delete a contact.
+ *
+ * @param $cid The cid of the contact to delete.
+ * @return The form structure.
+*/
+function contact_delete_form ($cid) {
+    // Ensure user is allowed to delete contacts
+    if (!user_access('contact_delete')) {
+        return array();
+    }
+    // Get contact data
+    $data = contact_data(array('cid'=>$cid));
+    $contact = $data[0];
+    if (empty($contact) || count($contact) < 1) {
+        error_register('No contact for cid ' . $cid);
+        return array();
+    }
+    // Create form structure
+    $name = theme('contact_name', $contact);
+    $message = "<p>Are you sure you want to delete the contact \"$name\"? This cannot be undone.";
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'contact_delete'
+        , 'submit' => 'Delete'
+        , 'hidden' => array(
+            'cid' => $contact['cid']
+        )
+        , 'fields' => array(
+            array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete Contact'
+                , 'fields' => array(
+                    array(
+                        'type' => 'message'
+                        , 'value' => $message
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
 // Request Handlers ////////////////////////////////////////////////////////////
 
 /**
@@ -378,7 +441,7 @@ function command_contact_add () {
     // Check permissions
     if (!user_access('contact_add')) {
         error_register('Permission denied: contact_add');
-        return 'index.php?q=members.php';
+        return 'index.php?q=contacts.php';
     }
     // Build contact object
     $contact = array(
@@ -393,6 +456,53 @@ function command_contact_add () {
     // Save to database
     $contact = contact_save($contact);
     return "index.php?q=contact&cid=$cid";
+}
+
+/**
+ * Handle contact update request.
+ *
+ * @return The url to display on completion.
+ */
+function command_contact_update () {
+    global $esc_post;
+    // Verify permissions
+    if (!user_access('contact_edit') && $_POST['cid'] != user_id()) {
+        error_register('Permission denied: contact_edit');
+        return 'index.php?q=contacts';
+    }
+    $contact_data = crm_get_data('contact', array('cid'=>$_POST['cid']));
+    $contact = $contact_data[0];
+    if (empty($contact)) {
+        error_register("No contact for cid: $_POST[cid]");
+        return 'index.php?q=contacts';
+    }
+    // Update contact data
+    $contact['firstName'] = $_POST['firstName'];
+    $contact['middleName'] = $_POST['middleName'];
+    $contact['lastName'] = $_POST['lastName'];
+    $contact['email'] = $_POST['email'];
+    $contact['phone'] = $_POST['phone'];
+    $contact['emergencyName'] = $_POST['emergencyName'];
+    $contact['emergencyPhone'] = $_POST['emergencyPhone'];
+    // Save changes to database
+    $contact = contact_save($contact);
+    return 'index.php?q=contacts';
+}
+
+/**
+ * Handle contact delete request.
+ *
+ * @return The url to display on completion.
+ */
+function command_contact_delete () {
+    global $esc_post;
+    // Verify permissions
+    if (!user_access('contact_delete')) {
+        error_register('Permission denied: contact_delete');
+        return 'index.php?q=contacts';
+    }
+    contact_delete($_POST['cid']);
+    return 'index.php?q=contacts';
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
@@ -410,7 +520,7 @@ function contact_page_list () {
 }
 
 /**
- * Page hook.  Adds member module content to a page before it is rendered.
+ * Page hook.  Adds contact module content to a page before it is rendered.
  *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
@@ -463,7 +573,7 @@ function contact_page (&$page_data, $page_name) {
     }
 }
 
-// Member reports //////////////////////////////////////////////////////////////
+// Reports /////////////////////////////////////////////////////////////////////
 //require_once('report.inc.php');
 
 // Themeing ////////////////////////////////////////////////////////////////////
