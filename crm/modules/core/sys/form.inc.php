@@ -117,11 +117,13 @@ function theme_form ($form) {
         }
         
         // Add submit button
-        $submit_field = array(
-            'type' => 'submit'
-            , 'value' => isset($form['submit']) ? $form['submit'] : 'Submit'
-        );
-        $output .= theme('form', $submit_field);
+        if (isset($form['submit'])) {
+            $submit_field = array(
+                'type' => 'submit'
+                , 'value' => $form['submit']
+            );
+            $output .= theme('form', $submit_field);
+        }
         
         $output .= '</form>';
         
