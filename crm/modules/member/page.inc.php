@@ -69,7 +69,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add add tab
             if (user_access('member_add')) {
-                page_add_content_top($page_data, theme('form', crm_get_form('member_add_form')), 'Add');
+                page_add_content_top($page_data, theme('form', crm_get_form('member_add')), 'Add');
             }
             
             // Add import tab

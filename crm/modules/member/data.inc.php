@@ -261,6 +261,26 @@ function member_contact_api ($contact, $op) {
 }
 
 /**
+ * Delete membership data for a contact.
+ * @param $cid - The contact id.
+ */
+function member_delete ($cid) {
+    // Store name
+    $contact_data = crm_get_data('contact', array('cid'=>$cid));
+    $contact = $contact_data[0];
+    $name = theme('contact_name', $contact);
+    // Delete member
+    $esc_cid = mysql_real_escape_string($cid);
+    $sql = "DELETE FROM `member` WHERE `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    $sql = "DELETE FROM `membership` WHERE `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    message_register("Deleted Membership info for: $name");
+}
+
+/**
  * Return data for one or more membership plans.
  * 
  * @param $opts An associative array of options, possible keys are:

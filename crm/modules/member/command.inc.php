@@ -344,21 +344,19 @@ function command_member_filter () {
  */
 function command_member_delete () {
     global $esc_post;
-    
     // Verify permissions
     if (!user_access('member_delete')) {
         error_register('Permission denied: member_delete');
         return 'index.php?q=members';
     }
-    if ($_POST['deleteUser'] && !user_access('user_delete')) {
-        error_register('Permission denied: user_delete');
-        return 'index.php?q=members';
+    // Check if we should delete the whole contact
+    if ($_POST['deleteContact']) {
+        // This will delete the contact and all associated data
+        contact_delete($_POST['cid']);
+    } else {
+        member_delete($_POST['cid']);
     }
-    if ($_POST['deleteContact'] && !user_access('contact_delete')) {
-        error_register('Permission denied: contact_delete');
-        return 'index.php?q=members';
-    }
-
+    /* TODO - move this to user module
     // Delete user and roles
     if ($_POST['deleteUser']) {
         $sql = "DELETE FROM `user` WHERE `cid`='$esc_post[cid]'";
@@ -368,19 +366,7 @@ function command_member_delete () {
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
     }
-    
-    // Delete member
-    $sql = "DELETE FROM `member` WHERE `cid`='$esc_post[cid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    
-    // Delete contact info
-    if ($_POST['deleteContact']) {
-        $sql = "DELETE FROM `contact` WHERE `cid`='$esc_post[cid]'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-    }
-
+    */
     return 'index.php?q=members';
 }
 

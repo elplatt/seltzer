@@ -25,22 +25,22 @@
 */
 function member_add_form () {
     
-    // Ensure user is allowed to view members
+    // Ensure user is allowed to add members
     if (!user_access('member_add')) {
+        error_register('Permission denied: member_add');
         return NULL;
     }
     
     // Start with contact form
-    $form = contact_add_form();
+    $form = crm_get_form('contact');
     
     // Generate default start date, first of current month
-    $start = date("Y-m-01");
+    $start = date("Y-m-d");
     
     // Change form command
     $form['command'] = 'member_add';
     
     // Add member data
-    $submit = array_pop($form['fields']);
     $form['fields'][] = array(
         'type' => 'fieldset',
         'label' => 'User Info',
@@ -72,7 +72,6 @@ function member_add_form () {
             )
         )
     );
-    $form['fields'][] = $submit;
     
     return $form;
 }
@@ -333,9 +332,7 @@ function member_delete_form ($cid) {
         'method' => 'post',
         'command' => 'member_delete',
         'hidden' => array(
-            'cid' => $member['contact']['cid'],
-            'deleteUser' => 1,
-            'deleteContact' => 1,
+            'cid' => $member['contact']['cid']
         ),
         'fields' => array(
             array(
@@ -346,22 +343,12 @@ function member_delete_form ($cid) {
                         'type' => 'message',
                         'value' => '<p>Are you sure you want to delete the member "' . $member_name . '"? This cannot be undone.',
                     ),
-                    /* Until there is a separate contact/user interface,
-                     * users and contacts should always be deleted when
-                     * the corresponding member is deleted
                     array(
                         'type' => 'checkbox',
-                        'label' => 'Also delete user?',
-                        'name' => 'deleteUser',
-                        'checked' => true
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Also delete contact info?',
+                        'label' => 'Delete all contact info?',
                         'name' => 'deleteContact',
                         'checked' => true
                     ),
-                    */
                     array(
                         'type' => 'submit',
                         'value' => 'Delete'
