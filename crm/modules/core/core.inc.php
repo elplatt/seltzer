@@ -33,8 +33,7 @@ function core_revision () {
  */
 function core_permissions () {
     $permissions = array_merge(
-        user_permissions()
-        , module_permissions()
+        module_permissions()
         , array('report_view')
     );
     return $permissions;
@@ -51,7 +50,6 @@ require_once('sys/template.inc.php');   // Template system
 require_once('sys/error.inc.php');      // Error reporting system
 require_once('sys/form.inc.php');       // Form system
 require_once('sys/table.inc.php');      // Table system
-require_once('sys/user.inc.php');       // User auth and permissions system
 require_once('sys/module.inc.php');     // Module system
 require_once('sys/page.inc.php');       // Page system
 

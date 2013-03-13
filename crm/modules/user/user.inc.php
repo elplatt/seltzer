@@ -4,7 +4,7 @@
     Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
-    user.inc.php - Core user functions
+    user.inc.php - User module
 
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,27 @@
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/**
+ * @return This module's revision number.  Each new release should increment
+ * this number.
+ */
+function user_revision () {
+    return 1;
+}
+
+/**
+ * @return An array of the permissions provided by this module.
+ */
+function user_permissions () {
+    return array(
+        'user_add'
+        , 'user_edit'
+        , 'user_delete'
+        , 'user_role_edit'
+        , 'user_permissions_edit'
+    );
+}
 
 /**
  * Array of all permissions.
@@ -51,19 +72,6 @@ function user_init () {
 function user_permissions_list () {
     global $user_permissions;
     return $user_permissions;
-}
-
-/**
- * @return An array of the permissions provided by this module.
- */
-function user_permissions () {
-    return array(
-        'user_add'
-        , 'user_edit'
-        , 'user_delete'
-        , 'user_role_edit'
-        , 'user_permissions_edit'
-    );
 }
 
 /**
@@ -439,12 +447,12 @@ function command_login () {
         $users = user_data($user_opts);
     }
     
-    
     // Check for user
     if (sizeof($users) < 1) {
-        //The user was not found, so assume they tried entering their email
+        error_register('No user found');
         error_register('Invalid username/password');
         $next = 'index.php?q=login';
+        return;
     }
     
     // Check password

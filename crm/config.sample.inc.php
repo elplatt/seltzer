@@ -55,6 +55,8 @@ $config_theme = "inspire";
 
 // Modules
 $config_modules = array(
+    "contact",
+    "user",
     "variable",
     "member",
     "key",
