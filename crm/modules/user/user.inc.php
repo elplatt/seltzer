@@ -41,67 +41,43 @@ function user_permissions () {
     );
 }
 
-/**
- * Array of all permissions.
- */
-$user_permissions = array();
+// Data Model //////////////////////////////////////////////////////////////////
 
 /**
- * Permission cache for current user.
+ * Implementation of hook_data_alter().
+ * @param $type The type of the data being altered.
+ * @param $data An array of structures of the given $type.
+ * @param $opts An associative array of options.
+ * @return An array of modified structures.
  */
-$user_permission_cache = array();
-
-/**
- * Initialization code run after all modules are loaded.
- */
-function user_init () {
-    global $user_permissions;
-    
-    foreach (module_list() as $module) {
-        $func = $module . '_permissions';
-        if (function_exists($func)) {
-            $permissions = call_user_func($func);
-            $user_permissions = array_merge($user_permissions, $permissions);
-        }
+function user_data_alter ($type, $data = array(), $opts = array()) {
+    switch ($type) {
+        case 'contact':
+            // Get cids of all contacts passed into $data
+            $cids = array();
+            foreach ($data as $contact) {
+                $cids[] = $contact['cid'];
+            }
+            // Add the cids to the options
+            $user_opts = $opts;
+            $user_opts['cid'] = $cids;
+            // Get an array of user structures for each cid
+            $user_data = crm_get_data('user', $user_opts);
+            // Create a map from cid to user structure
+            $cid_to_user = array();
+            foreach ($user_data as $user) {
+                $cid_to_user[$user['cid']] = $user;
+            }
+            // Add user structures to the contact structures
+            foreach ($data as $i => $contact) {
+                $user = $cid_to_user[$contact['cid']];
+                if ($user) {
+                    $data[$i]['user'] = $user;
+                }
+            }
+            break;
     }
-}
-
-/**
- * @return a list of all permissions.
- */
-function user_permissions_list () {
-    global $user_permissions;
-    return $user_permissions;
-}
-
-/**
- * @return the cid of the logged in user.
-*/
-function user_id () {
-    return $_SESSION['userId'];
-}
-
-/**
- * Update the session variables to set a specified user as logged in.
- *
- * @param $cid The cid to set as the logged in user.
-*/
-function user_login ($cid) {
-    $_SESSION['userId'] = $cid;
-}
-
-/**
- * Check user password.
- * @param $password The password to check.
- * @param $user The user data structure.
- */
-function user_check_password($password, $user) {
-    if (!empty($user['hash'])) {
-        if (user_hash($password, $user['salt']) === $user['hash']) {
-            return true;
-        }
-    }
-    return false;
+    return $data;
 }
 
 /**
@@ -172,8 +148,17 @@ function user_data ($opts) {
         WHERE 1
     ";
     if (array_key_exists('cid', $opts)) {
-        $esc_cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `user`.`cid`='$esc_cid' ";
+        $clauses = array();
+        if (is_array($opts['cid'])) {
+            $cids = $opts['cid'];
+        } else {
+            $cids = array($opts['cid']);
+        }
+        foreach ($cids as $cid) {
+            $esc_cid = mysql_real_escape_string($cid);
+            $clauses[] = " `user`.`cid`='$esc_cid' ";
+        }
+        $sql .= " AND (" . implode(' OR ', $clauses) . ")";
     }
     if (array_key_exists('filter', $opts)) {
         foreach ($opts['filter'] as $key => $value) {
@@ -298,6 +283,70 @@ function user_role_data ($opts = NULL) {
         $row = mysql_fetch_assoc($res);
     }
     return $roles;
+}
+
+
+/**
+ * Array of all permissions.
+ */
+$user_permissions = array();
+
+/**
+ * Permission cache for current user.
+ */
+$user_permission_cache = array();
+
+/**
+ * Initialization code run after all modules are loaded.
+ */
+function user_init () {
+    global $user_permissions;
+    
+    foreach (module_list() as $module) {
+        $func = $module . '_permissions';
+        if (function_exists($func)) {
+            $permissions = call_user_func($func);
+            $user_permissions = array_merge($user_permissions, $permissions);
+        }
+    }
+}
+
+/**
+ * @return a list of all permissions.
+ */
+function user_permissions_list () {
+    global $user_permissions;
+    return $user_permissions;
+}
+
+/**
+ * @return the cid of the logged in user.
+*/
+function user_id () {
+    return $_SESSION['userId'];
+}
+
+/**
+ * Update the session variables to set a specified user as logged in.
+ *
+ * @param $cid The cid to set as the logged in user.
+*/
+function user_login ($cid) {
+    $_SESSION['userId'] = $cid;
+}
+
+/**
+ * Check user password.
+ * @param $password The password to check.
+ * @param $user The user data structure.
+ */
+function user_check_password($password, $user) {
+    if (!empty($user['hash'])) {
+        if (user_hash($password, $user['salt']) === $user['hash']) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
