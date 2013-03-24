@@ -68,38 +68,6 @@ function member_data ($opts = array()) {
         if (isset($filter['voting'])) {
             $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL AND `plan`.`voting` <> 0)";
         }
-        if (isset($filter['nameLike'])) {
-            
-            // Split on first comma and create an array of name parts in "first middle last" order
-            $parts = split(',', $filter['nameLike'], 2);
-            $names = array();
-            foreach (array_reverse($parts) as $part) {
-                $nameParts = preg_split('/\s+/', $part);
-                foreach ($nameParts as $name) {
-                    if (!empty($name)) {
-                       $names[] = mysql_real_escape_string($name);
-                    }
-                }
-            }
-            
-            // Set where clauses based on number of name segments given
-            if (sizeof($names) === 1) {
-                $sql .= "AND (`firstName` LIKE '%$names[0]%' OR `middleName` LIKE '%$names[0]%' OR `lastName` LIKE '%$names[0]%') ";
-            } else if (sizeof($names) === 2) {
-                $sql .= "
-                    AND (
-                        (`firstName` LIKE '%$names[0]%' AND (`middleName` LIKE '%$names[1]%' OR `lastName` LIKE '%$names[1]%'))
-                        OR (`middleName` LIKE '%$names[0]%' AND `lastName` LIKE '%$names[1]%')
-                    )
-                ";
-            } else if (sizeof($names) === 3) {
-                $sql .= "
-                    AND `firstName` LIKE '%$names[0]%'
-                    AND `middleName` LIKE '%$names[1]%'
-                    AND `lastName` LIKE '%$names[2]%'
-                ";
-            }
-        }
     }
     $sql .= " GROUP BY `member`.`cid` ";
     $sql .= " ORDER BY `lastName`, `firstName`, `middleName` ASC ";
