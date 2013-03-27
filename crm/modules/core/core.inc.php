@@ -39,20 +39,6 @@ function core_permissions () {
     return $permissions;
 }
 
-// Subsystems //////////////////////////////////////////////////////////////////
-
-require_once('sys/init.inc.php');       // Pre-module initialization
-require_once('sys/util.inc.php');       // Generic utility functions
-require_once('sys/csv.inc.php');        // CSV parser
-require_once('sys/command.inc.php');    // Comand processing system
-require_once('sys/theme.inc.php');      // Theme system
-require_once('sys/template.inc.php');   // Template system
-require_once('sys/error.inc.php');      // Error reporting system
-require_once('sys/form.inc.php');       // Form system
-require_once('sys/table.inc.php');      // Table system
-require_once('sys/module.inc.php');     // Module system
-require_once('sys/page.inc.php');       // Page system
-
 // Core module elements ////////////////////////////////////////////////////////
 
 require_once('init.inc.php');           // Core module initialization
