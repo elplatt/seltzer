@@ -29,6 +29,31 @@ function core_revision () {
 }
 
 /**
+ * Install or upgrade this module.
+ * @param $old_revision The last installed revision of this module, or 0 if the
+ *   module has never been installed.
+ */
+function core_install ($old_revision = 0) {
+    
+    if ($old_revision < 1) {
+        $sql = 'SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `module` (
+                `did` MEDIUMINT(8) unsigned NOT NULL AUTO_INCREMENT,
+                `name` VARCHAR(255) NOT NULL,
+                `revision` MEDIUMINT(8) unsigned NOT NULL,
+                PRIMARY KEY (`did`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+    }
+}
+
+/**
  * @return An array of the permissions provided by this module.
  */
 function core_permissions () {
@@ -38,13 +63,3 @@ function core_permissions () {
     );
     return $permissions;
 }
-
-// Core module elements ////////////////////////////////////////////////////////
-
-require_once('init.inc.php');           // Core module initialization
-require_once('install.inc.php');        // Core database schema
-require_once('form.inc.php');           // Core database schema
-require_once('page.inc.php');           // Core pages
-require_once('theme.inc.php');          // Core element theming
-
-?>

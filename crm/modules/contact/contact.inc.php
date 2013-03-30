@@ -47,10 +47,31 @@ function contact_permissions () {
 }
 
 // Installation functions //////////////////////////////////////////////////////
-//require_once('install.inc.php');
 
-// Utility functions ///////////////////////////////////////////////////////////
-//require_once('utility.inc.php');
+/**
+ * Install or upgrade this module.
+ * @param $old_revision The last installed revision of this module, or 0 if the
+ *   module has never been installed.
+ */
+function contact_install ($old_revision = 0) {
+    if ($old_revision < 1) {
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `contact` (
+              `cid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+              `firstName` varchar(255) NOT NULL,
+              `middleName` varchar(255) NOT NULL,
+              `lastName` varchar(255) NOT NULL,
+              `email` varchar(255) NOT NULL,
+              `phone` varchar(32) NOT NULL,
+              `emergencyName` varchar(255) NOT NULL,
+              `emergencyPhone` varchar(16) NOT NULL,
+              PRIMARY KEY (`cid`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+    }
+}
 
 // DB to Object mapping ////////////////////////////////////////////////////////
 

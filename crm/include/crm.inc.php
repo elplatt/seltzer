@@ -29,7 +29,6 @@ $crm_version = array(
 require_once($crm_root . '/config.inc.php');
 
 // Include base system /////////////////////////////////////////////////////////
-require_once('sys/init.inc.php');       // Pre-module initialization
 require_once('sys/util.inc.php');       // Generic utility functions
 require_once('sys/csv.inc.php');        // CSV parser
 require_once('sys/command.inc.php');    // Comand processing system
@@ -41,6 +40,13 @@ require_once('sys/table.inc.php');      // Table system
 require_once('sys/module.inc.php');     // Module system
 require_once('sys/page.inc.php');       // Page system
 require_once('sys/data.inc.php');       // DB-to-object system
+require_once('sys/init.inc.php');       // Pre-module initialization
+
+// Include core content ////////////////////////////////////////////////////////
+require_once('form.inc.php');
+require_once('page.inc.php');
+require_once('reports.inc.php');
+require_once('theme.inc.php');
 
 // Add core modules
 array_unshift($config_modules, 'core');
@@ -51,6 +57,7 @@ foreach ($config_modules as $module) {
 }
 
 // Initialize //////////////////////////////////////////////////////////////////
+page_init();
 foreach ($config_modules as $module) {
     $init = $module . '_init';
     if (function_exists($init)) {

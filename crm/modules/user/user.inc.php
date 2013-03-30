@@ -41,6 +41,86 @@ function user_permissions () {
     );
 }
 
+// Install /////////////////////////////////////////////////////////////////////
+
+/**
+ * Install or upgrade this module.
+ * @param $old_revision The last installed revision of this module, or 0 if the
+ *   module has never been installed.
+ */
+function user_install ($old_revision = 0) {
+    if ($old_revision < 1) {
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `resetPassword` (
+              `cid` mediumint(8) unsigned NOT NULL,
+              `code` varchar(40) NOT NULL,
+              PRIMARY KEY (`cid`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `role` (
+              `rid` mediumint(9) NOT NULL AUTO_INCREMENT,
+              `name` varchar(255) NOT NULL,
+              PRIMARY KEY (`rid`)
+            ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `role_permission` (
+              `rid` mediumint(8) unsigned NOT NULL,
+              `permission` varchar(255) NOT NULL,
+              PRIMARY KEY (`rid`,`permission`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `user` (
+              `cid` mediumint(11) unsigned NOT NULL,
+              `username` varchar(32) NOT NULL,
+              `hash` varchar(40) NOT NULL,
+              `salt` varchar(16) NOT NULL,
+              PRIMARY KEY (`cid`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `user_role` (
+              `cid` mediumint(8) unsigned NOT NULL,
+              `rid` mediumint(8) unsigned NOT NULL,
+              PRIMARY KEY (`cid`,`rid`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        
+        // Create default roles
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        foreach ($roles as $rid => $role) {
+            $sql = "INSERT INTO `role` (`rid`, `name`) VALUES ('$rid', '$role')";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+        }
+    }
+}
+
 // Data Model //////////////////////////////////////////////////////////////////
 
 /**

@@ -59,3 +59,6 @@ if (empty($_SESSION['member_filter'])) {
 // Initialize the sytlesheet and script list
 $core_stylesheets = array();
 $core_scripts = array();
+
+// Initialize module system
+module_init();
