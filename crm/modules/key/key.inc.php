@@ -129,39 +129,6 @@ function key_description ($kid) {
  * @return An array with each element representing a single key card assignment.
 */ 
 function key_data ($opts = array()) {
-    
-    // Determine joins
-    $join_contact = false;
-    $join_member = false;
-    if (array_key_exists('join', $opts)) {
-        foreach ($opts['join'] as $table) {
-            if ($table === 'contact') {
-                $join_contact = true;
-            }
-            if ($table === 'member') {
-                $join_member = true;
-            }
-        }
-    }
-    
-    // Create map from cids to contact names if necessary
-    // TODO: Add filters for speed
-    if ($join_contact) {
-        $contacts = member_contact_data();
-        $cidToContact = array();
-        foreach ($contacts as $contact) {
-            $cidToContact[$contact['cid']] = $contact;
-        }
-    }
-    
-    if ($join_member) {
-        $members = member_data();
-        $cidToMember = array();
-        foreach ($members as $member) {
-            $cidToMember[$member['cid']] = $member;
-        }
-    }
-    
     // Query database
     $sql = "
         SELECT
@@ -178,8 +145,17 @@ function key_data ($opts = array()) {
         $sql .= " AND `kid`='$esc_kid'";
     }
     if (!empty($opts['cid'])) {
-        $esc_cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `cid`='$esc_cid'";
+        if (is_array($opts['cid'])) {
+            $terms = array();
+            foreach ($opts['cid'] as $cid) {
+                $esc_cid = mysql_real_escape_string($cid);
+                $terms[] = "'$cid'";
+            }
+            $sql .= " AND `cid` IN (" . implode(', ', $terms) . ") ";
+        } else {
+            $esc_cid = mysql_real_escape_string($opts['cid']);
+            $sql .= " AND `cid`='$esc_cid'";
+        }
     }
     if (!empty($opts['filter'])) {
         foreach ($opts['filter'] as $name => $param) {
@@ -198,36 +174,55 @@ function key_data ($opts = array()) {
         ORDER BY `start`, `kid` ASC";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
-    
     // Store data
     $keys = array();
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
-        $key = array(
-            'kid' => $row['kid'],
-            'cid' => $row['cid'],
-            'start' => $row['start'],
-            'end' => $row['end'],
-            'serial' => $row['serial'],
-            'slot' => $row['slot'],
-        );
-        if ($join_contact) {
-            if (array_key_exists($row['cid'], $cidToContact)) {
-                $key['contact'] = $cidToContact[$row['cid']];
-            }
-        }
-        if ($join_contact) {
-            if (array_key_exists($row['cid'], $cidToMember)) {
-                $key['member'] = $cidToMember[$row['cid']];
-            }
-        }
-        $keys[] = $key;
+        // Contents of row are kid, cid, start, end, serial, slot
+        $keys[] = $row;
         $row = mysql_fetch_assoc($res);
     }
-    
     // Return data
     return $keys;
 }
+
+/**
+ * Implementation of hook_data_alter().
+ * @param $type The type of the data being altered.
+ * @param $data An array of structures of the given $type.
+ * @param $opts An associative array of options.
+ * @return An array of modified structures.
+ */
+function key_data_alter ($type, $data = array(), $opts = array()) {
+    switch ($type) {
+        case 'contact':
+            // Get cids of all contacts passed into $data
+            $cids = array();
+            foreach ($data as $contact) {
+                $cids[] = $contact['cid'];
+            }
+            // Add the cids to the options
+            $key_opts = $opts;
+            $key_opts['cid'] = $cids;
+            // Get an array of key structures for each cid
+            $key_data = crm_get_data('key', $key_opts);
+            // Create a map from cid to an array of key structures
+            $cid_to_keys = array();
+            foreach ($key_data as $key) {
+                $cid_to_keys[$key['cid']][] = $key;
+            }
+            // Add key structures to the contact structures
+            foreach ($data as $i => $contact) {
+                $keys = $cid_to_keys[$contact['cid']];
+                if ($keys) {
+                    $data[$i]['keys'] = $keys;
+                }
+            }
+            break;
+    }
+    return $data;
+}
+
 
 // Table data structures ///////////////////////////////////////////////////////
 
