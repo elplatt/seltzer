@@ -233,7 +233,6 @@ function key_data_alter ($type, $data = array(), $opts = array()) {
  * @return The table structure.
 */
 function key_table ($opts) {
-    
     // Determine settings
     $export = false;
     foreach ($opts as $option => $value) {
@@ -243,13 +242,18 @@ function key_table ($opts) {
                 break;
         }
     }
-    
-    // Get contact data
+    // Get key data
     $data = key_data($opts);
     if (count($data) < 1) {
         return array();
     }
-    
+    // Get contact info
+    $contact_opts = array();
+    foreach ($data as $row) {
+        $contact_opts['cid'][] = $row['cid'];
+    }
+    $contact_data = crm_get_data('contact', $contact_opts);
+    $cid_to_contact = crm_map($contact_data, 'cid');
     // Initialize table
     $table = array(
         "id" => '',
@@ -257,17 +261,9 @@ function key_table ($opts) {
         "rows" => array(),
         "columns" => array()
     );
-    
     // Add columns
     if (user_access('key_view') || $opts['cid'] == user_id()) {
-        if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
-            $table['columns'][] = array("title"=>'Last Name', 'class'=>'', 'id'=>'');
-            $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>'');
-            $table['columns'][] = array("title"=>'Middle Name', 'class'=>'', 'id'=>'');
-        }
-        if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
-            $table['columns'][] = array("title"=>'Membership', 'class'=>'', 'id'=>'');
-        }
+        $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Serial', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Slot', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Start', 'class'=>'', 'id'=>'');
@@ -277,59 +273,34 @@ function key_table ($opts) {
     if (!$export && (user_access('key_edit') || user_access('key_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
-    
     // Add rows
     foreach ($data as $key) {
-        
         // Add key data
         $row = array();
         if (user_access('key_view') || $opts['cid'] == user_id()) {
-            
             // Add cells
-            if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
-                $row[] = $key['contact']['lastName'];
-                $row[] = $key['contact']['firstName'];
-                $row[] = $key['contact']['middleName'];
-            }
-            if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
-                // Construct membership info
-                $member = $key['member'];
-                $plan = '';
-                if (!empty($member)) {
-                    $recentMembership = end($member['membership']);
-                    if (!empty($recentMembership) && empty($recentMembership['end'])) {
-                        $plan = $recentMembership['plan']['name'];
-                    }
-                }
-                $row[] = $plan;
-            }
+            $row[] = theme('contact_name', $cid_to_contact[$key['cid']], true);
             $row[] = $key['serial'];
             $row[] = $key['slot'];
             $row[] = $key['start'];
             $row[] = $key['end'];
         }
-        
         if (!$export && (user_access('key_edit') || user_access('key_delete'))) {
             // Construct ops array
             $ops = array();
-            
             // Add edit op
             if (user_access('key_edit')) {
                 $ops[] = '<a href="index.php?q=key&kid=' . $key['kid'] . '#tab-edit">edit</a> ';
             }
-            
             // Add delete op
             if (user_access('key_delete')) {
                 $ops[] = '<a href="index.php?q=delete&type=key&id=' . $key['kid'] . '">delete</a>';
             }
-            
             // Add ops row
             $row[] = join(' ', $ops);
         }
-        
         $table['rows'][] = $row;
     }
-    
     return $table;
 }
 

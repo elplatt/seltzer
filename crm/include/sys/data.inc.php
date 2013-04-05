@@ -47,3 +47,34 @@ function crm_get_data ($type, $opts = array()) {
     }
     return $data;
 }
+
+/**
+ * Get a single data structure from the database, and allow all modules
+ * to extend it.  This function will call hook_data() to get the data and
+ * hook_data_alter() to allow modules to alter the data.
+ * @param $type The type of data.
+ * @param $opts An associative array of options.
+ * @return An array of data structures.
+ */
+function crm_get_one ($type, $opts = array()) {
+    $opts['limit'] = 1;
+    $data = crm_get_data ($type, $opts);
+    if (count($data) > 0) {
+        return $data[0];
+    }
+    return array();
+}
+
+/**
+ * Take an indexed array of data structures and create an associative array.
+ * @param $data The list of data structures.
+ * @param $key The key of the data strucutre to use as a key for the array.
+ * @return The associative array.
+ */
+function crm_map ($data, $key) {
+    $map = array();
+    foreach ($data as $row) {
+        $map[$row[$key]] = $row;
+    }
+    return $map;
+}
