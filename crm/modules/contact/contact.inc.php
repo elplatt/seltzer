@@ -632,7 +632,7 @@ function contact_page (&$page_data, $page_name) {
 /**
  * Theme a contact's name.
  * 
- * @param $contact
+ * @param $contact The contact data structure or cid.
  * @param $link True if the name should be a link (default: false).
  * @param $path The path that should be linked to.  The cid will always be added
  *   as a parameter.
@@ -640,6 +640,9 @@ function contact_page (&$page_data, $page_name) {
  * @return the name string.
  */
 function theme_contact_name ($contact, $link = false, $path = 'contact') {
+    if (!is_array($contact)) {
+        $contact = crm_get_one('contact', array('cid'=>$contact));
+    }
     $first = $contact['firstName'];
     $middle = $contact['middleName'];
     $last = $contact['lastName'];

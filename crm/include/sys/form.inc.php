@@ -33,6 +33,7 @@ function crm_get_form () {
     
     // Build initial form
     if (!function_exists($hook)) {
+        error_register("No such hook: $hook");
         return array();
     }
     $form = call_user_func_array($hook, $args);

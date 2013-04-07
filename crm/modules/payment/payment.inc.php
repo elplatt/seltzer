@@ -76,18 +76,15 @@ function payment_install($old_revision = 0) {
  * @param $code Optional currency code.
  */
 function payment_parse_currency ($value, $code = null) {
-    
     global $config_currency_code;
-    
     if (!isset($code)) {
-        $code = $config_currency_code;
+        $code = $config_currency_code ? $config_currency_code : 'USD';
     }
     // Determine sign
     $sign = 1;
     if (preg_match('/^\(.*\)$/', $value) || preg_match('/^\-/', $value)) {
         $sign = -1;
     }
-    
     // Remove all irrelevant characters
     switch ($code) {
         case 'USD':
@@ -261,13 +258,6 @@ function payment_invert_currency ($value) {
  * @return An array with each element representing a single payment.
 */ 
 function payment_data ($opts = array()) {
-    
-    $join_contact = false;
-    if (!array_key_exists('join', $opts) || in_array('contact', $opts['join'])) {
-        $join_contact = true;
-    }
-    
-    $decimals = PAYMENT_DECIMALS;
     $sql = "
         SELECT
         `pmtid`
@@ -332,9 +322,7 @@ function payment_data ($opts = array()) {
     }
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
-    
     $payments = array();
-    $cid_map = array();
     $row = mysql_fetch_assoc($res);
     while ($row) {
         $payment = array(
@@ -350,29 +338,8 @@ function payment_data ($opts = array()) {
             , 'notes' => $row['notes']
         );
         $payments[] = $payment;
-        $cid_map[$row['credit']] = true;
-        $cid_map[$row['debit']] = true;
         $row = mysql_fetch_assoc($res);
     }
-    
-    if ($join_contact) {
-        $contact_map = array();
-        $cids = array_keys($cid_map);
-        $data = member_contact_data(array('cid'=>$cids));
-        foreach ($data as $row) {
-            $contact_map[$row['cid']] = $row;
-        }
-        
-        foreach ($payments as $i => $row) {
-            if (!empty($row['credit_cid'])) {
-                $payments[$i]['credit'] = $contact_map[$row['credit_cid']];
-            }
-            if (!empty($row['debit_cid'])) {
-                $payments[$i]['debit'] = $contact_map[$row['debit_cid']];
-            }
-        }
-    }
-    
     return $payments;
 }
 
@@ -387,7 +354,6 @@ function payment_data ($opts = array()) {
  * @return A new associative array representing the payment.
  */
 function payment_save ($payment) {
-
     // Verify permissions and validate input
     if (!user_access('payment_edit')) {
         error_register('Permission denied: payment_edit');
@@ -396,7 +362,6 @@ function payment_save ($payment) {
     if (empty($payment)) {
         return NULL;
     }
-    
     // Sanitize input
     $esc_pmtid = mysql_real_escape_string($payment['pmtid']);
     $esc_date = mysql_real_escape_string($payment['date']);
@@ -408,7 +373,7 @@ function payment_save ($payment) {
     $esc_method = mysql_real_escape_string($payment['method']);
     $esc_confirmation = mysql_real_escape_string($payment['confirmation']);
     $esc_notes = mysql_real_escape_string($payment['notes']);
-    
+    // Query database
     if (!empty($payment['pmtid'])) {
         // Payment already exists, update
         $sql = "
@@ -428,7 +393,8 @@ function payment_save ($payment) {
         ";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        $op = 'update';
+        $payment = module_invoke_api('payment', $payment, 'update');
+        message_register('Updated 1 payment.');
     } else {
         // Payment does not yet exist, create
         $sql = "
@@ -460,29 +426,29 @@ function payment_save ($payment) {
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         $payment['pmtid'] = mysql_insert_id();
-        $op = 'insert';
+        $payment = module_invoke_api('payment', $payment, 'update');
+        message_register('Added 1 payment.');
     }
-
-    $payment = payment_invoke_api($payment, $op);
-    
     return $payment;
 }
 
 /**
- * Call hooks when a payment is modified.
- * @param $payment An associative array representing the payment
- * @param $op A string describing the operation, values are:
- *   insert
- *   update
+ * Delete the payment identified by $pmtid.
+ * @param $pmtid The payment id.
  */
-function payment_invoke_api($payment, $op) {
-    foreach (module_list() as $module) {
-        $hook = $module . '_payment_api';
-        if (function_exists($hook)) {
-            call_user_func($hook, $payment, $op);
-        }
+function payment_delete ($pmtid) {
+    $payment = crm_get_one('payment', array('pmtid'=>$pmtid));
+    $payment = module_invoke_api('payment', $payment, 'delete');
+    // Query database
+    $esc_pmtid = mysql_real_escape_string($pmtid);
+    $sql = "
+        DELETE FROM `payment`
+        WHERE `pmtid`='$esc_pmtid'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_affected_rows() > 0) {
+        message_register('Deleted payment with id ' . $pmtid);
     }
-    return $payment;
 }
 
 // Table data structures ///////////////////////////////////////////////////////
@@ -494,7 +460,6 @@ function payment_invoke_api($payment, $op) {
  * @return The table structure.
 */
 function payment_table ($opts) {
-    
     // Determine settings
     $export = false;
     foreach ($opts as $option => $value) {
@@ -504,13 +469,21 @@ function payment_table ($opts) {
                 break;
         }
     }
-    
-    // Get data
-    $data = payment_data($opts);
+    // Get payment data
+    $data = crm_get_data('payment', $opts);
     if (count($data) < 1) {
         return array();
     }
-    
+    $cids = array();
+    // Create array of cids referenced from all payments
+    foreach ($data as $payment) {
+        $cids[$payment['credit_cid']] = true;
+        $cids[$payment['debit_cid']] = true;
+    }
+    $cids = array_keys($cids);
+    // Get map from cid to contact
+    $contacts = crm_get_data('contact', array('cid'=>$cids));
+    $cid_to_contact = crm_map($contacts, 'cid');
     // Initialize table
     $table = array(
         "id" => '',
@@ -518,7 +491,6 @@ function payment_table ($opts) {
         "rows" => array(),
         "columns" => array()
     );
-    
     // Add columns
     if (user_access('payment_view')) { // Permission check
         $table['columns'][] = array("title"=>'date');
@@ -534,24 +506,21 @@ function payment_table ($opts) {
     if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
-    
     // Add rows
     foreach ($data as $payment) {
-        
         $row = array();
         if (user_access('payment_view')) {
-            
             $row[] = $payment['date'];
             $row[] = $payment['description'];
-            if (array_key_exists('credit', $payment)) {
-                $contact = $payment['credit'];
-                $row[] = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            if ($payment['credit_cid']) {
+                $contact = $cid_to_contact[$payment['credit_cid']];
+                $row[] = theme('contact_name', $contact, true);
             } else {
                 $row[] = '';
             }
-            if (array_key_exists('debit', $payment)) {
-                $contact = $payment['debit'];
-                $row[] = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            if ($payment['debit_cid']) {
+                $contact = $cid_to_contact[$payment['debit_cid']];
+                $row[] = theme('contact_name', $contact, true);
             } else {
                 $row[] = '';
             }
@@ -560,7 +529,6 @@ function payment_table ($opts) {
             $row[] = $payment['confirmation'];
             $row[] = $payment['notes'];
         }
-        
         if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
             // Add ops column
             // TODO
@@ -573,10 +541,8 @@ function payment_table ($opts) {
             }
             $row[] = join(' ', $ops);
         }
-        
         $table['rows'][] = $row;
     }
-    
     return $table;
 }
 
@@ -587,20 +553,17 @@ function payment_table ($opts) {
  * @return A table object.
  */
 function payment_history_table ($opts) {
-    
     $cid = $opts['cid'];
     if (!$cid) {
         error_register('Unable to create payment history: no contact specified');
         return array();
     }
-    
     // Show oldest to newest unless otherwise specified
     if (!isset($opts['order'])) {
         $opts['order'] = array('date'=>'asc', 'created'=>'asc');
     }
-    $payments = payment_data($opts);
+    $payments = crm_get_data('payment', $opts);
     $balance = null;
-    
     $table = array(
         'columns' => array(
             array('title' => 'Date')
@@ -685,7 +648,7 @@ function payment_add_form () {
                         'type' => 'text'
                         , 'label' => 'Credit'
                         , 'name' => 'credit'
-                        , 'autocomplete' => 'member_name'
+                        , 'autocomplete' => 'contact_name'
                         , 'class' => 'focus'
                     )
                     , array(
@@ -720,7 +683,7 @@ function payment_add_form () {
                         'type' => 'text'
                         , 'label' => 'Debit'
                         , 'name' => 'debit'
-                        , 'autocomplete' => 'member_name'
+                        , 'autocomplete' => 'contact_name'
                     )
                     , array(
                         'type' => 'submit'
@@ -737,40 +700,31 @@ function payment_add_form () {
 /**
  * Create a form structure for editing a payment.
  *
- * @param &$form_data Array for storing extra info
  * @param $pmtid The id of the payment to edit.
  * @return The form structure.
 */
-function payment_edit_form (&$form_data, $pmtid) {
-    
+function payment_edit_form ($pmtid) {
     // Ensure user is allowed to edit payments
     if (!user_access('payment_edit')) {
         error_register('User does not have permission: payment_edit');
         return NULL;
     }
-    
-    $data = payment_data(array('pmtid'=>$pmtid));
+    // Get payment data
+    $data = crm_get_data('payment', array('pmtid'=>$pmtid));
     if (count($data) < 1) {
         return NULL;
     }
     $payment = $data[0];
-    $form_data['payment'] = $payment;
-    
+    $form['data']['payment'] = $payment;
     $credit = '';
-    $credit_cid = '';
     $debit = '';
-    $debit_cid = '';
-    if (array_key_exists('credit', $payment)) {
-        $contact = $payment['credit'];
-        $credit = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
-        $credit_cid = $contact['cid'];
+    // Add contact info
+    if ($payment['credit_cid']) {
+        $credit = theme('contact_name', $payment['credit_cid']);
     }
-    if (array_key_exists('debit', $payment)) {
-        $contact = $payment['debit'];
-        $debit = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
-        $debit_cid = $contact['cid'];
+    if ($payment['debit_cid']) {
+        $debit = theme('contact_name', $payment['debit_cid']);
     }
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -790,8 +744,8 @@ function payment_edit_form (&$form_data, $pmtid) {
                         , 'label' => 'Credit'
                         , 'name' => 'credit_cid'
                         , 'description' => $credit
-                        , 'value' => $credit_cid
-                        , 'autocomplete' => 'member_name'
+                        , 'value' => $payment['credit_cid']
+                        , 'autocomplete' => 'contact_name'
                     )
                     , array(
                         'type' => 'text'
@@ -830,8 +784,8 @@ function payment_edit_form (&$form_data, $pmtid) {
                         , 'label' => 'Debit'
                         , 'name' => 'debit_cid'
                         , 'description' => $debit
-                        , 'value' => $debit_cid
-                        , 'autocomplete' => 'member_name'
+                        , 'value' => $payment['debit_cid']
+                        , 'autocomplete' => 'contact_name'
                     )
                     , array(
                         'type' => 'textarea'
@@ -847,7 +801,6 @@ function payment_edit_form (&$form_data, $pmtid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -858,30 +811,24 @@ function payment_edit_form (&$form_data, $pmtid) {
  * @return The form structure.
 */
 function payment_delete_form ($pmtid) {
-    
     // Ensure user is allowed to delete keys
     if (!user_access('payment_delete')) {
         return NULL;
     }
-    
     // Get data
-    $data = payment_data(array('pmtid'=>$pmtid));
+    $data = crm_get_data('payment', array('pmtid'=>$pmtid));
     $payment = $data[0];
-    
     // Construct key name
     $amount = payment_format_currency($payment);
     $payment_name = "Payment:$payment[pmtid] - $amount";
-    if (array_key_exists('credit', $payment)) {
-        $contact = $payment['credit'];
-        $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    if ($payment['credit_cid']) {
+        $name = theme('contact_name', $payment['credit_cid']);
         $payment_name .= " - Credit: $name";
     }
-    if (array_key_exists('debit', $payment)) {
-        $contact = $payment['debit'];
-        $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    if ($payment['debit_cid']) {
+        $name = theme('contact_name', $payment['debit_cid']);
         $payment_name .= " - Debit: $name";
     }
-    
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -907,7 +854,6 @@ function payment_delete_form ($pmtid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -920,24 +866,12 @@ function payment_delete_form ($pmtid) {
  */
 function command_payment_delete() {
     global $esc_post;
-    
     // Verify permissions
     if (!user_access('payment_delete')) {
         error_register('Permission denied: payment_delete');
         return 'index.php?q=payment&pmtid=' . $esc_post['pmtid'];
     }
-    
-    // Query database
-    $sql = "
-        DELETE FROM `payment`
-        WHERE `pmtid`='$esc_post[pmtid]'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
-    if (mysql_affected_rows($res) > 0) {
-        message_register('Deleted payment with id ' . $_POST['pmtid']);
-    }
-    
+    payment_delete($_POST['pmtid']);
     return 'index.php?q=payments';
 }
 
@@ -967,7 +901,7 @@ function payment_page (&$page_data, $page_name, $options) {
         case 'payments':
             page_set_title($page_data, 'Payments');
             if (user_access('payment_edit')) {
-                $content = theme('form', payment_add_form());
+                $content = theme('form', crm_get_form('payment_add'));
                 $content .= theme('table', 'payment', array('show_export'=>true));
                 page_add_content_top($page_data, $content, 'View');
             }
@@ -975,7 +909,7 @@ function payment_page (&$page_data, $page_name, $options) {
         case 'payment':
             page_set_title($page_data, 'Payment');
             if (user_access('payment_edit')) {
-                $content = theme('form', crm_get_form('payment_edit_form', $_GET['pmtid']));
+                $content = theme('form', crm_get_form('payment_edit', $_GET['pmtid']));
                 page_add_content_top($page_data, $content);
             }
             break;
@@ -998,7 +932,6 @@ function payment_page (&$page_data, $page_name, $options) {
  * @return The url to display on completion.
  */
 function command_payment_add() {
-    
     $value = payment_parse_currency($_POST['amount'], $_POST['code']);
     $payment = array(
         'date' => $_POST['date']
@@ -1012,9 +945,6 @@ function command_payment_add() {
         , 'notes' => $_POST['notes']
     );
     $payment = payment_save($payment);
-    
-    message_register('Added 1 payment.');
-    
     return 'index.php?q=payments';
 }
 
@@ -1035,8 +965,5 @@ function command_payment_edit() {
     $payment['code'] = $value['code'];
     $payment['value'] = $value['value'];
     payment_save($payment);
-    
-    message_register('Updated 1 payment.');
-    
     return 'index.php?q=payments';
 }
