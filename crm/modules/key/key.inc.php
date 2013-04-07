@@ -697,7 +697,7 @@ function key_page (&$page_data, $page_name, $options) {
  * @return The themed html string.
  */
 function theme_key_add_form ($cid) {
-    return theme('form', key_add_form($cid));
+    return theme('form', crm_get_form('key_add', $cid));
 }
 
 /**
@@ -707,7 +707,7 @@ function theme_key_add_form ($cid) {
  * @return The themed html string.
  */
 function theme_key_edit_form ($kid) {
-    return theme('form', key_edit_form($kid));
+    return theme('form', crm_get_form('key_edit', $kid));
 }
 
 ?>
