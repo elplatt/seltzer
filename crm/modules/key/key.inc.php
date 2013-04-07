@@ -103,7 +103,7 @@ function key_install($old_revision = 0) {
 function key_description ($kid) {
     
     // Get key data
-    $data = key_data(array('kid' => $kid));
+    $data = crm_get_data('key', array('kid' => $kid));
     if (empty($data)) {
         return '';
     }
@@ -223,6 +223,69 @@ function key_data_alter ($type, $data = array(), $opts = array()) {
     return $data;
 }
 
+/**
+ * Save a key structure.  If $key has a 'kid' element, an existing key will
+ * be updated, otherwise a new key will be created.
+ * @param $kid The key structure
+ * @return The key structure with as it now exists in the database.
+ */
+function key_save ($key) {
+    // Escape values
+    $fields = array('kid', 'cid', 'serial', 'slot', 'start', 'end');
+    if (isset($key['kid'])) {
+        // Update existing key
+        $kid = $key['kid'];
+        $esc_kid = mysql_real_escape_string($kid);
+        $clauses = array();
+        foreach ($fields as $k) {
+            if ($k == 'end' && empty($key[$k])) {
+                continue;
+            }
+            if (isset($key[$k]) && $k != 'kid') {
+                $clauses[] = "`$k`='" . mysql_real_escape_string($key[$k]) . "' ";
+            }
+        }
+        $sql = "UPDATE `key` SET " . implode(', ', $clauses) . " ";
+        $sql .= "WHERE `kid`='$esc_kid'";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        message_register('Key updated');
+    } else {
+        // Insert new key
+        $cols = array();
+        $values = array();
+        foreach ($fields as $k) {
+            if (isset($key[$k])) {
+                if ($k == 'end' && empty($key[$k])) {
+                    continue;
+                }
+                $cols[] = "`$k`";
+                $values[] = "'" . mysql_real_escape_string($key[$k]) . "'";
+            }
+        }
+        $sql = "INSERT INTO `key` (" . implode(', ', $cols) . ") ";
+        $sql .= " VALUES (" . implode(', ', $values) . ")";
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $kid = mysql_insert_id();
+        message_register('Key added');
+    }
+    return crm_get_one('key', array('kid'=>$kid));
+}
+
+/**
+ * Delete a key.
+ * @param $key The key data structure to delete, must have a 'kid' element.
+ */
+function key_delete ($key) {
+    $esc_kid = mysql_real_escape_string($key['kid']);
+    $sql = "DELETE FROM `key` WHERE `kid`='$esc_kid'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_affected_rows() > 0) {
+        message_register('Key deleted.');
+    }
+}
 
 // Table data structures ///////////////////////////////////////////////////////
 
@@ -243,7 +306,7 @@ function key_table ($opts) {
         }
     }
     // Get key data
-    $data = key_data($opts);
+    $data = crm_get_data('key', $opts);
     if (count($data) < 1) {
         return array();
     }
@@ -374,26 +437,20 @@ function key_add_form ($cid) {
  * @return The form structure.
 */
 function key_edit_form ($kid) {
-    
     // Ensure user is allowed to edit key
     if (!user_access('key_edit')) {
         return NULL;
     }
-    
     // Get key data
-    $data = key_data(array('kid'=>$kid));
+    $data = crm_get_data('key', array('kid'=>$kid));
     $key = $data[0];
     if (empty($key) || count($key) < 1) {
         return array();
     }
-    
     // Get corresponding contact data
-    $data = member_contact_data(array('cid'=>$key['cid']));
-    $contact = $data[0];
-    
+    $contact = crm_get_one('contact', array('cid'=>$key['cid']));
     // Construct member name
-    $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
-    
+    $name = theme('contact_name', $contact, true);
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -464,7 +521,7 @@ function key_delete_form ($kid) {
     }
     
     // Get key data
-    $data = key_data(array('kid'=>$kid));
+    $data = crm_get_data('key', array('kid'=>$kid));
     $key = $data[0];
     
     // Construct key name
@@ -521,32 +578,12 @@ function key_command ($command, &$url, &$params) {
  * @return The url to display on completion.
  */
 function command_key_add() {
-    global $esc_post;
-    
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
-        return 'index.php?q=key&kid=' . $esc_post['kid'];
+        return 'index.php?q=key&kid=' . $_POST['kid'];
     }
-    
-    // Query database
-    $sql = "
-        INSERT INTO `key`
-        (`cid`, `serial`, `slot`, `start`";
-    if (!empty($esc_post['end'])) {
-        $sql .= ", `end`";
-    }
-    $sql .= "
-        )
-        VALUES
-        ('$esc_post[cid]', '$esc_post[serial]', '$esc_post[slot]', '$esc_post[start]'";
-    if (!empty($esc_post['end'])) {
-        $sql .= ", '$esc_post[end]'";
-    }
-    $sql .= ")";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
+    key_save($_POST);
     return 'index.php?q=member&cid=' . $_POST['cid'] . '&tab=keys';
 }
 
@@ -556,32 +593,14 @@ function command_key_add() {
  * @return The url to display on completion.
  */
 function command_key_update() {
-    global $esc_post;
-    
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
         return 'index.php?q=key&kid=' . $_POST['kid'];
     }
-    
-    // Query database
-    $sql = "
-        UPDATE `key`
-        SET
-        `start`='$esc_post[start]',";
-    if (!empty($esc_post[end])) {
-        $sql .= "`end`='$esc_post[end]',";
-    } else {
-        $sql .= "`end`=NULL,";
-    }
-    $sql .= "
-        `serial`='$esc_post[serial]',
-        `slot`='$esc_post[slot]'
-        WHERE `kid`='$esc_post[kid]'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
-    return 'index.php?q=key&kid=' . $esc_post['kid'] . '&tab=edit';
+    // Save key
+    key_save($_POST);
+    return 'index.php?q=key&kid=' . $_POST['kid'] . '&tab=edit';
 }
 
 /**
@@ -591,20 +610,12 @@ function command_key_update() {
  */
 function command_key_delete() {
     global $esc_post;
-    
     // Verify permissions
     if (!user_access('key_delete')) {
         error_register('Permission denied: key_delete');
         return 'index.php?q=key&kid=' . $esc_post['kid'];
     }
-    
-    // Query database
-    $sql = "
-        DELETE FROM `key`
-        WHERE `kid`='$esc_post[kid]'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
+    key_delete($_POST);
     return 'index.php?q=members';
 }
 
