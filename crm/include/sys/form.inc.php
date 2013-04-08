@@ -30,19 +30,17 @@ function crm_get_form () {
     $args = func_get_args();
     $form_id = array_shift($args);
     $hook = "${form_id}_form";
-    
     // Build initial form
     if (!function_exists($hook)) {
         error_register("No such hook: $hook");
         return array();
     }
     $form = call_user_func_array($hook, $args);
-    
     // Allow modules to alter the form
     foreach (module_list() as $module) {
         $hook = $module . '_form_alter';
         if (function_exists($hook)) {
-            $form = $hook($form, $form_state, $form_id);
+            $form = $hook($form, $form_id);
             if (empty($form)) {
                 error_register('Empty form returned by ' . $hook);
             }

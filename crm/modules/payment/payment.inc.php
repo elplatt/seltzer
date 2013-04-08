@@ -64,7 +64,7 @@ function payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
 }
 
@@ -321,7 +321,7 @@ function payment_data ($opts = array()) {
         $sql .= " ORDER BY `date` DESC, `created` DESC ";
     }
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     $payments = array();
     $row = mysql_fetch_assoc($res);
     while ($row) {
@@ -392,9 +392,8 @@ function payment_save ($payment) {
             `pmtid` = '$esc_pmtid'
         ";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         $payment = module_invoke_api('payment', $payment, 'update');
-        message_register('Updated 1 payment.');
     } else {
         // Payment does not yet exist, create
         $sql = "
@@ -424,10 +423,9 @@ function payment_save ($payment) {
             )
         ";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         $payment['pmtid'] = mysql_insert_id();
-        $payment = module_invoke_api('payment', $payment, 'update');
-        message_register('Added 1 payment.');
+        $payment = module_invoke_api('payment', $payment, 'insert');
     }
     return $payment;
 }
@@ -445,7 +443,7 @@ function payment_delete ($pmtid) {
         DELETE FROM `payment`
         WHERE `pmtid`='$esc_pmtid'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     if (mysql_affected_rows() > 0) {
         message_register('Deleted payment with id ' . $pmtid);
     }
@@ -715,7 +713,6 @@ function payment_edit_form ($pmtid) {
         return NULL;
     }
     $payment = $data[0];
-    $form['data']['payment'] = $payment;
     $credit = '';
     $debit = '';
     // Add contact info
@@ -801,6 +798,8 @@ function payment_edit_form ($pmtid) {
             )
         )
     );
+    // Make data accessible for other modules modifying this form
+    $form['data']['payment'] = $payment;
     return $form;
 }
 
@@ -945,6 +944,7 @@ function command_payment_add() {
         , 'notes' => $_POST['notes']
     );
     $payment = payment_save($payment);
+    message_register('1 payment added.');
     return 'index.php?q=payments';
 }
 
@@ -965,5 +965,6 @@ function command_payment_edit() {
     $payment['code'] = $value['code'];
     $payment['value'] = $value['value'];
     payment_save($payment);
+    message_register('1 payment updated.');
     return 'index.php?q=payments';
 }

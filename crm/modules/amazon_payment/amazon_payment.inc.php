@@ -46,7 +46,7 @@ function amazon_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
         ';
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         
         // Additional contact info for amazon payments
         $sql = '
@@ -57,7 +57,7 @@ function amazon_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
         ';
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
 }
 
@@ -73,7 +73,7 @@ function amazon_payment_data ($opts = array()) {
         $sql .= " AND `pmtid`='$esc_pmtid' ";
     }
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     // Read from database and store in a structure
     $amazon_payment_data = array();
     while ($db_row = mysql_fetch_assoc($res)) {
@@ -91,7 +91,6 @@ function amazon_payment_data ($opts = array()) {
  * @return An array with each element representing a single payment.
 */
 function amazon_payment_contact_data ($opts = array()) {
-    
     $sql = "SELECT `cid`, `amazon_name` FROM `contact_amazon` WHERE 1";
     if (isset($opts['filter'])) {
         foreach ($opts['filter'] as $filter => $value) {
@@ -102,8 +101,7 @@ function amazon_payment_contact_data ($opts = array()) {
         }
     }
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
+    if (!$res) crm_error(mysql_error());
     $names = array();
     $row = mysql_fetch_assoc($res);
     while ($row) {
@@ -111,17 +109,9 @@ function amazon_payment_contact_data ($opts = array()) {
             'cid' => $row['cid']
             , 'amazon_name' => $row['amazon_name']
         );
-        // add contact field if 'cid' is not empty
-        if (!empty($row['cid'])) {
-            // Grab array of contacts
-            $contactarray = member_contact_data(array('cid'=>$row['cid']));
-            // assign the first element (which is a contact array) to the 'contact' field
-            $name['contact'] = $contactarray[0];
-        }
-        $row = mysql_fetch_assoc($res);
         $names[] = $name;
+        $row = mysql_fetch_assoc($res);
     }
-    
     return $names;
 }
 
@@ -131,17 +121,15 @@ function amazon_payment_contact_data ($opts = array()) {
  * set are not modified.
  */
 function amazon_payment_contact_save ($contact) {
-    $esc_name = $contact['amazon_name'];
-    $esc_cid = $contact['cid'];
-    
+    $esc_name = mysql_real_escape_string($contact['amazon_name']);
+    $esc_cid = mysql_real_escape_string($contact['cid']);    
     // Check whether the amazon contact already exists in the database
     $sql = "SELECT * FROM `contact_amazon` WHERE `amazon_name` = '$esc_name'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     $row = mysql_fetch_assoc($res);
-    
     if ($row) {
-        // Update existing if the cid is set
+        // Name is already in database, update if the cid is set
         if (isset($contact['cid'])) {
             $sql = "
                 UPDATE `contact_amazon`
@@ -149,35 +137,32 @@ function amazon_payment_contact_save ($contact) {
                 WHERE `amazon_name`='$esc_name'
             ";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
         }
     } else {
-        // Insert new
+        // Name is not in database, insert new
         $sql = "
             INSERT INTO `contact_amazon`
             (`amazon_name`, `cid`) VALUES ('$esc_name', '$esc_cid')";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
 }
 
 /**
- * Implementation of hook_payment_api()
- * Invoke a payment api hook in all modules.
- * @param $payment An associative array representing a payment.
- * @param $op The operation.
+ * Update amazon_payment data when a payment is updated.
+ * @param $contact The contact data array.
+ * @param $op The operation being performed.
  */
 function amazon_payment_payment_api ($payment, $op) {
     if ($payment['method'] !== 'amazon') {
         return;
     }
-
     $name = $payment['amazon_name'];
     $pmtid = $payment['pmtid'];
     $credit_cid = $payment['credit_cid'];
     $esc_name = mysql_real_escape_string($name);
     $esc_pmtid = mysql_real_escape_string($pmtid);
-    
     // Create link between the amazon payment name and contact id
     $amazon_contact = array();
     if (isset($payment['amazon_name'])) {
@@ -186,7 +171,6 @@ function amazon_payment_payment_api ($payment, $op) {
     if (isset($payment['credit_cid'])) {
         $amazon_contact['cid'] = $credit_cid;
     }
-    
     switch ($op) {
         case 'insert':
             $sql = "
@@ -196,7 +180,7 @@ function amazon_payment_payment_api ($payment, $op) {
                 ('$esc_pmtid', '$esc_name')
             ";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
             amazon_payment_contact_save($amazon_contact);
             break;
         case 'update':
@@ -206,62 +190,54 @@ function amazon_payment_payment_api ($payment, $op) {
                 WHERE `pmtid` = '$esc_pmtid'
             ";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
             amazon_payment_contact_save($amazon_contact);
             break;
     }
 }
 
-// Generate payments contacts table
-//
-// @param $opts an array of options passed to the amazon_payment_contact_data function
-// @return a table (array) listing the contacts represented by all payments
-//   and their associated amazon name
-// 
-function amazon_payment_contact_table($opts){
-    
-    $data = amazon_payment_contact_data($opts);
-    
-    
+/**
+ * Generate payments contacts table.
+ *
+ * @param $opts an array of options passed to the amazon_payment_contact_data function
+ * @return a table (array) listing the contacts represented by all payments
+ *   and their associated amazon name
+ */
+function amazon_payment_contact_table ($opts) {
+    $data = crm_get_data('amazon_payment_contact', $opts);
     // Initialize table
     $table = array(
         "id" => '',
         "class" => '',
         "rows" => array(),
         "columns" => array()
-    );
-    
-    // Add columns
-    if (!user_access('payment_view')) { // Permission check
+    );    
+    // Check for permissions
+    if (!user_access('payment_view')) {
         error_register('User does not have permission to view payments');
         return;
     }
+    // Add columns
     $table['columns'][] = array("title"=>'Full Name');
     $table['columns'][] = array("title"=>'Amazon Name');
-    
-    // Add ops column (Not going to worry about this right now)
-   
     // Add rows
     foreach ($data as $union) {
         $row = array();
-        
         //first column is the full name associated with the union['cid']
         $memberopts = array(
             'cid' => $union['cid'],
         );
-        $contact = $union['contact'];
+        $contact = crm_get_one('contact', array('cid'=>$union['cid']));
         $contactName = '';
         if (!empty($contact)) {
-            $contactName = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            $contactName = theme('contact_name', $contact, true);
         }
         $row[] = $contactName; 
-        //second column is  union['amazon_name']
+        // Second column is union['amazon_name']
         $row[] = $union['amazon_name'];
-        
-        //Save row array into the $table structure
+        // Save row array into the $table structure
         $table['rows'][] = $row;
     }
-    
     return $table; 
 }
 
@@ -278,7 +254,7 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
         case 'payments':
             if (user_access('payment_add')) {
                 $content = theme('amazon_payment_admin');
-                $content .= theme('form', amazon_payment_import_form());
+                $content .= theme('form', crm_get_form('amazon_payment_import'));
                 page_add_content_top($page_data, $content, 'Amazon');
             }
             break;
@@ -328,16 +304,16 @@ function amazon_payment_import_form () {
  * @param &$form_data Metadata about the form.
  * @param $form_id The name of the form.
  */
-function amazon_payment_form_alter(&$form, &$form_data, $form_id) {
-    if ($form_id === 'payment_edit_form') {
+function amazon_payment_form_alter($form, $form_id) {
+    if ($form_id === 'payment_edit') {
         // Modify amazon payments only
-        $payment = $form_data['payment'];
+        $payment = $form['data']['payment'];
         if ($payment['method'] !== 'amazon') {
-            return;
+            return $form;
         }
         // Load amazon_payment
         $amazon_payment_opts = array('pmtid' => $payment['pmtid']);
-        $amazon_payment_data = amazon_payment_data($amazon_payment_opts);
+        $amazon_payment_data = crm_get_data('amazon_payment', $amazon_payment_opts);
         if (count($amazon_payment_data) < 1) {
             error_register("Payment with id $payment[pmtid] missing from payment_amazon table.");
             return;
@@ -367,6 +343,7 @@ function amazon_payment_form_alter(&$form, &$form_data, $form_id) {
             }
         }
     }
+    return $form;
 }
 
 /**
@@ -375,23 +352,18 @@ function amazon_payment_form_alter(&$form, &$form_data, $form_id) {
  * @return The url to display on completion.
  */
 function command_amazon_payment_import () {
-    
     if (!user_access('payment_add')) {
         error_register('User does not have permission: payment_add');
         return 'index.php?q=payments';
     }
-    
     if (!array_key_exists('payment-file', $_FILES)) {
         error_register('No payment file uploaded');
         return 'index.php?q=payments&tab=import';
     }
-    
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);
-    
     $count = 0;
     foreach ($data as $row) {
-        
         // Ignore withdrawals, holds, and failures
         if ($row['Type'] !== 'Payment') {
             continue;
@@ -402,7 +374,6 @@ function command_amazon_payment_import () {
         if ($row['Status'] !== 'Completed') {
             continue;
         }
-        
         // Skip transactions that have already been imported
         $payment_opts = array(
             'filter' => array('confirmation' => $row['Transaction ID'])
@@ -411,10 +382,8 @@ function command_amazon_payment_import () {
         if (count($data) > 0) {
             continue;
         }
-        
         // Parse value
         $value = payment_parse_currency($row['Amount']);
-        
         // Create payment object
         $payment = array(
             'date' => date('Y-m-d', strtotime($row['Date']))
@@ -436,9 +405,7 @@ function command_amazon_payment_import () {
         $payment = payment_save($payment);
         $count++;
     }
-    
     message_register("Successfully imported $count payment(s)");
-    
     return 'index.php?q=payments';
 }
 

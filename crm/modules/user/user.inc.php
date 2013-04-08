@@ -227,7 +227,7 @@ function user_data ($opts) {
         INNER JOIN `contact` ON `contact`.`cid` = `user`.`cid`
         WHERE 1
     ";
-    if (array_key_exists('cid', $opts)) {
+    if (array_key_exists('cid', $opts) && $opts['cid']) {
         $clauses = array();
         if (is_array($opts['cid'])) {
             $cids = $opts['cid'];

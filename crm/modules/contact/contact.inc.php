@@ -69,7 +69,7 @@ function contact_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
 }
 
@@ -89,7 +89,7 @@ function contact_data ($opts = array()) {
         SELECT * FROM `contact`
         WHERE 1 ";
     // Add contact id
-    if ($opts['cid']) {
+    if (isset($opts['cid'])) {
         if (is_array($opts['cid'])) {
             $terms = array();
             foreach ($opts['cid'] as $cid) {

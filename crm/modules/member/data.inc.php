@@ -42,7 +42,7 @@ function member_data ($opts = array()) {
         LEFT JOIN `plan` ON `plan`.`pid`=`membership`.`pid`
         WHERE 1
     ";
-    if (!empty($opts['cid'])) {
+    if (isset($opts['cid']) and !empty($opts['cid'])) {
         if (is_array($opts['cid'])) {
             $terms = array();
             foreach ($opts['cid'] as $cid) {
