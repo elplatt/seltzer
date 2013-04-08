@@ -46,7 +46,7 @@ function paypal_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
         ';
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
         
         // Additional contact info for paypal payments
         $sql = '
@@ -57,7 +57,7 @@ function paypal_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
         ';
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
 }
 
@@ -73,7 +73,7 @@ function paypal_payment_data ($opts = array()) {
         $sql .= " AND `pmtid`='$esc_pmtid' ";
     }
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     // Read from database and store in a structure
     $paypal_payment_data = array();
     while ($db_row = mysql_fetch_assoc($res)) {
@@ -91,7 +91,6 @@ function paypal_payment_data ($opts = array()) {
  * @return An array with each element representing a single payment.
 */
 function paypal_payment_contact_data ($opts = array()) {
-    
     $sql = "SELECT `cid`, `paypal_email` FROM `contact_paypal` WHERE 1";
     if (isset($opts['filter'])) {
         foreach ($opts['filter'] as $filter => $value) {
@@ -102,8 +101,7 @@ function paypal_payment_contact_data ($opts = array()) {
         }
     }
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    
+    if (!$res) crm_error(mysql_error());
     $emails = array();
     $row = mysql_fetch_assoc($res);
     while ($row) {
@@ -111,17 +109,9 @@ function paypal_payment_contact_data ($opts = array()) {
             'cid' => $row['cid']
             , 'paypal_email' => $row['paypal_email']
         );
-        // add contact field if 'cid' is not empty
-        if (!empty($row['cid'])) {
-            // Grab array of contacts
-            $contactarray = member_contact_data(array('cid'=>$row['cid']));
-            // assign the first element (which is a contact array) to the 'contact' field
-            $email['contact'] = $contactarray[0];
-        }
-        $row = mysql_fetch_assoc($res);
         $emails[] = $email;
+        $row = mysql_fetch_assoc($res);
     }
-    
     return $emails;
 }
 
@@ -131,17 +121,15 @@ function paypal_payment_contact_data ($opts = array()) {
  * set are not modified.
  */
 function paypal_payment_contact_save ($contact) {
-    $esc_email = $contact['paypal_email'];
-    $esc_cid = $contact['cid'];
-    
+    $esc_name = mysql_real_escape_string($contact['paypal_email']);
+    $esc_cid = mysql_real_escape_string($contact['cid']);    
     // Check whether the paypal contact already exists in the database
     $sql = "SELECT * FROM `contact_paypal` WHERE `paypal_email` = '$esc_email'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     $row = mysql_fetch_assoc($res);
-    
     if ($row) {
-        // Update existing if the cid is set
+        // Name is already in database, update if the cid is set
         if (isset($contact['cid'])) {
             $sql = "
                 UPDATE `contact_paypal`
@@ -149,35 +137,32 @@ function paypal_payment_contact_save ($contact) {
                 WHERE `paypal_email`='$esc_email'
             ";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
         }
     } else {
-        // Insert new
+        // Name is not in database, insert new
         $sql = "
             INSERT INTO `contact_paypal`
             (`paypal_email`, `cid`) VALUES ('$esc_email', '$esc_cid')";
         $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        if (!$res) crm_error(mysql_error());
     }
 }
 
 /**
- * Implementation of hook_payment_api()
- * Invoke a payment api hook in all modules.
- * @param $payment An associative array representing a payment.
- * @param $op The operation.
+ * Update paypal_payment data when a payment is updated.
+ * @param $contact The contact data array.
+ * @param $op The operation being performed.
  */
 function paypal_payment_payment_api ($payment, $op) {
     if ($payment['method'] !== 'paypal') {
         return;
     }
-    
     $email = $payment['paypal_email'];
     $pmtid = $payment['pmtid'];
     $credit_cid = $payment['credit_cid'];
     $esc_email = mysql_real_escape_string($email);
     $esc_pmtid = mysql_real_escape_string($pmtid);
-    
     // Create link between the paypal payment name and contact id
     $paypal_contact = array();
     if (isset($payment['paypal_email'])) {
@@ -186,7 +171,6 @@ function paypal_payment_payment_api ($payment, $op) {
     if (isset($payment['credit_cid'])) {
         $paypal_contact['cid'] = $credit_cid;
     }
-    
     switch ($op) {
         case 'insert':
             $sql = "
@@ -196,7 +180,7 @@ function paypal_payment_payment_api ($payment, $op) {
                 ('$esc_pmtid', '$esc_email')
             ";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
             paypal_payment_contact_save($paypal_contact);
             break;
         case 'update':
@@ -214,15 +198,13 @@ function paypal_payment_payment_api ($payment, $op) {
 
 /**
  * Generate payments contacts table
+ *
  * @param $opts an array of options passed to the paypal_payment_contact_data function
  * @return a table (array) listing the contacts represented by all payments
- * and their associated paypal email
+ *   and their associated paypal email
  */ 
 function paypal_payment_contact_table($opts){
-    
-    $data = paypal_payment_contact_data($opts);
-    
-    
+    $data = crm_get_data('paypal_payment_contact', $opts);
     // Initialize table
     $table = array(
         "id" => '',
@@ -230,40 +212,35 @@ function paypal_payment_contact_table($opts){
         "rows" => array(),
         "columns" => array()
     );
-    
-    // Add columns
-    if (!user_access('payment_view')) { // Permission check
+    // Check for permissions
+    if (!user_access('payment_view')) {
         error_register('User does not have permission to view payments');
         return;
     }
+    // Add columns
     $table['columns'][] = array("title"=>'Full Name');
     $table['columns'][] = array("title"=>'Paypal Email');
-    
-    // Add ops column (Not going to worry about this right now)
-   
     // Add rows
     foreach ($data as $union) {
         $row = array();
-        
         //first column is the full name associated with the union['cid']
         $memberopts = array(
             'cid' => $union['cid'],
         );
-        $contact = $union['contact'];
+        $contact = crm_get_one('contact', array('cid'=>$union['cid']));
         $contactName = '';
         if (!empty($contact)) {
-            $contactName = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            $contactName = theme('contact_name', $contact, true);
         }
         $row[] = $contactName; 
-        //second column is  union['paypal_email']
+        // Second column is union['paypal_email']
         $row[] = $union['paypal_email'];
-        
-        //Save row array into the $table structure
+        // Save row array into the $table structure
         $table['rows'][] = $row;
     }
-    
     return $table; 
 }
+
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
@@ -277,7 +254,7 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
         case 'payments':
             if (user_access('payment_add')) {
                 $content = theme('paypal_payment_admin');
-                $content .= theme('form', paypal_payment_import_form());
+                $content .= theme('form', crm_get_form('paypal_payment_import'));
                 page_add_content_top($page_data, $content, 'Paypal');
             }
             break;
@@ -327,12 +304,12 @@ function paypal_payment_import_form () {
  * @param &$form_data Metadata about the form.
  * @param $form_id The name of the form.
  */
-function paypal_payment_form_alter(&$form, &$form_data, $form_id) {
-    if ($form_id === 'payment_edit_form') {
+function paypal_payment_form_alter(&$form, $form_id) {
+    if ($form_id === 'payment_edit') {
         // Modify paypal payments only
-        $payment = $form_data['payment'];
+        $payment = $form['data']['payment'];
         if ($payment['method'] !== 'paypal') {
-            return;
+            return $form;
         }
         // Load paypal_payment
         $paypal_payment_opts = array('pmtid' => $payment['pmtid']);
@@ -366,6 +343,7 @@ function paypal_payment_form_alter(&$form, &$form_data, $form_id) {
             }
         }
     }
+    return $form;
 }
 
 /**
@@ -374,20 +352,16 @@ function paypal_payment_form_alter(&$form, &$form_data, $form_id) {
  * @return The url to display on completion.
  */
 function command_paypal_payment_import () {
-    
     if (!user_access('payment_add')) {
         error_register('User does not have permission: payment_add');
         return 'index.php?q=payments';
     }
-    
     if (!array_key_exists('payment-file', $_FILES)) {
         error_register('No payment file uploaded');
         return 'index.php?q=payments&tab=import';
     }
-    
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);
-    
     $count = 0;
     foreach ($data as $row) {
         
@@ -399,10 +373,8 @@ function command_paypal_payment_import () {
         if (count($data) > 0) {
             continue;
         }
-        
         // Parse value
         $value = payment_parse_currency($row['Gross']);
-        
         // Create payment object
         $payment = array(
             'date' => date('Y-m-d', strtotime($row['Date']))
@@ -424,9 +396,7 @@ function command_paypal_payment_import () {
         $payment = payment_save($payment);
         $count++;
     }
-    
     message_register("Successfully imported $count payment(s)");
-    
     return 'index.php?q=payments';
 }
 
