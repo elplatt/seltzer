@@ -69,6 +69,7 @@ $config_modules = array(
 // Links to show in the main menu
 $config_links = array(
     '<front>' => 'Home'
+    , 'contacts' => 'Contacts'
     , 'members' => 'Members'
     , 'plans' => 'Plans'
     , 'keys' => 'Keys'
