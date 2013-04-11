@@ -94,15 +94,12 @@ function billing_page_list () {
 }
 
 function billing_page (&$page_data, $page_name, $options) {
-    
     switch ($page_name) {
         case 'payments':
-            
             // Add view and add tabs
             if (user_access('payment_edit')) {
-                page_add_content_top($page_data, theme('form', billing_form()), 'Billing');
+                page_add_content_top($page_data, theme('form', crm_get_form('billing')), 'Billing');
             }
-            
             break;
     }
 }
@@ -119,7 +116,7 @@ function command_billing () {
     if (!empty($last_billed)) {
         $filter['starts-after'] = $last_billed;
     }
-    $membership_data = member_membership_data(array('filter' => $filter));
+    $membership_data = crm_get_data('member_membership', array('filter' => $filter));
     // Bill each membership
     foreach ($membership_data as $membership) {
         _billing_bill_membership($membership, $today, $last_billed);
