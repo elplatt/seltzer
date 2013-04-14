@@ -118,6 +118,20 @@ function user_install ($old_revision = 0) {
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
         }
+        $default_perms = array(
+            'member' => array('report_view', 'contact_view')
+            , 'director' => array('module_upgrade', 'report_view', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete', 'user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit')
+            , 'webAdmin' => array('module_upgrade', 'report_view', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete', 'user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit')
+        );
+        foreach ($roles as $rid => $role) {
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                    $res = mysql_query($sql);
+                    if (!$res) die(mysql_error());
+                }
+            }
+        }
     }
 }
 

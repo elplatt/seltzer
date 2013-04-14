@@ -26,9 +26,9 @@
  *   module has never been installed.
  */
 function member_install($old_revision = 0) {
-    
     // Initial installation
-    if ($old_revision < 1) {
+    if ($old_revision < 3) {
+        // Create member table
         $sql = '
             CREATE TABLE IF NOT EXISTS `member` (
               `cid` mediumint(8) unsigned NOT NULL,
@@ -37,7 +37,7 @@ function member_install($old_revision = 0) {
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        
+        // Create membership table
         $sql = '
             CREATE TABLE IF NOT EXISTS `membership` (
               `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -50,7 +50,7 @@ function member_install($old_revision = 0) {
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        
+        // Create plan table
         $sql = '
             CREATE TABLE IF NOT EXISTS `plan` (
               `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -63,11 +63,8 @@ function member_install($old_revision = 0) {
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-    }
-    
-    // Permissions moved to database, add defaults on install/upgrade
-    if ($old_revision < 2) {
-         $roles = array(
+        // Create default permissions
+        $roles = array(
             '1' => 'authenticated'
             , '2' => 'member'
             , '3' => 'director'
@@ -77,24 +74,10 @@ function member_install($old_revision = 0) {
             , '7' => 'treasurer'
             , '8' => 'webAdmin'
         );
-       $default_perms = array(
-            'member' => array('member_view', 'member_membership_view')
-            , 'director' => array('member_plan_edit', 'member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit')
-        );
-        foreach ($roles as $rid => $role) {
-            if (array_key_exists($role, $default_perms)) {
-                foreach ($default_perms[$role] as $perm) {
-                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
-                    $res = mysql_query($sql);
-                    if (!$res) die(mysql_error());
-                }
-            }
-        }
-    }
-    if ($old_revision < 3) {
         $default_perms = array(
-            'director' => array('payment_view', 'payment_edit', 'payment_delete'),
-            'webAdmin' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit',  'member_plan_edit', 'key_view', 'key_edit', 'key_delete', 'payment_view', 'payment_edit', 'payment_delete',  'user_add',  'user_edit',  'user_delete',  'user_role_edit',  'user_permissions_edit',  'module_upgrade',  'contact_view',  'contact_add',  'contact_edit',  'contact_delete')
+            'member' => array('member_view', 'member_membership_view')
+            , 'director' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit',  'member_plan_edit')
+            , 'webAdmin' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit',  'member_plan_edit')
         );
         foreach ($roles as $rid => $role) {
             if (array_key_exists($role, $default_perms)) {

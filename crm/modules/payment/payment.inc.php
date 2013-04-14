@@ -65,6 +65,32 @@ function payment_install($old_revision = 0) {
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
+        // Set default permissions
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        $default_perms = array(
+            'director' => array('payment_view', 'payment_edit', 'payment_delete')
+            , 'webAdmin' => array('payment_view', 'payment_edit', 'payment_delete')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysql_real_escape_string($rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysql_real_escape_string($perm);
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
+                    $res = mysql_query($sql);
+                    if (!$res) die(mysql_error());
+                }
+            }
+        }
     }
 }
 

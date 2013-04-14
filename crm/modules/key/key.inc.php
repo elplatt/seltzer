@@ -77,6 +77,7 @@ function key_install($old_revision = 0) {
         );
         $default_perms = array(
             'director' => array('key_view', 'key_edit', 'key_delete')
+            , 'webAdmin' => array('key_view', 'key_edit', 'key_delete')
         );
         foreach ($roles as $rid => $role) {
             $esc_rid = mysql_real_escape_string($rid);

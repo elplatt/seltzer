@@ -40,11 +40,7 @@ function member_stylesheets () {
  */
 function member_permissions () {
     return array(
-        'contact_view'
-        , 'contact_add'
-        , 'contact_edit'
-        , 'contact_delete'
-        , 'member_plan_edit'
+        'member_plan_edit'
         , 'member_view'
         , 'member_add'
         , 'member_edit'
