@@ -27,7 +27,6 @@ function member_page_list () {
     $pages = array();
     if (user_access('member_view')) {
         $pages[] = 'members';
-        $pages[] = 'member';
     }
     if (user_access('member_plan_edit')) {
         $pages[] = 'plans';
@@ -111,7 +110,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             break;
         
-        case 'member':
+        case 'contact':
             
             // Capture member id
             $cid = $_GET['cid'];
@@ -124,22 +123,13 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add view tab
             $view_content = '';
-            if (user_id() == $_GET['cid'] || user_access('member_view')) {
-                $view_content .= '<h3>Contact Info</h3>';
-                $view_content .= theme('table_vertical', 'member_contact', array('cid' => $cid));
-            }
             if (user_id() == $_GET['cid'] || user_access('user_edit')) {
                 // TODO this should probably be moved to the user module some refactoring is done. -Ed 2012-10-06
                 $view_content .= '<h3>User Info</h3>';
                 $view_content .= theme('table_vertical', 'user', array('cid' => $cid));
             }
             if (!empty($view_content)) {
-                page_add_content_top($page_data, $view_content, 'View');
-            }
-            
-            // Add edit tab
-            if (user_id() == $_GET['cid'] || (user_access('contact_edit') && user_access('member_edit'))) {
-                page_add_content_top($page_data, theme('form', crm_get_form('contact', array('cid'=>$cid))), 'Edit');
+                page_add_content_bottom($page_data, $view_content, 'View');
             }
             
             // Add plan and role tabs

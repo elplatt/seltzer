@@ -938,7 +938,7 @@ function payment_page (&$page_data, $page_name, $options) {
                 page_add_content_top($page_data, $content);
             }
             break;
-        case 'member':
+        case 'contact':
             // TODO, not sure if this should be here in here or member, we need to
             // consider dependencies more carefully. -Ed 2013-01-02
             if (user_id() == $_GET['cid'] || user_access('payment_view')) {

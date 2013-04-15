@@ -585,7 +585,7 @@ function command_key_add() {
         return 'index.php?q=key&kid=' . $_POST['kid'];
     }
     key_save($_POST);
-    return 'index.php?q=member&cid=' . $_POST['cid'] . '&tab=keys';
+    return 'index.php?q=contact&cid=' . $_POST['cid'] . '&tab=keys';
 }
 
 /**
@@ -644,9 +644,9 @@ function key_page (&$page_data, $page_name, $options) {
     
     switch ($page_name) {
         
-        case 'member':
+        case 'contact':
             
-            // Capture member cid
+            // Capture contact cid
             $cid = $options['cid'];
             if (empty($cid)) {
                 return;
