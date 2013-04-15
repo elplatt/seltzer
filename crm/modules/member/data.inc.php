@@ -245,12 +245,6 @@ function member_delete ($cid) {
     $sql = "DELETE FROM `membership` WHERE `cid`='$esc_cid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-    $sql = "DELETE FROM `user` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) aac_error(mysql_error());
-    $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) aac_error(mysql_error());
     message_register("Deleted Membership info for: $name");
 }
 
