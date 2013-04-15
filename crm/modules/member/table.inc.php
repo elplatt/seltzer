@@ -89,7 +89,7 @@ function member_table ($opts = NULL) {
             
             // Construct name
             $contact = $member['contact'];
-            $name_link = theme('contact_name', $contact, true, 'member');
+            $name_link = theme('contact_name', $contact, true);
             // Construct membership info
             $recentMembership = end($member['membership']);
             $plan = '';
@@ -122,12 +122,12 @@ function member_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_edit')) {
-            $ops[] = '<a href="index.php?q=member&cid=' . $member['cid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href="index.php?q=contact&cid=' . $member['cid'] . '&tab=edit">edit</a> ';
         }
         
         // Add delete op
         if (user_access('member_delete')) {
-            $ops[] = '<a href="index.php?q=delete&type=member&amp;id=' . $member['cid'] . '">delete</a>';
+            $ops[] = '<a href="index.php?q=delete&type=contact&amp;id=' . $member['cid'] . '">delete</a>';
         }
         
         // Add ops row
@@ -382,7 +382,7 @@ function member_contact_table ($opts) {
     
     // Add row
     $table['rows'][] = array(
-        member_name($contact['firstName'], $contact['middleName'], $contact['lastName']),
+        theme('contact_name', $contact),
         $contact['email'],
         $contact['phone'],
         $contact['emergencyName'],

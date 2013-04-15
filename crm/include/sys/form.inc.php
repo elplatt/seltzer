@@ -36,6 +36,9 @@ function crm_get_form () {
         return array();
     }
     $form = call_user_func_array($hook, $args);
+    if (empty($form)) {
+        return $form;
+    }
     // Allow modules to alter the form
     foreach (module_list() as $module) {
         $hook = $module . '_form_alter';

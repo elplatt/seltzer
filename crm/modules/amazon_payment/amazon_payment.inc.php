@@ -316,7 +316,7 @@ function amazon_payment_form_alter($form, $form_id) {
         $amazon_payment_data = crm_get_data('amazon_payment', $amazon_payment_opts);
         if (count($amazon_payment_data) < 1) {
             error_register("Payment with id $payment[pmtid] missing from payment_amazon table.");
-            return;
+            return $form;
         }
         $amazon_payment = $amazon_payment_data[0];
         // Loop through all fields in the form
