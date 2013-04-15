@@ -353,6 +353,7 @@ function command_member_delete () {
     if ($_POST['deleteContact']) {
         // This will delete the contact and all associated data
         contact_delete($_POST['cid']);
+        member_delete($_POST['cid']);
     } else {
         member_delete($_POST['cid']);
     }

@@ -316,7 +316,7 @@ function paypal_payment_form_alter(&$form, $form_id) {
         $paypal_payment_data = paypal_payment_data($paypal_payment_opts);
         if (count($paypal_payment_data) < 1) {
             error_register("Payment with id $payment[pmtid] missing from payment_paypal table.");
-            return;
+            return $form;
         }
         $paypal_payment = $paypal_payment_data[0];
         // Loop through all fields in the form
