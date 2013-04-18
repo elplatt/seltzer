@@ -293,26 +293,48 @@ function user_data ($opts) {
 }
 
 /**
+ * Update user data when a contact is updated.
+ * @param $contact The contact data array.
+ * @param $op The operation being performed.
+ */
+function user_contact_api ($contact, $op) {
+    if (!isset($contact['user'])) {
+        return $contact;
+    }
+    switch ($op) {
+        case 'create':
+            $contact['user']['cid'] = $contact['cid'];
+            user_save($contact['user']);
+            break;
+        case 'update':
+            user_save($contact['user']);
+            break;
+        case 'delete':
+            user_delete($conact['cid']);
+            $contact = array();
+            break;
+        default:
+            die('Unkown operation: ' . $op);
+            break;
+    }
+    return $contact;
+}
+
+/**
  * Saves a user into the database
  * 
  * @param $user the user to save.
  * @return an array representing the user that was saved in the database.
  */
 function user_save ($user) {
-    
-    // first figure out wether the user is in the database or not
+    // First figure out wether the user is in the database or not
     $opts = array();
     $opts['cid'] = $user['cid'];
     $user_array = user_data($opts);
-    
     if(empty($user_array)){
-        // if not, insert it (code is int he command_member_add function)
-        
+        // The user is not in the db, insert it
         $esc_name = mysql_real_escape_string($user['username']);
         $esc_cid = mysql_real_escape_string($user['cid']);
-        $esc_hash = mysql_real_escape_string($user['hash']);
-        $esc_salt = mysql_real_escape_string($user['salt']);
-        
         // Add user
         $sql = "
             INSERT INTO `user`
@@ -321,9 +343,9 @@ function user_save ($user) {
             ('$esc_name', '$esc_cid')";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        
     } else {
-        // else that user already exists, update it
+        die('updating user');
+        // The user already exists, update it
         $sql = "
             UPDATE `user`
             SET `username`='$esc_name',
@@ -336,6 +358,19 @@ function user_save ($user) {
     }
     
     return $user;
+}
+
+/**
+ * Delete user.
+ * @param $cid The user's cid.
+ */
+function user_delete ($cid) {
+    $sql = "DELETE FROM `user` WHERE `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(msyql_error());
+    $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(msyql_error());
 }
 
 /**

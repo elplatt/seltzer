@@ -195,11 +195,11 @@ function member_contact_api ($contact, $op) {
     if (!isset($contact['member'])) {
         return $contact;
     }
-    $member = $contact['member'];
     $esc_cid = mysql_real_escape_string($contact['cid']);
     switch ($op) {
         case 'create':
             // Add member
+            $member = $contact['member'];
             $sql = "
                 INSERT INTO `member`
                 (`cid`)
@@ -212,19 +212,17 @@ function member_contact_api ($contact, $op) {
             if (isset($member['membership'])) {
                 foreach ($member['membership'] as $i => $membership) {
                     $membership = member_membership_save($membership);
-                    $member['membership'][$i] = $membership;
+                    $contact['member']['membership'][$i] = $membership;
                 }
             }
             break;
         case 'update':
             // TODO
             break;
+        case 'delete':
+            member_delete($contact['cid']);
+            break;
     }
-    $contact['member'] = $member;
-    // Save the user object
-    // TODO Move this to the user module once it is created
-    $contact['user']['cid'] = $contact['cid'];
-    user_save($contact['user']);
     return $contact;
 }
 

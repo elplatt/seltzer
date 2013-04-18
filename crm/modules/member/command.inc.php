@@ -132,7 +132,7 @@ function command_member_add () {
     $content = theme('member_welcome_email', $user['cid'], $confirm_url);
     mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
     
-    return "index.php?q=member&cid=$esc_cid";
+    return "index.php?q=contact&cid=$esc_cid";
 }
 
 /**
