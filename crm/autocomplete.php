@@ -20,6 +20,9 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Save path of directory containing index.php
+$crm_root = dirname(__FILE__);
+
 include('include/crm.inc.php');
 
 $handler = $_GET['command'] . '_autocomplete';

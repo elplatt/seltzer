@@ -20,6 +20,10 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Save path of directory containing index.php
+$crm_root = dirname(__FILE__);
+
+// Bootstrap the crm
 require_once('include/crm.inc.php');
 
 // Check for GET/POST command
