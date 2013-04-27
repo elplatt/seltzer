@@ -897,7 +897,7 @@ function command_payment_delete() {
         return 'index.php?q=payment&pmtid=' . $esc_post['pmtid'];
     }
     payment_delete($_POST['pmtid']);
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
@@ -971,7 +971,7 @@ function command_payment_add() {
     );
     $payment = payment_save($payment);
     message_register('1 payment added.');
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 /**
@@ -983,7 +983,7 @@ function command_payment_edit() {
     // Verify permissions
     if (!user_access('payment_edit')) {
         error_register('Permission denied: payment_edit');
-        return 'index.php?q=payments';
+        return crm_url('payments');
     }
     // Parse and save payment
     $payment = $_POST;
@@ -992,5 +992,5 @@ function command_payment_edit() {
     $payment['value'] = $value['value'];
     payment_save($payment);
     message_register('1 payment updated.');
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }

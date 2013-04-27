@@ -617,7 +617,7 @@ function command_key_delete() {
         return 'index.php?q=key&kid=' . $esc_post['kid'];
     }
     key_delete($_POST);
-    return 'index.php?q=members';
+    return crm_url('members');
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////

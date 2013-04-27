@@ -60,7 +60,7 @@ function command ($command) {
     // Error if the url is still empty
     if (empty($url)) {
         error_register('No such command: ' . $command);
-        $url = 'index.php';
+        $url = crm_url();
     }
     
     $url .= '?';

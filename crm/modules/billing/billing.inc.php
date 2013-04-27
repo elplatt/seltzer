@@ -125,7 +125,7 @@ function command_billing () {
     variable_set('billing_last_date', $today);
     $begin = empty($last_billed) ? 'the beginning of time' : $last_billed;
     message_register("Billings processed from $begin through $today.");
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 /**

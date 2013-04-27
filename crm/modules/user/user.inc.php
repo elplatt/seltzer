@@ -629,7 +629,7 @@ function command_login () {
     if (sizeof($users) < 1) {
         error_register('No user found');
         error_register('Invalid username/password');
-        $next = 'index.php?q=login';
+        $next = crm_url('login');
         return;
     }
     
@@ -639,10 +639,10 @@ function command_login () {
     
     if ($valid) {
         user_login($user['cid']);
-        $next = 'index.php';
+        $next = crm_url();
     } else {
         error_register('Invalid username/password');
-        $next = 'index.php?q=login';
+        $next = crm_url('login');
     }
     
     // Redirect to index

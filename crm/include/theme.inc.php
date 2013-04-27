@@ -54,8 +54,8 @@ function theme_login_status () {
     if (user_id()) {
         $output .= 'Welcome, ' . user_username() . '. <a href="index.php?command=logout">Log out</a>';
     } else {
-        $output .= '<a href="index.php?q=login">Log in</a>&nbsp;&nbsp;&nbsp;';
-        $output .= '<a href="index.php?q=reset">Reset password</a>';
+        $output .= '<a href='. crm_url('login') . '>Log in</a>&nbsp;&nbsp;&nbsp;';
+        $output .= '<a href='. crm_url('reset') . '>Reset password</a>';
     }
     $output .= '</div>';
     

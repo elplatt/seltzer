@@ -260,7 +260,7 @@ function command_module_install () {
     // Create tables
     $res = module_install();
     if (!$res) {
-        return 'index.php';
+        return crm_url();
     }
     
     // Add admin contact and user
@@ -289,7 +289,7 @@ function command_module_install () {
     
     message_register('Seltzer CRM has been installed.');
     message_register('You may log in as user "admin"');
-    return 'index.php?q=login';
+    return crm_url('login');
 }
 
 /**
@@ -303,11 +303,11 @@ function command_module_upgrade () {
     // Create tables
     $res = module_upgrade();
     if (!$res) {
-        return 'index.php';
+        return crm_url();
     }
     
     message_register('Seltzer CRM has been upgraded.');
-    return 'index.php';
+    return crm_url();
 }
 
 /**

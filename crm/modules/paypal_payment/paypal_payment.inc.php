@@ -354,11 +354,11 @@ function paypal_payment_form_alter(&$form, $form_id) {
 function command_paypal_payment_import () {
     if (!user_access('payment_add')) {
         error_register('User does not have permission: payment_add');
-        return 'index.php?q=payments';
+        return crm_url('payments');
     }
     if (!array_key_exists('payment-file', $_FILES)) {
         error_register('No payment file uploaded');
-        return 'index.php?q=payments&tab=import';
+        return crm_url('payments&tab=import');
     }
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);
@@ -397,12 +397,12 @@ function command_paypal_payment_import () {
         $count++;
     }
     message_register("Successfully imported $count payment(s)");
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 /**
  * Return themed html for paypal admin links.
  */
 function theme_paypal_payment_admin () {
-    return '<p><a href="index.php?q=paypal-admin">Administer</a></p>';
+    return '<p><a href=crm_url("paypal-admin")>Administer</a></p>';
 }
