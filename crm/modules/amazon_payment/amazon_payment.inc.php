@@ -241,7 +241,6 @@ function amazon_payment_contact_table ($opts) {
     return $table; 
 }
 
-
 /**
  * Page hook.  Adds module content to a page before it is rendered.
  *
@@ -252,14 +251,14 @@ function amazon_payment_contact_table ($opts) {
 function amazon_payment_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         case 'payments':
-            if (user_access('payment_add')) {
+            if (user_access('payment_edit')) {
                 $content = theme('amazon_payment_admin');
                 $content .= theme('form', crm_get_form('amazon_payment_import'));
                 page_add_content_top($page_data, $content, 'Amazon');
             }
             break;
         case 'amazon-admin':
-            page_set_title($page_data, 'Administer Amazon Payments');
+            page_set_title($page_data, 'Administer Amazon Contacts');
             page_add_content_top($page_data, theme('table', 'amazon_payment_contact', array('show_export'=>true)), 'View');
             break;
     }
