@@ -70,6 +70,13 @@ function billing_form () {
                 , 'label' => 'Process Billings'
                 , 'fields' => array(
                     array(
+                        'type' => 'readonly',
+                        'class' => 'date',
+                        'label' => 'Last Billed',
+                        'name' => 'last_billed',
+                        'value' => variable_get('billing_last_date', '')
+                    ),
+                    array(
                         'type' => 'submit'
                         , 'value' => 'Process'
                     )

@@ -252,14 +252,14 @@ function paypal_payment_contact_table($opts){
 function paypal_payment_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         case 'payments':
-            if (user_access('payment_add')) {
+            if (user_access('payment_edit')) {
                 $content = theme('paypal_payment_admin');
                 $content .= theme('form', crm_get_form('paypal_payment_import'));
                 page_add_content_top($page_data, $content, 'Paypal');
             }
             break;
         case 'paypal-admin':
-            page_set_title($page_data, 'Administer Paypal Payments');
+            page_set_title($page_data, 'Administer Paypal Contacts');
             page_add_content_top($page_data, theme('table', 'paypal_payment_contact', array('show_export'=>true)), 'View');
             break;
     }
