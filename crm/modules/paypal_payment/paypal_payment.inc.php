@@ -404,5 +404,5 @@ function command_paypal_payment_import () {
  * Return themed html for paypal admin links.
  */
 function theme_paypal_payment_admin () {
-    return '<p><a href=crm_url("paypal-admin")>Administer</a></p>';
+    return '<p><a href=' . crm_url('paypal-admin') . '>Administer</a></p>';
 }

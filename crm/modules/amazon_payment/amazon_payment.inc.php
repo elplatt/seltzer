@@ -412,5 +412,5 @@ function command_amazon_payment_import () {
  * Return themed html for amazon admin links.
  */
 function theme_amazon_payment_admin () {
-    return '<p><a href=crm_url("amazon-admin")>Administer</a></p>';
+    return '<p><a href=' . crm_url('amazon-admin') . '>Administer</a></p>';
 }
