@@ -71,7 +71,7 @@ function command_member_add () {
     }
     if (empty($username)) {
         error_register('Please specify a username');
-        return 'index.php?q=members&tab=add';
+        return crm_url('members&tab=add');
     }
     
     // Build contact object
@@ -334,7 +334,7 @@ function command_member_filter () {
         $query = '&' . join('&', $params);
     }
     
-    return 'index.php?q=members' . $query;
+    return crm_url('members') . $query;
 }
 
 /**
@@ -411,7 +411,7 @@ function command_member_import () {
     
     if (!array_key_exists('member-file', $_FILES)) {
         error_register('No member file uploaded');
-        return 'index.php?q=members&tab=import';
+        return crm_url('members&tab=import');
     }
     
     $csv = file_get_contents($_FILES['member-file']['tmp_name']);
@@ -479,7 +479,7 @@ function command_member_import () {
         }
         if (empty($username)) {
             error_register('Please specify a username');
-            return 'index.php?q=members&tab=import';
+            return crm_url('members&tab=import');
         }
         
         // Add user
@@ -570,7 +570,7 @@ function command_member_plan_import () {
     
     if (!array_key_exists('plan-file', $_FILES)) {
         error_register('No plan file uploaded');
-        return 'index.php?q=plans&tab=import';
+        return crm_url('plans&tab=import');
     }
     
     $csv = file_get_contents($_FILES['plan-file']['tmp_name']);

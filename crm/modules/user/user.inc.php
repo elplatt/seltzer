@@ -660,7 +660,7 @@ function command_logout () {
     session_destroy();
     
     // Redirect to index
-    return 'index.php';
+    return crm_url();
 }
 
 /**
@@ -826,7 +826,7 @@ function command_reset_password () {
     $user_data = user_data(array('filter'=>array('username'=>$_POST['username'])));
     if (count($user_data) < 1) {
         error_register('No such username');
-        return 'index.php';
+        return crm_url();
     }
     $user = $user_data[0];
     // TODO this should be contact_data() once the contact module exists
@@ -843,7 +843,7 @@ function command_reset_password () {
         // Notify user to check their email
         message_register('Instructions for resetting your password have been sent to your e-mail.');
     }
-    return 'index.php';
+    return crm_url();
 }
 
 /**
@@ -856,13 +856,13 @@ function command_reset_password_confirm () {
     // Check code
     if (!user_check_reset_code($_POST['code'])) {
         error_register('Invalid reset code');
-        return 'index.php';
+        return crm_url();
     }
     
     // Check that passwords match
     if ($_POST['password'] != $_POST['confirm']) {
         error_register('Passwords do not match');
-        return 'index.php';
+        return crm_url();
     }
     
     // Get user id
@@ -890,7 +890,7 @@ function command_reset_password_confirm () {
     // Notify user to check their email
     message_register('Your password has been reset, you may now log in');
     
-    return 'index.php?q=login';
+    return crm_url('login');
 }
 
 /**
@@ -1034,13 +1034,13 @@ function command_user_role_update () {
     // Check permissions
     if (!user_access('user_edit')) {
         error_register('Current user does not have permission: user_edit');
-        return 'index.php?q=members';
+        return crm_url('members');
     }
     
     // Check permissions
     if (!user_access('user_role_edit')) {
         error_register('Current user does not have permission: user_role_edit');
-        return 'index.php?q=members';
+        return crm_url('members');
     }
     
     // Delete all roles for specified user
@@ -1078,7 +1078,7 @@ function command_user_permissions_update () {
     // Check permissions
     if (!user_access('user_edit')) {
         error_register('Current user does not have permission: user_edit');
-        return 'index.php?q=permissions';
+        return crm_url('permissions');
     }
     
     // Check status of each permission for each role

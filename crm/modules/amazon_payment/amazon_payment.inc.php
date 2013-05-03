@@ -357,7 +357,7 @@ function command_amazon_payment_import () {
     }
     if (!array_key_exists('payment-file', $_FILES)) {
         error_register('No payment file uploaded');
-        return 'index.php?q=payments&tab=import';
+        return crm_url('payments&tab=import');
     }
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);

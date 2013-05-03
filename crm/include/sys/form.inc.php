@@ -94,7 +94,7 @@ function theme_form ($form) {
         if (!empty($form['action'])) {
             $output .= $form['action'] . '"';
         } else {
-            $output .= 'index.php"';
+            $output .= crm_url().'"';
         }
         if (array_key_exists('enctype', $form)) {
             $output .= ' enctype="' . $form['enctype'] . '"';
