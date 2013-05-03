@@ -220,6 +220,10 @@ function amazon_payment_contact_table ($opts) {
     // Add columns
     $table['columns'][] = array("title"=>'Full Name');
     $table['columns'][] = array("title"=>'Amazon Name');
+    // Add ops column
+    if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
     // Add rows
     foreach ($data as $union) {
         $row = array();
@@ -260,6 +264,7 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
         case 'amazon-admin':
             page_set_title($page_data, 'Administer Amazon Contacts');
             page_add_content_top($page_data, theme('table', 'amazon_payment_contact', array('show_export'=>true)), 'View');
+            page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_add')), 'Add');
             break;
     }
 }
@@ -295,6 +300,51 @@ function amazon_payment_import_form () {
             )
         )
     );
+}
+
+/**
+ * Return the form structure for the add amazon contact form.
+ *
+ * @param The cid of the contact to add a amazon contact for.
+ * @return The form structure.
+*/
+function amazon_payment_contact_add_form () {
+    
+    // Ensure user is allowed to edit amazon contacts
+    if (!user_access('payment_edit')) {
+        return NULL;
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'amazon_payment_contact_add',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Add Amazon Contact',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'Amazon Name',
+                        'name' => 'amazon_name'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'User ID',
+                        'name' => 'cid'
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Add'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
 }
 
 /**
@@ -405,12 +455,12 @@ function command_amazon_payment_import () {
         $count++;
     }
     message_register("Successfully imported $count payment(s)");
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 /**
  * Return themed html for amazon admin links.
  */
 function theme_amazon_payment_admin () {
-    return '<p><a href="index.php?q=amazon-admin">Administer</a></p>';
+    return '<p><a href=' . crm_url('amazon-admin') . '>Administer</a></p>';
 }
