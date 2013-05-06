@@ -132,7 +132,7 @@ function command_member_add () {
     $content = theme('member_welcome_email', $user['cid'], $confirm_url);
     mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
     
-    return "index.php?q=contact&cid=$esc_cid";
+    return crm_url("contact&cid=$esc_cid");
 }
 
 /**
@@ -253,7 +253,7 @@ function command_member_membership_add () {
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     
-    return "index.php?q=member&cid=$_POST[cid]";
+    return crm_url("contact&cid=$_POST[cid]");
 }
 
 /**
@@ -298,7 +298,7 @@ function command_member_membership_update () {
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     
-    return "index.php?q=member&cid=$_POST[cid]&tab=plan";
+    return crm_url("contact&cid=$_POST[cid]&tab=plan");
 }
 
 /**

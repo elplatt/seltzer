@@ -809,7 +809,7 @@ function user_reset_password_url ($username) {
     $res = mysql_query($sql);
     
     // Generate reset url
-    $url = 'http://' . $config_host . $config_base_path . 'index.php?q=reset-confirm&v=' . $code;
+    $url = 'http://' . $config_host . $config_base_path . crm_url("reset-confirm&v= . $code");
     return $url;
 }
 
@@ -1064,7 +1064,7 @@ function command_user_role_update () {
         }
     }
     
-    return "index.php?q=member&cid=$_POST[cid]&tab=roles";
+    return crm_url("contact&cid=$_POST[cid]&tab=roles");
 }
 
 /**
@@ -1120,7 +1120,7 @@ function command_user_permissions_update () {
     }
     
     
-    return "index.php?q=permissions";
+    return crm_url('permissions');
 }
 
 /**

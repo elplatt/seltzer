@@ -558,10 +558,10 @@ function payment_table ($opts) {
             // TODO
             $ops = array();
             if (user_access('payment_edit')) {
-               $ops[] = "<a href=\"index.php?q=payment&pmtid=$payment[pmtid]\">edit</a>";
+               $ops[] = '<a href=' . crm_url('payment&pmtid=' . $payment[pmtid]) . '>edit</a>';
             }
             if (user_access('payment_delete')) {
-                $ops[] = "<a href=\"index.php?q=delete&type=payment&id=$payment[pmtid]\">delete</a>";
+                $ops[] = '<a href=' . crm_url('delete&type=payment&id=' . $payment[pmtid]) . '>delete</a>';
             }
             $row[] = join(' ', $ops);
         }
@@ -894,7 +894,7 @@ function command_payment_delete() {
     // Verify permissions
     if (!user_access('payment_delete')) {
         error_register('Permission denied: payment_delete');
-        return 'index.php?q=payment&pmtid=' . $esc_post['pmtid'];
+        return crm_url('payment&pmtid=' . $esc_post['pmtid']);
     }
     payment_delete($_POST['pmtid']);
     return crm_url('payments');

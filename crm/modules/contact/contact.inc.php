@@ -330,12 +330,12 @@ function contact_table ($opts = array()) {
         
         // Add edit op
         if (user_access('contact_edit')) {
-            $ops[] = '<a href="index.php?q=contact&cid=' . $contact['cid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href=' . crm_url('contact&cid=' . $contact['cid'] . '&tab=edit') . '>edit</a> ';
         }
         
         // Add delete op
         if (user_access('contact_delete')) {
-            $ops[] = '<a href="index.php?q=delete&type=contact&amp;id=' . $contact['cid'] . '">delete</a>';
+            $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $contact['cid']) . '>delete</a>';
         }
         
         // Add ops row
@@ -506,7 +506,7 @@ function command_contact_add () {
     );
     // Save to database
     $contact = contact_save($contact);
-    return "index.php?q=contact&cid=$cid";
+    return crm_url("contact&cid=$cid");
 }
 
 /**
