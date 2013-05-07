@@ -82,6 +82,12 @@ function member_table ($opts = NULL) {
 
     // Loop through member data
     foreach ($members as $member) {
+
+        // If the user does not have member_list access, disallow listing
+        // for all members other than its own user
+        if (!user_access('member_list') && $member['cid'] != user_id()) {
+            continue;
+        }
         
         // Add user data
         $row = array();

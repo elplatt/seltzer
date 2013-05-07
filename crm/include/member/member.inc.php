@@ -45,6 +45,7 @@ function member_permissions () {
         , 'contact_edit'
         , 'contact_delete'
         , 'member_plan_edit'
+        , 'member_list'
         , 'member_view'
         , 'member_add'
         , 'member_edit'
