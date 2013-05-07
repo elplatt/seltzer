@@ -122,7 +122,7 @@ function command_member_add () {
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
     if (!empty($config_email_to)) {
-        $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
+        $name = theme_contact_name($_POST['cid']);
         $content = theme('member_created_email', $user['cid']);
         mail($config_email_to, "New Member: $name", $content, $headers);
     }
@@ -542,7 +542,7 @@ function command_member_import () {
         $from = "\"$config_org_name\" <$config_email_from>";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         if (!empty($config_email_to)) {
-            $name = member_name($_POST['firstName'], $_POST['middleName'], $_POST['lastName']);
+            $name = theme_contact_name($_POST['cid']);
             $content = theme('member_created_email', $user['cid']);
             mail($config_email_to, "New Member: $name", $content, $headers);
         }

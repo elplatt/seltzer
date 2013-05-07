@@ -320,12 +320,6 @@ function member_delete_form ($cid) {
     if (empty($member) || count($member) < 1) {
         return array();
     }
-    $member_name = $member['contact']['firstName'];
-    if (!empty($member['contact']['middleName'])) {
-        $member_name .= ' ' . $member['contact']['middleName'];
-    }
-    $member_name .= ' ' . $member['contact']['lastName'];
-    
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -341,7 +335,7 @@ function member_delete_form ($cid) {
                 'fields' => array(
                     array(
                         'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the member "' . $member_name . '"? This cannot be undone.',
+                        'value' => '<p>Are you sure you want to delete the member "' . theme_contact_name($member['cid']) . '"? This cannot be undone.',
                     ),
                     array(
                         'type' => 'checkbox',
@@ -445,7 +439,7 @@ function member_membership_edit_form ($sid) {
     // Construct contact name
     $data = member_contact_data(array('cid'=>$membership['cid']));
     $contact = $data[0];
-    $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    $name = theme_contact_name($contact['cid']);
     
     // Create form structure
     $form = array(
