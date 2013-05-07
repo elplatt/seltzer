@@ -612,7 +612,7 @@ function payment_history_table ($opts) {
         
         $contactName = '';
         if (!empty($contact)) {
-            $contactName = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+            $contactName = theme_contact_name($contact['cid']);
         }
         
         if (isset($balance)) {
