@@ -220,6 +220,10 @@ function paypal_payment_contact_table($opts){
     // Add columns
     $table['columns'][] = array("title"=>'Full Name');
     $table['columns'][] = array("title"=>'Paypal Email');
+    // Add ops column
+    if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
     // Add rows
     foreach ($data as $union) {
         $row = array();
@@ -241,7 +245,6 @@ function paypal_payment_contact_table($opts){
     return $table; 
 }
 
-
 /**
  * Page hook.  Adds module content to a page before it is rendered.
  *
@@ -261,6 +264,7 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
         case 'paypal-admin':
             page_set_title($page_data, 'Administer Paypal Contacts');
             page_add_content_top($page_data, theme('table', 'paypal_payment_contact', array('show_export'=>true)), 'View');
+            page_add_content_top($page_data, theme('form', crm_get_form('paypal_payment_contact_add')), 'Add');
             break;
     }
 }
@@ -296,6 +300,51 @@ function paypal_payment_import_form () {
             )
         )
     );
+}
+
+/**
+ * Return the form structure for the add paypal contact form.
+ *
+ * @param The cid of the contact to add a paypal contact for.
+ * @return The form structure.
+*/
+function paypal_payment_contact_add_form () {
+    
+    // Ensure user is allowed to edit paypal contacts
+    if (!user_access('payment_edit')) {
+        return NULL;
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'paypal_payment_contact_add',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Add Paypal Contact',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'Paypal Email',
+                        'name' => 'paypal_email'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'User ID',
+                        'name' => 'cid'
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Add'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
 }
 
 /**
@@ -397,12 +446,12 @@ function command_paypal_payment_import () {
         $count++;
     }
     message_register("Successfully imported $count payment(s)");
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 /**
  * Return themed html for paypal admin links.
  */
 function theme_paypal_payment_admin () {
-    return '<p><a href="index.php?q=paypal-admin">Administer</a></p>';
+    return '<p><a href=' . crm_url('paypal-admin') . '>Administer</a></p>';
 }
