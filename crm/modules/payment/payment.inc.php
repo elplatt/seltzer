@@ -558,10 +558,10 @@ function payment_table ($opts) {
             // TODO
             $ops = array();
             if (user_access('payment_edit')) {
-               $ops[] = "<a href=\"index.php?q=payment&pmtid=$payment[pmtid]\">edit</a>";
+               $ops[] = '<a href=' . crm_url('payment&pmtid=' . $payment[pmtid]) . '>edit</a>';
             }
             if (user_access('payment_delete')) {
-                $ops[] = "<a href=\"index.php?q=delete&type=payment&id=$payment[pmtid]\">delete</a>";
+                $ops[] = '<a href=' . crm_url('delete&type=payment&id=' . $payment[pmtid]) . '>delete</a>';
             }
             $row[] = join(' ', $ops);
         }
@@ -894,10 +894,10 @@ function command_payment_delete() {
     // Verify permissions
     if (!user_access('payment_delete')) {
         error_register('Permission denied: payment_delete');
-        return 'index.php?q=payment&pmtid=' . $esc_post['pmtid'];
+        return crm_url('payment&pmtid=' . $esc_post['pmtid']);
     }
     payment_delete($_POST['pmtid']);
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
@@ -971,7 +971,7 @@ function command_payment_add() {
     );
     $payment = payment_save($payment);
     message_register('1 payment added.');
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 /**
@@ -983,7 +983,7 @@ function command_payment_edit() {
     // Verify permissions
     if (!user_access('payment_edit')) {
         error_register('Permission denied: payment_edit');
-        return 'index.php?q=payments';
+        return crm_url('payments');
     }
     // Parse and save payment
     $payment = $_POST;
@@ -992,5 +992,5 @@ function command_payment_edit() {
     $payment['value'] = $value['value'];
     payment_save($payment);
     message_register('1 payment updated.');
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }

@@ -354,11 +354,11 @@ function key_table ($opts) {
             $ops = array();
             // Add edit op
             if (user_access('key_edit')) {
-                $ops[] = '<a href="index.php?q=key&kid=' . $key['kid'] . '#tab-edit">edit</a> ';
+                $ops[] = '<a href=' . crm_url('key&kid=' . $key['kid'] . '#tab-edit') . '>edit</a> ';
             }
             // Add delete op
             if (user_access('key_delete')) {
-                $ops[] = '<a href="index.php?q=delete&type=key&id=' . $key['kid'] . '">delete</a>';
+                $ops[] = '<a href=' . crm_url('delete&type=key&id=' . $key['kid']) . '>delete</a>';
             }
             // Add ops row
             $row[] = join(' ', $ops);
@@ -582,10 +582,10 @@ function command_key_add() {
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
-        return 'index.php?q=key&kid=' . $_POST['kid'];
+        return crm_url('key&kid=' . $_POST['kid']);
     }
     key_save($_POST);
-    return 'index.php?q=contact&cid=' . $_POST['cid'] . '&tab=keys';
+    return crm_url('contact&cid=' . $_POST['cid'] . '&tab=keys');
 }
 
 /**
@@ -597,11 +597,11 @@ function command_key_update() {
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
-        return 'index.php?q=key&kid=' . $_POST['kid'];
+        return crm_url('key&kid=' . $_POST['kid']);
     }
     // Save key
     key_save($_POST);
-    return 'index.php?q=key&kid=' . $_POST['kid'] . '&tab=edit';
+    return crm_url('key&kid=' . $_POST['kid'] . '&tab=edit');
 }
 
 /**
@@ -614,10 +614,10 @@ function command_key_delete() {
     // Verify permissions
     if (!user_access('key_delete')) {
         error_register('Permission denied: key_delete');
-        return 'index.php?q=key&kid=' . $esc_post['kid'];
+        return crm_url('key&kid=' . $esc_post['kid']);
     }
     key_delete($_POST);
-    return 'index.php?q=members';
+    return crm_url('members');
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
