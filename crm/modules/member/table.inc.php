@@ -122,12 +122,12 @@ function member_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_edit')) {
-            $ops[] = '<a href="index.php?q=contact&cid=' . $member['cid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href=' . crm_url('contact&cid=' . $member['cid'] . '&tab=edit') .'>edit</a>';
         }
         
         // Add delete op
         if (user_access('member_delete')) {
-            $ops[] = '<a href="index.php?q=delete&type=contact&amp;id=' . $member['cid'] . '">delete</a>';
+            $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $member['cid']) . '>delete</a>';
         }
         
         // Add ops row
@@ -258,12 +258,12 @@ function member_plan_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_plan_edit')) {
-            $ops[] = '<a href="index.php?q=plan&pid=' . $plan['pid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href=' . crm_url('plan&pid=' . $plan['pid'] . '&tab=edit') . '>edit</a>';
         }
         
         // Add delete op
         if (user_access('member_plan_edit')) {
-            $ops[] = '<a href="index.php?q=delete&type=member_plan&amp;id=' . $plan['pid'] . '">delete</a>';
+            $ops[] = '<a href=' . crm_url('delete&type=member_plan&amp;id=' . $plan['pid']) . '>delete</a>';
         }
         
         // Add ops row
@@ -333,8 +333,8 @@ function member_membership_table ($opts = NULL) {
         
         // Add delete op
         if (user_access('member_membership_edit')) {
-            $ops[] = '<a href="index.php?q=membership&sid=' . $membership['sid'] . '&tab=edit">edit</a>';
-            $ops[] = '<a href="index.php?q=delete&type=member_membership&amp;id=' . $membership['sid'] . '">delete</a>';
+            $ops[] = '<a href=' . crm_url('membership&sid=' . $membership['sid'] . '&tab=edit') . '>edit</a>';
+            $ops[] = '<a href=' . crm_url('delete&type=member_membership&amp;id=' . $membership['sid']) . '>delete</a>';
         }
         
         // Add ops row
