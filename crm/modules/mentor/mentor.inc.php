@@ -103,7 +103,7 @@ function mentor_page (&$page_data, $page_name, $options) {
     
     switch ($page_name) {
         
-        case 'member':
+        case 'contact':
             
             // Capture member cid
             $cid = $options['cid'];
@@ -111,7 +111,7 @@ function mentor_page (&$page_data, $page_name, $options) {
                 return;
             }
             
-            // Add keys tab
+            // Add mentors tab
             if (user_access('mentor_view') || user_access('mentor_edit') || user_access('mentor_delete') || $cid == user_id()) {
                 $mentorships = theme('table', 'mentor', array('cid' => $cid));
                 $mentorships .= theme('mentor_add_form', $cid);
@@ -191,8 +191,19 @@ function mentor_data ($opts = array()) {
         FROM `mentor`
         WHERE 1";
     if (!empty($opts['cid'])) {
-        $esc_cid = mysql_real_escape_string($opts['cid']);
-        $sql .= " AND `cid`='$esc_cid'";
+        if (is_array($opts['cid'])) {
+            $terms = array();
+            foreach ($opts['cid'] as $cid) {
+                $esc_cid = mysql_real_escape_string($cid);
+                $terms[] = "'$cid'";
+            }
+            $sql .= " AND `cid` IN (" . implode(', ', $terms) . ") ";
+            $sql .= " OR `mentor_cid` IN (" . implode(', ', $terms) . ") ";
+        } else {
+            $esc_cid = mysql_real_escape_string($opts['cid']);
+            $sql .= " AND `cid`='$esc_cid'";
+            $sql .= " OR `mentor_cid`='$esc_cid'";
+        }
     }
     if (!empty($opts['mentor_cid'])) {
         $esc_cid = mysql_real_escape_string($opts['mentor_cid']);
@@ -202,11 +213,13 @@ function mentor_data ($opts = array()) {
     //TODO: specify an order? (ORDER BY... ASC)
     
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) die(mysql_error());    
     
     // Store data in mentorships array
     $mentorships = array();
     $row = mysql_fetch_assoc($res);
+    
+    
     while (!empty($row)) {
         $mentorship = array(
             'cid' => $row['cid'],
@@ -215,13 +228,14 @@ function mentor_data ($opts = array()) {
         $mentorships[] = $mentorship;
         $row = mysql_fetch_assoc($res);
     }
+    print "<pre> Mentorships:" . print_r($mentorships, true) . "</pre>";
     // At this point, the mentorships might not be in unique rows.
     // in other words, there might be multiple entries with the same cid
     // we should match up multiple mentors/proteges that are related to
     // the same cid
     $mentor_data = array();
     foreach ($mentorships as $mentorship){
-        if (!exists($mentor_data[$mentorship['cid']])){
+        if (!empty($mentor_data[$mentorship['cid']])){
             //this is a new cid. Create an array.
             $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(),
                                                      'protege_cids' => array());
@@ -232,7 +246,7 @@ function mentor_data ($opts = array()) {
         
         //now do the opposite. that is to say, assign the protege to the mentor_cid
         //of course, this involves creating the mentor_cid if it doesn't exist yet
-        if (!exists($mentor_data[$mentorship['mentor_cid']])){
+        if (!empty($mentor_data[$mentorship['mentor_cid']])){
             //this is a new cid. Create an array.
             $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(),
                                                      'protege_cids' => array());
@@ -241,6 +255,7 @@ function mentor_data ($opts = array()) {
         $mentor_data[$mentorship['mentor_cid']]['protege_cids'][] = $mentorship['cid'];
     }  
     // Return data
+    print "<pre> Mentor_data to be returned:" . print_r($mentor_data, true) . "</pre>";
     return $mentor_data;
 }
 
@@ -266,8 +281,9 @@ function mentor_table ($opts) {
         }
     }
     
-    // Get contact data (ALL THE CONTACTS!)
-    $contacts = crm_get_data('contacts', $opts);
+    
+    // Get the current contact's data
+    $contacts = crm_get_data('contact', $opts);
     if (count($contacts) < 1) {
         return array();
     }
@@ -282,74 +298,64 @@ function mentor_table ($opts) {
     
     // Add columns
     if (user_access('mentor_view') || $opts['cid'] == user_id()) {
-        if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
-            $table['columns'][] = array("title"=>'Last Name', 'class'=>'', 'id'=>'');
-            $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>'');
-            $table['columns'][] = array("title"=>'Middle Name', 'class'=>'', 'id'=>'');
-        }
-        if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
-            $table['columns'][] = array("title"=>'Membership', 'class'=>'', 'id'=>'');
-        }
+        $table['columns'][] = array("title"=>'Last Name', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'Middle Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Mentor Last Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Mentor First Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Mentor Middle Name', 'class'=>'', 'id'=>'');
     }
     // Add ops column
-    if (!$export && (user_access('key_edit') || user_access('key_delete'))) {
+    if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
     
     // Add rows
     foreach ($contacts as $contact) {
+        print "<pre> Contact info to work with:" . print_r($contact, true) . "</pre>";
+        //get the mentor info
+        $mentors_cids = $contact['member']['mentorships']['mentor_cids'];
+        print "<pre> cids to the members being fetched:" . print_r($mentors_cids, true) . "</pre>";
+        $get_mentor_opts = array(
+            'cid' => $mentors_cids
+        );
+        $mentors = crm_get_data('contact',$get_mentor_opts);
         
-        // Add key data
-        $row = array();
-        if (user_access('mentor_view') || $opts['cid'] == user_id()) {
-            
-            // Add cells
-            if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
-                $row[] = $contact['contact']['lastName'];
-                $row[] = $contact['contact']['firstName'];
-                $row[] = $contact['contact']['middleName'];
+        foreach ($mentors as $mentor){
+            print "<pre> Mentors to be printed:" . print_r($mentors, true) . "</pre>";
+            // Add mentor data
+            $row = array();
+            if (user_access('mentor_view') || $opts['cid'] == user_id()) {
+            // Add the contact's name
+                $row[] = $contact['lastName'];
+                $row[] = $contact['firstName'];
+                $row[] = $contact['middleName'];
+                // Add the mentor's name
+                $row[] = $mentor['lastName'];
+                $row[] = $mentor['firstName'];
+                $row[] = $mentor['middleName'];
             }
-            if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
-                // Construct membership info
-                $member = $contact['member'];
-                $plan = '';
-                if (!empty($member)) {
-                    $recentMembership = end($member['membership']);
-                    if (!empty($recentMembership) && empty($recentMembership['end'])) {
-                        $plan = $recentMembership['plan']['name'];
-                    }
+            
+            if (!$export && (user_access('mentor_edit') || user_access('key_delete'))) {
+                // Construct ops array
+                $ops = array();
+                
+                // Add edit op
+                if (user_access('mentor_edit')) {
+                    $ops[] = '<a href="index.php?q=mentor&cid=' . $mentor['cid'] . '#tab-edit">edit</a> ';
                 }
-                $row[] = $plan;
+                
+                // Add delete op
+                if (user_access('mentor_delete')) {
+                    $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $mentor['cid'] . '">delete</a>';
+                }
+                
+                // Add ops row
+                $row[] = join(' ', $ops);
             }
-            //blah fix this
-            $row[] = $contact['mentorLastName'];
-            $row[] = $contact['mentorFirstName'];
-            $row[] = $contact['mentorMiddleName'];
-
+            
+            $table['rows'][] = $row;
         }
-        
-        if (!$export && (user_access('mentor_edit') || user_access('key_delete'))) {
-            // Construct ops array
-            $ops = array();
-            
-            // Add edit op
-            if (user_access('mentor_edit')) {
-                $ops[] = '<a href="index.php?q=key&kid=' . $key['kid'] . '#tab-edit">edit</a> ';
-            }
-            
-            // Add delete op
-            if (user_access('mentor_delete')) {
-                $ops[] = '<a href="index.php?q=delete&type=key&id=' . $key['kid'] . '">delete</a>';
-            }
-            
-            // Add ops row
-            $row[] = join(' ', $ops);
-        }
-        
-        $table['rows'][] = $row;
     }
     
     return $table;
@@ -386,8 +392,10 @@ function mentor_add_form ($cid) {
                 'fields' => array(
                     array(
                         'type' => 'text',
-                        'label' => 'Mentor Cid',
-                        'name' => 'mentor_cid'
+                        'label' => 'Mentor Name',
+                        'name' => 'Mentor Name',
+                        'autocomplete' => 'contact_name',
+                        'class' => 'focus'
                         
                     ),
                     array(
@@ -637,13 +645,8 @@ function command_mentor_delete() {
 // Data Alter Function /////////////////////////////////////////////////////
 function mentor_data_alter ($type, $data = array(), $opts = array()){
     switch($type){
-        case 'contact':
-            $cids = array();
-            foreach ($data as $contact){
-               //TODO: 
-            }
-            break;
         case 'member':
+            
             //Get cids of all members passed into $data
             $cids = array();
             foreach ($data as $member){
@@ -654,19 +657,15 @@ function mentor_data_alter ($type, $data = array(), $opts = array()){
             $mentor_opts['cid'] = $cids;
             // Get an array of member structures for each cid
             $mentor_data = crm_get_data('mentor', $mentor_opts);
-            // Create a map from cid to mentorship structure
-            $cid_to_mentorship = array();
-            foreach ($mentor_data as $mentorship){
-                $cid_to_mentorship[$mentorship['cid']] = $mentorship;
-            }
             // Add mentorship data to member array
             foreach ($data as $i=> $member) {
-                $data[$i]['mentorships'] = $mentorships;
+                $data[$i]['mentorships'] = $mentor_data[$member['cid']];
             }
+            print "<pre>" . "mentor data:". print_r($mentor_data, true) . "</pre>";
             break;
     }
+    
     return $data;
 }
-
 
 ?>
