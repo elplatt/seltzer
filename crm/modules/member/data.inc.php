@@ -211,6 +211,7 @@ function member_contact_api ($contact, $op) {
             // Save memberships
             if (isset($member['membership'])) {
                 foreach ($member['membership'] as $i => $membership) {
+                    $membership['cid'] = $contact['cid'];
                     $membership = member_membership_save($membership);
                     $contact['member']['membership'][$i] = $membership;
                 }
@@ -300,7 +301,6 @@ function member_plan_data ($opts) {
  * @return An array with each element representing a membership.
 */ 
 function member_membership_data ($opts) {
-    
     // Query database
     $sql = "
         SELECT *
@@ -308,19 +308,16 @@ function member_membership_data ($opts) {
         INNER JOIN `plan`
         ON `membership`.`pid` = `plan`.`pid`
         WHERE 1";
-        
     // Add member id
     if (!empty($opts['cid'])) {
         $esc_cid = mysql_real_escape_string($opts['cid']);
         $sql .= " AND `cid`='$esc_cid'";
     }
-    
     // Add membership id
     if (!empty($opts['sid'])) {
         $esc_sid = mysql_real_escape_string($opts['sid']);
         $sql .= " AND `sid`='$esc_sid'";
     }
-    
     // Add filters
     $esc_today = mysql_real_escape_string(date('Y-m-d'));
     if (isset($opts['filter'])) {
@@ -342,12 +339,10 @@ function member_membership_data ($opts) {
             }
         }
     }
-    
     $sql .= "
         ORDER BY `start` DESC";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-    
     // Store data
     $memberships = array();
     $row = mysql_fetch_assoc($res);
@@ -368,7 +363,6 @@ function member_membership_data ($opts) {
         );
         $row = mysql_fetch_assoc($res);
     }
-    
     // Return data
     return $memberships;
 }
@@ -380,16 +374,38 @@ function member_membership_data ($opts) {
  * @return $membership
  */
 function member_membership_save ($membership) {
+    $esc_sid = mysql_real_escape_string($membership['sid']);
+    $esc_cid = mysql_real_escape_string($membership['cid']);
+    $esc_pid = mysql_real_escape_string($membership['pid']);
+    $esc_start = mysql_real_escape_string($membership['start']);
+    $esc_end = mysql_real_escape_string($membership['end']);
     if (isset($membership['sid'])) {
         // Update
-        // TODO
+        $sql = "
+            UPDATE `membership`
+            SET `cid`='$esc_cid'
+            , `pid`='$esc_pid', ";
+        if ($esc_start) {
+            $sql .= "`start`='$esc_start', ";
+        } else {
+            $sql .= "`start`=NULL, ";
+        }
+        if ($esc_end) {
+            $sql .= "`end`='$esc_end' ";
+        } else {
+            $sql .= "`end`=NULL ";
+        }
+        $sql .= "WHERE `sid`='$esc_sid'";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
     } else {
+        print('inserting');
         // Insert
         $sql = "
             INSERT INTO `membership`
             (`cid`, `pid`, `start`)
             VALUES
-            ('$esc_cid', '$esc_post[pid]', '$esc_post[start]')
+            ('$esc_cid', '$esc_pid', '$esc_start')
         ";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
