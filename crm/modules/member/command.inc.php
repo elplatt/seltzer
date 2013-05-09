@@ -89,8 +89,10 @@ function command_member_add () {
     $contact['user'] = $user;
     // Add member fields
     $membership = array(
-        'pid' => $_POST['pid']
-        , 'start' => $_POST['start']
+        array(
+            'pid' => $_POST['pid']
+            , 'start' => $_POST['start']
+        )
     );
     $member = array('membership' => $membership);
     $contact['member'] = $member;
@@ -264,7 +266,6 @@ function command_member_membership_add () {
  */
 function command_member_membership_update () {
     global $esc_post;
-    
     // Verify permissions
     if (!user_access('member_edit')) {
         error_register('Permission denied: member_edit');
@@ -274,30 +275,15 @@ function command_member_membership_update () {
         error_register('Permission denied: member_membership_edit');
         return crm_url('members');
     }
-    
-    // Update membership
-    $sql = "
-        UPDATE `membership`
-        SET
-            `pid`='$esc_post[pid]'
-    ";
-    if (!empty($esc_post['start'])) {
-        $sql .= ", `start`='$esc_post[start]'";
-    } else {
-        $sql .= ", `start`=NULL";
-    }
-    if (!empty($esc_post['end'])) {
-        $sql .= ", `end`='$esc_post[end]'";
-    } else {
-        $sql .= ", `end`=NULL";
-    }
-    $sql .= "
-        WHERE `sid`='$esc_post[sid]'
-    ";
-    
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    
+    // Construct membership object and save
+    $membership = array(
+        'sid' => $_POST['sid']
+        , 'cid' => $_POST['cid']
+        , 'pid' => $_POST['pid']
+        , 'start' => $_POST['start']
+        , 'end' => $_POST['end']
+    );
+    member_membership_save($membership);
     return crm_url("contact&cid=$_POST[cid]&tab=plan");
 }
 
