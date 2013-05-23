@@ -58,7 +58,7 @@ function member_membership_description ($sid) {
     
     // Construct description
     $description = 'Membership : ';
-    $description .= member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    $description .= theme_contact_name($contact['cid']);
     $description .= ' : ' . $membership['plan']['name'];
     $description .= ' : Starting ' . $membership['start'];
     

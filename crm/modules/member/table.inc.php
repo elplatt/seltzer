@@ -122,12 +122,12 @@ function member_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_edit')) {
-            $ops[] = '<a href="index.php?q=contact&cid=' . $member['cid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href=' . crm_url('contact&cid=' . $member['cid'] . '&tab=edit') .'>edit</a>';
         }
         
         // Add delete op
         if (user_access('member_delete')) {
-            $ops[] = '<a href="index.php?q=delete&type=contact&amp;id=' . $member['cid'] . '">delete</a>';
+            $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $member['cid']) . '>delete</a>';
         }
         
         // Add ops row
@@ -258,12 +258,12 @@ function member_plan_table ($opts = NULL) {
         
         // Add edit op
         if (user_access('member_plan_edit')) {
-            $ops[] = '<a href="index.php?q=plan&pid=' . $plan['pid'] . '&tab=edit">edit</a> ';
+            $ops[] = '<a href=' . crm_url('plan&pid=' . $plan['pid'] . '&tab=edit') . '>edit</a>';
         }
         
         // Add delete op
         if (user_access('member_plan_edit')) {
-            $ops[] = '<a href="index.php?q=delete&type=member_plan&amp;id=' . $plan['pid'] . '">delete</a>';
+            $ops[] = '<a href=' . crm_url('delete&type=member_plan&amp;id=' . $plan['pid']) . '>delete</a>';
         }
         
         // Add ops row
@@ -286,25 +286,20 @@ function member_plan_table ($opts = NULL) {
  * @return The table structure.
 */
 function member_membership_table ($opts = NULL) {
-    
     // Ensure user is allowed to view members
     if (!user_access('member_membership_view')) {
         return NULL;
     }
-    
     // Get member data
     $memberships = member_membership_data($opts);
-    
     // Create table structure
     $table = array(
         'id' => '',
         'class' => '',
         'rows' => array()
     );
-    
     // Add columns
     $table['columns'] = array();
-    
     if (user_access('member_membership_view')) {
         $table['columns'][] = array('title'=>'Start','class'=>'');
         $table['columns'][] = array('title'=>'End','class'=>'');
@@ -315,10 +310,8 @@ function member_membership_table ($opts = NULL) {
     if (user_access('member_membership_edit')) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
-
     // Loop through membership data
     foreach ($memberships as $membership) {
-        
         // Add user data
         $row = array();
         if (user_access('member_membership_view')) {
@@ -327,25 +320,20 @@ function member_membership_table ($opts = NULL) {
             $row[] = $membership['plan']['name'];
             $row[] = $membership['plan']['price'];
         }
-        
         // Construct ops array
         $ops = array();
-        
         // Add delete op
         if (user_access('member_membership_edit')) {
-            $ops[] = '<a href="index.php?q=membership&sid=' . $membership['sid'] . '&tab=edit">edit</a>';
-            $ops[] = '<a href="index.php?q=delete&type=member_membership&amp;id=' . $membership['sid'] . '">delete</a>';
+            $ops[] = '<a href=' . crm_url('membership&sid=' . $membership['sid'] . '&tab=edit') . '>edit</a>';
+            $ops[] = '<a href=' . crm_url('delete&type=member_membership&amp;id=' . $membership['sid']) . '>delete</a>';
         }
-        
         // Add ops row
         if (!empty($ops)) {
             $row[] = join(' ', $ops);
         }
-        
         // Add row to table
         $table['rows'][] = $row;
     }
-    
     // Return table
     return $table;
 }

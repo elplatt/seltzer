@@ -191,13 +191,13 @@ function theme_member_created_email ($cid) {
     // Get info on the logged in user
     $data = member_contact_data(array('cid'=>user_id()));
     $admin = $data[0];
-    $adminName = member_name($admin['firstName'], $admin['middleName'], $admin['lastName']);
+    $adminName = theme_contact_name($admin['cid']);
     
     // Get info on member
     $data = member_data(array('cid'=>$cid));
     $member = $data[0];
     $contact = $member['contact'];
-    $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
+    $name = theme_contact_name($contact['cid']);
     
     // Get info on member's plan
     $data = member_membership_data(array('cid'=>$cid, $filter=>array('active'=>true)));

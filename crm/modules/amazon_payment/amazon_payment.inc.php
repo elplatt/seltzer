@@ -220,6 +220,10 @@ function amazon_payment_contact_table ($opts) {
     // Add columns
     $table['columns'][] = array("title"=>'Full Name');
     $table['columns'][] = array("title"=>'Amazon Name');
+    // Add ops column
+    if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
     // Add rows
     foreach ($data as $union) {
         $row = array();
@@ -241,7 +245,6 @@ function amazon_payment_contact_table ($opts) {
     return $table; 
 }
 
-
 /**
  * Page hook.  Adds module content to a page before it is rendered.
  *
@@ -252,15 +255,16 @@ function amazon_payment_contact_table ($opts) {
 function amazon_payment_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         case 'payments':
-            if (user_access('payment_add')) {
+            if (user_access('payment_edit')) {
                 $content = theme('amazon_payment_admin');
                 $content .= theme('form', crm_get_form('amazon_payment_import'));
                 page_add_content_top($page_data, $content, 'Amazon');
             }
             break;
         case 'amazon-admin':
-            page_set_title($page_data, 'Administer Amazon Payments');
+            page_set_title($page_data, 'Administer Amazon Contacts');
             page_add_content_top($page_data, theme('table', 'amazon_payment_contact', array('show_export'=>true)), 'View');
+            page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_add')), 'Add');
             break;
     }
 }
@@ -296,6 +300,51 @@ function amazon_payment_import_form () {
             )
         )
     );
+}
+
+/**
+ * Return the form structure for the add amazon contact form.
+ *
+ * @param The cid of the contact to add a amazon contact for.
+ * @return The form structure.
+*/
+function amazon_payment_contact_add_form () {
+    
+    // Ensure user is allowed to edit amazon contacts
+    if (!user_access('payment_edit')) {
+        return NULL;
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'amazon_payment_contact_add',
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Add Amazon Contact',
+                'fields' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => 'Amazon Name',
+                        'name' => 'amazon_name'
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'User ID',
+                        'name' => 'cid'
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Add'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
 }
 
 /**
@@ -354,11 +403,11 @@ function amazon_payment_form_alter($form, $form_id) {
 function command_amazon_payment_import () {
     if (!user_access('payment_add')) {
         error_register('User does not have permission: payment_add');
-        return 'index.php?q=payments';
+        return crm_url('payments');
     }
     if (!array_key_exists('payment-file', $_FILES)) {
         error_register('No payment file uploaded');
-        return 'index.php?q=payments&tab=import';
+        return crm_url('payments&tab=import');
     }
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);
@@ -406,12 +455,12 @@ function command_amazon_payment_import () {
         $count++;
     }
     message_register("Successfully imported $count payment(s)");
-    return 'index.php?q=payments';
+    return crm_url('payments');
 }
 
 /**
  * Return themed html for amazon admin links.
  */
 function theme_amazon_payment_admin () {
-    return '<p><a href="index.php?q=amazon-admin">Administer</a></p>';
+    return '<p><a href=' . crm_url('amazon-admin') . '>Administer</a></p>';
 }
