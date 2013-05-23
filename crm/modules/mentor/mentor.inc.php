@@ -52,7 +52,7 @@ function mentor_install($old_revision = 0) {
             CREATE TABLE IF NOT EXISTS `mentor` (
               `cid` mediumint(8) unsigned NOT NULL,
               `mentor_cid` mediumint(8) unsigned NOT NULL,
-              PRIMARY KEY (`cid`)
+              PRIMARY KEY (`cid`,`mentor_cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
@@ -228,7 +228,6 @@ function mentor_data ($opts = array()) {
         $mentorships[] = $mentorship;
         $row = mysql_fetch_assoc($res);
     }
-    print "<pre> Mentorships:" . print_r($mentorships, true) . "</pre>";
     // At this point, the mentorships might not be in unique rows.
     // in other words, there might be multiple entries with the same cid
     // we should match up multiple mentors/proteges that are related to
@@ -255,7 +254,6 @@ function mentor_data ($opts = array()) {
         $mentor_data[$mentorship['mentor_cid']]['protege_cids'][] = $mentorship['cid'];
     }  
     // Return data
-    print "<pre> Mentor_data to be returned:" . print_r($mentor_data, true) . "</pre>";
     return $mentor_data;
 }
 
@@ -284,7 +282,8 @@ function mentor_table ($opts) {
     
     // Get the current contact's data
     $contacts = crm_get_data('contact', $opts);
-    if (count($contacts) < 1) {
+    // Dont display anything if no mentors exist.
+    if (empty($contacts[0]['member']['mentorships']['mentor_cids'][0])) {
         return array();
     }
     
@@ -312,17 +311,14 @@ function mentor_table ($opts) {
     
     // Add rows
     foreach ($contacts as $contact) {
-        print "<pre> Contact info to work with:" . print_r($contact, true) . "</pre>";
         //get the mentor info
         $mentors_cids = $contact['member']['mentorships']['mentor_cids'];
-        print "<pre> cids to the members being fetched:" . print_r($mentors_cids, true) . "</pre>";
         $get_mentor_opts = array(
             'cid' => $mentors_cids
         );
         $mentors = crm_get_data('contact',$get_mentor_opts);
         
         foreach ($mentors as $mentor){
-            print "<pre> Mentors to be printed:" . print_r($mentors, true) . "</pre>";
             // Add mentor data
             $row = array();
             if (user_access('mentor_view') || $opts['cid'] == user_id()) {
@@ -336,7 +332,7 @@ function mentor_table ($opts) {
                 $row[] = $mentor['middleName'];
             }
             
-            if (!$export && (user_access('mentor_edit') || user_access('key_delete'))) {
+            if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
                 // Construct ops array
                 $ops = array();
                 
@@ -347,7 +343,7 @@ function mentor_table ($opts) {
                 
                 // Add delete op
                 if (user_access('mentor_delete')) {
-                    $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $mentor['cid'] . '">delete</a>';
+                    $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $contact['cid'] . '&mentorcid=' .$mentor['cid'] . '">delete</a>';
                 }
                 
                 // Add ops row
@@ -393,7 +389,7 @@ function mentor_add_form ($cid) {
                     array(
                         'type' => 'text',
                         'label' => 'Mentor Name',
-                        'name' => 'Mentor Name',
+                        'name' => 'mentor_cid',
                         'autocomplete' => 'contact_name',
                         'class' => 'focus'
                         
@@ -493,7 +489,7 @@ function mentor_edit_form ($cid) {
 */
 function mentor_delete_form ($cid) {
     
-    // Ensure user is allowed to delete keys
+    // Ensure user is allowed to delete mentors
     if (!user_access('mentor_delete')) {
         return NULL;
     }
@@ -506,11 +502,10 @@ function mentor_delete_form ($cid) {
     $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
     
     // Get list of current mentor cids.
-    $mentor_cids = $contact['member']['mentorships']['mentor_cids'];
-    
+    $mentor_cid = $contact['member']['mentorships']['mentor_cids'][0];
     // Construct mentor name (from member/protege)
-    $mentor_name = crm_get_data('contact', $opts = array('cid' => $mentor_cids[0]));
-    
+    $mentor_contact = crm_get_one('contact', $opts = array('cid' => $mentor_cid));
+    $mentor_name = theme('contact_name', $mentor_contact);
 
     // Create form structure
     $form = array(
@@ -518,16 +513,17 @@ function mentor_delete_form ($cid) {
         'method' => 'post',
         'command' => 'mentor_delete',
         'hidden' => array(
-            'cid' => $cid
+            'cid' => $cid,
+            'mentor_cid' => $mentor_cid
         ),
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Delete Key',
+                'label' => 'Delete Mentor',
                 'fields' => array(
                     array(
                         'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the member assignment "' . $mentor_name . '"? This cannot be undone.',
+                        'value' => '<p>Are you sure you want to delete the member assignment "' . $mentor_name . '"? This cannot be undone.'
                     ),
                     array(
                         'type' => 'submit',
@@ -568,7 +564,6 @@ function command_mentor_add() {
     // Verify permissions
     if (!user_access('mentor_edit')) {
         error_register('Permission denied: mentor_edit');
-        //return 'index.php?q=key&kid=' . $esc_post['kid']; // WAT?
         return 'index.php';
     }
     
@@ -627,15 +622,15 @@ function command_mentor_delete() {
     global $esc_post;
     
     // Verify permissions
-    if (!user_access('key_delete')) {
-        error_register('Permission denied: key_delete');
-        return 'index.php?q=key&kid=' . $esc_post['kid'];
+    if (!user_access('mentor_delete')) {
+        error_register('Permission denied: mentor_delete');
+        return 'index.php';
     }
     
     // Query database
     $sql = "
-        DELETE FROM `key`
-        WHERE `kid`='$esc_post[kid]'";
+        DELETE FROM `mentor`
+        WHERE `cid`='$esc_post[cid]' AND `mentor_cid`='$esc_post[mentor_cid]'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
@@ -661,7 +656,6 @@ function mentor_data_alter ($type, $data = array(), $opts = array()){
             foreach ($data as $i=> $member) {
                 $data[$i]['mentorships'] = $mentor_data[$member['cid']];
             }
-            print "<pre>" . "mentor data:". print_r($mentor_data, true) . "</pre>";
             break;
     }
     
