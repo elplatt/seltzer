@@ -310,8 +310,8 @@ function user_contact_api ($contact, $op) {
             user_save($contact['user']);
             break;
         case 'delete':
-            user_delete($conact['cid']);
-            $contact = array();
+            user_delete($contact['cid']);
+            unset($contact['user']);
             break;
         default:
             die('Unkown operation: ' . $op);
