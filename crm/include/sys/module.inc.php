@@ -371,6 +371,9 @@ function module_invoke_api ($type, $entity, $op) {
         $hook = "${module}_${type}_api";
         if (function_exists($hook)) {
             $entity = call_user_func_array($hook, $args);
+            if (empty($entity)) {
+                crm_error("$hook returned empty entity");
+            }
             $args[0] = $entity;
         }
     }
