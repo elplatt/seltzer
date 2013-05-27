@@ -324,39 +324,6 @@ function command_member_filter () {
 }
 
 /**
- * Handle member delete request.
- *
- * @return The url to display on completion.
- */
-function command_member_delete () {
-    global $esc_post;
-    // Verify permissions
-    if (!user_access('member_delete')) {
-        error_register('Permission denied: member_delete');
-        return crm_url('members');
-    }
-    // Check if we should delete the whole contact
-    if ($_POST['deleteContact']) {
-        // This will delete the contact and all associated data
-        contact_delete($_POST['cid']);
-    } else {
-        member_delete($_POST['cid']);
-    }
-    /* TODO - move this to user module
-    // Delete user and roles
-    if ($_POST['deleteUser']) {
-        $sql = "DELETE FROM `user` WHERE `cid`='$esc_post[cid]'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-    }
-    */
-    return crm_url('members');
-}
-
-/**
  * Handle membership delete request.
  *
  * @return The url to display on completion.

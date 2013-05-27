@@ -244,7 +244,7 @@ function member_delete ($cid) {
     $sql = "DELETE FROM `membership` WHERE `cid`='$esc_cid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-    message_register("Deleted Membership info for: $name");
+    message_register("Deleted membership info for: $name");
 }
 
 /**
