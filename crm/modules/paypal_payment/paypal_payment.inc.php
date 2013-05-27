@@ -121,7 +121,7 @@ function paypal_payment_contact_data ($opts = array()) {
  * set are not modified.
  */
 function paypal_payment_contact_save ($contact) {
-    $esc_name = mysql_real_escape_string($contact['paypal_email']);
+    $esc_email = mysql_real_escape_string($contact['paypal_email']);
     $esc_cid = mysql_real_escape_string($contact['cid']);    
     // Check whether the paypal contact already exists in the database
     $sql = "SELECT * FROM `contact_paypal` WHERE `paypal_email` = '$esc_email'";
@@ -447,6 +447,15 @@ function command_paypal_payment_import () {
     }
     message_register("Successfully imported $count payment(s)");
     return crm_url('payments');
+}
+
+/**
+ * Add a paypal contact.
+ * @return The url to display on completion.
+ */
+function command_paypal_payment_contact_add (){
+    paypal_payment_contact_save($_POST);
+    return crm_url('paypal-admin');
 }
 
 /**
