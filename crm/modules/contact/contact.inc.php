@@ -213,8 +213,7 @@ function contact_save ($contact) {
  * @param $cid The contact id.
  */
 function contact_delete ($cid) {
-    $contact_data = crm_get_data('contact', array('cid'=>$cid));
-    $contact = $contact_data[0];
+    $contact = crm_get_one('contact', array('cid'=>$cid));
     if (empty($contact)) {
         error_register("No contact with cid $cid");
         return;
@@ -546,7 +545,6 @@ function command_contact_update () {
  * @return The url to display on completion.
  */
 function command_contact_delete () {
-    global $esc_post;
     // Verify permissions
     if (!user_access('contact_delete')) {
         error_register('Permission denied: contact_delete');
