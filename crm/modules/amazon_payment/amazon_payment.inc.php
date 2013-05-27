@@ -459,6 +459,15 @@ function command_amazon_payment_import () {
 }
 
 /**
+ * Add an amazon contact.
+ * @return The url to display on completion.
+ */
+function command_amazon_payment_contact_add (){
+    amazon_payment_contact_save($_POST);
+    return crm_url('amazon-admin');
+}
+
+/**
  * Return themed html for amazon admin links.
  */
 function theme_amazon_payment_admin () {
