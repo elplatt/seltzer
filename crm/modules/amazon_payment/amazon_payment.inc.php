@@ -156,7 +156,7 @@ function amazon_payment_contact_save ($contact) {
  */
 function amazon_payment_payment_api ($payment, $op) {
     if ($payment['method'] !== 'amazon') {
-        return;
+        return $payment;
     }
     $name = $payment['amazon_name'];
     $pmtid = $payment['pmtid'];
@@ -194,6 +194,7 @@ function amazon_payment_payment_api ($payment, $op) {
             amazon_payment_contact_save($amazon_contact);
             break;
     }
+    return $payment;
 }
 
 /**

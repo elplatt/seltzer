@@ -156,7 +156,7 @@ function paypal_payment_contact_save ($contact) {
  */
 function paypal_payment_payment_api ($payment, $op) {
     if ($payment['method'] !== 'paypal') {
-        return;
+        return $payment;
     }
     $email = $payment['paypal_email'];
     $pmtid = $payment['pmtid'];
@@ -194,6 +194,7 @@ function paypal_payment_payment_api ($payment, $op) {
             paypal_payment_contact_save($paypal_contact);
             break;
     }
+    return $payment;
 }
 
 /**
