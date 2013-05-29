@@ -365,12 +365,14 @@ function user_save ($user) {
  * @param $cid The user's cid.
  */
 function user_delete ($cid) {
+    $esc_cid = mysql_real_escape_string($cid);
     $sql = "DELETE FROM `user` WHERE `cid`='$esc_cid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(msyql_error());
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(msyql_error());
+    message_register("Deleted user data for: " . theme('contact_name', $cid));
 }
 
 /**
