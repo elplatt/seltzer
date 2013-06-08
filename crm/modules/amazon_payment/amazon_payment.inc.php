@@ -222,6 +222,13 @@ function amazon_payment_payment_api ($payment, $op) {
             if (!$res) crm_error(mysql_error());
             amazon_payment_contact_save($amazon_contact);
             break;
+        case 'delete':
+            $sql = "
+                DELETE FROM `payment_amazon`
+                WHERE `pmtid`='$esc_pmtid'";
+                $res = mysql_query($sql);
+                if (!$res) crm_error(mysql_error());
+            break;
     }
     return $payment;
 }
