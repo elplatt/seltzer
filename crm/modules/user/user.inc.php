@@ -811,7 +811,7 @@ function user_reset_password_url ($username) {
     $res = mysql_query($sql);
     
     // Generate reset url
-    $url = 'http://' . $config_host . $config_base_path . crm_url("reset-confirm&v= . $code");
+    $url = 'http://' . $config_host . crm_url("reset-confirm&v=" . $code);
     return $url;
 }
 
@@ -824,16 +824,17 @@ function command_reset_password () {
     global $config_email_from;
     global $config_site_title;
     
-    // Send code to user
-    $user_data = user_data(array('filter'=>array('username'=>$_POST['username'])));
-    if (count($user_data) < 1) {
-        error_register('No such username');
+    // Send code to user by username
+    $user = crm_get_one('user', array('filter'=>array('username'=>$_POST['username'])));
+    if (empty($user)) {
+        // Try email instead
+        $user = crm_get_one('user', array('filter'=>array('email'=>$_POST['username'])));
+    }
+    if (empty($user)) {
+        error_register('No such username/email.');
         return crm_url();
     }
-    $user = $user_data[0];
-    // TODO this should be contact_data() once the contact module exists
-    $contact_data = member_contact_data(array('cid'=>$user['cid']));
-    $contact = $contact_data[0];
+    $contact = crm_get_one('contact', array('cid'=>$user['cid']));
     $url = user_reset_password_url($user['username']);
     if (!empty($url)) {
         $to = $contact['email'];
