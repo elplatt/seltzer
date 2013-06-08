@@ -64,13 +64,42 @@ function paypal_payment_install($old_revision = 0) {
 // DB to Object mapping ////////////////////////////////////////////////////////
 
 /**
+ * Implementation of hook_data_alter().
+ * @param $type The type of the data being altered.
+ * @param $data An array of structures of the given $type.
+ * @param $opts An associative array of options.
+ * @return An array of modified structures.
+ */
+function paypal_payment_data_alter ($type, $data = array(), $opts = array()) {
+    switch ($type) {
+        case 'payment':
+            // Get paypal payments
+            $pmtids = array();
+            foreach ($data as $payment) { $pmtids[] = $payment['pmtid']; }
+            $opts = array('pmtid' => $pmtids);
+            $paypal_payment_map = crm_map(crm_get_data('paypal_payment', $opts), 'pmtid');
+            // Add paypal data to each payment data
+            foreach ($data as $i => $payment) {
+                $data[$i]['paypal'] = $paypal_payment_map[$payment['pmtid']];
+            }
+    }
+    return $data;
+}
+
+/**
  * Return data for one or more paypal payments.
  */
 function paypal_payment_data ($opts = array()) {
     $sql = "SELECT `pmtid`, `paypal_email` FROM `payment_paypal` WHERE 1";
     if (isset($opts['pmtid'])) {
-        $esc_pmtid = mysql_real_escape_string($opts['pmtid']);
-        $sql .= " AND `pmtid`='$esc_pmtid' ";
+        if (is_array($opts['pmtid'])) {
+            $terms = array();
+            foreach ($opts['pmtid'] as $id) { $terms[] = mysql_real_escape_string($id); }
+            $sql .= " AND `pmtid` IN (" . join(',', $terms) . ") ";
+        } else {
+            $esc_pmtid = mysql_real_escape_string($opts['pmtid']);
+            $sql .= " AND `pmtid`='$esc_pmtid' ";
+        }
     }
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
@@ -368,14 +397,11 @@ function paypal_payment_form_alter(&$form, $form_id) {
         if ($payment['method'] !== 'paypal') {
             return $form;
         }
-        // Load paypal_payment
-        $paypal_payment_opts = array('pmtid' => $payment['pmtid']);
-        $paypal_payment_data = paypal_payment_data($paypal_payment_opts);
-        if (count($paypal_payment_data) < 1) {
-            error_register("Payment with id $payment[pmtid] missing from payment_paypal table.");
-            return;
+        $paypal_payment = $payment['paypal'];
+        if (empty($paypal_payment)) {
+            error_register("Payment type 'paypal' but no associated data for payment:$payment[pmtid].");
+            return $form;
         }
-        $paypal_payment = $paypal_payment_data[0];
         // Loop through all fields in the form
         for ($i = 0; $i < count($form['fields']); $i++) {
             if ($form['fields'][$i]['label'] === 'Edit Payment') {
