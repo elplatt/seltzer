@@ -74,6 +74,7 @@ $config_links = array(
     , 'plans' => 'Plans'
     , 'keys' => 'Keys'
     , 'payments' => 'Payments'
+    , 'accounts' => 'Accouns'
     , 'reports' => 'Reports'
     , 'permissions' => 'Permissions'
     , 'upgrade' => 'Upgrade'

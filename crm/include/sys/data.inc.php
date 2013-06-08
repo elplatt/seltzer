@@ -34,14 +34,16 @@ function crm_get_data ($type, $opts = array()) {
         error_register('No such data type: ' . $type);
     }
     $data = call_user_func($hook, $opts);
-    // Let other modules extend the data
-    foreach (module_list() as $module) {
-        $hook = "${module}_data_alter";
-        if (function_exists($hook)) {
-            $data = call_user_func($hook, $type, $data, $opts);
-            // Make sure the hook actually returned data
-            if (is_null($data)) {
-                error_register('Hook returned null: ' . $hook);
+    if (!empty($data)) {
+        // Let other modules extend the data
+        foreach (module_list() as $module) {
+            $hook = "${module}_data_alter";
+            if (function_exists($hook)) {
+                $data = call_user_func($hook, $type, $data, $opts);
+                // Make sure the hook actually returned data
+                if (is_null($data)) {
+                    error_register('Hook returned null: ' . $hook);
+                }
             }
         }
     }

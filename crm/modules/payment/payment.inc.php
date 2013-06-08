@@ -475,6 +475,126 @@ function payment_delete ($pmtid) {
     }
 }
 
+/**
+ * Return an array mapping cids to balance owed.
+ * @param $opts Options, possible keys are:
+ *   'cid' - A single cid or array of cids to limit results.
+ * @return The associative array mapping cids to payment objects.
+ */
+function payment_accounts ($opts = NULL) {
+    $cid_to_balance = array();
+    // Get credits
+    $sql = "
+        SELECT `credit`, SUM(`value`) AS `total` FROM `payment` WHERE `credit` <> 0
+    ";
+    foreach ($opts as $key => $value) {
+        switch ($key) {
+            case 'cid':
+                if (is_array($value)) {
+                    $terms = array();
+                    if (!empty($value)) {
+                        foreach ($value as $cid) {
+                            $terms[] = mysql_real_escape_string($cid);
+                        }
+                        $sql .= " AND `credit` IN (" . join(',', $terms) . ") ";
+                    }
+                } else {
+                    $sql .= " AND `credit`=" . msyql_real_escape_string($value) . " ";
+                }
+                break;
+        }
+    }
+    $sql .= " GROUP BY `credit` ";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    $db_row = mysql_fetch_assoc($res);
+    while ($db_row) {
+        // Subtract all credits from balance owed
+        if (isset($cid_to_balance[$db_row['credit']])) {
+            $cid_to_balance[$db_row['credit']] -= $db_row['total'];
+        } else {
+            $cid_to_balance[$db_row['credit']] = -1 * $db_row['total'];
+        }
+        $db_row = mysql_fetch_assoc($res);
+    }
+    // Get debits
+    $sql = "
+        SELECT `debit`, SUM(`value`) AS `total` FROM `payment` WHERE `debit` <> 0
+    ";
+    foreach ($opts as $key => $value) {
+        switch ($key) {
+            case 'cid':
+                if (is_array($value)) {
+                    $terms = array();
+                    if (!empty($value)) {
+                        foreach ($value as $cid) {
+                            $terms[] = mysql_real_escape_string($cid);
+                        }
+                        $sql .= " AND `debit` IN (" . join(',', $terms) . ") ";
+                    }
+                } else {
+                    $sql .= " AND `debit`=" . msyql_real_escape_string($value) . " ";
+                }
+                break;
+        }
+    }
+    $sql .= " GROUP BY `debit` ";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    $db_row = mysql_fetch_assoc($res);
+    while ($db_row) {
+        // Add all debits to balance owed
+        if (isset($cid_to_balance[$db_row['debit']])) {
+            $cid_to_balance[$db_row['debit']] += $db_row['total'];
+        } else {
+            $cid_to_balance[$db_row['debit']] = $db_row['total'];
+        }
+        $db_row = mysql_fetch_assoc($res);
+    }
+    return $cid_to_balance;
+}
+
+/**
+ * Return an array of cids matching the given filters.
+ * @param $filter An associative array of filters, keys are:
+ *   'balance_due' - If true, only include contacts with a balance due.
+ * @return An array of cids for matching contacts, or NULL if all match.
+ */
+function payment_contact_filter ($filter) {
+    $cids = NULL;
+    foreach ($filter as $key => $value) {
+        $new_cids = array();
+        switch ($key) {
+            case 'balance_due':
+                if ($value) {
+                    $balances = payment_accounts();
+                    foreach ($balances as $cid => $bal) {
+                        if ($bal > 0) {
+                            $new_cids[] = $cid;
+                        }
+                    }
+                }
+                break;
+            default:
+                $new_cids = NULL;
+        }
+        if (is_null($cids)) {
+            $cids = $new_cids;
+        } else {
+            // This is inefficient and can be optimized
+            // -Ed 2013-06-08
+            $result = array();
+            foreach ($cids as $cid) {
+                if (in_array($cid, $new_cids)) {
+                    $result[] = $cid;
+                }
+            }
+            $cids = $result;
+        }
+    }
+    return $cids;
+}
+
 // Table data structures ///////////////////////////////////////////////////////
 
 /**
@@ -632,6 +752,30 @@ function payment_history_table ($opts) {
         $table['rows'][] = $row;
     }
     
+    return $table;
+}
+
+/**
+ * Return a table showing account balances.
+ * @param $opts An associative array of options.
+ * @return A table object.
+ */
+function payment_accounts_table ($opts) {
+    $cids = payment_contact_filter(array('balance_due'=>true));
+    $balances = payment_accounts(array('cid'=>$cids));
+    $table = array(
+        'columns' => array(
+            array('title' => 'Name')
+            , array('title' => 'Balance')
+        )
+        , 'rows' => array()
+    );
+    foreach ($balances as $cid => $balance) {
+        $row = array();
+        $row[] = theme('contact_name', $cid);
+        $row[] = payment_format_currency(array('value'=>$balance, 'code'=>'USD'));
+        $table['rows'][] = $row;
+    }
     return $table;
 }
 
@@ -907,6 +1051,9 @@ function command_payment_delete() {
  */
 function payment_page_list () {
     $pages = array();
+    if (user_access('payment_view')) {
+        $pages[] = 'accounts';
+    }
     if (user_access('payment_edit')) {
         $pages[] = 'payments';
         $pages[] = 'payment';
@@ -938,9 +1085,14 @@ function payment_page (&$page_data, $page_name, $options) {
                 page_add_content_top($page_data, $content);
             }
             break;
+        case 'accounts':
+            page_set_title($page_data, 'Accounts');
+            if (user_access('payment_view')) {
+                $content = theme('table', 'payment_accounts', array('show_export'=>true));
+                page_add_content_top($page_data, $content);
+            }
+            break;
         case 'contact':
-            // TODO, not sure if this should be here in here or member, we need to
-            // consider dependencies more carefully. -Ed 2013-01-02
             if (user_id() == $_GET['cid'] || user_access('payment_view')) {
                 $content = theme('table', 'payment_history', array('cid' => $_GET['cid']));
                 page_add_content_top($page_data, $content, 'Account');
