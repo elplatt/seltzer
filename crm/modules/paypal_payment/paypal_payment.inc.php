@@ -193,6 +193,13 @@ function paypal_payment_payment_api ($payment, $op) {
             if (!$res) die(mysql_error());
             paypal_payment_contact_save($paypal_contact);
             break;
+        case 'delete':
+            $sql = "
+                DELETE FROM `payment_paypal`
+                WHERE `pmtid`='$esc_pmtid'";
+                $res = mysql_query($sql);
+                if (!$res) crm_error(mysql_error());
+            break;
     }
     return $payment;
 }
