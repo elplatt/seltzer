@@ -485,7 +485,7 @@ function payment_accounts ($opts = NULL) {
     $cid_to_balance = array();
     // Get credits
     $sql = "
-        SELECT `credit`, SUM(`value`) AS `total` FROM `payment` WHERE `credit` <> 0
+        SELECT `credit`, `code`, SUM(`value`) AS `value` FROM `payment` WHERE `credit` <> 0
     ";
     foreach ($opts as $key => $value) {
         switch ($key) {
@@ -504,22 +504,24 @@ function payment_accounts ($opts = NULL) {
                 break;
         }
     }
-    $sql .= " GROUP BY `credit` ";
+    $sql .= " GROUP BY `credit`, `code` ";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     $db_row = mysql_fetch_assoc($res);
     while ($db_row) {
+        $cid = $db_row['credit'];
         // Subtract all credits from balance owed
-        if (isset($cid_to_balance[$db_row['credit']])) {
-            $cid_to_balance[$db_row['credit']] -= $db_row['total'];
+        if (isset($cid_to_balance[$cid])) {
+            $amount = payment_invert_currency($db_row);
+            $cid_to_balance[$cid] = payment_add_currency($amount, $cid_to_balance[$cid]);
         } else {
-            $cid_to_balance[$db_row['credit']] = -1 * $db_row['total'];
+            $cid_to_balance[$cid] = payment_invert_currency($db_row);
         }
         $db_row = mysql_fetch_assoc($res);
     }
     // Get debits
     $sql = "
-        SELECT `debit`, SUM(`value`) AS `total` FROM `payment` WHERE `debit` <> 0
+        SELECT `debit`, `code`, SUM(`value`) AS `value` FROM `payment` WHERE `debit` <> 0
     ";
     foreach ($opts as $key => $value) {
         switch ($key) {
@@ -538,16 +540,17 @@ function payment_accounts ($opts = NULL) {
                 break;
         }
     }
-    $sql .= " GROUP BY `debit` ";
+    $sql .= " GROUP BY `debit`, `code` ";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     $db_row = mysql_fetch_assoc($res);
     while ($db_row) {
         // Add all debits to balance owed
-        if (isset($cid_to_balance[$db_row['debit']])) {
-            $cid_to_balance[$db_row['debit']] += $db_row['total'];
+        $cid = $db_row['debit'];
+        if (isset($cid_to_balance[$cid])) {
+            $cid_to_balance[$cid] = payment_add_currency($cid_to_balance[$cid], $db_row);
         } else {
-            $cid_to_balance[$db_row['debit']] = $db_row['total'];
+            $cid_to_balance[$cid] = $db_row;
         }
         $db_row = mysql_fetch_assoc($res);
     }
@@ -715,7 +718,7 @@ function payment_history_table ($opts) {
             , array('title' => 'Amount')
             , array('title' => 'Method')
             , array('title' => 'To/From')
-            , array('title' => 'Balance')
+            , array('title' => 'Balance Owed')
         )
         , 'rows' => array()
     );
@@ -752,6 +755,8 @@ function payment_history_table ($opts) {
         $table['rows'][] = $row;
     }
     
+    $table['rows'] = array_reverse($table['rows']);
+    
     return $table;
 }
 
@@ -766,14 +771,14 @@ function payment_accounts_table ($opts) {
     $table = array(
         'columns' => array(
             array('title' => 'Name')
-            , array('title' => 'Balance')
+            , array('title' => 'Balance Owed')
         )
         , 'rows' => array()
     );
     foreach ($balances as $cid => $balance) {
         $row = array();
         $row[] = theme('contact_name', $cid);
-        $row[] = payment_format_currency(array('value'=>$balance, 'code'=>'USD'));
+        $row[] = payment_format_currency($balance);
         $table['rows'][] = $row;
     }
     return $table;
