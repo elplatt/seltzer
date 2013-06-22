@@ -364,13 +364,14 @@ function paypal_payment_contact_add_form () {
                 'fields' => array(
                     array(
                         'type' => 'text',
-                        'label' => 'Paypal Email',
+                        'label' => 'Paypal Email Address',
                         'name' => 'paypal_email'
                     ),
                     array(
                         'type' => 'text',
-                        'label' => 'User ID',
-                        'name' => 'cid'
+                        'label' => "Member's Name",
+                        'name' => 'cid',
+                        'autocomplete' => 'contact_name'
                     ),
                     array(
                         'type' => 'submit',
