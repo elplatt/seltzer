@@ -369,8 +369,9 @@ function amazon_payment_contact_add_form () {
                     ),
                     array(
                         'type' => 'text',
-                        'label' => 'User ID',
-                        'name' => 'cid'
+                        'label' => "Member's Name",
+                        'name' => 'cid',
+                        'autocomplete' => 'contact_name'
                     ),
                     array(
                         'type' => 'submit',
