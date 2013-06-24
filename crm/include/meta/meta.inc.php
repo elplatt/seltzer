@@ -333,22 +333,19 @@ function meta_cross_table ($opts) {
                             $plan = $recentMembership['plan']['name'];
                         }
                     }
-            //        $row[] = $plan;
+
                 }
                 
-                // 
+                // insert new tag in new row at a fixed offset.
                   for ( $i = 2 ; $i < $count+2; $i++) { 
                       if ( $table['columns'][$i]['title'] == $meta['tagstr'] ) { 
                           $row[$i] = '<input type="checkbox" name="'.$meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                       }  else { 
-                            $row[$i] = ''; 
+                          if ( ! array_key_exists($i, $row) ) { $row[$i] = ''; } 
                       }
                   }  
                           
-                //$row[] = $meta['tagstr'];
-                
-          //      $row[] = $meta['start'];
-          //      $row[] = $meta['end'];
+ 
             }
         
            if (!$export && (user_access('meta_edit') || user_access('meta_delete'))) {
@@ -356,7 +353,6 @@ function meta_cross_table ($opts) {
                $ops = array();
                
                // Add edit op
-               // http://localhost/seltzer/crm/index.php?q=member&cid=6#tab-meta-tags 
                if (user_access('meta_edit')) {
                    $ops[] = '<a href="index.php?q=member&cid=' . $meta['cid'] . '#tab-meta-tags">edit</a> ';
                }
@@ -381,8 +377,16 @@ function meta_cross_table ($opts) {
             
             $previd = $uniq[$meta['contact']['lastName'].$meta['contact']['firstName']];
             $row = $table['rows'][$previd]; 
-            // shufle up last two columns 'edit' and 'delete' buttons and insert new tag:   
-     //       array_splice( $row, -2 , 0 , $meta['tagstr'] ) ; 
+            
+            // insert new tag to existing row:
+            for ( $i = 2 ; $i < $count+2; $i++) { 
+                if ( $table['columns'][$i]['title'] == $meta['tagstr'] ) { 
+                    $row[$i] = '<input type="checkbox" name="'.$meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
+                }  //else { 
+                   // if ( ! array_key_exists($i, $row) ) { $row[$i] = ''; } 
+                //}
+            }  
+            
             $table['rows'][$previd] = $row;
           
         } 
