@@ -272,18 +272,21 @@ function meta_cross_table ($opts) {
     $uniq = array();    
   
     // determine max/total number of tags, as we'll use one column for each:
-    $sql = "SELECT count(*) from meta"; 
+    $sql = "SELECT distinct tagstr from meta order by tagstr asc"; 
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
-    $tmp = mysql_fetch_array($res,MYSQL_NUM); // just one row.
-    if (array_key_exists(0, $tmp) ) { $count = $tmp[0]; } else $count = 0; // just one column
-    
+    $count = mysql_num_rows($res); // just one row.   
+        $tags = array();
+        while ($row = mysql_fetch_array($res, MYSQL_NUM))
+        {
+            $tags[] = $row[0];
+        }
     
     // Add column headers 
     if (user_access('meta_view') || $opts['cid'] == user_id()) {
         if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
-            $table['columns'][] = array("title"=>'Last Name', 'class'=>'', 'id'=>'');
-            $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>'');
+            $table['columns'][] = array("title"=>'Last Name', 'class'=>'', 'id'=>''); // column 1 
+            $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>''); // column 2 
          //   $table['columns'][] = array("title"=>'Middle Name', 'class'=>'', 'id'=>'');
         }
         if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
@@ -291,14 +294,14 @@ function meta_cross_table ($opts) {
         }
         
          for ( $i = 0 ; $i < $count; $i++) { 
-            $table['columns'][] = array("title"=>'Tag', 'class'=>'', 'id'=>'');
+            $table['columns'][] = array("title"=>$tags[$i], 'class'=>'', 'id'=>''); // column 3 -> almost end
         }  
     //    $table['columns'][] = array("title"=>'Since', 'class'=>'', 'id'=>'');
     //    $table['columns'][] = array("title"=>'Until', 'class'=>'', 'id'=>'');
     }
     // Add ops column
     if (!$export && (user_access('meta_edit') || user_access('meta_delete'))) {
-        $table['columns'][] = array('title'=>'Ops','class'=>'');
+        $table['columns'][] = array('title'=>'Ops','class'=>''); // last column. 
     }
     
     // Add row data
@@ -333,7 +336,17 @@ function meta_cross_table ($opts) {
             //        $row[] = $plan;
                 }
                 
-                $row[] = $meta['tagstr'];
+                // 
+                  for ( $i = 2 ; $i < $count+2; $i++) { 
+                      if ( $table['columns'][$i]['title'] == $meta['tagstr'] ) { 
+                          $row[$i] = '<input type="checkbox" name="'.$meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
+                      }  else { 
+                            $row[$i] = ''; 
+                      }
+                  }  
+                          
+                //$row[] = $meta['tagstr'];
+                
           //      $row[] = $meta['start'];
           //      $row[] = $meta['end'];
             }
@@ -369,7 +382,7 @@ function meta_cross_table ($opts) {
             $previd = $uniq[$meta['contact']['lastName'].$meta['contact']['firstName']];
             $row = $table['rows'][$previd]; 
             // shufle up last two columns 'edit' and 'delete' buttons and insert new tag:   
-            array_splice( $row, -2 , 0 , $meta['tagstr'] ) ; 
+     //       array_splice( $row, -2 , 0 , $meta['tagstr'] ) ; 
             $table['rows'][$previd] = $row;
           
         } 
