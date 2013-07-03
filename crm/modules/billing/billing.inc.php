@@ -59,6 +59,11 @@ function billing_install($old_revision = 0) {
  */
 function billing_form () {
     
+    $bill_date = variable_get('billing_last_date', '');
+    if(empty($bill_date)){
+        variable_set('billing_last_date', 'never');
+    }
+    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -74,7 +79,7 @@ function billing_form () {
                         'class' => 'date',
                         'label' => 'Last Billed',
                         'name' => 'last_billed',
-                        'value' => variable_get('billing_last_date', '')
+                        'value' => $bill_date
                     ),
                     array(
                         'type' => 'submit'
