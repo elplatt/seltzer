@@ -179,6 +179,21 @@ function paypal_payment_contact_save ($contact) {
 }
 
 /**
+ * Delete a paypal contact.
+ * @param $paypal_payment_contact The paypal_payment_contact data structure to delete, must have a 'cid' element.
+ */
+function paypal_payment_contact_delete ($paypal_payment_contact) {
+    $esc_cid = mysql_real_escape_string($paypal_payment_contact['cid']);
+    $sql = "DELETE FROM `contact_paypal` WHERE `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_affected_rows() > 0) {
+        message_register('Contact info deleted.');
+    }
+    return crm_url('paypal-admin');
+}
+
+/**
  * Update paypal_payment data when a payment is updated.
  * @param $contact The contact data array.
  * @param $op The operation being performed.
@@ -276,6 +291,18 @@ function paypal_payment_contact_table($opts){
         $row[] = $contactName; 
         // Second column is union['paypal_email']
         $row[] = $union['paypal_email'];
+        if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
+            // Construct ops array
+            $ops = array();
+            // Add edit op
+            // TODO
+            // Add delete op
+            if (user_access('payment_delete')) {
+                $ops[] = '<a href=' . crm_url('delete&type=paypal_payment_contact&id=' . $contact['cid']) . '>delete</a>';
+            }
+            // Add ops row
+            $row[] = join(' ', $ops);
+        }
         // Save row array into the $table structure
         $table['rows'][] = $row;
     }
@@ -349,7 +376,7 @@ function paypal_payment_contact_add_form () {
     
     // Ensure user is allowed to edit paypal contacts
     if (!user_access('payment_edit')) {
-        return NULL;
+        return crm_url('paypal-admin');
     }
     
     // Create form structure
@@ -376,6 +403,55 @@ function paypal_payment_contact_add_form () {
                     array(
                         'type' => 'submit',
                         'value' => 'Add'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+/**
+ * Return the delete paypal contact form structure.
+ *
+ * @param $cid The cid of the paypal contact to delete.
+ * @return The form structure.
+*/
+function paypal_payment_contact_delete_form ($cid) {
+    
+    // Ensure user is allowed to delete paypal contacts
+    if (!user_access('payment_edit')) {
+        return crm_url('paypal-admin');
+    }
+    
+    // Get paypal contact data
+    $data = crm_get_data('paypal_payment_contact', array('cid'=>$cid));
+    $paypal_payment_contact = $data[0];
+    
+    // Construct paypal contact name
+    $paypal_payment_contact_name = "paypal contact:$paypal_payment_contact[cid] email:$paypal_payment_contact[paypal_email]";
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'paypal_payment_contact_delete',
+        'hidden' => array(
+            'cid' => $paypal_payment_contact['cid']
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Delete Paypal Contact',
+                'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => '<p>Are you sure you want to delete the paypal contact "' . $paypal_payment_contact_name . '"? This cannot be undone.',
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Delete'
                     )
                 )
             )
@@ -482,6 +558,15 @@ function command_paypal_payment_import () {
     }
     message_register("Successfully imported $count payment(s)");
     return crm_url('payments');
+}
+
+/**
+ * Delete a paypal contact.
+ * @param $paypal_payment_contact The paypal_payment_contact data structure to delete, must have a 'cid' element.
+ */
+function command_paypal_payment_contact_delete () {
+    paypal_payment_contact_delete($_POST);
+    return crm_url('paypal-admin');
 }
 
 /**

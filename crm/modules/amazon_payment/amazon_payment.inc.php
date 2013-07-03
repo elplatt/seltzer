@@ -179,6 +179,21 @@ function amazon_payment_contact_save ($contact) {
 }
 
 /**
+ * Delete an amazon contact.
+ * @param $amazon_payment_contact The amazon_payment_contact data structure to delete, must have a 'cid' element.
+ */
+function amazon_payment_contact_delete ($amazon_payment_contact) {
+    $esc_cid = mysql_real_escape_string($amazon_payment_contact['cid']);
+    $sql = "DELETE FROM `contact_amazon` WHERE `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_affected_rows() > 0) {
+        message_register('Contact info deleted.');
+    }
+    return crm_url('amazon-admin');
+}
+
+/**
  * Update amazon_payment data when a payment is updated.
  * @param $contact The contact data array.
  * @param $op The operation being performed.
@@ -276,6 +291,18 @@ function amazon_payment_contact_table ($opts) {
         $row[] = $contactName; 
         // Second column is union['amazon_name']
         $row[] = $union['amazon_name'];
+        if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
+            // Construct ops array
+            $ops = array();
+            // Add edit op
+            // TODO
+            // Add delete op
+            if (user_access('payment_delete')) {
+                $ops[] = '<a href=' . crm_url('delete&type=amazon_payment_contact&id=' . $contact['cid']) . '>delete</a>';
+            }
+            // Add ops row
+            $row[] = join(' ', $ops);
+        }
         // Save row array into the $table structure
         $table['rows'][] = $row;
     }
@@ -349,7 +376,7 @@ function amazon_payment_contact_add_form () {
     
     // Ensure user is allowed to edit amazon contacts
     if (!user_access('payment_edit')) {
-        return NULL;
+        return crm_url('amazon-admin');
     }
     
     // Create form structure
@@ -385,6 +412,54 @@ function amazon_payment_contact_add_form () {
     return $form;
 }
 
+/**
+ * Return the delete amazon contact form structure.
+ *
+ * @param $cid The cid of the amazon contact to delete.
+ * @return The form structure.
+*/
+function amazon_payment_contact_delete_form ($cid) {
+    
+    // Ensure user is allowed to delete amazon contacts
+    if (!user_access('payment_edit')) {
+        return crm_url('amazon-admin');
+    }
+    
+    // Get amazon contact data
+    $data = crm_get_data('amazon_payment_contact', array('cid'=>$cid));
+    $amazon_payment_contact = $data[0];
+    
+    // Construct amazon contact name
+    $amazon_payment_contact_name = "amazon contact:$amazon_payment_contact[cid] name:$amazon_payment_contact[amazon_name]";
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'amazon_payment_contact_delete',
+        'hidden' => array(
+            'cid' => $amazon_payment_contact['cid']
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Delete Paypal Contact',
+                'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => '<p>Are you sure you want to delete the amazon contact "' . $amazon_payment_contact_name . '"? This cannot be undone.',
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Delete'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
 /**
  * Implementation of hook_form_alter().
  * @param &$form The form being altered.
