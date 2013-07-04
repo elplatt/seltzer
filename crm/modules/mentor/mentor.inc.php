@@ -158,7 +158,6 @@ function theme_mentor_edit_form ($cid) {
 */ 
 function mentor_data ($opts = array()) {
     
-
     if (array_key_exists('cid', $opts)) {
         foreach ($opts['cid'] as $cid) {
             
@@ -611,7 +610,9 @@ function command_mentor_add() {
 /**
  * Handle mentor update request.
  *
- * @return The url to display on completion.
+ * @return The url to display on completion. TODO: This function is not completely
+ * implemented yet, it still has some copied parts from the key module that have
+ * not been translated
  */
 function command_mentor_update() {
     global $esc_post;
