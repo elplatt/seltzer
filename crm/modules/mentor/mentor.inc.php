@@ -280,8 +280,8 @@ function mentor_table ($opts) {
     
     // Get the current contact's data
     $contacts = crm_get_data('contact', $opts);
-    // Dont display anything if no mentors exist.
-    if (empty($contacts[0]['member']['mentorships']['mentor_cids'][0])) {
+    // Dont display anything if no mentorships exist.
+    if (empty($contacts[0]['member']['mentorships'])) {
         return array();
     }
     
