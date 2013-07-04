@@ -127,9 +127,9 @@ function mentor_page (&$page_data, $page_name, $options) {
 // Themeing ////////////////////////////////////////////////////////////////////
 
 /**
- * Return the themed html for an add key assignment form.
+ * Return the themed html for an add mentor assignment form.
  *
- * @param $cid The id of the contact to add a key assignment for.
+ * @param $cid The id of the contact to add a mentor assignment for.
  * @return The themed html string.
  */
 function theme_mentor_add_form ($cid) {
@@ -266,8 +266,6 @@ function mentor_data ($opts = array()) {
  * @return The table structure.
 */
 function mentor_table ($opts) {
-
-    //this is stolen from key.inc.php just for reference. TODO:
     
     // Determine settings
     $export = false;
@@ -297,8 +295,8 @@ function mentor_table ($opts) {
     
     // Add columns
     if (user_access('mentor_view') || $opts['cid'] == user_id()) {
-        $table['columns'][] = array("title"=>'Protege Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Mentor Name', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'Protege Name', 'class'=>'', 'id'=>'');
 
     }
     // Add ops column
@@ -321,10 +319,10 @@ function mentor_table ($opts) {
                 // Add mentor data
                 $row = array();
                 if (user_access('mentor_view') || $opts['cid'] == user_id()) {
-                // Add the contact's name
-                    $row[] = theme('contact_name', $contact, true);
                     // Add the mentor's name
                     $row[] = theme('contact_name', $mentor, true);
+                    // Add the contact's name
+                    $row[] = theme('contact_name', $contact, true);
                 }
                 
                 if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
@@ -332,9 +330,9 @@ function mentor_table ($opts) {
                     $ops = array();
                     
                     // Add edit op
-                    if (user_access('mentor_edit')) {
-                        $ops[] = '<a href="index.php?q=mentor&cid=' . $mentor['cid'] . '#tab-edit">edit</a> ';
-                    }
+                    //if (user_access('mentor_edit')) {
+                    //    $ops[] = '<a href="index.php?q=contact&cid=' . $mentor['cid'] . '#tab-mentor">edit</a> ';
+                    //}
                     
                     // Add delete op
                     if (user_access('mentor_delete')) {
@@ -359,19 +357,19 @@ function mentor_table ($opts) {
                 //Add Protege Data
                 $row = array();
                 if (user_access('mentor_view') || $opts['cid'] == user_id()) {
-                // Add the protege's name
-                    $row[] = theme('contact_name', $protege, true);
                     // Add the mentor's name (actually the contact)
                     $row[] = theme('contact_name', $contact, true);
+                    // Add the protege's name
+                    $row[] = theme('contact_name', $protege, true);
                 }
                 if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
                     // Construct ops array
                     $ops = array();
                     
                     // Add edit op
-                    if (user_access('mentor_edit')) {
-                        $ops[] = '<a href="index.php?q=mentor&cid=' . $contact['cid'] . '#tab-edit">edit</a> ';
-                    }
+                    //if (user_access('mentor_edit')) {
+                    //    $ops[] = '<a href="index.php?q=contact&cid=' . $contact['cid'] . '#tab-mentor">edit</a> ';
+                    //}
                     
                     // Add delete op
                     if (user_access('mentor_delete')) {
@@ -444,7 +442,7 @@ function mentor_add_form ($cid) {
 */
 function mentor_edit_form ($cid) {
     
-    // Ensure user is allowed to edit key
+    // Ensure user is allowed to edit mentor
     if (!user_access('mentor_edit')) {
         return NULL;
     }
@@ -585,7 +583,7 @@ function mentor_command ($command, &$url, &$params) {
 }
 
 /**
- * Handle key add request.
+ * Handle mentor add request.
  *
  * @return The url to display on completion.
  */
@@ -607,7 +605,7 @@ function command_mentor_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'index.php?q=member&cid=' . $_POST['cid'] . '&tab=mentor';
+    return 'index.php?q=contact&cid=' . $_POST['cid'] . '#tab-mentor';
 }
 
 /**
@@ -621,12 +619,12 @@ function command_mentor_update() {
     // Verify permissions
     if (!user_access('mentor_edit')) {
         error_register('Permission denied: mentor_edit');
-        return 'index.php?q=key&kid=' . $_POST['kid'];
+        return 'index.php?q=contact&cid=' . $_POST['cid'];
     }
     
     // Query database
     $sql = "
-        UPDATE `key`
+        UPDATE `mentor`
         SET
         `start`='$esc_post[start]',";
     if (!empty($esc_post[end])) {
@@ -641,7 +639,7 @@ function command_mentor_update() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'index.php?q=key&kid=' . $esc_post['kid'] . '&tab=edit';
+    return 'index.php?q=contact&cid=' . $esc_post['cid'] . '#tab-mentor';
 }
 
 /**
