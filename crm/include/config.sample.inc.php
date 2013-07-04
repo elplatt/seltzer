@@ -51,6 +51,7 @@ $config_modules = array(
     "variable",
     "member",
     "key",
+    "meta",
     "payment",
     "amazon_payment",
     "billing"
@@ -62,6 +63,7 @@ $config_links = array(
     , 'members' => 'Members'
     , 'plans' => 'Plans'
     , 'keys' => 'Keys'
+    , 'metas' => 'Meta-Tags'    
     , 'payments' => 'Payments'
     , 'reports' => 'Reports'
     , 'permissions' => 'Permissions'
