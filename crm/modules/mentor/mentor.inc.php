@@ -266,7 +266,7 @@ function mentor_data ($opts = array()) {
  * @return The table structure.
 */
 function mentor_table ($opts) {
-    
+
     //this is stolen from key.inc.php just for reference. TODO:
     
     // Determine settings
@@ -297,12 +297,9 @@ function mentor_table ($opts) {
     
     // Add columns
     if (user_access('mentor_view') || $opts['cid'] == user_id()) {
-        $table['columns'][] = array("title"=>'Last Name', 'class'=>'', 'id'=>'');
-        $table['columns'][] = array("title"=>'First Name', 'class'=>'', 'id'=>'');
-        $table['columns'][] = array("title"=>'Middle Name', 'class'=>'', 'id'=>'');
-        $table['columns'][] = array("title"=>'Mentor Last Name', 'class'=>'', 'id'=>'');
-        $table['columns'][] = array("title"=>'Mentor First Name', 'class'=>'', 'id'=>'');
-        $table['columns'][] = array("title"=>'Mentor Middle Name', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'Protege Name', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'Mentor Name', 'class'=>'', 'id'=>'');
+
     }
     // Add ops column
     if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
@@ -316,41 +313,75 @@ function mentor_table ($opts) {
         $get_mentor_opts = array(
             'cid' => $mentors_cids
         );
-        $mentors = crm_get_data('contact',$get_mentor_opts);
-        
-        foreach ($mentors as $mentor){
-            // Add mentor data
-            $row = array();
-            if (user_access('mentor_view') || $opts['cid'] == user_id()) {
-            // Add the contact's name
-                $row[] = $contact['lastName'];
-                $row[] = $contact['firstName'];
-                $row[] = $contact['middleName'];
-                // Add the mentor's name
-                $row[] = $mentor['lastName'];
-                $row[] = $mentor['firstName'];
-                $row[] = $mentor['middleName'];
-            }
+        //Print out the mentors only if there actually are some mentor cids.
+        if(!empty($mentors_cids)){
+            $mentors = crm_get_data('contact',$get_mentor_opts);
             
-            if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
-                // Construct ops array
-                $ops = array();
-                
-                // Add edit op
-                if (user_access('mentor_edit')) {
-                    $ops[] = '<a href="index.php?q=mentor&cid=' . $mentor['cid'] . '#tab-edit">edit</a> ';
+            foreach ($mentors as $mentor){
+                // Add mentor data
+                $row = array();
+                if (user_access('mentor_view') || $opts['cid'] == user_id()) {
+                // Add the contact's name
+                    $row[] = theme('contact_name', $contact, true);
+                    // Add the mentor's name
+                    $row[] = theme('contact_name', $mentor, true);
                 }
                 
-                // Add delete op
-                if (user_access('mentor_delete')) {
-                    $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $contact['cid'] . '&mentorcid=' .$mentor['cid'] . '">delete</a>';
-                }
-                
-                // Add ops row
-                $row[] = join(' ', $ops);
+                if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
+                    // Construct ops array
+                    $ops = array();
+                    
+                    // Add edit op
+                    if (user_access('mentor_edit')) {
+                        $ops[] = '<a href="index.php?q=mentor&cid=' . $mentor['cid'] . '#tab-edit">edit</a> ';
+                    }
+                    
+                    // Add delete op
+                    if (user_access('mentor_delete')) {
+                        $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $contact['cid'] . '&mentorcid=' .$mentor['cid'] . '">delete</a>';
+                    }
+                    // Add ops row
+                    $row[] = join(' ', $ops);
+                } 
+                $table['rows'][] = $row;
             }
+        }
+        //get the protege info
+        $protege_cids = $contact['member']['mentorships']['protege_cids'];
+        $get_protege_opts = array(
+            'cid' => $protege_cids           
+        );
+        //Print out the proteges only if there actually are some protege cids.
+        if(!empty($protege_cids)){
+            $proteges = crm_get_data('contact',$get_protege_opts);
             
-            $table['rows'][] = $row;
+            foreach($proteges as $protege){
+                //Add Protege Data
+                $row = array();
+                if (user_access('mentor_view') || $opts['cid'] == user_id()) {
+                // Add the protege's name
+                    $row[] = theme('contact_name', $protege, true);
+                    // Add the mentor's name (actually the contact)
+                    $row[] = theme('contact_name', $contact, true);
+                }
+                if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
+                    // Construct ops array
+                    $ops = array();
+                    
+                    // Add edit op
+                    if (user_access('mentor_edit')) {
+                        $ops[] = '<a href="index.php?q=mentor&cid=' . $contact['cid'] . '#tab-edit">edit</a> ';
+                    }
+                    
+                    // Add delete op
+                    if (user_access('mentor_delete')) {
+                        $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $protege['cid'] . '&mentorcid=' .$contact['cid'] . '">delete</a>';
+                    }
+                    // Add ops row
+                    $row[] = join(' ', $ops);
+                }
+                $table['rows'][] = $row;
+            }
         }
     }
     
