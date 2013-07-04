@@ -19,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
+date_default_timezone_set('Australia/Brisbane');
 
 require_once('include/crm.inc.php');
 
