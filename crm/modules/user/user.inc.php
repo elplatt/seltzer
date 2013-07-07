@@ -344,7 +344,6 @@ function user_save ($user) {
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
     } else {
-        die('updating user');
         // The user already exists, update it
         $sql = "
             UPDATE `user`
