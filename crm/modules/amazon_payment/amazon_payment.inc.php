@@ -604,7 +604,7 @@ function theme_amazon_payment_account_info ($cid) {
     $amount = payment_format_currency($balance);
     $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
     if ($balance['value'] > 0) {
-        $output .= theme('amazon_payment_button', $params);
+        $output .= theme('amazon_payment_button', $cid, $params);
     }
     $output .= '</div>';
     return $output;
@@ -612,10 +612,11 @@ function theme_amazon_payment_account_info ($cid) {
 
 /**
  * Return themed html for an amazon payment button.
+ * @param $cid The cid to create a button for.
  * @param $params Options for the button.
  * @return A string containing the themed html.
  */
-function theme_amazon_payment_button ($params = array()) {
+function theme_amazon_payment_button ($cid, $params = array()) {
     global $config_amazon_payment_access_key_id;
     global $config_amazon_payment_secret;
     global $config_host;
@@ -627,7 +628,6 @@ function theme_amazon_payment_button ($params = array()) {
         error_register('Missing Amazon Secret Key');
         return '';
     }
-    $cid = user_id();
     $defaults = array(
         'immediateReturn' => '0'
         , 'collectShippingAddress' => '0'
