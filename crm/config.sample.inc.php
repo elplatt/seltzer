@@ -53,6 +53,10 @@ $config_base_path = '/crm/';
 // (currently there is only one, "inspire".)
 $config_theme = "inspire";
 
+// Amazon signatures version 2 keys
+$config_amazon_payment_secret = '';
+$config_amazon_payment_access_key_id = '';
+
 // Modules
 $config_modules = array(
     "contact",
@@ -65,6 +69,8 @@ $config_modules = array(
     "paypal_payment",
     "billing"
 );
+// Development modules
+//$config_modules[] = 'devel';
 
 // Links to show in the main menu
 $config_links = array(

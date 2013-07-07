@@ -419,6 +419,7 @@ function payment_save ($payment) {
         ";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
+        print 'invoking module api';
         $payment = module_invoke_api('payment', $payment, 'update');
     } else {
         // Payment does not yet exist, create
@@ -499,7 +500,7 @@ function payment_accounts ($opts = NULL) {
                         $sql .= " AND `credit` IN (" . join(',', $terms) . ") ";
                     }
                 } else {
-                    $sql .= " AND `credit`=" . msyql_real_escape_string($value) . " ";
+                    $sql .= " AND `credit`=" . mysql_real_escape_string($value) . " ";
                 }
                 break;
         }
@@ -535,7 +536,7 @@ function payment_accounts ($opts = NULL) {
                         $sql .= " AND `debit` IN (" . join(',', $terms) . ") ";
                     }
                 } else {
-                    $sql .= " AND `debit`=" . msyql_real_escape_string($value) . " ";
+                    $sql .= " AND `debit`=" . mysql_real_escape_string($value) . " ";
                 }
                 break;
         }
@@ -754,8 +755,6 @@ function payment_history_table ($opts) {
         
         $table['rows'][] = $row;
     }
-    
-    $table['rows'] = array_reverse($table['rows']);
     
     return $table;
 }

@@ -330,6 +330,9 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             page_add_content_top($page_data, theme('table', 'amazon_payment_contact', array('show_export'=>true)), 'View');
             page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_add')), 'Add');
             break;
+        case 'contact':
+            page_add_content_bottom($page_data, theme('amazon_payment_account_info', $_GET['cid']), 'Account');
+            break;
     }
 }
 
@@ -582,4 +585,112 @@ function command_amazon_payment_contact_add (){
  */
 function theme_amazon_payment_admin () {
     return '<p><a href=' . crm_url('amazon-admin') . '>Administer</a></p>';
+}
+
+/**
+ * Return an account summary and amazon payment button.
+ * @param $cid The cid of the contact to create a form for.
+ * @return An html string for the summary and button.
+ */
+function theme_amazon_payment_account_info ($cid) {
+    $balances = payment_accounts(array('cid'=>$cid));
+    $balance = $balances[$cid];
+    $params = array(
+        'referenceId' => $cid
+        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+        , 'description' => 'CRM Dues Payment'
+    );
+    $output = '<div>';
+    $amount = payment_format_currency($balance);
+    $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
+    if ($balance['value'] > 0) {
+        $output .= theme('amazon_payment_button', $params);
+    }
+    $output .= '</div>';
+    return $output;
+}
+
+/**
+ * Return themed html for an amazon payment button.
+ * @param $params Options for the button.
+ * @return A string containing the themed html.
+ */
+function theme_amazon_payment_button ($params = array()) {
+    global $config_amazon_payment_access_key_id;
+    global $config_amazon_payment_secret;
+    if (empty($config_amazon_payment_access_key_id)) {
+        error_register('Missing Amazon Access Key ID');
+        return '';
+    }
+    if (empty($config_amazon_payment_secret)) {
+        error_register('Missing Amazon Secret Key');
+        return '';
+    }
+    $cid = user_id();
+    $defaults = array(
+        'immediateReturn' => '0'
+        , 'collectShippingAddress' => '0'
+        , 'referenceId' => 'YourReferenceId'
+        , 'amount' => 'USD 1.1'
+        , 'cobrandingStyle' => 'logo'
+        , 'description' => 'Test Widget'
+        , 'ipnUrl' => 'http://yourwebsite.com/ipn'
+        , 'returnUrl' => 'http://yourwebsite.com/return.html'
+        , 'processImmediate' => '1'
+        , 'cobrandingStyle' => 'logo'
+        , 'abandonUrl' => 'http://yourwebsite.com/cancel.html'
+    );
+    // Use defaults for parameters not specified
+    foreach ($defaults as $key => $value) {
+        if (!isset($params[$key])) {
+            $params[$key] = $value;
+        }
+    }
+    // Always use AWS Signatures v2 with SHA256 HMAC
+    // http://docs.aws.amazon.com/general/latest/gr/signature-version-2.html
+    $params['accessKey'] = $config_amazon_payment_access_key_id;
+    $params['signatureVersion'] = '2';
+    $params['signatureMethod'] = 'HmacSHA256';
+    $params['signature'] = amazon_payment_signature($params);
+    $html = <<<EOF
+<form action ="https://authorize.payments.amazon.com/pba/paypipeline" method="POST"/>
+<input type="image" src="https://authorize.payments.amazon.com/pba/images/SLPayNowWithLogo.png" border="0"/>
+<input type="hidden" name="accessKey" value="$params[accessKey]"/>
+<input type="hidden" name="amount" value="$params[amount]"/>
+<input type="hidden" name="collectShippingAddress" value="$params[collectShippingAddress]"/>
+<input type="hidden" name="description" value="$params[description]"/>
+<input type="hidden" name="signatureMethod" value="$params[signatureMethod]"/>
+<input type="hidden" name="referenceId" value="$params[referenceId]"/>
+<input type="hidden" name="immediateReturn" value="$params[immediateReturn]"/>
+<input type="hidden" name="returnUrl" value="$params[returnUrl]"/>
+<input type="hidden" name="abandonUrl" value="$params[abandonUrl]"/>
+<input type="hidden" name="processImmediate" value="$params[processImmediate]"/>
+<input type="hidden" name="ipnUrl" value="$params[ipnUrl]"/>
+<input type="hidden" name="cobrandingStyle" value="$params[cobrandingStyle]"/>
+<input type="hidden" name="signatureVersion" value="$params[signatureVersion]"/>
+<input type="hidden" name="signature" value="$params[signature]"/>
+</form>
+EOF;
+    return $html;
+}
+
+/**
+ * Generates an amazon payment signature.
+ * See: http://docs.aws.amazon.com/general/latest/gr/signature-version-2.html
+ * @param $params
+ * @return The signature.
+ */
+function amazon_payment_signature ($params) {
+    global $config_amazon_payment_secret;
+    uksort($params, 'strcmp');
+    $query = "POST\n";
+    $query .= "authorize.payments.amazon.com\n";
+    $query .= "/pba/paypipeline\n";
+    $clauses = array();
+    foreach ($params as $key => $value) {
+        $clauses[] = rawurlencode($key) . '=' . rawurlencode($params[$key]);
+    }
+    $query .= join('&', $clauses);
+    $signature = base64_encode(hash_hmac('sha256', $query, $config_amazon_payment_secret, true));
+    return $signature;
 }
