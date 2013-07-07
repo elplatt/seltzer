@@ -58,12 +58,18 @@ function links () {
  * @return A string containing the url.
  */
 function crm_url ($path, $opts) {
-    $url = base_path() . "index.php?q=$path";
+    $url = base_path() . "index.php?";
+    $terms = array();
+    // Construct terms of the query string
+    if ($path != '<front>') {
+        $terms[] = "q=$path";
+    }
     if (isset($opts['query'])) {
         foreach ($opts['query'] as $key => $value) {
-            $url .= "&$key=$value";
+            $terms[] = "$key=$value";
         }
     }
+    $url .= implode('&', $terms);
     return $url;
 }
 
