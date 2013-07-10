@@ -118,9 +118,6 @@ function member_page (&$page_data, $page_name, $options) {
                 return;
             }
             
-            // Set page title
-            page_set_title($page_data, theme('member_contact_name', $cid));
-            
             // Add plan and role tabs
             if (user_access('member_membership_edit')) {
                 $plan = theme('table', 'member_membership', array('cid' => $cid));

@@ -1178,14 +1178,9 @@ function user_page (&$page_data, $page_name, $options) {
             if (empty($cid)) {
                 return;
             }
-            
-            // Set page title
-            page_set_title($page_data, theme('member_contact_name', $cid));
-            
             // Add view tab
             $view_content = '';
             if (user_id() == $_GET['cid'] || user_access('user_edit')) {
-                // TODO this should probably be moved to the user module some refactoring is done. -Ed 2012-10-06
                 $view_content .= '<h3>User Info</h3>';
                 $view_content .= theme('table_vertical', 'user', array('cid' => $cid));
             }
