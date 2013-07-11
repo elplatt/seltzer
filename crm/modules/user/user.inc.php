@@ -453,7 +453,10 @@ function user_permissions_list () {
  * @return the cid of the logged in user.
 */
 function user_id () {
-    return $_SESSION['userId'];
+    if (isset($_SESSION['userId'])) {
+        return $_SESSION['userId'];
+    }
+    return 0;
 }
 
 /**
