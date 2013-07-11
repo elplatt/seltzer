@@ -61,7 +61,7 @@ function payment_install($old_revision = 0) {
               `notes` text NOT NULL,
               `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`pmtid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());

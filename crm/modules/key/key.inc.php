@@ -57,7 +57,7 @@ function key_install($old_revision = 0) {
               `serial` varchar(255) NOT NULL,
               `slot` mediumint(8) unsigned NOT NULL,
               PRIMARY KEY (`kid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
