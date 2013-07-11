@@ -33,7 +33,7 @@ function member_install($old_revision = 0) {
             CREATE TABLE IF NOT EXISTS `member` (
               `cid` mediumint(8) unsigned NOT NULL,
               PRIMARY KEY (`cid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
@@ -46,7 +46,7 @@ function member_install($old_revision = 0) {
               `start` date NOT NULL,
               `end` date DEFAULT NULL,
               PRIMARY KEY (`sid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
@@ -59,7 +59,7 @@ function member_install($old_revision = 0) {
               `active` tinyint(1) NOT NULL,
               `voting` tinyint(1) NOT NULL,
               PRIMARY KEY (`pid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
