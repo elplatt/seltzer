@@ -26,8 +26,12 @@
  *   module has never been installed.
  */
 function member_install($old_revision = 0) {
+    if ($old_revision == 1) {
+        error_log('The database version is too old to upgrade to this release of Seltzer.  Please upgrade one release at a time.');
+        return;
+    }
     // Initial installation
-    if ($old_revision < 3) {
+    if ($old_revision == 0) {
         // Create member table
         $sql = '
             CREATE TABLE IF NOT EXISTS `member` (
