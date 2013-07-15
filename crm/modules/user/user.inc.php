@@ -1162,3 +1162,35 @@ function user_hash ($password, $salt) {
     $input = empty($salt) ? $password : $salt . $password;
     return sha1($input);
 }
+
+/**
+ * Page hook.  Adds user module content to a page before it is rendered.
+ *
+ * @param &$page_data Reference to data about the page being rendered.
+ * @param $page_name The name of the page being rendered.
+ * @param $options The array of options passed to theme('page').
+*/
+function user_page (&$page_data, $page_name, $options) {
+    
+    switch ($page_name) {
+        
+        case 'contact':
+            
+            // Capture user id
+            $cid = $_GET['cid'];
+            if (empty($cid)) {
+                return;
+            }
+            // Add view tab
+            $view_content = '';
+            if (user_id() == $_GET['cid'] || user_access('user_edit')) {
+                $view_content .= '<h3>User Info</h3>';
+                $view_content .= theme('table_vertical', 'user', array('cid' => $cid));
+            }
+            if (!empty($view_content)) {
+                page_add_content_bottom($page_data, $view_content, 'View');
+            }
+            
+            break;
+    }
+}
