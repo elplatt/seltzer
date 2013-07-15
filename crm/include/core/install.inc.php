@@ -87,8 +87,8 @@ function core_install ($old_revision = 0) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `user` (
               `cid` mediumint(11) unsigned NOT NULL,
-              `username` varchar(32) NOT NULL,
-              `hash` varchar(40) NOT NULL,
+              `username` varchar(32) NOT NULL DEFAULT '',
+              `hash` varchar(40) NOT NULL DEFAULT '',
               PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
         ';
