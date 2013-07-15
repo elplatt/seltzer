@@ -32,6 +32,7 @@ function crm_get_data ($type, $opts = array()) {
     $hook = "${type}_data";
     if (!function_exists($hook)) {
         error_register('No such data type: ' . $type);
+        die();
     }
     $data = call_user_func($hook, $opts);
     if (!empty($data)) {
