@@ -597,7 +597,8 @@ function theme_amazon_payment_account_info ($cid) {
     $balance = $balances[$cid];
     $params = array(
         'referenceId' => $cid
-        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+//        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+        , 'amount' => 'USD 1.00'
         , 'description' => 'CRM Dues Payment'
     );
     $output = '<div>';
@@ -652,7 +653,9 @@ function theme_amazon_payment_button ($cid, $params = array()) {
     $params['accessKey'] = $config_amazon_payment_access_key_id;
     $params['signatureVersion'] = '2';
     $params['signatureMethod'] = 'HmacSHA256';
-    $params['signature'] = amazon_payment_signature($params);
+    $host = 'authorize.payments.amazon.com';
+    $path = '/pba/paypipeline';
+    $params['signature'] = amazon_payment_signature($params, $host, $path, 'POST');
     $html = <<<EOF
 <form action ="https://authorize.payments.amazon.com/pba/paypipeline" method="POST"/>
 <input type="image" src="https://authorize.payments.amazon.com/pba/images/SLPayNowWithLogo.png" border="0"/>
@@ -681,17 +684,27 @@ EOF;
  * @param $params
  * @return The signature.
  */
-function amazon_payment_signature ($params) {
+function amazon_payment_signature ($params, $host, $path, $method) {
     global $config_amazon_payment_secret;
+    $query = "$method\n";
+    $query .= "$host\n";
+    $query .= "$path\n";
+    $query .= amazon_payment_query_string($params);
+    $signature = base64_encode(hash_hmac('sha256', $query, $config_amazon_payment_secret, true));
+    return $signature;
+}
+
+/**
+ * Convert parameters into a query string for signing.
+ * @param $params Associative array of params to include.
+ * @return The plain text string.
+ */
+function amazon_payment_query_string ($params) {
     uksort($params, 'strcmp');
-    $query = "POST\n";
-    $query .= "authorize.payments.amazon.com\n";
-    $query .= "/pba/paypipeline\n";
     $clauses = array();
     foreach ($params as $key => $value) {
         $clauses[] = rawurlencode($key) . '=' . rawurlencode($params[$key]);
     }
-    $query .= join('&', $clauses);
-    $signature = base64_encode(hash_hmac('sha256', $query, $config_amazon_payment_secret, true));
-    return $signature;
+    $query = join('&', $clauses);
+    return $query;
 }
