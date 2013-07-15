@@ -83,15 +83,15 @@ function user_install ($old_revision = 0) {
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
             
-            $sql = '
+            $sql = "
                 CREATE TABLE IF NOT EXISTS `user` (
                   `cid` mediumint(11) unsigned NOT NULL,
                   `username` varchar(32) NOT NULL,
-                  `hash` varchar(40) NOT NULL,
-                  `salt` varchar(16) NOT NULL,
+                  `hash` varchar(40) NOT NULL DEFAULT '',
+                  `salt` varchar(16) NOT NULL DEFAULT '',
                   PRIMARY KEY (`cid`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
-            ';
+            ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
             
