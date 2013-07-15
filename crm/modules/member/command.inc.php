@@ -143,7 +143,10 @@ function command_member_add () {
  * @return The url to display on completion.
  */
 function command_member_plan_add () {
-    global $esc_post;
+    $esc_name = mysql_real_escape_string($_POST['name']);
+    $esc_price = mysql_real_escape_string($_POST['price']);
+    $esc_voting = $_POST['voting'] ? '1' : '0';
+    $esc_active = $_POST['active'] ? '1' : '0';
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -156,7 +159,7 @@ function command_member_plan_add () {
         INSERT INTO `plan`
         (`name`,`price`, `voting`, `active`)
         VALUES
-        ('$esc_post[name]', '$esc_post[price]', '$esc_post[voting]', '$esc_post[active]')
+        ('$esc_name', '$esc_price', '$esc_voting', '$esc_active')
     ";
     
     $res = mysql_query($sql);
@@ -171,7 +174,11 @@ function command_member_plan_add () {
  * @return The url to display on completion.
  */
 function command_member_plan_update () {
-    global $esc_post;
+    $esc_name = mysql_real_escape_string($_POST['name']);
+    $esc_price = mysql_real_escape_string($_POST['price']);
+    $esc_active = $_POST['active'] ? '1' : '0';
+    $esc_voting = $_POST['voting'] ? '1' : '0';
+    $esc_pid = mysql_real_escape_string($_POST['pid']);
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -183,11 +190,11 @@ function command_member_plan_update () {
     $sql = "
         UPDATE `plan`
         SET
-            `name`='$esc_post[name]',
-            `price`='$esc_post[price]',
-            `active`='$esc_post[active]',
-            `voting`='$esc_post[voting]'
-        WHERE `pid`='$esc_post[pid]'
+            `name`='$esc_name',
+            `price`='$esc_price',
+            `active`='$esc_active',
+            `voting`='$esc_voting'
+        WHERE `pid`='$esc_pid'
     ";
     
     $res = mysql_query($sql);
