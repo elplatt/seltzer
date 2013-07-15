@@ -152,6 +152,8 @@ function command_member_add () {
  */
 function command_member_plan_add () {
     global $esc_post;
+    $esc_voting = $_POST['voting'] ? '1' : '0';
+    $esc_active = $_POST['active'] ? '1' : '0';
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -164,7 +166,7 @@ function command_member_plan_add () {
         INSERT INTO `plan`
         (`name`,`price`, `voting`, `active`)
         VALUES
-        ('$esc_post[name]', '$esc_post[price]', '$esc_post[voting]', '$esc_post[active]')
+        ('$esc_post[name]', '$esc_post[price]', $esc_voting, '$esc_active')
     ";
     
     $res = mysql_query($sql);
@@ -180,6 +182,8 @@ function command_member_plan_add () {
  */
 function command_member_plan_update () {
     global $esc_post;
+    $esc_voting = $_POST['voting'] ? '1' : '0';
+    $esc_active = $_POST['active'] ? '1' : '0';
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -193,8 +197,8 @@ function command_member_plan_update () {
         SET
             `name`='$esc_post[name]',
             `price`='$esc_post[price]',
-            `active`='$esc_post[active]',
-            `voting`='$esc_post[voting]'
+            `active`='$esc_active,
+            `voting`='$esc_voting'
         WHERE `pid`='$esc_post[pid]'
     ";
     
