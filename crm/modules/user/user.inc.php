@@ -50,85 +50,89 @@ function user_permissions () {
  */
 function user_install ($old_revision = 0) {
     if ($old_revision < 1) {
-        $sql = '
-            CREATE TABLE IF NOT EXISTS `resetPassword` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              `code` varchar(40) NOT NULL,
-              PRIMARY KEY (`cid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-        ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-        
-        $sql = '
-            CREATE TABLE IF NOT EXISTS `role` (
-              `rid` mediumint(9) NOT NULL AUTO_INCREMENT,
-              `name` varchar(255) NOT NULL,
-              PRIMARY KEY (`rid`)
-            ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-        ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-        
-        $sql = '
-            CREATE TABLE IF NOT EXISTS `role_permission` (
-              `rid` mediumint(8) unsigned NOT NULL,
-              `permission` varchar(255) NOT NULL,
-              PRIMARY KEY (`rid`,`permission`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-        ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-        
-        $sql = '
-            CREATE TABLE IF NOT EXISTS `user` (
-              `cid` mediumint(11) unsigned NOT NULL,
-              `username` varchar(32) NOT NULL,
-              `hash` varchar(40) NOT NULL,
-              `salt` varchar(16) NOT NULL,
-              PRIMARY KEY (`cid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
-        ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-        
-        $sql = '
-            CREATE TABLE IF NOT EXISTS `user_role` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              `rid` mediumint(8) unsigned NOT NULL,
-              PRIMARY KEY (`cid`,`rid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-        ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-        
-        // Create default roles
-        $roles = array(
-            '1' => 'authenticated'
-            , '2' => 'member'
-            , '3' => 'director'
-            , '4' => 'president'
-            , '5' => 'vp'
-            , '6' => 'secretary'
-            , '7' => 'treasurer'
-            , '8' => 'webAdmin'
-        );
-        foreach ($roles as $rid => $role) {
-            $sql = "INSERT INTO `role` (`rid`, `name`) VALUES ('$rid', '$role')";
+        // If user table exists, this code was already run when it was
+        // part of the core module
+        if (mysql_num_rows(mysql_query("SHOW TABLES LIKE 'user'")) == 0) {
+            $sql = '
+                CREATE TABLE IF NOT EXISTS `resetPassword` (
+                  `cid` mediumint(8) unsigned NOT NULL,
+                  `code` varchar(40) NOT NULL,
+                  PRIMARY KEY (`cid`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ';
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
-        }
-        $default_perms = array(
-            'member' => array('report_view', 'contact_view')
-            , 'director' => array('module_upgrade', 'report_view', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete', 'user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit')
-            , 'webAdmin' => array('module_upgrade', 'report_view', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete', 'user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit')
-        );
-        foreach ($roles as $rid => $role) {
-            if (array_key_exists($role, $default_perms)) {
-                foreach ($default_perms[$role] as $perm) {
-                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
-                    $res = mysql_query($sql);
-                    if (!$res) die(mysql_error());
+            
+            $sql = '
+                CREATE TABLE IF NOT EXISTS `role` (
+                  `rid` mediumint(9) NOT NULL AUTO_INCREMENT,
+                  `name` varchar(255) NOT NULL,
+                  PRIMARY KEY (`rid`)
+                ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+            ';
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            
+            $sql = '
+                CREATE TABLE IF NOT EXISTS `role_permission` (
+                  `rid` mediumint(8) unsigned NOT NULL,
+                  `permission` varchar(255) NOT NULL,
+                  PRIMARY KEY (`rid`,`permission`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ';
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            
+            $sql = '
+                CREATE TABLE IF NOT EXISTS `user` (
+                  `cid` mediumint(11) unsigned NOT NULL,
+                  `username` varchar(32) NOT NULL,
+                  `hash` varchar(40) NOT NULL,
+                  `salt` varchar(16) NOT NULL,
+                  PRIMARY KEY (`cid`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+            ';
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            
+            $sql = '
+                CREATE TABLE IF NOT EXISTS `user_role` (
+                  `cid` mediumint(8) unsigned NOT NULL,
+                  `rid` mediumint(8) unsigned NOT NULL,
+                  PRIMARY KEY (`cid`,`rid`)
+                ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ';
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            
+            // Create default roles
+            $roles = array(
+                '1' => 'authenticated'
+                , '2' => 'member'
+                , '3' => 'director'
+                , '4' => 'president'
+                , '5' => 'vp'
+                , '6' => 'secretary'
+                , '7' => 'treasurer'
+                , '8' => 'webAdmin'
+            );
+            foreach ($roles as $rid => $role) {
+                $sql = "INSERT INTO `role` (`rid`, `name`) VALUES ('$rid', '$role')";
+                $res = mysql_query($sql);
+                if (!$res) die(mysql_error());
+            }
+            $default_perms = array(
+                'member' => array('report_view', 'contact_view')
+                , 'director' => array('module_upgrade', 'report_view', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete', 'user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit')
+                , 'webAdmin' => array('module_upgrade', 'report_view', 'contact_view', 'contact_add', 'contact_edit', 'contact_delete', 'user_add', 'user_edit', 'user_delete', 'user_role_edit', 'user_permissions_edit')
+            );
+            foreach ($roles as $rid => $role) {
+                if (array_key_exists($role, $default_perms)) {
+                    foreach ($default_perms[$role] as $perm) {
+                        $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                        $res = mysql_query($sql);
+                        if (!$res) die(mysql_error());
+                    }
                 }
             }
         }
