@@ -222,9 +222,11 @@ function theme_member_created_email ($cid) {
  * @param $confirm_url The url for the new user to confirm their email.
  */
 function theme_member_welcome_email ($cid, $confirm_url) {
+    $contact = crm_get_one('contact', array('cid'=>$cid));
     $vars = array(
         'type' => 'welcome'
         , 'confirm_url' => $confirm_url
+        , 'username' => $contact['user']['username']
     );
     return template_render('email', $vars);
 }
