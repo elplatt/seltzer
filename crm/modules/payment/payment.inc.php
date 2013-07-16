@@ -765,18 +765,23 @@ function payment_history_table ($opts) {
  * @return A table object.
  */
 function payment_accounts_table ($opts) {
+    $export = $opts['export'] ? true : false;
     $cids = payment_contact_filter(array('balance_due'=>true));
     $balances = payment_accounts(array('cid'=>$cids));
     $table = array(
         'columns' => array(
             array('title' => 'Name')
+            , array('title' => 'Email')
             , array('title' => 'Balance Owed')
         )
         , 'rows' => array()
     );
+    $contacts = crm_get_data('contact', array('cid'=>$cids));
+    $cidToContact = crm_map($contacts, 'cid');
     foreach ($balances as $cid => $balance) {
         $row = array();
-        $row[] = theme('contact_name', $cid);
+        $row[] = theme('contact_name', $cid, !$export);
+        $row[] = $cidToContact[$cid]['email'];
         $row[] = payment_format_currency($balance);
         $table['rows'][] = $row;
     }
