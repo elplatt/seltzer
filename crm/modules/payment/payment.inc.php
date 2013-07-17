@@ -314,6 +314,12 @@ function payment_data ($opts = array()) {
                 case 'confirmation':
                     $sql .= " AND (`confirmation`='$esc_value') ";
                     break;
+                case 'credit_cid':
+                    $sql .= " AND (`credit`='$esc_value') ";
+                    break;
+                case 'debit_cid':
+                    $sql .= " AND (`debit`='$esc_value') ";
+                    break;
             }
         }
     }
@@ -826,41 +832,46 @@ function payment_add_form () {
                         , 'label' => 'Credit'
                         , 'name' => 'credit'
                         , 'autocomplete' => 'contact_name'
-                        , 'class' => 'focus'
+                        , 'class' => 'focus float'
                     )
                     , array(
                         'type' => 'text'
                         , 'label' => 'Date'
                         , 'name' => 'date'
                         , 'value' => date("Y-m-d")
-                        , 'class' => 'date'
+                        , 'class' => 'date float'
                     )
                     , array(
                         'type' => 'text'
                         , 'label' => 'Description'
                         , 'name' => 'description'
+                        , 'class' => 'float'
                     )
                     , array(
                         'type' => 'text'
                         , 'label' => 'Amount'
                         , 'name' => 'amount'
+                        , 'class' => 'float'
                     )
                     , array(
                         'type' => 'select'
                         , 'label' => 'Method'
                         , 'name' => 'method'
                         , 'options' => payment_method_options()
+                        , 'class' => 'float'
                     )
                     , array(
                         'type' => 'text'
                         , 'label' => 'Check/Rcpt Num'
                         , 'name' => 'confirmation'
+                        , 'class' => 'float'
                     )
                     , array(
                         'type' => 'text'
                         , 'label' => 'Debit'
                         , 'name' => 'debit'
                         , 'autocomplete' => 'contact_name'
+                        , 'class' => 'float'
                     )
                     , array(
                         'type' => 'submit'
@@ -1053,6 +1064,50 @@ function command_payment_delete() {
     return crm_url('payments');
 }
 
+/**
+ * Return the form structure for a payment filter.
+ * @return The form structure.
+ */
+function payment_filter_form () {
+    // Available filters
+    $filters = array(
+        'all' => 'All',
+        'orphaned' => 'Orphaned'
+    );
+    // Default filter
+    $selected = empty($_SESSION['payment_filter_option']) ? 'all' : $_SESSION['payment_filter_option'];
+    // Construct hidden fields to pass GET params
+    $hidden = array();
+    foreach ($_GET as $key=>$val) {
+        $hidden[$key] = $val;
+    }
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'get'
+        , 'command' => 'payment_filter'
+        , 'hidden' => $hidden,
+        'fields' => array(
+            array(
+                'type' => 'fieldset'
+                , 'label' => 'Filter'
+                ,'fields' => array(
+                    array(
+                        'type' => 'select'
+                        , 'name' => 'filter'
+                        , 'options' => $filters
+                        , 'selected' => $selected
+                    ),
+                    array(
+                        'type' => 'submit'
+                        , 'value' => 'Filter'
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
 // Pages ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -1083,7 +1138,12 @@ function payment_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, 'Payments');
             if (user_access('payment_edit')) {
                 $content = theme('form', crm_get_form('payment_add'));
-                $content .= theme('table', 'payment', array('show_export'=>true));
+                $content .= theme('form', crm_get_form('payment_filter'));
+                $opts = array(
+                    'show_export' => true
+                    , 'filter' => $_SESSION['payment_filter']
+                );
+                $content .= theme('table', 'payment', $opts);
                 page_add_content_top($page_data, $content, 'View');
             }
             break;
@@ -1154,4 +1214,32 @@ function command_payment_edit() {
     payment_save($payment);
     message_register('1 payment updated.');
     return crm_url('payments');
+}
+
+/**
+ * Handle payment filter request.
+ * @return The url to display on completion.
+ */
+function command_payment_filter () {
+    // Set filter in session
+    $_SESSION['payment_filter_option'] = $_GET['filter'];
+    // Set filter
+    if ($_GET['filter'] == 'all') {
+        $_SESSION['payment_filter'] = array();
+    }
+    if ($_GET['filter'] == 'orphaned') {
+        $_SESSION['payment_filter'] = array('credit_cid'=>'0', 'debit_cid'=>'0');
+    }
+    // Construct query string
+    $params = array();
+    foreach ($_GET as $k=>$v) {
+        if ($k == 'command' || $k == 'filter' || $k == 'q') {
+            continue;
+        }
+        $params[] = urlencode($k) . '=' . urlencode($v);
+    }
+    if (!empty($params)) {
+        $query = '&' . implode('&', $params);
+    }
+    return crm_url('payments') . $query;
 }
