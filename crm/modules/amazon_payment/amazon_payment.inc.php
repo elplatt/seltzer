@@ -332,6 +332,9 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             break;
         case 'contact':
             page_add_content_bottom($page_data, theme('amazon_payment_account_info', $_GET['cid']), 'Account');
+            if (function_exists('billing_revision')) {
+                page_add_content_bottom($page_data, theme('amazon_payment_first_month', $_GET['cid']), 'Plan');
+            }
             break;
     }
 }
@@ -588,6 +591,40 @@ function theme_amazon_payment_admin () {
 }
 
 /**
+ * Return themed html for prorated first month button.
+ */
+function theme_amazon_payment_first_month ($cid) {
+    if (!function_exists('billing_revision')) {
+        return 'Prorated dues payment requires billing module.';
+    }
+    $contact = crm_get_one('contact', array('cid'=>$cid));
+    // Calculate fraction of the billing period
+    $mship = end($contact['member']['membership']);
+    $date = getdate(strtotime($mship['start']));
+    $period = billing_days_in_period($date);
+    $day = $date['mday'];
+    $fraction = ($period - $day + 1.0) / $period;
+    // Get payment amount
+    $due = payment_parse_currency($mship['plan']['price']);
+    $due['value'] = ceil($due['value'] * $fraction);
+    $html .= $due['value'];
+    // Create button
+    $html = "<fieldset><legend>First month prorated dues</legend>";
+    $params = array(
+        'referenceId' => $cid
+        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false) 
+        , 'description' => 'CRM Dues Payment'
+    );
+    $amount = payment_format_currency($due);
+    $html .= "<p><strong>First month's dues:</strong> $amount</p>";
+    if ($due['value'] > 0) {
+        $html .= theme('amazon_payment_button', $cid, $params);
+    }
+    $html .= '</fieldset>';
+    return $html;
+}
+
+/**
  * Return an account summary and amazon payment button.
  * @param $cid The cid of the contact to create a form for.
  * @return An html string for the summary and button.
@@ -597,8 +634,7 @@ function theme_amazon_payment_account_info ($cid) {
     $balance = $balances[$cid];
     $params = array(
         'referenceId' => $cid
-//        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
-        , 'amount' => 'USD 1.00'
+        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
         , 'description' => 'CRM Dues Payment'
     );
     $output = '<div>';
