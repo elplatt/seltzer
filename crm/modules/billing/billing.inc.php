@@ -215,6 +215,16 @@ function _billing_days_remaining ($day_of_month, $date_info) {
 }
 
 /**
+ * Return the number of days in the billing period.
+ * $date_info A date, as returned by getdate().
+ * $return The number of days in the same billing period as $date_info
+ */
+function billing_days_in_period ($date_info) {
+    $days = cal_days_in_month(CAL_GREGORIAN, $date_info['mon'], $date_info['year']);
+    return $days;
+}
+
+/**
  * Calculate prorated billing amount.
  * @param $period_info Billing start date (as returned by getdate()).
  * @param $day_of_month The day of month billing periods start on.
