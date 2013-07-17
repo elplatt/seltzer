@@ -216,7 +216,7 @@ function theme_form_table ($field) {
  * @return The themed html string for a message form element.
  */
 function theme_form_message($field) {
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     $output .= $field['value'];
     $output .= '</fieldset>';
     return $output;
@@ -229,7 +229,7 @@ function theme_form_message($field) {
  * @return The themed html for a read-only form field.
  */
 function theme_form_readonly ($field) {
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -257,7 +257,7 @@ function theme_form_text ($field) {
     if (!empty($field['autocomplete'])) {
         array_push($classes, 'autocomplete');
     }
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -299,7 +299,7 @@ function theme_form_textarea ($field) {
     if (!empty($field['class'])) {
         array_push($classes, $field['class']);
     }
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -321,7 +321,7 @@ function theme_form_textarea ($field) {
  * @return The themed html for the checkbox.
  */
 function theme_form_checkbox ($field) {
-    $output = '<fieldset class="form-row form-row-checkbox">';
+    $output = '<fieldset class="form-row form-row-checkbox ' . $field['class'] . '">';
     $output .= '<input type="checkbox" name="' . $field['name'] . '" value="1"';
     if ($field['checked']) {
         $output .= ' checked="checked"';
@@ -341,7 +341,7 @@ function theme_form_checkbox ($field) {
  * @return The themed html for the password field.
  */
 function theme_form_password ($field) {
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -357,7 +357,7 @@ function theme_form_password ($field) {
  * @return The themed html for the field.
  */
 function theme_form_file ($field) {
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -373,7 +373,7 @@ function theme_form_file ($field) {
  * @return themed html for the select field.
  */
 function theme_form_select ($field) {
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
@@ -401,7 +401,7 @@ function theme_form_select ($field) {
  * @return The themed html for the submit button.
  */
 function theme_form_submit ($field) {
-    $output = '<fieldset class="form-row">';
+    $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
