@@ -45,6 +45,12 @@ fieldset.form-row {
     margin: 0.5em 0;
     padding: 0;
     border: none;
+    clear: both;
+}
+
+fieldset.float {
+    float: left;
+    clear: none;
 }
 
 label {
