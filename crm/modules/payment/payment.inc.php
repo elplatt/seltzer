@@ -958,7 +958,7 @@ function payment_edit_form ($pmtid) {
                         , 'label' => 'Method'
                         , 'name' => 'method'
                         , 'options' => payment_method_options()
-                        , 'value' => $payment['method']
+                        , 'selected' => $payment['method']
                     )
                     , array(
                         'type' => 'text'
