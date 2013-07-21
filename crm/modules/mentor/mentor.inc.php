@@ -139,7 +139,7 @@ function theme_mentor_add_form ($cid) {
 /**
  * Return themed html for an edit mentor assignment form.
  *
- * @param $kid The cid of the mentor assignment to edit.
+ * @param $cid The cid of the mentor assignment to edit.
  * @return The themed html string.
  */
 function theme_mentor_edit_form ($cid) {
@@ -330,12 +330,12 @@ function mentor_table ($opts) {
                     
                     // Add edit op
                     //if (user_access('mentor_edit')) {
-                    //    $ops[] = '<a href="index.php?q=contact&cid=' . $mentor['cid'] . '#tab-mentor">edit</a> ';
+                    //    $ops[] = '<a href=' . crm_url('contact&cid=' . $mentor['cid'] . '#tab-mentor') . '>edit</a> ';
                     //}
                     
                     // Add delete op
                     if (user_access('mentor_delete')) {
-                        $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $contact['cid'] . '&mentorcid=' .$mentor['cid'] . '">delete</a>';
+                        $ops[] = '<a href=' . crm_url('delete&type=mentor&id=' . $contact['cid'] . '&mentorcid=' . $mentor['cid']) . '>delete</a>';
                     }
                     // Add ops row
                     $row[] = join(' ', $ops);
@@ -367,12 +367,12 @@ function mentor_table ($opts) {
                     
                     // Add edit op
                     //if (user_access('mentor_edit')) {
-                    //    $ops[] = '<a href="index.php?q=contact&cid=' . $contact['cid'] . '#tab-mentor">edit</a> ';
+                    //    $ops[] = '<a href=' . crm_url('contact&cid=' . $contact['cid'] . '#tab-mentor') . '>edit</a>';
                     //}
                     
                     // Add delete op
                     if (user_access('mentor_delete')) {
-                        $ops[] = '<a href="index.php?q=delete&type=mentor&id=' . $protege['cid'] . '&mentorcid=' .$contact['cid'] . '">delete</a>';
+                        $ops[] = '<a href=' . crm_url('delete&type=mentor&id=' . $protege['cid'] . '&mentorcid=' . $contact['cid']) . '>delete</a>';
                     }
                     // Add ops row
                     $row[] = join(' ', $ops);
@@ -592,7 +592,7 @@ function command_mentor_add() {
     // Verify permissions
     if (!user_access('mentor_edit')) {
         error_register('Permission denied: mentor_edit');
-        return 'index.php';
+        return crm_url('');
     }
     
     // Query database
@@ -604,7 +604,7 @@ function command_mentor_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'index.php?q=contact&cid=' . $_POST['cid'] . '#tab-mentor';
+    // return crum_url('contact&cid=' . $_POST['cid'] . '#tab-mentor');
 }
 
 /**
@@ -620,7 +620,7 @@ function command_mentor_update() {
     // Verify permissions
     if (!user_access('mentor_edit')) {
         error_register('Permission denied: mentor_edit');
-        return 'index.php?q=contact&cid=' . $_POST['cid'];
+        return crm_url('contact&cid=' . $_POST['cid']);
     }
     
     // Query database
@@ -640,7 +640,7 @@ function command_mentor_update() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'index.php?q=contact&cid=' . $esc_post['cid'] . '#tab-mentor';
+    return crm_url('contact&cid=' . $esc_post['cid'] . '#tab-mentor');
 }
 
 /**
@@ -654,7 +654,7 @@ function command_mentor_delete() {
     // Verify permissions
     if (!user_access('mentor_delete')) {
         error_register('Permission denied: mentor_delete');
-        return 'index.php';
+        return crm_url('');
     }
     
     // Query database
@@ -664,7 +664,7 @@ function command_mentor_delete() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    return 'index.php?q=members';
+    return crm_url('members');
 }
 
 // Data Alter Function /////////////////////////////////////////////////////
