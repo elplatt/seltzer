@@ -43,7 +43,7 @@ function paypal_payment_install($old_revision = 0) {
               `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
               `paypal_email` varchar(255) NOT NULL,
               PRIMARY KEY (`pmtid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
@@ -54,7 +54,7 @@ function paypal_payment_install($old_revision = 0) {
               `cid` mediumint(8) unsigned NOT NULL,
               `paypal_email` varchar(255) NOT NULL,
               PRIMARY KEY (`paypal_email`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());

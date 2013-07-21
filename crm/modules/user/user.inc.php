@@ -58,7 +58,7 @@ function user_install ($old_revision = 0) {
                   `cid` mediumint(8) unsigned NOT NULL,
                   `code` varchar(40) NOT NULL,
                   PRIMARY KEY (`cid`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
@@ -68,7 +68,7 @@ function user_install ($old_revision = 0) {
                   `rid` mediumint(9) NOT NULL AUTO_INCREMENT,
                   `name` varchar(255) NOT NULL,
                   PRIMARY KEY (`rid`)
-                ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+                ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
@@ -78,7 +78,7 @@ function user_install ($old_revision = 0) {
                   `rid` mediumint(8) unsigned NOT NULL,
                   `permission` varchar(255) NOT NULL,
                   PRIMARY KEY (`rid`,`permission`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
@@ -90,7 +90,7 @@ function user_install ($old_revision = 0) {
                   `hash` varchar(40) NOT NULL DEFAULT '',
                   `salt` varchar(16) NOT NULL DEFAULT '',
                   PRIMARY KEY (`cid`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
             ";
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
@@ -100,7 +100,7 @@ function user_install ($old_revision = 0) {
                   `cid` mediumint(8) unsigned NOT NULL,
                   `rid` mediumint(8) unsigned NOT NULL,
                   PRIMARY KEY (`cid`,`rid`)
-                ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
             $res = mysql_query($sql);
             if (!$res) die(mysql_error());
