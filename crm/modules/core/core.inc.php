@@ -46,7 +46,7 @@ function core_install ($old_revision = 0) {
                 `name` VARCHAR(255) NOT NULL,
                 `revision` MEDIUMINT(8) unsigned NOT NULL,
                 PRIMARY KEY (`did`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());

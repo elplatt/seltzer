@@ -41,7 +41,7 @@ function variable_install($old_revision = 0) {
               `name` varchar(255) NOT NULL,
               `value` text NOT NULL,
               PRIMARY KEY (`name`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());

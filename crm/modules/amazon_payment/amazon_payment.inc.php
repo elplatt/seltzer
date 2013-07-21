@@ -43,7 +43,7 @@ function amazon_payment_install($old_revision = 0) {
               `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
               `amazon_name` varchar(255) NOT NULL,
               PRIMARY KEY (`pmtid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
@@ -54,7 +54,7 @@ function amazon_payment_install($old_revision = 0) {
               `cid` mediumint(8) unsigned NOT NULL,
               `amazon_name` varchar(255) NOT NULL,
               PRIMARY KEY (`amazon_name`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());

@@ -66,7 +66,7 @@ function contact_install ($old_revision = 0) {
               `emergencyName` varchar(255) NOT NULL,
               `emergencyPhone` varchar(16) NOT NULL,
               PRIMARY KEY (`cid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
