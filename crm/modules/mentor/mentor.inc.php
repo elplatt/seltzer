@@ -604,7 +604,7 @@ function command_mentor_add() {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    // return crum_url('contact&cid=' . $_POST['cid'] . '#tab-mentor');
+    return crm_url('contact&cid=' . $_POST['cid'] . '#tab-mentor');
 }
 
 /**
