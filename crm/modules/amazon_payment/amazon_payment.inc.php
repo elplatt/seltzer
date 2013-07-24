@@ -331,9 +331,13 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_add')), 'Add');
             break;
         case 'contact':
-            page_add_content_bottom($page_data, theme('amazon_payment_account_info', $_GET['cid']), 'Account');
+            if (user_access('payment_view') || $_GET['cid'] == user_id()) {
+                page_add_content_bottom($page_data, theme('amazon_payment_account_info', $_GET['cid']), 'Account');
+            }
             if (function_exists('billing_revision')) {
-                page_add_content_bottom($page_data, theme('amazon_payment_first_month', $_GET['cid']), 'Plan');
+                if (user_access('payment_view') || $_GET['cid'] == user_id()) {
+                    page_add_content_bottom($page_data, theme('amazon_payment_first_month', $_GET['cid']), 'Plan');
+                }
             }
             break;
     }
