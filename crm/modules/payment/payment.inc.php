@@ -729,6 +729,9 @@ function payment_history_table ($opts) {
         )
         , 'rows' => array()
     );
+    if (user_access('payment_edit')) {
+        $table['columns'][] = array('title' => 'Ops');
+    }
     
     foreach ($payments as $payment) {
         
@@ -758,7 +761,9 @@ function payment_history_table ($opts) {
         $row[] = $payment['method'];
         $row[] = $contactName;
         $row[] = payment_format_currency($balance);
-        
+        if (user_access('payment_edit')) {
+            $row[] = '<a href=' . crm_url('payment&pmtid=' . $payment[pmtid]) . '>edit</a>';
+        }
         $table['rows'][] = $row;
     }
     
