@@ -388,7 +388,10 @@ function user_role_data ($opts = NULL) {
     
     // Construct map from role ids to arrays of permissions granted
     $permissionMap = array();
-    $sql = "SELECT `rid`, `permission` FROM `role_permission` WHERE 1";
+    $sql = "SELECT `rid`, `permission` FROM `role_permission` WHERE 1 ";
+    if (!empty($opts['rid'])) {
+        $sql .= "AND `rid`='" . mysql_real_escape_string($opts['rid']) . "' ";
+    }
     $res = mysql_query($sql);
     if (!$res) { die(mysql_error()); }
     $row = mysql_fetch_assoc($res);
@@ -580,6 +583,10 @@ function user_access ($permission) {
     // Get list of the users roles and check each for the permission
     $data = user_data(array('cid'=>user_id()));
     $access = in_array($permission, $data[0]['permissions']);
+    if (!$access) {
+        $role = crm_get_one('user_role', array('rid'=>1));
+        $access = in_array($permission, $role['permissions']);
+    }
     $user_permission_cache[$permission] = $access;
     return $access;
 }
