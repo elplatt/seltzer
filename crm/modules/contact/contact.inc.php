@@ -370,13 +370,13 @@ function contact_form ($opts = array()) {
         , 'submit' => 'Add'
     );
     // Get contact data
-    $cid = $opts['cid'];
-    if ($cid) {
+    if (array_key_exists('cid', $opts)) {
+        $cid = $opts['cid'];
         $data = crm_get_data('contact', array('cid'=>$cid));
         $contact = $data[0];
     }
     // Change to an edit form
-    if ($contact) {
+    if (isset($contact)) {
         $form['command'] = 'contact_update';
         $form['submit'] = 'Update';
         $form['hidden'] = array('cid' => $cid);
@@ -585,7 +585,7 @@ function contact_page (&$page_data, $page_name) {
                     'show_export'=>true
                     , 'exclude'=>array('emergencyName', 'emergencyPhone')
                 );
-                $view .= theme('table', 'contact', $opts);
+                $view = theme('table', 'contact', $opts);
                 page_add_content_top($page_data, $view, 'View');
             }
             // Add add tab
