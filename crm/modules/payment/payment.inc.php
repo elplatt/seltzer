@@ -307,7 +307,7 @@ function payment_data ($opts = array()) {
         $cid = mysql_real_escape_string($opts['cid']);
         $sql .= " AND (`debit`='$cid' OR `credit`='$cid') ";
     }
-    if (array_key_exists('filter', $opts)) {
+    if (array_key_exists('filter', $opts) && !empty($opts['filter'])) {
         foreach($opts['filter'] as $name => $value) {
             $esc_value = mysql_real_escape_string($value);
             switch ($name) {
@@ -406,7 +406,7 @@ function payment_save ($payment) {
     $esc_confirmation = mysql_real_escape_string($payment['confirmation']);
     $esc_notes = mysql_real_escape_string($payment['notes']);
     // Query database
-    if (!empty($payment['pmtid'])) {
+    if (array_key_exists('pmtid', $payment) && !empty($payment['pmtid'])) {
         // Payment already exists, update
         $sql = "
             UPDATE `payment`
@@ -488,7 +488,7 @@ function payment_delete ($pmtid) {
  *   'cid' - A single cid or array of cids to limit results.
  * @return The associative array mapping cids to payment objects.
  */
-function payment_accounts ($opts = NULL) {
+function payment_accounts ($opts = array()) {
     $cid_to_balance = array();
     // Get credits
     $sql = "
@@ -666,7 +666,7 @@ function payment_table ($opts) {
         if (user_access('payment_view')) {
             $row[] = $payment['date'];
             $row[] = $payment['description'];
-            if ($payment['credit_cid']) {
+            if (array_key_exists('credit_cid', $payment) && $payment['credit_cid']) {
                 $contact = $cid_to_contact[$payment['credit_cid']];
                 $row[] = theme('contact_name', $contact, true);
             } else {
@@ -688,10 +688,10 @@ function payment_table ($opts) {
             // TODO
             $ops = array();
             if (user_access('payment_edit')) {
-               $ops[] = '<a href=' . crm_url('payment&pmtid=' . $payment[pmtid]) . '>edit</a>';
+               $ops[] = '<a href=' . crm_url('payment&pmtid=' . $payment['pmtid']) . '>edit</a>';
             }
             if (user_access('payment_delete')) {
-                $ops[] = '<a href=' . crm_url('delete&type=payment&id=' . $payment[pmtid]) . '>delete</a>';
+                $ops[] = '<a href=' . crm_url('delete&type=payment&id=' . $payment['pmtid']) . '>delete</a>';
             }
             $row[] = join(' ', $ops);
         }
@@ -776,7 +776,7 @@ function payment_history_table ($opts) {
  * @return A table object.
  */
 function payment_accounts_table ($opts) {
-    $export = $opts['export'] ? true : false;
+    $export = (array_key_exists('export', $opts) && $opts['export']) ? true : false;
     $cids = payment_contact_filter(array('balance_due'=>true));
     $balances = payment_accounts(array('cid'=>$cids));
     $table = array(
@@ -1142,11 +1142,12 @@ function payment_page (&$page_data, $page_name, $options) {
         case 'payments':
             page_set_title($page_data, 'Payments');
             if (user_access('payment_edit')) {
+                $filter = array_key_exists('payment_filter', $_SESSION) ? $_SESSION['payment_filter'] : '';
                 $content = theme('form', crm_get_form('payment_add'));
                 $content .= theme('form', crm_get_form('payment_filter'));
                 $opts = array(
                     'show_export' => true
-                    , 'filter' => $_SESSION['payment_filter']
+                    , 'filter' => $filter
                 );
                 $content .= theme('table', 'payment', $opts);
                 page_add_content_top($page_data, $content, 'View');
