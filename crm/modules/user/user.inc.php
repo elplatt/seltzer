@@ -200,8 +200,16 @@ function user_data ($opts) {
             WHERE 1
         ";
         if (array_key_exists('cid', $opts)) {
-            $cid = mysql_real_escape_string($opts['cid']);
-            $sql .= " AND `user`.`cid`='$cid' ";
+            if (is_array($opts['cid'])) {
+                $terms = array();
+                foreach ($opts['cid'] as $cid) {
+                    $terms[] = "'" . mysql_real_escape_string($cid) . "'";
+                }
+                $sql .= " AND `user`.`cid` IN (" . implode(',', $terms) . ") ";
+            } else {
+                $esc_cid = mysql_real_escape_string($opts['cid']);
+                $sql .= " AND `user`.`cid`='$esc_cid' ";
+            }
         }
         $res = mysql_query($sql);
         if (!$res) { die(mysql_error()); }
@@ -995,7 +1003,7 @@ function user_permissions_form () {
     $roles = user_role_data();
     
     // Add a column for permissions names, and each role
-    $columns[] = '';
+    $columns[] = array('title' => '');
     foreach ($roles as $role) {
         $columns[] = array('title'=>$role['name']);
     }
