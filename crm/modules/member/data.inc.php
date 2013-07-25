@@ -81,7 +81,6 @@ function member_data ($opts = array()) {
     while (!empty($row)) {
         $member = array(
             'cid' => $row['cid'],
-            'active' => $row['memberActive'],
             'contact' => array(
                 'cid' => $row['cid'],
                 'firstName' => $row['firstName'],
@@ -175,8 +174,8 @@ function member_data_alter ($type, $data = array(), $opts = array()) {
             }
             // Add member structures to the contact structures
             foreach ($data as $i => $contact) {
-                $member = $cid_to_member[$contact['cid']];
-                if ($member) {
+                if (array_key_exists('cid', $cid_to_member)) {
+                    $member = $cid_to_member[$contact['cid']];
                     $data[$i]['member'] = $member;
                 }
             }
@@ -255,7 +254,7 @@ function member_delete ($cid) {
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a membership plan.
 */
-function member_plan_data ($opts) {
+function member_plan_data ($opts = array()) {
     
     // Construct query for plans
     $sql = "SELECT * FROM `plan` WHERE 1";

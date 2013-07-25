@@ -60,7 +60,7 @@ function member_add_form () {
                 'type' => 'select',
                 'label' => 'Plan',
                 'name' => 'pid',
-                'selected' => $member['plan']['pid'],
+                'selected' => '',
                 'options' => member_plan_options(array('filter'=>array('active'=>true)))
             ),
             array(
