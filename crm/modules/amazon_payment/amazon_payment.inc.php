@@ -80,7 +80,9 @@ function amazon_payment_data_alter ($type, $data = array(), $opts = array()) {
             $amazon_payment_map = crm_map(crm_get_data('amazon_payment', $opts), 'pmtid');
             // Add amazon data to each payment data
             foreach ($data as $i => $payment) {
-                $data[$i]['amazon'] = $amazon_payment_map[$payment['pmtid']];
+                if (array_key_exists($payment['pmtid'], $amazon_payment_map)) {
+                    $data[$i]['amazon'] = $amazon_payment_map[$payment['pmtid']];
+                }
             }
     }
     return $data;
