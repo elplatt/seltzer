@@ -27,8 +27,8 @@ $crm_root = dirname(__FILE__);
 require_once('include/crm.inc.php');
 
 // Check for GET/POST command
-$post_command = $_POST['command'];
-$get_command = $_GET['command'];
+$post_command = array_key_exists('command', $_POST) ? $_POST['command'] : '';
+$get_command = array_key_exists('command', $_GET) ? $_GET['command'] : '';
 $command = !empty($post_command) ? $post_command : $get_command;
 
 if (!empty($command)) {

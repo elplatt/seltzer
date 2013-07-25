@@ -136,6 +136,7 @@ function theme_page ($page_name, $options = array()) {
     // Initialize output
     $tabs = '';
     $header = '';
+    $content = '';
     
     // Add page title to header
     if (!empty($data['#title'])) {

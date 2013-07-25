@@ -98,8 +98,7 @@ function theme_table ($table_id, $opts = NULL) {
             $output .= ' class="' . $col['class'] . '"';
         }
         $output .= '>';
-        
-        $output .= $col['title'];
+        $output .= array_key_exists('title', $col) ? $col['title'] : '';
         $output .= '</th>';
     }
     $output .= "</tr>";

@@ -31,7 +31,7 @@ function base_path () {
  * @return the path to the current page.
  */
 function path () {
-    return $_GET['q'];
+    return array_key_exists('q', $_GET) ? $_GET['q'] : '';
 }
 
 /**
@@ -57,7 +57,7 @@ function links () {
  *   'query' - An array of query paramters to add to the url.
  * @return A string containing the url.
  */
-function crm_url ($path, $opts = array()) {
+function crm_url ($path = '', $opts = array()) {
     $url = base_path() . "index.php?";
     $terms = array();
     // Construct terms of the query string
