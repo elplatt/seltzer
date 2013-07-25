@@ -214,8 +214,8 @@ function key_data_alter ($type, $data = array(), $opts = array()) {
             }
             // Add key structures to the contact structures
             foreach ($data as $i => $contact) {
-                $keys = $cid_to_keys[$contact['cid']];
-                if ($keys) {
+                if (array_key_exists($contact['cid'], $cid_to_keys)) {
+                    $keys = $cid_to_keys[$contact['cid']];
                     $data[$i]['keys'] = $keys;
                 }
             }
