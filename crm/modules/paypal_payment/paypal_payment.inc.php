@@ -80,7 +80,9 @@ function paypal_payment_data_alter ($type, $data = array(), $opts = array()) {
             $paypal_payment_map = crm_map(crm_get_data('paypal_payment', $opts), 'pmtid');
             // Add paypal data to each payment data
             foreach ($data as $i => $payment) {
-                $data[$i]['paypal'] = $paypal_payment_map[$payment['pmtid']];
+                if (array_key_exists($payment['pmtid'], $paypal_payment_map)) {
+                    $data[$i]['paypal'] = $paypal_payment_map[$payment['pmtid']];
+                }
             }
     }
     return $data;
