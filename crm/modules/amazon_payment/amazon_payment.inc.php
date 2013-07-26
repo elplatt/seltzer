@@ -325,6 +325,9 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
                 $content = theme('amazon_payment_admin');
                 $content .= theme('form', crm_get_form('amazon_payment_import'));
                 page_add_content_top($page_data, $content, 'Amazon');
+                if (function_exists('billing_revision')) {
+                    page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_email_bills')), 'Billing');
+                }
             }
             break;
         case 'amazon-admin':
@@ -472,6 +475,51 @@ function amazon_payment_contact_delete_form ($cid) {
     
     return $form;
 }
+
+/**
+ * Form for initiating membership billing emails.
+ * @return The form structure.
+ */
+function amazon_payment_email_bills_form () {
+    
+    $email_date = variable_get('amazon_payment_last_email', '');
+    if(empty($email_date)){
+        variable_set('amazon_payment_last_email', 'never');
+    }
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'amazon_payment_email'
+        , 'fields' => array(
+            array(
+                'type' => 'fieldset'
+                , 'label' => 'Send Billing Emails'
+                , 'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balacne.'
+                        ),
+                    array(
+                        'type' => 'readonly',
+                        'class' => 'date',
+                        'label' => 'Last Emailed',
+                        'name' => 'last_emailed',
+                        'value' => $email_date
+                    ),
+                    array(
+                        'type' => 'submit'
+                        , 'value' => 'Send Emails'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
 /**
  * Implementation of hook_form_alter().
  * @param &$form The form being altered.
@@ -584,9 +632,43 @@ function command_amazon_payment_import () {
  * Add an amazon contact.
  * @return The url to display on completion.
  */
-function command_amazon_payment_contact_add (){
+function command_amazon_payment_contact_add () {
     amazon_payment_contact_save($_POST);
     return crm_url('amazon-admin');
+}
+
+/**
+ * Send emails to any members with a positive balance.
+ */
+function command_amazon_payment_email () {
+    global $config_email_from;
+    global $config_site_title;
+    // Get balances and contacts
+    $cids = payment_contact_filter(array('balance_due'=>true));
+    $balances = payment_accounts(array('cid'=>$cids));
+    $contacts = crm_get_data('contact', array('cid'=>$cids));
+    $cidToContact = crm_map($contacts, 'cid');
+    // Email each contact with a balance
+    foreach ($balances as $cid => $balance) {
+        // Construct button
+        $params = array(
+            'referenceId' => $cid
+            , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+            , 'description' => 'CRM Dues Payment'
+        );
+        $amount = payment_format_currency($balance);
+        $button = theme('amazon_payment_button', $cid, $params);
+        // Send email
+        $to = $cidToContact[$cid]['email'];
+        $subject = "[$config_site_title] Payment Due";
+        $from = $config_email_from;
+        $headers = "Content-type: text/html\r\nFrom: $from\r\n";
+        $message = "<p>Hello,<br/>Your current account balance is $amount.  To pay this balance using Amazon Payments, please click the button below.</p>$button";
+        $res = mail($to, $subject, $message, $headers);
+    }
+    message_register('E-mails have been sent');
+    variable_set('amazon_payment_last_email', date('Y-m-d'));
+    return crm_url('payments', array('query'=>array('tab'=>'billing')));
 }
 
 /**

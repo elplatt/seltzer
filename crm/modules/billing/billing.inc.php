@@ -75,6 +75,10 @@ function billing_form () {
                 , 'label' => 'Process Billings'
                 , 'fields' => array(
                     array(
+                        'type' => 'message',
+                        'value' => 'This will generate billing entries for any members with active memberships.  <strong>Important:</strong> make sure the membership data is up to date before running billing.'
+                    ),
+                    array(
                         'type' => 'readonly',
                         'class' => 'date',
                         'label' => 'Last Billed',
