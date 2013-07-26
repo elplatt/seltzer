@@ -174,7 +174,7 @@ function member_data_alter ($type, $data = array(), $opts = array()) {
             }
             // Add member structures to the contact structures
             foreach ($data as $i => $contact) {
-                if (array_key_exists('cid', $cid_to_member)) {
+                if (array_key_exists($contact['cid'], $cid_to_member)) {
                     $member = $cid_to_member[$contact['cid']];
                     $data[$i]['member'] = $member;
                 }
