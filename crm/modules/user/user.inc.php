@@ -960,15 +960,26 @@ function command_reset_password_confirm () {
 function command_set_password () {
     global $esc_post;
     
+    
+    // Get contact data
+    
+    $users = contact_data(array('cid'=>$cid));
+    $user = $users[0];
+    if (!$user) {
+        return NULL;
+    }
+    
+    $cid = $user['cid'];
+    
+    print_r($cid);
+    die();
+    $esc_cid = $cid;
+    
     // Check that passwords match
     if ($_POST['password'] != $_POST['confirm']) {
         error_register('Passwords do not match');
         return crm_url("contact&cid=$cid");
     }
-    
-    // Get user id
-    
-    $esc_cid = $cid;
     
     // Calculate hash
     $salt = user_salt();
