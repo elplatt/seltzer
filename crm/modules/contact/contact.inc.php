@@ -91,12 +91,14 @@ function contact_data ($opts = array()) {
     // Add contact id
     if (isset($opts['cid'])) {
         if (is_array($opts['cid'])) {
-            $terms = array();
-            foreach ($opts['cid'] as $cid) {
-                $terms[] = "'" . mysql_real_escape_string($cid) . "'";
+            if (!empty($opts['cid'])) {
+                $terms = array();
+                foreach ($opts['cid'] as $cid) {
+                    $terms[] = "'" . mysql_real_escape_string($cid) . "'";
+                }
+                $esc_list = '(' . implode(',', $terms) . ')';
+                $sql .= " AND `cid` IN $esc_list";
             }
-            $esc_list = '(' . implode(',', $terms) . ')';
-            $sql .= " AND `cid` IN $esc_list";
         } else {
             $esc_cid = mysql_real_escape_string($opts['cid']);
             $sql .= " AND `cid`='$esc_cid'";
