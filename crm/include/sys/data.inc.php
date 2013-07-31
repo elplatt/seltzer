@@ -38,8 +38,14 @@ function crm_get_data ($type, $opts = array()) {
     if (!empty($data)) {
         // Let other modules extend the data
         foreach (module_list() as $module) {
+            // Make sure module is really installed
+            $rev_hook = "${module}_revision";
             $hook = "${module}_data_alter";
             if (function_exists($hook)) {
+                if (module_get_schema_revision($module) != call_user_func($rev_hook)) {
+                    error_register("Database schema needs to be upgraded for module $module.");
+                    continue;
+                }
                 $data = call_user_func($hook, $type, $data, $opts);
                 // Make sure the hook actually returned data
                 if (is_null($data)) {
