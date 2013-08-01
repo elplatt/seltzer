@@ -57,20 +57,36 @@ $config_theme = "inspire";
 $config_amazon_payment_secret = '';
 $config_amazon_payment_access_key_id = '';
 
-// Modules
+// Base modules
 $config_modules = array(
     "contact",
     "user",
     "variable",
     "member",
-    "key",
-    "payment",
-    "amazon_payment",
-    "paypal_payment",
-    "billing"
 );
-// Development modules
-//$config_modules[] = 'devel';
+
+// Optional modules, uncomment to enable
+
+// Track RFID key serial numbers
+//$config_modules[] = "key";
+
+// Track payments, manual entry
+$config_modules[] = "payment";
+
+// Amazon payment integration
+$config_modules[] = "amazon_payment";
+
+// Paypal integration
+//$config_modules[] = "paypal_payment";
+
+// Automated billing
+$config_modules[] = "billing";
+
+// Assign members a mentor 
+//$config_modules[] = "mentor";
+
+// Developer tools
+//$config_modules[] = "devel";
 
 // Links to show in the main menu
 $config_links = array(
