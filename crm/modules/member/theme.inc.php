@@ -119,9 +119,11 @@ var color = d3.scale.linear()
     .domain([0, 1]);
 
 var colors = [];
-var roff = Math.round(Math.random()*15);
-var goff = Math.round(Math.random()*15);
-var boff = Math.round(Math.random()*15);
+//var roff = Math.round(Math.random()*15);
+//var goff = Math.round(Math.random()*15);
+//var boff = Math.round(Math.random()*15);
+var roff = 12, goff = 7, boff = 8;
+console.log([roff, goff, boff]);
 for (var i = 0; i < layers.length; i++) {
     var r = ((i+roff) * 3) % 16;
     var g = ((i+goff) * 5) % 16;
