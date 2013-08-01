@@ -579,7 +579,7 @@ function payment_contact_filter ($filter) {
                 if ($value) {
                     $balances = payment_accounts();
                     foreach ($balances as $cid => $bal) {
-                        if ($bal > 0) {
+                        if ($bal['value'] > 0) {
                             $new_cids[] = $cid;
                         }
                     }
