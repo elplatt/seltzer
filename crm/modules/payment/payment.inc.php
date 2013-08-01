@@ -425,7 +425,6 @@ function payment_save ($payment) {
         ";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
-        print 'invoking module api';
         $payment = module_invoke_api('payment', $payment, 'update');
     } else {
         // Payment does not yet exist, create
