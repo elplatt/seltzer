@@ -134,11 +134,10 @@ function payment_parse_currency ($value, $code = null) {
             $dollars = $parts[0];
             $count = 100 * $dollars;
             if (count($parts) > 1 && !empty($parts[1])) {
-                // This assumes there are exactly two digits worth of cents
-                if (strlen($parts[1]) != 2) {
+                if (strlen($parts[1]) < 2) {
                     error_register("Warning: parsing of cents failed: '$parts[1]'");
                 }
-                $count += intval($parts[1]);
+                $count += intval($parts[1]{0})*10 + intval($parts[1]{1});
             }
             break;
         case 'GBP':
