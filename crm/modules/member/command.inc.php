@@ -362,11 +362,11 @@ function command_member_import () {
     
     if (!user_access('contact_edit')) {
         error_register('User does not have permission: contact_edit');
-        return crm_url();
+        return crm_url('members');
     }
     if (!user_access('member_edit')) {
         error_register('User does not have permission: member_edit');
-        return crm_url();
+        return crm_url('members');
     }
     
     if (!array_key_exists('member-file', $_FILES)) {
@@ -525,7 +525,7 @@ function command_member_plan_import () {
     
     if (!user_access('member_plan_edit')) {
         error_register('User does not have permission: member_plan_edit');
-        return crm_url();
+        return crm_url('members');
     }
     
     if (!array_key_exists('plan-file', $_FILES)) {
