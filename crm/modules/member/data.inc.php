@@ -306,7 +306,7 @@ function member_membership_data ($opts) {
         FROM `membership`
         INNER JOIN `plan`
         ON `membership`.`pid` = `plan`.`pid`
-        WHERE 1";
+        WHERE 1 ";
     // Add member id
     if (!empty($opts['cid'])) {
         $esc_cid = mysql_real_escape_string($opts['cid']);
@@ -331,7 +331,10 @@ function member_membership_data ($opts) {
                     }
                     break;
                 case 'starts_after':
-                    $sql .= "AND (`start` > '$esc_param') ";
+                    $sql .= " AND (`start` > '$esc_param') ";
+                    break;
+                case 'ends_after':
+                    $sql .= " AND (`end` IS NULL OR `end` > '$esc_param') ";
                     break;
                 default:
                     break;
