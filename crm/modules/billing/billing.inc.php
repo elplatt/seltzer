@@ -128,14 +128,20 @@ function command_billing () {
     $today = date('Y-m-d');
     $last_billed = variable_get('billing_last_date', '');
     // Find memberships that start before today and end after the last bill date
-    $filter = array('active'=>true);
+    $filter = array();
     if (!empty($last_billed)) {
-        $filter['starts-after'] = $last_billed;
+        $filter['ends_after'] = $last_billed;
     }
     $membership_data = crm_get_data('member_membership', array('filter' => $filter));
     // Bill each membership
     foreach ($membership_data as $membership) {
-        _billing_bill_membership($membership, $today, $last_billed);
+        if (!empty($membership['end']) && strtotime($membership['end']) < strtotime($today)) {
+            // Bill until end of membership
+            _billing_bill_membership($membership, $membership['end'], $last_billed);
+        } else {
+            // Bill until today
+            _billing_bill_membership($membership, $today, $last_billed);
+        }
     }
     // Set last billed date to today
     variable_set('billing_last_date', $today);
