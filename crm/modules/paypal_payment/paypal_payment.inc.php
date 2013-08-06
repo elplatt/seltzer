@@ -514,8 +514,8 @@ function paypal_payment_form_alter(&$form, $form_id) {
  * @return The url to display on completion.
  */
 function command_paypal_payment_import () {
-    if (!user_access('payment_add')) {
-        error_register('User does not have permission: payment_add');
+    if (!user_access('payment_edit')) {
+        error_register('User does not have permission: payment_edit');
         return crm_url('payments');
     }
     if (!array_key_exists('payment-file', $_FILES)) {
