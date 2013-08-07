@@ -401,7 +401,6 @@ function member_membership_save ($membership) {
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
     } else {
-        print('inserting');
         // Insert
         $sql = "
             INSERT INTO `membership`
