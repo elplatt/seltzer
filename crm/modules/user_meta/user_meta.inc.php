@@ -326,7 +326,7 @@ function user_meta_save ($user_meta) {
  * @param $user_meta The user meta data data structure to delete, must have a 'umid' element.
  */
 function user_meta_delete ($user_meta) {
-    $esc_umid = mysql_real_escape_string($key['umid']);
+    $esc_umid = mysql_real_escape_string($user_meta['umid']);
     $sql = "DELETE FROM `user_meta` WHERE `umid`='$esc_umid'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
