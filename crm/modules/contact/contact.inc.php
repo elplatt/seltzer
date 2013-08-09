@@ -619,7 +619,7 @@ function contact_page (&$page_data, $page_name) {
                 page_add_content_top($page_data, $view_content, 'View');
             }
             // Add edit tab
-            if (user_access('contact_edit')) {
+            if (user_access('contact_edit') || $cid == user_id()) {
                 $opts = array('cid' => $cid);
                 $form = crm_get_form('contact', $opts);
                 page_add_content_top($page_data, theme('form', $form), 'Edit');
