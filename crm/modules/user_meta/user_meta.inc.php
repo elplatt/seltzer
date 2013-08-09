@@ -279,7 +279,7 @@ function user_meta_data_alter ($type, $data = array(), $opts = array()) {
  */
 function user_meta_save ($user_meta) {
     // Escape values
-    $fields = array('umid', 'cid', 'serial', 'start', 'end');
+    $fields = array('umid', 'cid', 'tagstr', 'start', 'end');
     if (isset($user_meta['umid'])) {
         // Update existing user meta data
         $umid = $user_meta['umid'];
