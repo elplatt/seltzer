@@ -44,7 +44,7 @@ function user_meta_permissions () {
     return array(
         'user_meta_view'
         , 'user_meta_edit'
-        , 'user_meta_delete'
+        , 'user_user_meta_delete'
     );
 }
 
@@ -373,7 +373,7 @@ function user_meta_cross_table ($opts) {
     $uniq = array();
     
     // determine max/total number of tags, as we'll use one column for each:
-    $sql = "SELECT distinct tagstr from meta order by tagstr asc";
+    $sql = "SELECT distinct tagstr from user_meta order by tagstr asc";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     $count = mysql_num_rows($res); // just one row.
@@ -384,7 +384,7 @@ function user_meta_cross_table ($opts) {
         }
     
     // Add column headers
-    if (user_access('meta_view') || $opts['cid'] == user_id()) {
+    if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
         if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
             $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>''); // column 1
         }
@@ -393,7 +393,7 @@ function user_meta_cross_table ($opts) {
         }
     }
     // Add ops column
-    if (!$export && (user_access('meta_edit') || user_access('meta_delete'))) {
+    if (!$export && (user_access('user_meta_edit') || user_access('user_meta_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>''); // last column.
     }
     
@@ -408,7 +408,7 @@ function user_meta_cross_table ($opts) {
             
             $uniq[theme('contact_name', $cid_to_contact[$user_meta['cid']])] = $tableid;
             
-            if (user_access('meta_view') || $opts['cid'] == user_id()) {
+            if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
                 
                 // Add cells
                 if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
@@ -435,15 +435,15 @@ function user_meta_cross_table ($opts) {
                     }
                 }
             }
-            if (!$export && (user_access('meta_edit') || user_access('meta_delete'))) {
+            if (!$export && (user_access('user_meta_edit') || user_access('user_meta_delete'))) {
                // Construct ops array
                $ops = array();
                // Add edit op
-                if (user_access('meta_edit')) {
+                if (user_access('user_meta_edit')) {
                     $ops[] = '<a href=' . crm_url('member&cid=' . $user_meta['cid'] . '#tab-meta-tags') . '>edit</a>';
                 }
                 // Add delete op
-                if (user_access('meta_delete')) {
+                if (user_access('user_meta_delete')) {
                     $ops[] = '<a href=' . crm_url('delete&type=meta&id=' . $user_meta['umid']) . '>delete</a>';
                 }
                 // Add ops row
@@ -507,7 +507,7 @@ function user_meta_table ($opts) {
     );
     
     // Add columns
-    if (user_access('meta_view') || $opts['cid'] == user_id()) {
+    if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
         if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
             $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         }
@@ -515,7 +515,7 @@ function user_meta_table ($opts) {
         $table['columns'][] = array("title"=>'End', 'class'=>'', 'id'=>'');
     }
     // Add ops column
-    if (!$export && (user_access('meta_edit') || user_access('meta_delete'))) {
+    if (!$export && (user_access('user_meta_edit') || user_access('user_meta_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
     
@@ -524,7 +524,7 @@ function user_meta_table ($opts) {
         
         // Add meta data
         $row = array();
-        if (user_access('meta_view') || $opts['cid'] == user_id()) {
+        if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
             
             // Add cells
             if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
@@ -546,15 +546,15 @@ function user_meta_table ($opts) {
             $row[] = $user_meta['start'];
             $row[] = $user_meta['end'];
         }
-        if (!$export && (user_access('meta_edit') || user_access('meta_delete'))) {
+        if (!$export && (user_access('user_meta_edit') || user_access('user_meta_delete'))) {
             // Construct ops array
             $ops = array();
             // Add edit op
-            if (user_access('meta_edit')) {
+            if (user_access('user_meta_edit')) {
                 $ops[] = '<a href=' . crm_url('user_meta&umid=' . $user_meta['umid'] . '#tab-edit') . '>edit</a> ';
             }
             // Add delete op
-            if (user_access('meta_delete')) {
+            if (user_access('user_meta_delete')) {
                 $ops[] = '<a href=' . crm_url('delete&type=user_meta&id=' . $user_meta['umid']) . '>delete</a>';
             }
             // Add ops row
@@ -576,7 +576,7 @@ function user_meta_table ($opts) {
 function user_meta_add_form ($cid) {
     
     // Ensure user is allowed to edit metas
-    if (!user_access('meta_edit')) {
+    if (!user_access('user_meta_edit')) {
         return NULL;
     }
     
@@ -633,7 +633,7 @@ function user_meta_add_form ($cid) {
 function user_meta_edit_form ($umid) {
     
     // Ensure user is allowed to edit meta
-    if (!user_access('meta_edit')) {
+    if (!user_access('user_meta_edit')) {
         return NULL;
     }
     
@@ -709,7 +709,7 @@ function user_meta_edit_form ($umid) {
 function user_meta_delete_form ($umid) {
     
     // Ensure user is allowed to delete metas
-    if (!user_access('meta_delete')) {
+    if (!user_access('user_meta_delete')) {
         return NULL;
     }
     
@@ -773,8 +773,8 @@ function command_user_meta_add() {
     global $esc_post;
     
     // Verify permissions
-    if (!user_access('meta_edit')) {
-        error_register('Permission denied: meta_edit');
+    if (!user_access('user_meta_edit')) {
+        error_register('Permission denied: user_meta_edit');
         return crm_url('user_meta&umid=' . $esc_post['umid']);
     }
     user_meta_save($_POST);
@@ -790,8 +790,8 @@ function command_user_meta_update() {
     global $esc_post;
     
     // Verify permissions
-    if (!user_access('meta_edit')) {
-        error_register('Permission denied: meta_edit');
+    if (!user_access('user_meta_edit')) {
+        error_register('Permission denied: user_meta_edit');
         return crm_url('user_meta&umid=' . $_POST['umid']);
     }
     user_meta_save($_POST);
@@ -806,8 +806,8 @@ function command_user_meta_update() {
 function command_user_meta_delete() {
     global $esc_post;
     // Verify permissions
-    if (!user_access('meta_delete')) {
-        error_register('Permission denied: meta_delete');
+    if (!user_access('user_meta_delete')) {
+        error_register('Permission denied: user_meta_delete');
         return crm_url('user_meta&umid=' . $esc_post['umid']);
     }
     user_meta_delete($_POST);
@@ -821,7 +821,7 @@ function command_user_meta_delete() {
  */
 function user_meta_page_list () {
     $pages = array();
-    if (user_access('meta_view')) {
+    if (user_access('user_meta_view')) {
         $pages[] = 'user_metas';
     }
     return $pages;
@@ -847,7 +847,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
             }
             
             // Add metas tab
-            if (user_access('meta_view') || user_access('meta_edit') || user_access('meta_delete') || $cid == user_id()) {
+            if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete') || $cid == user_id()) {
                 $user_metas = theme('table', 'user_meta', array('cid' => $cid));
                 $user_metas .= theme('user_meta_add_form', $cid); // this is where we put the "Add Meta-Tag Assignment" form on the page
                 page_add_content_bottom($page_data, $user_metas, 'Meta-Tags');
@@ -857,7 +857,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
         
         case 'user_metas':
             page_set_title($page_data, 'Meta-Tags');
-            if (user_access('meta_view')) {
+            if (user_access('user_meta_view')) {
                 // meta_cross_table ( displays tags across the screen, not down )
                 $user_metas = theme('table', 'user_meta_cross', array('join'=>array('contact', 'member'), 'show_export'=>true));
                 page_add_content_top($page_data, $user_metas, 'View');
@@ -876,7 +876,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, user_meta_description($umid));
             
             // Add edit tab
-            if (user_access('meta_view') || user_access('meta_edit') || user_access('meta_delete')) {
+            if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete')) {
                 page_add_content_top($page_data, theme('user_meta_edit_form', $umid), 'Edit');
             }
             
