@@ -404,15 +404,15 @@ function user_meta_cross_table ($opts) {
         $row = array();
         
         // user not already on screen, add them, and all details, and first tag.
-        if ( ! array_key_exists($user_meta['contact']['Name'], $uniq) ) {
+        if ( ! array_key_exists($user_meta['contact']['lastName'].$user_meta['contact']['firstName'], $uniq) ) {
             
-            $uniq[$user_meta['contact']['Name']] = $tableid; 
+            $uniq[$user_meta['contact']['lastName'].$user_meta['contact']['firstName']] = $tableid;
             
             if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
                 
                 // Add cells
                 if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
-                    $row[] = theme('contact_name', $user_meta['cid'], true);;
+                    $row[] = theme('contact_name', $user_meta['cid'], true);
                 }
                 if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
                     // Construct membership info
