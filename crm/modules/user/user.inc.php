@@ -793,6 +793,44 @@ function user_reset_password_confirm_form ($code) {
 }
 
 /**
+ * @return The set password form structure.
+*/
+function user_set_password_form ($cid) {
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'set_password',
+        'hidden' => array(
+            'cid' => $cid
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Change password',
+                'fields' => array(
+                    array(
+                        'type' => 'password',
+                        'label' => 'Password',
+                        'name' => 'password'
+                    ),
+                    array(
+                        'type' => 'password',
+                        'label' => 'Confirm',
+                        'name' => 'confirm'
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'name' => 'submitted',
+                        'value' => 'Change password'
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
+/**
  * Generate a password reset url.
  * @param $username
  * @return A string containing a password reset url.
@@ -915,6 +953,45 @@ function command_reset_password_confirm () {
     message_register('Your password has been reset, you may now log in');
     
     return crm_url('login');
+}
+
+/**
+ * Set password from member page.
+ * @return The url to display after the command is processed.
+*/
+function command_set_password () {
+    global $esc_post;
+    
+    // Check that passwords match
+    if ($_POST['password'] != $_POST['confirm']) {
+        error_register('Passwords do not match');
+        return crm_url("contact&cid=$esc_cid");
+    }
+    
+    // Get user id
+    $sql = "SELECT * FROM `user` WHERE `cid`='$esc_post[cid]'";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    $row = mysql_fetch_assoc($res);
+    $esc_cid = mysql_real_escape_string($row['cid']);
+    
+    // Calculate hash
+    $salt = user_salt();
+    $esc_hash = mysql_real_escape_string(user_hash($_POST['password'], $salt));
+    $esc_salt = mysql_real_escape_string($salt);
+    
+    // Update password
+    $sql = "
+        UPDATE `user`
+        SET `hash`='$esc_hash'
+        , `salt`='$esc_salt'
+        WHERE `cid`='$esc_cid'
+        ";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    message_register("The user's password has been reset");
+    
+    return crm_url("contact&cid=$esc_cid");
 }
 
 /**
@@ -1205,6 +1282,7 @@ function user_page (&$page_data, $page_name, $options) {
             if (user_id() == $_GET['cid'] || user_access('user_edit')) {
                 $view_content .= '<h3>User Info</h3>';
                 $view_content .= theme('table_vertical', 'user', array('cid' => $cid));
+                $view_content .= theme('form', crm_get_form('user_set_password', $cid));
             }
             if (!empty($view_content)) {
                 page_add_content_bottom($page_data, $view_content, 'View');
