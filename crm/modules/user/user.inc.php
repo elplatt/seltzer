@@ -795,12 +795,14 @@ function user_reset_password_confirm_form ($code) {
 /**
  * @return The set password form structure.
 */
-function user_set_password_form () {
-    
+function user_set_password_form ($cid) {
     $form = array(
         'type' => 'form',
         'method' => 'post',
         'command' => 'set_password',
+        'hidden' => array(
+            'cid' => $cid
+        ),
         'fields' => array(
             array(
                 'type' => 'fieldset',
@@ -960,26 +962,18 @@ function command_reset_password_confirm () {
 function command_set_password () {
     global $esc_post;
     
-    
-    // Get contact data
-    
-    $users = contact_data(array('cid'=>$cid));
-    $user = $users[0];
-    if (!$user) {
-        return NULL;
-    }
-    
-    $cid = $user['cid'];
-    
-    print_r($cid);
-    die();
-    $esc_cid = $cid;
-    
     // Check that passwords match
     if ($_POST['password'] != $_POST['confirm']) {
         error_register('Passwords do not match');
-        return crm_url("contact&cid=$cid");
+        return crm_url("contact&cid=$esc_cid");
     }
+    
+    // Get user id
+    $sql = "SELECT * FROM `user` WHERE `cid`='$esc_post[cid]'";
+    $res = mysql_query($sql);
+    if (!$res) { die(mysql_error()); }
+    $row = mysql_fetch_assoc($res);
+    $esc_cid = mysql_real_escape_string($row['cid']);
     
     // Calculate hash
     $salt = user_salt();
@@ -997,7 +991,7 @@ function command_set_password () {
     if (!$res) { die(mysql_error()); }
     message_register("The user's password has been reset");
     
-    return crm_url("contact&cid=$cid");
+    return crm_url("contact&cid=$esc_cid");
 }
 
 /**
@@ -1012,13 +1006,6 @@ function theme_login_form () {
 */
 function theme_user_reset_password_form () {
     return theme('form', user_reset_password_form());
-}
-
-/**
- * @return The themed html for a password set form.
-*/
-function theme_user_set_password_form () {
-    return theme('form', user_set_password_form());
 }
 
 /**
@@ -1295,7 +1282,7 @@ function user_page (&$page_data, $page_name, $options) {
             if (user_id() == $_GET['cid'] || user_access('user_edit')) {
                 $view_content .= '<h3>User Info</h3>';
                 $view_content .= theme('table_vertical', 'user', array('cid' => $cid));
-            //    $view_content .= theme_user_set_password_form ();
+                $view_content .= theme('form', crm_get_form('user_set_password', $cid));
             }
             if (!empty($view_content)) {
                 page_add_content_bottom($page_data, $view_content, 'View');
