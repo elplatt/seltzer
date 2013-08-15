@@ -404,15 +404,15 @@ function user_meta_cross_table ($opts) {
         $row = array();
         
         // user not already on screen, add them, and all details, and first tag.
-        if ( ! array_key_exists( $user_meta['contact']['lastName'].$user_meta['contact']['firstName'], $uniq) ) {
+        if ( ! array_key_exists($user_meta['contact']['Name'], $uniq) ) {
             
-            $uniq[theme('contact_name', $cid_to_contact[$user_meta['cid']])] = $tableid;
+            $uniq[$user_meta['contact']['Name']] = $tableid; 
             
             if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
                 
                 // Add cells
                 if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
-                    $row[] = theme('contact_name', $cid_to_contact[$user_meta['cid']], true);
+                    $row[] = theme('contact_name', $user_meta['cid'], true);;
                 }
                 if (array_key_exists('join', $opts) && in_array('member', $opts['join'])) {
                     // Construct membership info
@@ -427,7 +427,7 @@ function user_meta_cross_table ($opts) {
                 }
                 
                 // insert new tag in new row at a fixed offset.
-                for ( $i = 2 ; $i < $count+2; $i++) {
+                for ( $i = 1 ; $i < $count+1; $i++) {
                     if ( $table['columns'][$i]['title'] == $user_meta['tagstr'] ) {
                         $row[$i] = '<input type="checkbox" name="'.$user_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                     } else {
@@ -436,9 +436,9 @@ function user_meta_cross_table ($opts) {
                 }
             }
             if (!$export && (user_access('user_meta_edit') || user_access('user_meta_delete'))) {
-               // Construct ops array
-               $ops = array();
-               // Add edit op
+                // Construct ops array
+                $ops = array();
+                // Add edit op
                 if (user_access('user_meta_edit')) {
                     $ops[] = '<a href=' . crm_url('member&cid=' . $user_meta['cid'] . '#tab-meta-tags') . '>edit</a>';
                 }
@@ -447,7 +447,7 @@ function user_meta_cross_table ($opts) {
                     $ops[] = '<a href=' . crm_url('delete&type=meta&id=' . $user_meta['umid']) . '>delete</a>';
                 }
                 // Add ops row
-               $row[] = join(' ', $ops);
+                $row[] = join(' ', $ops);
             }
             $table['rows'][$tableid] = $row;
             $tableid++;
