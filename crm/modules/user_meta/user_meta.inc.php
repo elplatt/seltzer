@@ -389,7 +389,7 @@ function user_meta_cross_table ($opts) {
             $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>''); // column 1
         }
         for ( $i = 0 ; $i < $count; $i++) {
-            $table['columns'][] = array("title"=>$tags[$i], 'class'=>'', 'id'=>''); // column 3 -> almost end
+            $table['columns'][] = array("title"=>$tags[$i], 'class'=>'', 'id'=>''); // column 2 -> almost end
         }
     }
     // Add ops column
@@ -440,7 +440,7 @@ function user_meta_cross_table ($opts) {
                 $ops = array();
                 // Add edit op
                 if (user_access('user_meta_edit')) {
-                    $ops[] = '<a href=' . crm_url('member&cid=' . $user_meta['cid'] . '#tab-meta-tags') . '>edit</a>';
+                    $ops[] = '<a href=' . crm_url('contact&cid=' . $user_meta['cid'] . '#tab-meta-tags') . '>edit</a>';
                 }
                 // Add delete op
                 if (user_access('user_meta_delete')) {
