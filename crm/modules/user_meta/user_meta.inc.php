@@ -393,7 +393,7 @@ function user_meta_cross_table ($opts) {
         }
     }
     // Add ops column
-    if (!$export && (user_access('user_meta_edit') || user_access('user_meta_delete'))) {
+    if (!$export && (user_access('user_meta_edit'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>''); // last column.
     }
     
@@ -441,10 +441,6 @@ function user_meta_cross_table ($opts) {
                 // Add edit op
                 if (user_access('user_meta_edit')) {
                     $ops[] = '<a href=' . crm_url('contact&cid=' . $user_meta['cid'] . '#tab-meta-tags') . '>edit</a>';
-                }
-                // Add delete op
-                if (user_access('user_meta_delete')) {
-                    $ops[] = '<a href=' . crm_url('delete&type=meta&id=' . $user_meta['umid']) . '>delete</a>';
                 }
                 // Add ops row
                 $row[] = join(' ', $ops);
