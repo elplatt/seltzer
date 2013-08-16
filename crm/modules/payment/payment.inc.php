@@ -130,7 +130,7 @@ function payment_parse_currency ($value, $code = null) {
     $count = 0;
     switch ($code) {
         case 'USD':
-            $parts = split('\.', $clean_value);
+            $parts = explode('\.', $clean_value);
             $dollars = $parts[0];
             $count = 100 * $dollars;
             if (count($parts) > 1 && !empty($parts[1])) {
@@ -141,7 +141,7 @@ function payment_parse_currency ($value, $code = null) {
             }
             break;
         case 'GBP':
-            $parts = split('\.', $clean_value);
+            $parts = explode('\.', $clean_value);
             $pounds = $parts[0];
             $count = 100 * $pounds;
             if (count($parts) > 1 && !empty($parts[1])) {
@@ -153,7 +153,7 @@ function payment_parse_currency ($value, $code = null) {
             }
             break;
         case 'EUR':
-            $parts = split('\.', $clean_value);
+            $parts = explode('\.', $clean_value);
             $euros = $parts[0];
             $count = 100 * $euros;
             if (count($parts) > 1 && !empty($parts[1])) {

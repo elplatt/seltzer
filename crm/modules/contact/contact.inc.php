@@ -110,7 +110,7 @@ function contact_data ($opts = array()) {
             switch ($name) {
                 case 'nameLike':                    
                     // Split on first comma and create an array of name parts in "first middle last" order
-                    $parts = split(',', $param, 2);
+                    $parts = explode(',', $param, 2);
                     $names = array();
                     foreach (array_reverse($parts) as $part) {
                         $nameParts = preg_split('/\s+/', $part);
@@ -619,7 +619,7 @@ function contact_page (&$page_data, $page_name) {
                 page_add_content_top($page_data, $view_content, 'View');
             }
             // Add edit tab
-            if (user_access('contact_edit')) {
+            if (user_access('contact_edit') || $cid == user_id()) {
                 $opts = array('cid' => $cid);
                 $form = crm_get_form('contact', $opts);
                 page_add_content_top($page_data, theme('form', $form), 'Edit');

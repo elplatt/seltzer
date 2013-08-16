@@ -119,11 +119,12 @@ function member_page (&$page_data, $page_name, $options) {
             }
             
             // Add plan and role tabs
-            if (user_access('member_membership_edit')) {
+            if (user_access('member_membership_edit') || $cid == user_id()) {
                 $plan = theme('table', 'member_membership', array('cid' => $cid));
                 $plan .= theme('member_membership_add_form', $cid);
                 page_add_content_top($page_data, $plan, 'Plan');
-                
+            }
+            if (user_access('member_membership_edit')) {
                 $roles = theme('user_role_edit_form', $cid);
                 page_add_content_top($page_data, $roles, 'Roles');
             }
