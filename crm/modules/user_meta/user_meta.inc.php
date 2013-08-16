@@ -44,7 +44,7 @@ function user_meta_permissions () {
     return array(
         'user_meta_view'
         , 'user_meta_edit'
-        , 'user_user_meta_delete'
+        , 'user_meta_delete'
     );
 }
 
