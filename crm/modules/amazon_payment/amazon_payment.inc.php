@@ -483,9 +483,7 @@ function amazon_payment_contact_delete_form ($cid) {
 function amazon_payment_email_bills_form () {
     
     $email_date = variable_get('amazon_payment_last_email', '');
-    if(empty($email_date)){
-        variable_set('amazon_payment_last_email', 'never');
-    }
+    $from_label = empty($email_date) ? 'never' : $email_date;
     
     // Create form structure
     $form = array(
@@ -506,7 +504,7 @@ function amazon_payment_email_bills_form () {
                         'class' => 'date',
                         'label' => 'Last Emailed',
                         'name' => 'last_emailed',
-                        'value' => $email_date
+                        'value' => $from_label
                     ),
                     array(
                         'type' => 'submit'

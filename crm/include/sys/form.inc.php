@@ -256,7 +256,7 @@ function theme_form_readonly ($field) {
 function theme_form_text ($field) {
     if (!array_key_exists('class', $field)) { $field['class'] = ''; }
     $classes = array();
-    if (array_key_exists('class', $field) && empty($field['class'])) {
+    if (array_key_exists('class', $field) && !empty($field['class'])) {
         array_push($classes, $field['class']);
     }
     if (!empty($field['autocomplete'])) {

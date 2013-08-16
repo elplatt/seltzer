@@ -60,9 +60,7 @@ function billing_install($old_revision = 0) {
 function billing_form () {
     
     $bill_date = variable_get('billing_last_date', '');
-    if(empty($bill_date)){
-        variable_set('billing_last_date', 'never');
-    }
+    $bill_label = empty($bill_date) ? 'never' : $bill_date;
     
     // Create form structure
     $form = array(
@@ -83,7 +81,7 @@ function billing_form () {
                         'class' => 'date',
                         'label' => 'Last Billed',
                         'name' => 'last_billed',
-                        'value' => $bill_date
+                        'value' => $bill_label
                     ),
                     array(
                         'type' => 'submit'
@@ -207,7 +205,7 @@ function _billing_bill_membership ($membership, $until, $after = '') {
         payment_save($payment);
         // Advance to next billing period
         $period_start = strtotime('+1 month', $period_start);
-    }    
+    }
 }
 
 /**
