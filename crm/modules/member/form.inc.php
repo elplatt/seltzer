@@ -72,6 +72,19 @@ function member_add_form () {
             )
         )
     );
+    if (function_exists('paypal_payment_revision')) {
+        $form['fields'][] = array(
+            'type' => 'fieldset',
+            'label' => 'Paypal Contact',
+            'fields' => array(
+                array(
+                    'type' => 'checkbox',
+                    'label' => 'Create Paypal Contact',
+                    'name' => 'create_paypal_contact'
+                )
+            )
+        );
+    }
     
     return $form;
 }
