@@ -20,8 +20,6 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 /**
  * Handle member add request.
  *
@@ -119,7 +117,22 @@ function command_member_add () {
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
     }
-        
+    
+    if (function_exists('paypal_payment_revision')) {
+        $esc_create_paypal_contact = $_POST['create_paypal_contact'] ? '1' : '0';
+        $esc_paypal_email = $_POST['email'];
+        if ($esc_create_paypal_contact === '1') {
+        $sql = "
+            INSERT INTO `contact_paypal`
+            (`paypal_email`, `cid`)
+            VALUES
+            ('$esc_paypal_email', '$esc_cid')
+        ";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        }
+    }
+    
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
@@ -216,12 +229,12 @@ function command_member_plan_delete () {
         error_register('Permission denied: member_plan_edit');
         return crm_url('members');
     }
-
+    
     // Delete plan
     $sql = "DELETE FROM `plan` WHERE `pid`='$esc_post[pid]'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-
+    
     return crm_url('plans');
 }
 
@@ -343,12 +356,12 @@ function command_member_membership_delete () {
         error_register('Permission denied: member_membership_edit');
         return crm_url('members');
     }
-
+    
     // Delete membership
     $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-
+    
     return crm_url('members');
 }
 
@@ -413,9 +426,8 @@ function command_member_import () {
             ('$esc_cid')";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
-            
+        
         // Find Username
- 
         $username = $row['username'];
         $n = 0;
         while (empty($username) && $n < 100) {
@@ -447,7 +459,7 @@ function command_member_import () {
         $user['username'] = $username;
         $user['cid'] = $cid;
         user_save($user);
-         
+        
         // Add role entry
         $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
         $res = mysql_query($sql);
@@ -497,6 +509,18 @@ function command_member_import () {
         ";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
+        
+        if (function_exists('paypal_payment_revision')) {
+            $sql = "
+                INSERT INTO `contact_paypal`
+                (`paypal_email`, `cid`)
+                VALUES
+                ('$email', '$esc_cid')
+            ";
+            
+            $res = mysql_query($sql);
+            if (!$res) crm_error(mysql_error());
+        }
         
         // Notify admins
         $from = "\"$config_org_name\" <$config_email_from>";
