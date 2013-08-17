@@ -508,7 +508,8 @@ function user_meta_table ($opts) {
         if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
             $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         }
-        $table['columns'][] = array("title"=>'MetaTag', 'class'=>'', 'id'=>'');$table['columns'][] = array("title"=>'Start', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'MetaTag', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'Start', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'End', 'class'=>'', 'id'=>'');
     }
     // Add ops column
