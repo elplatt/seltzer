@@ -70,6 +70,12 @@ $config_modules = array(
 // Track RFID key serial numbers
 //$config_modules[] = "key";
 
+// Track user meta data
+//$config_modules[] = "user_meta";
+
+// Track plan meta data
+//$config_modules[] = "plan_meta";
+
 // Track payments, manual entry
 $config_modules[] = "payment";
 
@@ -95,6 +101,8 @@ $config_links = array(
     , 'members' => 'Members'
     , 'plans' => 'Plans'
     , 'keys' => 'Keys'
+    , 'user_metas' => 'User Meta Data'
+    , 'plan_metas' => 'Plan Meta Data'
     , 'payments' => 'Payments'
     , 'accounts' => 'Accounts'
     , 'reports' => 'Reports'

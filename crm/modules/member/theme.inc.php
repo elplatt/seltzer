@@ -346,3 +346,25 @@ function theme_member_welcome_email ($cid, $confirm_url) {
     );
     return template_render('email', $vars);
 }
+
+/**
+ * Theme a plan name.
+ * 
+ * @param $plan The plan data structure or pid.
+ * @param $link True if the name should be a link (default: false).
+ * @param $path The path that should be linked to.  The pid will always be added
+ *   as a parameter.
+ *
+ * @return the name string.
+ */
+function theme_member_plan_name ($plan, $link = false, $path = 'plan') {
+    if (!is_array($plan)) {
+        $plan = crm_get_one('plan', array('pid'=>$plan));
+    }
+    $name = $plan['name'];
+    if ($link) {
+        $url_opts = array('query' => array('pid' => $plan['pid']));
+        $name = crm_link($name, $path, $url_opts);
+    }
+    return $name;
+}
