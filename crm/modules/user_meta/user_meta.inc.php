@@ -84,6 +84,7 @@ function user_meta_install($old_revision = 0) {
         );
         $default_perms = array(
             'director' => array('user_meta_view', 'user_meta_edit', 'user_meta_delete'),
+            'webAdmin' => array('user_meta_view', 'user_meta_edit', 'user_meta_delete'),
             'member' => array('user_meta_view')
         );
         foreach ($roles as $rid => $role) {
