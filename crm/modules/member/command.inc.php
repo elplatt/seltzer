@@ -143,10 +143,12 @@ function command_member_add () {
     }
     
     // Notify user
-    $confirm_url = user_reset_password_url($contact['user']['username']);
-    $content = theme('member_welcome_email', $contact['user']['cid'], $confirm_url);
-    mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
-    
+    $esc_notify_user = $_POST['notify_user'] ? '1' : '0';
+    if ($esc_notify_user === '0') {
+        $confirm_url = user_reset_password_url($contact['user']['username']);
+        $content = theme('member_welcome_email', $contact['user']['cid'], $confirm_url);
+        mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
+    }
     return crm_url("contact&cid=$esc_cid");
 }
 
@@ -532,9 +534,12 @@ function command_member_import () {
         }
         
         // Notify user
-        $confirm_url = user_reset_password_url($user['username']);
-        $content = theme('member_welcome_email', $user['cid'], $confirm_url);
-        mail($email, "Welcome to $config_org_name", $content, $headers);
+        $esc_notify_user = $_POST['notify_user'] ? '1' : '0';
+        if ($esc_notify_user === '0') {
+            $confirm_url = user_reset_password_url($user['username']);
+            $content = theme('member_welcome_email', $user['cid'], $confirm_url);
+            mail($email, "Welcome to $config_org_name", $content, $headers);
+        }
     }
     
     return crm_url('members');
