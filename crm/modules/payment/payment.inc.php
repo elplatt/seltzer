@@ -759,9 +759,14 @@ function payment_history_table ($opts) {
         $row[] = $payment['method'];
         $row[] = $contactName;
         $row[] = payment_format_currency($balance);
+        $ops = '';
         if (user_access('payment_edit')) {
-            $row[] = '<a href=' . crm_url('payment&pmtid=' . $payment[pmtid]) . '>edit</a>';
+            $ops .= '<a href=' . crm_url('payment&pmtid=' . $payment[pmtid]) . '>edit</a> ';
         }
+        if (user_access('payment_delete')) {
+            $ops .= '<a href=' . crm_url('delete&type=payment&id=' . $payment['pmtid']) . '>delete</a>';
+        }
+        $row[] = $ops;
         $table['rows'][] = $row;
     }
     
