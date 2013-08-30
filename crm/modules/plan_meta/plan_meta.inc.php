@@ -387,9 +387,9 @@ function plan_meta_cross_table ($opts) {
         $row = array();
         
         // plan not already on screen, add them, and all details, and first tag.
-        if ( ! array_key_exists($plan_meta['name'], $uniq) ) {
+        if ( ! array_key_exists($plan_meta['pid'], $uniq) ) {
             
-            $uniq[$plan_meta['name']] = $tableid;
+            $uniq[$plan_meta['pid']] = $tableid;
             
             if (user_access('plan_meta_view')) {
                 
@@ -422,7 +422,7 @@ function plan_meta_cross_table ($opts) {
                 //print "burp<br>\n";
                 // user alresdy, just add additional tag for them ...
                 
-                $previd = $uniq[$plan_meta['plan']['name']];
+                $previd = $uniq[$plan_meta['pid']];
                 $row = $table['rows'][$previd];
                 
                 // insert new tag to existing row:
