@@ -601,7 +601,7 @@ function plan_meta_edit_form ($pmid) {
     }
     
     // Get corresponding plan data
-    $data = plan_data(array('pid'=>$plan_meta['pid']));
+    $data = member_plan_data(array('pid'=>$plan_meta['pid']));
     $plan = $data[0];
     
     // Construct plan name
