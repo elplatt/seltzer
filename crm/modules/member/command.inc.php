@@ -513,7 +513,7 @@ function command_member_import () {
         if (!$res) crm_error(mysql_error());
         
         if (function_exists('paypal_payment_revision')) {
-            if (!empty($esc_paypal_email)) {
+            if (!empty($email)) {
                 $sql = "
                     INSERT INTO `contact_paypal`
                     (`paypal_email`, `cid`)
