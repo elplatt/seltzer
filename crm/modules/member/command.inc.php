@@ -122,14 +122,16 @@ function command_member_add () {
         $esc_create_paypal_contact = $_POST['create_paypal_contact'] ? '1' : '0';
         $esc_paypal_email = $_POST['email'];
         if ($esc_create_paypal_contact === '1') {
-        $sql = "
-            INSERT INTO `contact_paypal`
-            (`paypal_email`, `cid`)
-            VALUES
-            ('$esc_paypal_email', '$esc_cid')
-        ";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+            if (!empty($esc_paypal_email)) {
+                $sql = "
+                    INSERT INTO `contact_paypal`
+                    (`paypal_email`, `cid`)
+                    VALUES
+                    ('$esc_paypal_email', '$esc_cid')
+                ";
+                $res = mysql_query($sql);
+                if (!$res) crm_error(mysql_error());
+            }
         }
     }
     
@@ -511,15 +513,16 @@ function command_member_import () {
         if (!$res) crm_error(mysql_error());
         
         if (function_exists('paypal_payment_revision')) {
-            $sql = "
-                INSERT INTO `contact_paypal`
-                (`paypal_email`, `cid`)
-                VALUES
-                ('$email', '$esc_cid')
-            ";
-            
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
+            if (!empty($esc_paypal_email)) {
+                $sql = "
+                    INSERT INTO `contact_paypal`
+                    (`paypal_email`, `cid`)
+                    VALUES
+                    ('$email', '$esc_cid')
+                ";
+                $res = mysql_query($sql);
+                if (!$res) crm_error(mysql_error());
+            }
         }
         
         // Notify admins
