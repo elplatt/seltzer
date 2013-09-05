@@ -305,7 +305,9 @@ function paypal_payment_contact_table($opts){
             // Construct ops array
             $ops = array();
             // Add edit op
-            // TODO
+            if (user_access('payment_edit')) {
+                $ops[] = '<a href=' . crm_url('paypal_payment_contact&id=' . $contact['cid'] . '#tab-edit') . '>edit</a>';
+            }
             // Add delete op
             if (user_access('payment_delete')) {
                 $ops[] = '<a href=' . crm_url('delete&type=paypal_payment_contact&id=' . $contact['cid']) . '>delete</a>';
@@ -349,6 +351,22 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
                     page_add_content_bottom($page_data, theme('paypal_payment_first_month', $_GET['cid']), 'Plan');
                 }
             }
+            break;
+        case 'paypal_payment_contact':
+            // Capture paypal contact id
+            $cid = $options['cid'];
+            if (empty($cid)) {
+                return;
+            }
+            
+            // Set page title
+            page_set_title($page_data, 'Administer Paypal Contact');
+            
+            // Add edit tab
+            if (user_access('payment_edit') || $_GET['cid'] == user_id()) {
+                page_add_content_top($page_data, theme('form', crm_get_form('paypal_payment_contact_edit'), $cid), 'Edit');
+            }
+            
             break;
     }
 }
@@ -423,6 +441,61 @@ function paypal_payment_contact_add_form () {
                     array(
                         'type' => 'submit',
                         'value' => 'Add'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+/**
+ * Return the form structure for the edit paypal contact form.
+ *
+ * @param The cid of the contact to edit a paypal contact for.
+ * @return The form structure.
+*/
+function paypal_payment_contact_edit_form ($cid) {
+    
+    // Ensure user is allowed to edit paypal contacts
+    if (!user_access('payment_edit')) {
+        return crm_url('paypal-admin');
+    }
+    
+     // Get paypal contact data
+    $data = crm_get_data('paypal_payment_contact', array('cid'=>$cid));
+    $paypal_payment_contact = $data[0];
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'paypal_payment_contact_edit',
+        'hidden' => array(
+            'cid' => $paypal_payment_contact['cid']
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Edit Paypal Contact',
+                'fields' => array(
+                    
+                    array(
+                        'type' => 'text',
+                        'label' => "Member's Name",
+                        'name' => 'cid',
+                        'autocomplete' => 'contact_name',
+                        'value' => $paypal_payment_contact['cid']
+                    ),array(
+                        'type' => 'text',
+                        'label' => 'Paypal Email Address',
+                        'name' => 'paypal_email',
+                        'value' => $paypal_payment_contact['paypal_email']
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Update'
                     )
                 )
             )
@@ -594,6 +667,15 @@ function command_paypal_payment_contact_delete () {
  * @return The url to display on completion.
  */
 function command_paypal_payment_contact_add (){
+    paypal_payment_contact_save($_POST);
+    return crm_url('paypal-admin');
+}
+
+/**
+ * Edit a paypal contact.
+ * @return The url to display on completion.
+ */
+function command_paypal_payment_contact_edit (){
     paypal_payment_contact_save($_POST);
     return crm_url('paypal-admin');
 }
