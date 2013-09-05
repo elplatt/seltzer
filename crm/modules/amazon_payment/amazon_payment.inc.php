@@ -175,7 +175,6 @@ function amazon_payment_contact_save ($contact) {
                 UPDATE `contact_amazon`
                 SET `amazon_name`='$esc_name'
                 WHERE `cid`='$esc_cid'
-                
             ";
             $res = mysql_query($sql);
             if (!$res) crm_error(mysql_error());
