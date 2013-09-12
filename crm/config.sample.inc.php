@@ -88,6 +88,9 @@ $config_modules[] = "amazon_payment";
 // Automated billing
 $config_modules[] = "billing";
 
+// Assign a profile picture using gravatar 
+//$config_modules[] = "profile_picture";
+
 // Assign members a mentor 
 //$config_modules[] = "mentor";
 
