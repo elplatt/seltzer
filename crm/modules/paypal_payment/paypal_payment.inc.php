@@ -163,7 +163,7 @@ function paypal_payment_contact_save ($contact) {
     $esc_email = mysql_real_escape_string($contact['paypal_email']);
     $esc_cid = mysql_real_escape_string($contact['cid']);    
     // Check whether the paypal contact already exists in the database
-    $sql = "SELECT * FROM `contact_paypal` WHERE `paypal_email` = '$esc_email'";
+    $sql = "SELECT * FROM `contact_paypal` WHERE `cid` = '$esc_cid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     $row = mysql_fetch_assoc($res);
@@ -457,6 +457,7 @@ function paypal_payment_contact_edit_form ($cid) {
     $data = crm_get_data('paypal_payment_contact', array('cid'=>$cid));
     $paypal_payment_contact = $data[0];
     
+    $contactName = theme('contact_name', $paypal_payment_contact['cid'], true);
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -472,11 +473,10 @@ function paypal_payment_contact_edit_form ($cid) {
                 'fields' => array(
                     
                     array(
-                        'type' => 'text',
+                        'type' => 'readonly',
                         'label' => "Member's Name",
-                        'name' => 'cid',
-                        'autocomplete' => 'contact_name',
-                        'value' => $paypal_payment_contact['cid']
+                        'name' => 'name',
+                        'value' => $contactName
                     ),array(
                         'type' => 'text',
                         'label' => 'Paypal Email Address',
