@@ -34,7 +34,7 @@
  * this number.
  */
 function user_meta_revision () {
-    return 1;
+    return 2;
 }
 
 /**
