@@ -580,15 +580,19 @@ function command_amazon_payment_import () {
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);
     $count = 0;
+    message_register("Processing " . count($data) . " row(s)");
     foreach ($data as $row) {
         // Ignore withdrawals, holds, and failures
-        if ($row['Type'] !== 'Payment') {
+        if (strtolower($row['Type']) !== 'payment') {
+            message_register("Ignoring row of type: " . $row['Type']);
             continue;
         }
-        if ($row['To/From'] !== 'From') {
+        if (strtolower($row['To/From']) !== 'from') {
+            message_register("Ignoring outgoing payment");
             continue;
         }
-        if ($row['Status'] !== 'Completed') {
+        if (strtolower($row['Status']) !== 'completed') {
+            message_register("Ignoring payment with status: " . $row['Status']);
             continue;
         }
         // Skip transactions that have already been imported
@@ -597,6 +601,7 @@ function command_amazon_payment_import () {
         );
         $data = payment_data($payment_opts);
         if (count($data) > 0) {
+            message_register("Skipping previously imported payment: " . $row['Transaction ID']);
             continue;
         }
         // Parse value
