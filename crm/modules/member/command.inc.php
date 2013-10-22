@@ -473,9 +473,9 @@ function command_member_import () {
         if (mysql_num_rows($res) < 1) {
             $sql = "
                 INSERT INTO `plan`
-                (`name`, `active`)
+                (`name`, `active`, `price`, `voting`)
                 VALUES
-                ('$esc_plan_name', '1')
+                ('$esc_plan_name', '1', '9999', '1' )
             ";
             $res = mysql_query($sql);
             if (!$res) crm_error(mysql_error());
