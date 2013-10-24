@@ -730,9 +730,13 @@ function theme_amazon_payment_account_info ($cid) {
     );
     $output = '<div>';
     $amount = payment_format_currency($balance);
-    $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
     if ($balance['value'] > 0) {
+        $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
         $output .= theme('amazon_payment_button', $cid, $params);
+    } else {
+        $balance['value'] = -1*$balance['value'];
+        $amount = payment_format_currency($balance);
+        $output .= "<p><strong>No balance owed.  Account credit:</strong> $amount</p>";
     }
     $output .= '</div>';
     return $output;
