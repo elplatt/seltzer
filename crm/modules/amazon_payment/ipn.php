@@ -57,14 +57,33 @@ $result = file_get_contents($url, false, $context);
 if (strpos($result, '<VerifySignatureResult><VerificationStatus>Success</VerificationStatus></VerifySignatureResult>') === false) {
     die();
 }
+// Check if the payment already exists
+// Skip transactions that have already been imported
+$payment_opts = array(
+    'filter' => array('confirmation' => $_POST['transactionId'])
+);
+$data = crm_get_data('payment', $payment_opts);
+if (count($data) > 0) {
+    die();
+}
 // Parse the data and insert into the database
 // 'USD 12.34' goes to ['USD', '1234']
 $parts = explode(' ', $_POST['transactionAmount']);
 file_put_contents($debug, print_r($parts, true) . "\n", FILE_APPEND);
 $payment_amount = payment_parse_currency($parts[1], $parts[0]);
+// Determine cid
+$cid = $_POST['referenceId'];
+if (empty($cid)) {
+    // Check if the amazon name is linked to a contact
+    $opts = array('filter'=>array('amazon_name'=>$_POST['buyerName']));
+    $contact_data = amazon_payment_contact_data($opts);
+    if (count($contact_data) > 0) {
+        $cid = $contact_data[0]['cid'];
+    }
+}
 $payment = array(
     'date' => date('Y-m-d', $_POST['transactionDate'])
-    , 'credit_cid' => $_POST['referenceId']
+    , 'credit_cid' => $cid
     , 'code' => $payment_amount['code']
     , 'value' => (string)$payment_amount['value']
     , 'description' => $_POST['paymentReason']
