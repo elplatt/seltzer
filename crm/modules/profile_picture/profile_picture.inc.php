@@ -37,7 +37,7 @@ function profile_picture_revision () {
  */
 function profile_picture_install ($old_revision = 0) {
     if ($old_revision < 1) {
-        
+        // There is nothing to install. Do nothing
     }
 }
 
@@ -48,9 +48,6 @@ function profile_picture_install ($old_revision = 0) {
  */
 function profile_picture_page_list () {
     $pages = array();
-//    if (user_access('contact_view')) {
-//        $pages[] = 'contact';
- //   }
     return $pages;
 }
 
@@ -95,11 +92,8 @@ function profile_picture_page (&$page_data, $page_name) {
  * Theme a contact's profile picture.
  * 
  * @param $contact The contact data structure or cid.
- * @param $link True if the name should be a link (default: false).
- * @param $path The path that should be linked to.  The cid will always be added
- *   as a parameter.
  *
- * @return the html of the user profile picture.
+ * @return The html of the user's profile picture.
  */
 function theme_profile_picture ($contact) {
     if (!is_array($contact)) {
