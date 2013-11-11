@@ -25,7 +25,7 @@
  * this number.
  */
 function amazon_payment_revision () {
-    return 2;
+    return 1;
 }
 
 /**
@@ -59,15 +59,6 @@ function amazon_payment_install($old_revision = 0) {
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
     }
-    
-    if ($old_revision < 2) {
-        $sql = '
-        ALTER TABLE `contact_amazon` DROP PRIMARY KEY, ADD PRIMARY KEY(`cid`);
-        ';
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-    }
-
 }
 
 // DB to Object mapping ////////////////////////////////////////////////////////
@@ -173,8 +164,8 @@ function amazon_payment_contact_save ($contact) {
         if (isset($contact['cid'])) {
             $sql = "
                 UPDATE `contact_amazon`
-                SET `amazon_name`='$esc_name'
-                WHERE `cid`='$esc_cid'
+                SET `cid`='$esc_cid'
+                WHERE `amazon_name`='$esc_name'
             ";
             $res = mysql_query($sql);
             if (!$res) crm_error(mysql_error());
@@ -183,7 +174,7 @@ function amazon_payment_contact_save ($contact) {
         // Name is not in database, insert new
         $sql = "
             INSERT INTO `contact_amazon`
-            (`cid`, `amazon_name`) VALUES ('$esc_cid', '$esc_name')";
+            (`amazon_name`, `cid`) VALUES ('$esc_name', '$esc_cid')";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
     }
@@ -415,14 +406,14 @@ function amazon_payment_contact_add_form () {
                 'fields' => array(
                     array(
                         'type' => 'text',
-                        'label' => "Member's Name",
-                        'name' => 'cid',
-                        'autocomplete' => 'contact_name'
+                        'label' => 'Amazon Name',
+                        'name' => 'amazon_name'
                     ),
                     array(
                         'type' => 'text',
-                        'label' => 'Amazon Name',
-                        'name' => 'amazon_name'
+                        'label' => "Member's Name",
+                        'name' => 'cid',
+                        'autocomplete' => 'contact_name'
                     ),
                     array(
                         'type' => 'submit',
