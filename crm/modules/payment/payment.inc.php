@@ -1169,10 +1169,6 @@ function payment_page (&$page_data, $page_name, $options) {
             if (user_id() == $_GET['cid'] || user_access('payment_view')) {
                 $content = theme('table', 'payment_history', array('cid' => $_GET['cid']));
                 page_add_content_top($page_data, $content, 'Account');
-                page_add_content_bottom($page_data, theme('payment_account_info', $_GET['cid']), 'Account');
-                if (function_exists('billing_revision')) {
-                    page_add_content_bottom($page_data, theme('payment_first_month', $_GET['cid']), 'Plan');
-                }
             }
             break;
     }
@@ -1250,73 +1246,4 @@ function command_payment_filter () {
         $query = '&' . implode('&', $params);
     }
     return crm_url('payments') . $query;
-}
-
-// Themes ////////////////////////////////////////////////////////////
-
-/**
- * Return themed html for prorated first month button.
- */
-function theme_payment_first_month ($cid) {
-    if (!function_exists('billing_revision')) {
-        return 'Prorated dues payment requires billing module.';
-    }
-    $contact = crm_get_one('contact', array('cid'=>$cid));
-    // Calculate fraction of the billing period
-    $mship = end($contact['member']['membership']);
-    $date = getdate(strtotime($mship['start']));
-    $period = billing_days_in_period($date);
-    $day = $date['mday'];
-    $fraction = ($period - $day + 1.0) / $period;
-    // Get payment amount
-    $due = payment_parse_currency($mship['plan']['price']);
-    $due['value'] = ceil($due['value'] * $fraction);
-    $html .= $due['value'];
-    // Create button
-    $html = "<fieldset><legend>First month prorated dues</legend>";
-    $params = array(
-        'referenceId' => $cid
-        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false) 
-        , 'description' => 'CRM Dues Payment'
-    );
-    $amount = payment_format_currency($due);
-    $html .= "<p><strong>First month's dues:</strong> $amount</p>";
-    if ($due['value'] > 0) {
-        if (function_exists('paypal_revision')) {
-            $html .= theme('paypal_payment_button', $cid, $params);
-        }
-        if (function_exists('amazon_revision')) {
-            $html .= theme('amazon_payment_button', $cid, $params);
-        }
-    }
-    $html .= '</fieldset>';
-    return $html;
-}
-
-/**
- * Return an account summary and payment button.
- * @param $cid The cid of the contact to create a form for.
- * @return An html string for the summary and button.
- */
-function theme_payment_account_info ($cid) {
-    $balances = payment_accounts(array('cid'=>$cid));
-    $balance = $balances[$cid];
-    $params = array(
-        'referenceId' => $cid
-        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
-        , 'description' => 'CRM Dues Payment'
-    );
-    $output = '<div>';
-    $amount = payment_format_currency($balance);
-    $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
-    if ($balance['value'] > 0) {
-        if (function_exists('paypal_revision')) {
-            $output .= theme('paypal_payment_button', $cid, $params);
-        }
-        if (function_exists('amazon_revision')) {
-            $output .= theme('amazon_payment_button', $cid, $params);
-        }
-    }
-    $output .= '</div>';
-    return $output;
 }
