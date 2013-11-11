@@ -306,9 +306,7 @@ function amazon_payment_contact_table ($opts) {
             // Construct ops array
             $ops = array();
             // Add edit op
-            if (user_access('payment_edit')) {
-                $ops[] = '<a href=' . crm_url('amazon_payment_contact&id=' . $contact['cid'] . '#tab-edit') . '>edit</a>';
-            }
+            // TODO
             // Add delete op
             if (user_access('payment_delete')) {
                 $ops[] = '<a href=' . crm_url('delete&type=amazon_payment_contact&id=' . $contact['cid']) . '>delete</a>';
@@ -355,22 +353,6 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
                     page_add_content_bottom($page_data, theme('amazon_payment_first_month', $_GET['cid']), 'Plan');
                 }
             }
-            break;
-        case 'amazon_payment_contact':
-            // Capture amazon contact id
-            $cid = $options['cid'];
-            if (empty($cid)) {
-                return;
-            }
-            
-            // Set page title
-            page_set_title($page_data, 'Administer Amazon Contact');
-            
-            // Add edit tab
-            if (user_access('payment_edit') || $_GET['cid'] == user_id()) {
-                page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_edit'), $cid), 'Edit');
-            }
-            
             break;
     }
 }
@@ -445,61 +427,6 @@ function amazon_payment_contact_add_form () {
                     array(
                         'type' => 'submit',
                         'value' => 'Add'
-                    )
-                )
-            )
-        )
-    );
-    
-    return $form;
-}
-
-/**
- * Return the form structure for the edit amazon contact form.
- *
- * @param The cid of the contact to edit an amazon contact for.
- * @return The form structure.
-*/
-function amazon_payment_contact_edit_form ($cid) {
-    
-    // Ensure user is allowed to edit amazon contacts
-    if (!user_access('payment_edit')) {
-        return crm_url('amazon-admin');
-    }
-    
-     // Get amazon contact data
-    $data = crm_get_data('amazon_payment_contact', array('cid'=>$cid));
-    $amazon_payment_contact = $data[0];
-    
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'amazon_payment_contact_edit',
-        'hidden' => array(
-            'cid' => $amazon_payment_contact['cid']
-        ),
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Edit Amazon Contact',
-                'fields' => array(
-                    
-                    array(
-                        'type' => 'text',
-                        'label' => "Member's Name",
-                        'name' => 'cid',
-                        'autocomplete' => 'contact_name',
-                        'value' => $amazon_payment_contact['cid']
-                    ),array(
-                        'type' => 'text',
-                        'label' => 'Amazon Name',
-                        'name' => 'amazon_name',
-                        'value' => $amazon_payment_contact['amazon_name']
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Update'
                     )
                 )
             )
@@ -709,28 +636,10 @@ function command_amazon_payment_import () {
 }
 
 /**
- * Delete an amazon contact.
- * @param $amazon_payment_contact The amazon_payment_contact data structure to delete, must have a 'cid' element.
- */
-function command_amazon_payment_contact_delete () {
-    amazon_payment_contact_delete($_POST);
-    return crm_url('amazon-admin');
-}
-
-/**
  * Add an amazon contact.
  * @return The url to display on completion.
  */
 function command_amazon_payment_contact_add () {
-    amazon_payment_contact_save($_POST);
-    return crm_url('amazon-admin');
-}
-
-/**
- * Edit an amazon contact.
- * @return The url to display on completion.
- */
-function command_amazon_payment_contact_edit (){
     amazon_payment_contact_save($_POST);
     return crm_url('amazon-admin');
 }
