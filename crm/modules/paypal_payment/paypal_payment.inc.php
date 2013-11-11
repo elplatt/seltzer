@@ -25,7 +25,7 @@
  * this number.
  */
 function paypal_payment_revision () {
-    return 2;
+    return 1;
 }
 
 /**
@@ -55,14 +55,6 @@ function paypal_payment_install($old_revision = 0) {
               `paypal_email` varchar(255) NOT NULL,
               PRIMARY KEY (`paypal_email`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ';
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-    }
-    
-    if ($old_revision < 2) {
-        $sql = '
-        ALTER TABLE `contact_paypal` DROP PRIMARY KEY, ADD PRIMARY KEY(`cid`);
         ';
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
@@ -172,8 +164,8 @@ function paypal_payment_contact_save ($contact) {
         if (isset($contact['cid'])) {
             $sql = "
                 UPDATE `contact_paypal`
-                SET `paypal_email`='$esc_email'
-                WHERE `cid`='$esc_cid'
+                SET `cid`='$esc_cid'
+                WHERE `paypal_email`='$esc_email'
             ";
             $res = mysql_query($sql);
             if (!$res) crm_error(mysql_error());
@@ -182,7 +174,7 @@ function paypal_payment_contact_save ($contact) {
         // Name is not in database, insert new
         $sql = "
             INSERT INTO `contact_paypal`
-            (`cid`, `paypal_email`) VALUES ('$esc_cid', '$esc_email')";
+            (`paypal_email`, `cid`) VALUES ('$esc_email', '$esc_cid')";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
     }
@@ -411,14 +403,14 @@ function paypal_payment_contact_add_form () {
                 'fields' => array(
                     array(
                         'type' => 'text',
-                        'label' => "Member's Name",
-                        'name' => 'cid',
-                        'autocomplete' => 'contact_name'
+                        'label' => 'Paypal Email Address',
+                        'name' => 'paypal_email'
                     ),
                     array(
                         'type' => 'text',
-                        'label' => 'Paypal Email Address',
-                        'name' => 'paypal_email'
+                        'label' => "Member's Name",
+                        'name' => 'cid',
+                        'autocomplete' => 'contact_name'
                     ),
                     array(
                         'type' => 'submit',
