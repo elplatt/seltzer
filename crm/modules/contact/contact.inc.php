@@ -507,6 +507,7 @@ function command_contact_add () {
     );
     // Save to database
     $contact = contact_save($contact);
+    $cid = $contact['cid'];
     return crm_url("contact&cid=$cid");
 }
 
