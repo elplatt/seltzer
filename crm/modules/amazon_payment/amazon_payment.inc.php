@@ -164,7 +164,7 @@ function amazon_payment_contact_save ($contact) {
     $esc_name = mysql_real_escape_string($contact['amazon_name']);
     $esc_cid = mysql_real_escape_string($contact['cid']);    
     // Check whether the amazon contact already exists in the database
-    $sql = "SELECT * FROM `contact_amazon` WHERE `cid` = '$esc_cid'";
+    $sql = "SELECT * FROM `contact_amazon` WHERE `amazon_name` = '$esc_name'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     $row = mysql_fetch_assoc($res);
@@ -307,11 +307,11 @@ function amazon_payment_contact_table ($opts) {
             $ops = array();
             // Add edit op
             if (user_access('payment_edit')) {
-                $ops[] = '<a href=' . crm_url('amazon_payment_contact&cid=' . $contact['cid'] . '#tab-edit') . '>edit</a>';
+                $ops[] = '<a href=' . crm_url('amazon_payment_contact&id=' . $contact['cid'] . '#tab-edit') . '>edit</a>';
             }
             // Add delete op
             if (user_access('payment_delete')) {
-                $ops[] = '<a href=' . crm_url('delete&type=amazon_payment_contact&cid=' . $contact['cid']) . '>delete</a>';
+                $ops[] = '<a href=' . crm_url('delete&type=amazon_payment_contact&id=' . $contact['cid']) . '>delete</a>';
             }
             // Add ops row
             $row[] = join(' ', $ops);
@@ -358,7 +358,7 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('payment_edit') || $_GET['cid'] == user_id()) {
-                page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_edit', $cid)), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_edit'), $cid), 'Edit');
             }
             
             break;
@@ -461,7 +461,6 @@ function amazon_payment_contact_edit_form ($cid) {
     $data = crm_get_data('amazon_payment_contact', array('cid'=>$cid));
     $amazon_payment_contact = $data[0];
     
-    $contactName = theme('contact_name', $amazon_payment_contact['cid'], true);
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -477,10 +476,11 @@ function amazon_payment_contact_edit_form ($cid) {
                 'fields' => array(
                     
                     array(
-                        'type' => 'readonly',
+                        'type' => 'text',
                         'label' => "Member's Name",
-                        'name' => 'name',
-                        'value' => $contactName
+                        'name' => 'cid',
+                        'autocomplete' => 'contact_name',
+                        'value' => $amazon_payment_contact['cid']
                     ),array(
                         'type' => 'text',
                         'label' => 'Amazon Name',
