@@ -34,7 +34,7 @@
  * this number.
  */
 function plan_meta_revision () {
-    return 2;
+    return 1;
 }
 
 /**
