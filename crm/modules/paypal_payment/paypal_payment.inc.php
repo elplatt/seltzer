@@ -306,11 +306,11 @@ function paypal_payment_contact_table($opts){
             $ops = array();
             // Add edit op
             if (user_access('payment_edit')) {
-                $ops[] = '<a href=' . crm_url('paypal_payment_contact&cid=' . $contact['cid'] . '#tab-edit') . '>edit</a>';
+                $ops[] = '<a href=' . crm_url('paypal_payment_contact&id=' . $contact['cid'] . '#tab-edit') . '>edit</a>';
             }
             // Add delete op
             if (user_access('payment_delete')) {
-                $ops[] = '<a href=' . crm_url('delete&type=paypal_payment_contact&cid=' . $contact['cid']) . '>delete</a>';
+                $ops[] = '<a href=' . crm_url('delete&type=paypal_payment_contact&id=' . $contact['cid']) . '>delete</a>';
             }
             // Add ops row
             $row[] = join(' ', $ops);
@@ -354,7 +354,7 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('payment_edit') || $_GET['cid'] == user_id()) {
-                page_add_content_top($page_data, theme('form', crm_get_form('paypal_payment_contact_edit', $cid)), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('paypal_payment_contact_edit'), $cid), 'Edit');
             }
             
             break;
