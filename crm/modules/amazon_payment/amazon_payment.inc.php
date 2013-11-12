@@ -641,6 +641,15 @@ function command_amazon_payment_contact_add () {
 }
 
 /**
+ * Delete an amazon contact.
+ * @param $amazon_payment_contact The amazon_payment_contact data structure to delete, must have a 'cid' element.
+ */
+function command_amazon_payment_contact_delete () {
+    amazon_payment_contact_delete($_POST);
+    return crm_url('amazon-admin');
+}
+
+/**
  * Send emails to any members with a positive balance.
  */
 function command_amazon_payment_email () {
