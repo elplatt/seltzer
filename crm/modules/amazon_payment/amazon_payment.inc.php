@@ -497,7 +497,7 @@ function amazon_payment_email_bills_form () {
                 , 'fields' => array(
                     array(
                         'type' => 'message',
-                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balacne.'
+                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
                         ),
                     array(
                         'type' => 'readonly',
