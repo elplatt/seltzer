@@ -233,7 +233,7 @@ function mentor_data ($opts = array()) {
     // the same cid
     $mentor_data = array();
     foreach ($mentorships as $mentorship){
-        if (!empty($mentor_data[$mentorship['cid']])){
+        if (empty($mentor_data[$mentorship['cid']])){
             //this is a new cid. Create an array.
             $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(),
                                                      'protege_cids' => array());
@@ -244,15 +244,16 @@ function mentor_data ($opts = array()) {
         
         //now do the opposite. that is to say, assign the protege to the mentor_cid
         //of course, this involves creating the mentor_cid if it doesn't exist yet
-        if (!empty($mentor_data[$mentorship['mentor_cid']])){
+        if (empty($mentor_data[$mentorship['mentor_cid']])){
             //this is a new cid. Create an array.
-            $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(),
+            $mentor_data[$mentorship['mentor_cid']] = array('mentor_cids' => array(),
                                                      'protege_cids' => array());
         }
         //populate the mentor's array with protege cid.
         $mentor_data[$mentorship['mentor_cid']]['protege_cids'][] = $mentorship['cid'];
     }  
     // Return data
+    
     return $mentor_data;
 }
 
