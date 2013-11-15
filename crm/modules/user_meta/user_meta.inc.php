@@ -67,10 +67,7 @@ function user_meta_install($old_revision = 0) {
             ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-    }
-    
-    // Permissions moved to DB, set defaults on install/upgrade
-    if ($old_revision < 2) {
+        
         // Set default permissions
         $roles = array(
             '1' => 'authenticated'

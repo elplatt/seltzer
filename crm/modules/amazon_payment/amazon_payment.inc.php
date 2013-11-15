@@ -497,7 +497,7 @@ function amazon_payment_email_bills_form () {
                 , 'fields' => array(
                     array(
                         'type' => 'message',
-                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balacne.'
+                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
                         ),
                     array(
                         'type' => 'readonly',
@@ -637,6 +637,15 @@ function command_amazon_payment_import () {
  */
 function command_amazon_payment_contact_add () {
     amazon_payment_contact_save($_POST);
+    return crm_url('amazon-admin');
+}
+
+/**
+ * Delete an amazon contact.
+ * @param $amazon_payment_contact The amazon_payment_contact data structure to delete, must have a 'cid' element.
+ */
+function command_amazon_payment_contact_delete () {
+    amazon_payment_contact_delete($_POST);
     return crm_url('amazon-admin');
 }
 
