@@ -79,12 +79,49 @@ function profile_picture_page (&$page_data, $page_name) {
                 );
                 $view_content .= theme('profile_picture', $contact);
             }
+            $view_content .= theme('form', crm_get_form('profile_picture_upload'));
             if (!empty($view_content)) {
                 page_add_content_top($page_data, $view_content, 'View');
             }
             break;
     }
 }
+
+
+/**
+ * @return a profile picture upload form structure.
+ */
+function profile_picture_upload_form () {
+    return array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'enctype' => 'multipart/form-data'
+        , 'command' => 'profile_picture_upload'
+        , 'fields' => array(
+            array(
+                'type' => 'fieldset'
+                , 'label' => 'Upload Picture'
+                , 'fields' => array(
+                    array(
+                        'type' => 'message'
+                        , 'value' => 'Use this form to upload a different profile picture'
+                    )
+                    , array(
+                        'type' => 'file'
+                        , 'label' => 'Picture'
+                        , 'name' => 'profile-picture-file'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Upload'
+                    )
+                )
+            )
+        )
+    );
+}
+
+
 
 // Themeing ////////////////////////////////////////////////////////////////////
 
