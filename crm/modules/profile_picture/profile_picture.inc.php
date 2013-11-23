@@ -50,13 +50,9 @@ function profile_picture_install ($old_revision = 0) {
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
-        print "<pre>" . print_r(getcwd(), true) . "</pre>";
         // Create folder directory if it does not exist to store uploaded profile pictures in.
         if(!file_exists('./files/profile_picture')){
-            if (mkdir('./files/profile_picture/', 0775, true)) {
-                //Not sure if this part is needed.
-                //chmod('./files/profile_picture/', 0775);
-            } else {
+            if (!mkdir('./files/profile_picture/', 0775, true)) {
                 die('Failed to create folder');
             }
         }
