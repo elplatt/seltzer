@@ -25,7 +25,7 @@
  * this number.
  */
 function profile_picture_revision () {
-    return 1;
+    return 2;
 }
 
 // Installation functions //////////////////////////////////////////////////////
@@ -38,6 +38,28 @@ function profile_picture_revision () {
 function profile_picture_install ($old_revision = 0) {
     if ($old_revision < 1) {
         // There is nothing to install. Do nothing
+    }
+    if ($old_revision < 2) {
+        // Create a table to associate pictures with a CID
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `profile_picture` (
+              `cid` mediumint(8) unsigned NOT NULL,
+              `profile_picture_path` varchar(255) NOT NULL,
+              PRIMARY KEY (`cid`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        print "<pre>" . print_r(getcwd(), true) . "</pre>";
+        // Create folder directory if it does not exist to store uploaded profile pictures in.
+        if(!file_exists('./files/profile_picture')){
+            if (mkdir('./files/profile_picture/', 0775, true)) {
+                //Not sure if this part is needed.
+                //chmod('./files/profile_picture/', 0775);
+            } else {
+                die('Failed to create folder');
+            }
+        }
     }
 }
 
