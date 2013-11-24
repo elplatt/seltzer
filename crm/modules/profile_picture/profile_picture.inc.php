@@ -44,7 +44,7 @@ function profile_picture_install ($old_revision = 0) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `profile_picture` (
               `cid` mediumint(8) unsigned NOT NULL,
-              `profile_picture_path` varchar(255) NOT NULL,
+              `filename` varchar(255) NOT NULL,
               PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
@@ -168,18 +168,29 @@ function command_profile_picture_upload () {
             error_register("Error: " . $_FILES['profile-picture-file']['error']);
             return crm_url('contact&cid=' . $_POST['cid']);
         } else {
+            
+            //TODO: Resize the picture
+            
+            
             //generate md5 char pic hash from the contents of the uploaded image file
             $hash = hash_file('md5', $_FILES['profile-picture-file']['tmp_name']);
             //generate filepath to save file
-            
+            $destFileName = $hash . '.' . $extension;
+            $destFilePath = "files/profile_picture/" . $destFileName;
             //update SQL server
             
-            //save the file
-            if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], 
-                           'files/profile_picture/' . $_FILES['profile-picture-file']['name'])){
+            //TODO: Remove existing profile picture associated with this CID (both the file, and the row in the database)
+            
+            // Associate this CID with uploaded file by storing a cid=>filepath row in the profile_picture table
+            $esc_cid = mysql_real_escape_string($_POST['cid']);
+            $sql = "INSERT INTO `profile_picture` (`cid`, `filename`) VALUES ('$esc_cid', '$destFileName')";
+                    $res = mysql_query($sql);
+                    if (!$res) die(mysql_error());
+                    
+            //save the file. Literally just moving from /tmp/ to the right directory
+            if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], $destFilePath)){
                 error_register('Error Saving Image to Server');
-                error_register('Tried moving: ' .  $_FILES['profile-picture-file']['tmp_name'] . 'to: ' .
-                           'files/profile_picture/' . $_FILES['profile-picture-file']['name']);
+                error_register('Tried moving: ' .  $_FILES['profile-picture-file']['tmp_name'] . 'to: ' . $destFilePath);
             } else {
               message_register("Successfully uploaded user profile picture");  
             }
