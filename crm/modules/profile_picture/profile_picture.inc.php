@@ -53,7 +53,7 @@ function profile_picture_install ($old_revision = 0) {
         // Create folder directory if it does not exist to store uploaded profile pictures in.
         if(!file_exists('./files/profile_picture')){
             if (!mkdir('./files/profile_picture/', 0775, true)) {
-                die('Failed to create folder');
+                error_register('Failed to create folder. Please check folder permissions.');
             }
         }
     }
@@ -97,7 +97,7 @@ function profile_picture_page (&$page_data, $page_name) {
                 );
                 $view_content .= theme('profile_picture', $contact);
             }
-            $view_content .= theme('form', crm_get_form('profile_picture_upload'));
+            $view_content .= theme('form', crm_get_form('profile_picture_upload',  $cid));
             if (!empty($view_content)) {
                 page_add_content_top($page_data, $view_content, 'View');
             }
@@ -109,12 +109,15 @@ function profile_picture_page (&$page_data, $page_name) {
 /**
  * @return a profile picture upload form structure.
  */
-function profile_picture_upload_form () {
+function profile_picture_upload_form ($cid) {
     return array(
         'type' => 'form'
         , 'method' => 'post'
         , 'enctype' => 'multipart/form-data'
         , 'command' => 'profile_picture_upload'
+        , 'hidden' => array(
+            'cid' => $cid
+        )
         , 'fields' => array(
             array(
                 'type' => 'fieldset'
@@ -139,6 +142,55 @@ function profile_picture_upload_form () {
     );
 }
 
+/**
+ * Handle profile picture upload request.
+ *
+ * @return The url to display on completion.
+ */
+function command_profile_picture_upload () {
+    if (!array_key_exists('profile-picture-file', $_FILES)) {
+        error_register('No profile picture uploaded');
+        return crm_url('contact&cid=' . $_POST['cid']);
+    }
+    //qualify file as an image that is less than 20mb
+    $allowedExts = array("gif", "jpeg", "jpg", "png");
+    $temp = explode(".", $_FILES['profile-picture-file']['name']);
+    $extension = end($temp);
+    if ((($_FILES['profile-picture-file']['type'] == "image/gif")
+    || ($_FILES['profile-picture-file']['type'] == "image/jpeg")
+    || ($_FILES['profile-picture-file']['type'] == "image/jpg")
+    || ($_FILES['profile-picture-file']['type'] == "image/pjpeg")
+    || ($_FILES['profile-picture-file']['type'] == "image/x-png")
+    || ($_FILES['profile-picture-file']['type'] == "image/png"))
+    && ($_FILES['profile-picture-file']['size'] < 20000*1024)
+    && in_array($extension, $allowedExts)) {
+        if ($_FILES['profile-picture-file']["error"] > 0) {
+            error_register("Error: " . $_FILES['profile-picture-file']['error']);
+            return crm_url('contact&cid=' . $_POST['cid']);
+        } else {
+            //generate md5 char pic hash from the contents of the uploaded image file
+            $hash = hash_file('md5', $_FILES['profile-picture-file']['tmp_name']);
+            //generate filepath to save file
+            
+            //update SQL server
+            
+            //save the file
+            if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], 
+                           'files/profile_picture/' . $_FILES['profile-picture-file']['name'])){
+                error_register('Error Saving Image to Server');
+                error_register('Tried moving: ' .  $_FILES['profile-picture-file']['tmp_name'] . 'to: ' .
+                           'files/profile_picture/' . $_FILES['profile-picture-file']['name']);
+            } else {
+              message_register("Successfully uploaded user profile picture");  
+            }
+        }
+    } else {
+        error_register('Invalid file. Did you upload an image (gif, jpeg, jpg, png) that is less than 20mb?');
+        error_register('File Type is: ' . $_FILES['profile-picture-file']['type']);
+        error_register('File Size is: ' . $_FILES['profile-picture-file']['size'] / 1024 . "kB");
+    } 
+    return crm_url('contact&cid=' . $_POST['cid']);
+}
 
 
 // Themeing ////////////////////////////////////////////////////////////////////
