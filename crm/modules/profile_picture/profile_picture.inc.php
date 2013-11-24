@@ -148,6 +148,8 @@ function profile_picture_upload_form ($cid) {
  * @return The url to display on completion.
  */
 function command_profile_picture_upload () {
+    $cid = $_POST['cid'];
+    
     if (!array_key_exists('profile-picture-file', $_FILES)) {
         error_register('No profile picture uploaded');
         return crm_url('contact&cid=' . $_POST['cid']);
@@ -168,21 +170,21 @@ function command_profile_picture_upload () {
             error_register("Error: " . $_FILES['profile-picture-file']['error']);
             return crm_url('contact&cid=' . $_POST['cid']);
         } else {
+            //------- Resize the picture and generate hash -------
             
-            //TODO: Resize the picture
-            
+            //TODO: resize picture
             
             //generate md5 char pic hash from the contents of the uploaded image file
             $hash = hash_file('md5', $_FILES['profile-picture-file']['tmp_name']);
             //generate filepath to save file
             $destFileName = $hash . '.' . $extension;
             $destFilePath = "files/profile_picture/" . $destFileName;
-            //update SQL server
-            
-            //TODO: Remove existing profile picture associated with this CID (both the file, and the row in the database)
-            
+            // ------- update SQL server and files -------
+            if (!profile_picture_delete($cid)){
+                return crm_url('contact&cid=' . $_POST['cid']);
+            }
+            $esc_cid = mysql_real_escape_string($cid);
             // Associate this CID with uploaded file by storing a cid=>filepath row in the profile_picture table
-            $esc_cid = mysql_real_escape_string($_POST['cid']);
             $sql = "INSERT INTO `profile_picture` (`cid`, `filename`) VALUES ('$esc_cid', '$destFileName')";
                     $res = mysql_query($sql);
                     if (!$res) die(mysql_error());
@@ -192,7 +194,7 @@ function command_profile_picture_upload () {
                 error_register('Error Saving Image to Server');
                 error_register('Tried moving: ' .  $_FILES['profile-picture-file']['tmp_name'] . 'to: ' . $destFilePath);
             } else {
-              message_register("Successfully uploaded user profile picture");  
+              message_register("Successfully uploaded new user profile picture");  
             }
         }
     } else {
@@ -202,7 +204,40 @@ function command_profile_picture_upload () {
     } 
     return crm_url('contact&cid=' . $_POST['cid']);
 }
+// DB to Object mapping ////////////////////////////////////////////////////////
 
+/**
+ * Delete a profile picture.
+ * @param $cid the cid of the profile picture to delete
+ *
+ * @return bool true if succeded, false if failed.
+ */
+
+function profile_picture_delete ($cid) {
+    //Remove existing profile picture associated with this CID (both the file, and the row in the database)
+    //Attempt to fetch a picture filename in the database associated with this cid.
+    $esc_cid = mysql_real_escape_string($cid);
+    $sql = "SELECT `cid`, `filename` FROM `profile_picture` WHERE 1 AND `cid` = '$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    if (!empty($row)){
+            $oldProfilePictureFilePath = "files/profile_picture/" . $row['filename'];
+            //First, delete the profile picture file associated with this cid.
+            if (!unlink($oldProfilePictureFilePath)){
+                error_register('Not able to remove profile picture file: ' . $oldProfilePictureFilePath . ". Please check file permissions.");
+                return false;
+            }
+            //Next, Attempt to delete the existing profile picture filename association with this cid.
+            $sql = "DELETE FROM `profile_picture` WHERE `cid`='$esc_cid'";
+            $res = mysql_query($sql);
+            if (!$res) die(mysql_error());
+            if (mysql_affected_rows() > 0) {
+            message_register('Existing profile picture removed');
+        }
+    }
+    return true;
+}
 
 // Themeing ////////////////////////////////////////////////////////////////////
 
@@ -217,10 +252,23 @@ function theme_profile_picture ($contact) {
     if (!is_array($contact)) {
         $contact = crm_get_one('contact', array('cid'=>$contact));
     }
-    $email = $contact['email'];
-    $size = 120; //default size of the gravatar
-    $grav_url = "http://www.gravatar.com/avatar/" . md5(strtolower(trim($email)))."?d=retro&s=" .$size;
-    $html = '<div class="userimage"><img src = "'.$grav_url.'"></div>';
+    $cid = $contact['cid'];
+    //Attempt to fetch a picture filename in the database associated with this cid.
+    $sql = "SELECT `cid`, `filename` FROM `profile_picture` WHERE 1 AND `cid` = '$cid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    $row = mysql_fetch_assoc($res);
+    if (!empty($row)){
+        // If a row exists in the database that associates this user's CID with a filename, return the HTML that
+        // shows that user's profile picture.
+        $html = '<div class="userimage"><img src = "'. "files/profile_picture/" . $row['filename'] .'"></div>';
+    } else {
+        //else, grab a gravatar associated with this email (if there is one).
+        $email = $contact['email'];
+        $size = 120; //default size of the gravatar
+        $grav_url = "http://www.gravatar.com/avatar/" . md5(strtolower(trim($email)))."?d=retro&s=" .$size;
+        $html = '<div class="userimage"><img src = "'.$grav_url.'"></div>';
+    }
     return $html;
 }
 ?>
