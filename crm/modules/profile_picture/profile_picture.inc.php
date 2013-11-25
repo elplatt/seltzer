@@ -164,17 +164,58 @@ function command_profile_picture_upload () {
     || ($_FILES['profile-picture-file']['type'] == "image/pjpeg")
     || ($_FILES['profile-picture-file']['type'] == "image/x-png")
     || ($_FILES['profile-picture-file']['type'] == "image/png"))
-    && ($_FILES['profile-picture-file']['size'] < 20000*1024)
+    && ($_FILES['profile-picture-file']['size'] < 1000*1024)
     && in_array($extension, $allowedExts)) {
         if ($_FILES['profile-picture-file']["error"] > 0) {
             error_register("Error: " . $_FILES['profile-picture-file']['error']);
             return crm_url('contact&cid=' . $_POST['cid']);
         } else {
-            //------- Resize the picture and generate hash -------
+            //------- Resize the image -------
+            if (!(extension_loaded('gd') && function_exists('gd_info'))) {
+                error_register("It looks like GD, an image manipulation library,
+                               is not configured for your PHP installation. Therefore,
+                               Image Resizing is disabled.");
+            } else {
+                define('THUMBNAIL_IMAGE_MAX_WIDTH', 120);
+                define('THUMBNAIL_IMAGE_MAX_HEIGHT', 120);
+                
+                $source_image_path = $_FILES['profile-picture-file']['tmp_name'];
+                list($source_image_width, $source_image_height, $source_image_type) = getimagesize($source_image_path);
+                switch ($source_image_type) {
+                    case IMAGETYPE_GIF:
+                        $source_gd_image = imagecreatefromgif($source_image_path);
+                        break;
+                    case IMAGETYPE_JPEG:
+                        $source_gd_image = imagecreatefromjpeg($source_image_path);
+                        break;
+                    case IMAGETYPE_PNG:
+                        $source_gd_image = imagecreatefrompng($source_image_path);
+                        break;
+                }
+                if ($source_gd_image === false) {
+                    return false;
+                }
+                $source_aspect_ratio = $source_image_width / $source_image_height;
+                $thumbnail_aspect_ratio = THUMBNAIL_IMAGE_MAX_WIDTH / THUMBNAIL_IMAGE_MAX_HEIGHT;
+                if ($source_image_width <= THUMBNAIL_IMAGE_MAX_WIDTH && $source_image_height <= THUMBNAIL_IMAGE_MAX_HEIGHT) {
+                    $thumbnail_image_width = $source_image_width;
+                    $thumbnail_image_height = $source_image_height;
+                } elseif ($thumbnail_aspect_ratio > $source_aspect_ratio) {
+                    $thumbnail_image_width = (int) (THUMBNAIL_IMAGE_MAX_HEIGHT * $source_aspect_ratio);
+                    $thumbnail_image_height = THUMBNAIL_IMAGE_MAX_HEIGHT;
+                } else {
+                    $thumbnail_image_width = THUMBNAIL_IMAGE_MAX_WIDTH;
+                    $thumbnail_image_height = (int) (THUMBNAIL_IMAGE_MAX_WIDTH / $source_aspect_ratio);
+                }
+                $thumbnail_gd_image = imagecreatetruecolor($thumbnail_image_width, $thumbnail_image_height);
+                imagecopyresampled($thumbnail_gd_image, $source_gd_image, 0, 0, 0, 0, $thumbnail_image_width, $thumbnail_image_height, $source_image_width, $source_image_height);
+                imagejpeg($thumbnail_gd_image, $_FILES['profile-picture-file']['tmp_name'], 90);
+                imagedestroy($source_gd_image);
+                imagedestroy($thumbnail_gd_image);
+            }
+            // ------- End Image Resizing -------
             
-            //TODO: resize picture
-            
-            //generate md5 char pic hash from the contents of the uploaded image file
+            //generate md5 hash from the contents of the uploaded resized image file
             $hash = hash_file('md5', $_FILES['profile-picture-file']['tmp_name']);
             //generate filepath to save file
             $destFileName = $hash . '.' . $extension;
