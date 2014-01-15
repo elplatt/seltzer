@@ -4,9 +4,10 @@ Installation Instructions
 
 1. Create an empty MySQL database on your webserver.
 2. Download the package by going to http://github.com/elplatt/seltzer and
-clicking the "ZIP" button.
+clicking the "ZIP" button. Or, if using the command line/terminal, type
+wget https://github.com/elplatt/seltzer/archive/branch.zip where "branch" is the branch you want to download.
 3. Unzip the downloaded package.
-4. Under seltzer/crm/include, copy config.sample.inc.php to config.inc.php,
+4. Under seltzer/crm, copy config.sample.inc.php to config.inc.php,
 and modify it to reflect the settings for your database and organization.
 5. Upload the seltzer/crm directory to the document root of your webserver. Example: /var/www/html/crm. If you want to use a directory other than /crm, you will need to update $config_base_path in config.inc.php.
 6. Make sure PHP "magic quotes" are disabled (http://php.net/manual/en/security.magicquotes.disabling.php).
@@ -14,4 +15,5 @@ and modify it to reflect the settings for your database and organization.
 8. Enter an email and choose a password for the admin user.
 9. You can now log in using "admin" as the username and the password you
 selected during installation.
-10. Optionally go to Members > Import to upload a CSV file of existing members.  See https://github.com/elplatt/seltzer/wiki/HOWTO-Import-Members for more info.
+10. Optionally go to Plans > Import to upload a CSV file of existing members. See https://github.com/elplatt/seltzer/wiki/HOWTO-Import-Plans for more info.
+11. Optionally go to Members > Import to upload a CSV file of existing members. See https://github.com/elplatt/seltzer/wiki/HOWTO-Import-Members for more info.
