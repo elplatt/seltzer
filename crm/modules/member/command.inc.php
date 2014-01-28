@@ -119,19 +119,9 @@ function command_member_add () {
     }
     
     if (function_exists('paypal_payment_revision')) {
-        $esc_create_paypal_contact = $_POST['create_paypal_contact'] ? '1' : '0';
-        $esc_paypal_email = $_POST['email'];
-        if ($esc_create_paypal_contact === '1') {
-            if (!empty($esc_paypal_email)) {
-                $sql = "
-                    INSERT INTO `contact_paypal`
-                    (`paypal_email`, `cid`)
-                    VALUES
-                    ('$esc_paypal_email', '$esc_cid')
-                ";
-                $res = mysql_query($sql);
-                if (!$res) crm_error(mysql_error());
-            }
+        $create_paypal_contact = $_POST['create_paypal_contact'] ? '1' : '0';
+        if ($create_paypal_contact === '1') {
+            paypal_payment_contact_save ($contact);
         }
     }
     
@@ -513,16 +503,9 @@ function command_member_import () {
         if (!$res) crm_error(mysql_error());
         
         if (function_exists('paypal_payment_revision')) {
-            if (!empty($email)) {
-                $sql = "
-                    INSERT INTO `contact_paypal`
-                    (`paypal_email`, `cid`)
-                    VALUES
-                    ('$email', '$esc_cid')
-                ";
-                $res = mysql_query($sql);
-                if (!$res) crm_error(mysql_error());
-            }
+            $contact['email']=$email;
+            $contact['cid']=$esc_cid;
+            paypal_payment_contact_save ($contact);
         }
         
         // Notify admins
