@@ -375,12 +375,17 @@ function command_member_membership_delete () {
 function command_member_import () {
     global $config_org_name;
     
-    if (!user_access('contact_edit')) {
-        error_register('User does not have permission: contact_edit');
+    // Verify permissions
+    if (!user_access('member_add')) {
+        error_register('Permission denied: member_add');
         return crm_url('members');
     }
-    if (!user_access('member_edit')) {
-        error_register('User does not have permission: member_edit');
+    if (!user_access('contact_add')) {
+        error_register('Permission denied: contact_add');
+        return crm_url('members');
+    }
+    if (!user_access('user_add')) {
+        error_register('Permission denied: user_add');
         return crm_url('members');
     }
     
