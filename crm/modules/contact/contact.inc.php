@@ -493,7 +493,7 @@ function command_contact_add () {
     // Check permissions
     if (!user_access('contact_add')) {
         error_register('Permission denied: contact_add');
-        return crm_url('contacts');
+        return crm_url('members');
     }
     // Build contact object
     $contact = array(
@@ -521,7 +521,7 @@ function command_contact_update () {
     // Verify permissions
     if (!user_access('contact_edit') && $_POST['cid'] != user_id()) {
         error_register('Permission denied: contact_edit');
-        return crm_url('contacts');
+        return crm_url('members');
     }
     $contact_data = crm_get_data('contact', array('cid'=>$_POST['cid']));
     $contact = $contact_data[0];
@@ -539,7 +539,7 @@ function command_contact_update () {
     $contact['emergencyPhone'] = $_POST['emergencyPhone'];
     // Save changes to database
     $contact = contact_save($contact);
-    return crm_url('contacts');
+    return crm_url('members');
 }
 
 /**
@@ -551,10 +551,10 @@ function command_contact_delete () {
     // Verify permissions
     if (!user_access('contact_delete')) {
         error_register('Permission denied: contact_delete');
-        return crm_url('contacts');
+        return crm_url('members');
     }
     contact_delete($_POST['cid']);
-    return crm_url('contacts');
+    return crm_url('members');
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
