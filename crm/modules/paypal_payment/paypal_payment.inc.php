@@ -166,6 +166,8 @@ function paypal_payment_contact_data ($opts = array()) {
     return $emails;
 }
 
+// Contact & Payment addition, deletion, update ////////////////////////////////
+
 /**
  * Save a paypal contact.  If the name is already in the database,
  * the mapping is updated.  When updating the mapping, any fields that are not
@@ -274,6 +276,8 @@ function paypal_payment_payment_api ($payment, $op) {
     return $payment;
 }
 
+// Table & Page rendering //////////////////////////////////////////////////////
+
 /**
  * Generate payments contacts table
  *
@@ -368,6 +372,8 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
             break;
     }
 }
+
+// Forms ///////////////////////////////////////////////////////////////////////
 
 /**
  * @return a paypal payments import form structure.
@@ -555,6 +561,8 @@ function paypal_payment_form_alter(&$form, $form_id) {
     return $form;
 }
 
+// Commands ////////////////////////////////////////////////////////////////////
+
 /**
  * Handle paypal payment import request.
  *
@@ -626,6 +634,8 @@ function command_paypal_payment_contact_add () {
     paypal_payment_contact_save($_POST);
     return crm_url('paypal-admin');
 }
+
+// Themes //////////////////////////////////////////////////////////////////////
 
 /**
  * Return themed html for paypal admin links.
