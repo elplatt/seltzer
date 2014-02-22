@@ -1,6 +1,6 @@
 <?php
 /*
-    Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     commmand.inc.php - Core command processing functions

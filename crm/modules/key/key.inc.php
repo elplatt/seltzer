@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     key.inc.php - Key tracking module
@@ -327,6 +327,9 @@ function key_table ($opts) {
     );
     // Add columns
     if (user_access('key_view') || $opts['cid'] == user_id()) {
+        if ($export) {
+            $table['columns'][] = array("title"=>'cid', 'class'=>'', 'id'=>'');
+        }
         $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Serial', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Slot', 'class'=>'', 'id'=>'');
@@ -343,7 +346,10 @@ function key_table ($opts) {
         $row = array();
         if (user_access('key_view') || $opts['cid'] == user_id()) {
             // Add cells
-            $row[] = theme('contact_name', $cid_to_contact[$key['cid']], true);
+            if ($export) {
+                $row[] = $key['cid'];
+            }
+            $row[] = theme('contact_name', $cid_to_contact[$key['cid']], !$export);
             $row[] = $key['serial'];
             $row[] = $key['slot'];
             $row[] = $key['start'];

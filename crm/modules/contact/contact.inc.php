@@ -1,7 +1,7 @@
 <?php 
 
 /*
-    Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     contact.inc.php - Defines contact entity
@@ -600,6 +600,10 @@ function contact_page (&$page_data, $page_name) {
             // Capture contact id
             $cid = $_GET['cid'];
             if (empty($cid)) {
+                return;
+            }
+            if (!user_access('contact_view') && $cid !== user_id()) {
+                error_register('Permission denied: contact_view');
                 return;
             }
             $contact_data = crm_get_data('contact', array('cid'=>$cid));
