@@ -42,6 +42,9 @@ function devel_page (&$page_data, $page_name) {
             if (empty($cid)) {
                 return;
             }
+            if (!user_access('contact_view')) {
+                return;
+            }
             $contact = crm_get_one('contact', array('cid'=>$cid));
             // Add devel tab
             page_add_content_top($page_data, '<pre>' . print_r($contact, true) . '</pre>', 'Devel');
