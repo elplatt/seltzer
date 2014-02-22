@@ -602,6 +602,10 @@ function contact_page (&$page_data, $page_name) {
             if (empty($cid)) {
                 return;
             }
+            if (!user_access('contact_view') && $cid !== user_id()) {
+                error_register('Permission denied: contact_view');
+                return;
+            }
             $contact_data = crm_get_data('contact', array('cid'=>$cid));
             $contact = $contact_data[0];
             // Set page title
