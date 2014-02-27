@@ -527,7 +527,7 @@ function command_contact_update () {
     $contact = $contact_data[0];
     if (empty($contact)) {
         error_register("No contact for cid: $_POST[cid]");
-        return crm_url('contacts');
+        return crm_url('members');
     }
     // Update contact data
     $contact['firstName'] = $_POST['firstName'];
