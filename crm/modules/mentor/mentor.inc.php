@@ -158,30 +158,7 @@ function theme_mentor_edit_form ($cid) {
 */ 
 function mentor_data ($opts = array()) {
     
-    if (array_key_exists('cid', $opts)) {
-        foreach ($opts['cid'] as $cid) {
-            
-        }
-    }
-    
-    // Create map from cids to contact names if necessary
-    // TODO: Add filters for speed
-    if ($join_contact) {
-        $contacts = member_contact_data();
-        $cidToContact = array();
-        foreach ($contacts as $contact) {
-            $cidToContact[$contact['cid']] = $contact;
-        }
-    }
-    
-    if ($join_member) {
-        $members = member_data();
-        $cidToMember = array();
-        foreach ($members as $member) {
-            $cidToMember[$member['cid']] = $member;
-        }
-    }
-    
+   
     // Query database
     $sql = "
         SELECT
