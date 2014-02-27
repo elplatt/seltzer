@@ -85,8 +85,6 @@ function profile_picture_page (&$page_data, $page_name) {
             }
             $contact_data = crm_get_data('contact', array('cid'=>$cid));
             $contact = $contact_data[0];
-            // Set page title
-            page_set_title($page_data, theme('contact_name', $contact));
             // Add view tab
             $view_content = '';
             if (user_access('contact_view')) {
