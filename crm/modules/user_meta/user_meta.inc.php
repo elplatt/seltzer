@@ -561,7 +561,7 @@ function user_meta_table ($opts) {
     return $table;
 }
 
-+// Autocomplete functions //////////////////////////////////////////////////////
+// Autocomplete functions //////////////////////////////////////////////////////
 
 /**
  * Return a list of contacts matching a text fragment.
@@ -576,7 +576,7 @@ function meta_tag_autocomplete ($fragment) {
     while (!empty($mysqlRow)) {
             $row = array();
             $row['value'] = $mysqlRow['tagstr'];
-            $row['label'] = $mysqlRow['tagstr'];;
+            $row['label'] = $mysqlRow['tagstr'];
             $data[] = $row;
             $mysqlRow = mysql_fetch_assoc($userMeta);
     }
