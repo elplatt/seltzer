@@ -576,7 +576,7 @@ function meta_tag_autocomplete ($fragment) {
     while (!empty($mysqlRow)) {
             $row = array();
             $row['value'] = $mysqlRow['tagstr'];
-            $row['label'] = $mysqlRow['tagstr'];;
+            $row['label'] = $mysqlRow['tagstr'];
             $data[] = $row;
             $mysqlRow = mysql_fetch_assoc($userMeta);
     }
