@@ -561,6 +561,28 @@ function user_meta_table ($opts) {
     return $table;
 }
 
++// Autocomplete functions //////////////////////////////////////////////////////
+
+/**
+ * Return a list of contacts matching a text fragment.
+ * @param $fragment
+ */
+function meta_tag_autocomplete ($fragment) {
+    $data = array();
+    $sql = "SELECT DISTINCT(`tagstr`) FROM `user_meta`";
+    $userMeta = mysql_query($sql);
+    if (!$userMeta) return $data;
+    $mysqlRow = mysql_fetch_assoc($userMeta);
+    while (!empty($mysqlRow)) {
+            $row = array();
+            $row['value'] = $mysqlRow['tagstr'];
+            $row['label'] = $mysqlRow['tagstr'];;
+            $data[] = $row;
+            $mysqlRow = mysql_fetch_assoc($userMeta);
+    }
+    return $data;
+}
+
 // Forms ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -593,7 +615,9 @@ function user_meta_add_form ($cid) {
                         'type' => 'text',
                         'label' => 'MetaTag',
                         'name' => 'tagstr',
-                         'value' => '[please enter a meaningful metatag here]',
+                        'value' => '[please enter a meaningful metatag here]',
+                        'suggestion' => 'meta_tag',
+                        'defaultClear' => True
                     ),
                     array(
                         'type' => 'text',

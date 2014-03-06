@@ -47,6 +47,9 @@ $(document).ready(function () {
     // Set up autocomplete forms
     initAutocomplete();
     
+    // Setup input clear
+    initInputClear();
+    
     // Enable focusing
     $('.focus').focus();
 });
@@ -88,5 +91,17 @@ var initAutocomplete = function () {
                 return false;
             }
         });
+    });
+};
+
+var initInputClear = function() {
+    $('.defaultClear').focus(function () {
+    if ($(this).val() == $(this).attr("title")) {
+        $(this).val("");
+    }}).blur(
+    function () {
+        if ($(this).val() == ""){
+            $(this).val($(this).attr("title"));
+        }
     });
 };

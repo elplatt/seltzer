@@ -386,6 +386,7 @@ function key_add_form ($cid) {
     
     // Ensure user is allowed to edit keys
     if (!user_access('key_edit')) {
+        error_register('User does not have permission: key_edit');
         return NULL;
     }
     
@@ -446,6 +447,7 @@ function key_add_form ($cid) {
 function key_edit_form ($kid) {
     // Ensure user is allowed to edit key
     if (!user_access('key_edit')) {
+        error_register('User does not have permission: key_edit');
         return NULL;
     }
     // Get key data
@@ -524,6 +526,7 @@ function key_delete_form ($kid) {
     
     // Ensure user is allowed to delete keys
     if (!user_access('key_delete')) {
+        error_register('User does not have permission: key_delete');
         return NULL;
     }
     
