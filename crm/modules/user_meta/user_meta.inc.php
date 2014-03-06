@@ -561,7 +561,7 @@ function user_meta_table ($opts) {
     return $table;
 }
 
-+// Autocomplete functions //////////////////////////////////////////////////////
+// Autocomplete functions //////////////////////////////////////////////////////
 
 /**
  * Return a list of contacts matching a text fragment.
