@@ -263,7 +263,7 @@ function theme_form_text ($field) {
         array_push($classes, 'autocomplete');
     }
     if (!empty($field['suggestion'])) {
-        array_push($classes, 'suggestion');
+        array_push($classes, 'autocomplete');
     }
     if (!empty($field['value']) && array_key_exists('defaultClear', $field) && $field['defaultClear'] == True)
     {
