@@ -618,20 +618,20 @@ function command_paypal_payment_import () {
 }
 
 /**
- * Delete a paypal contact.
- * @param $paypal_payment_contact The paypal_payment_contact data structure to delete, must have a 'cid' element.
- */
-function command_paypal_payment_contact_delete () {
-    paypal_payment_contact_delete($_POST);
-    return crm_url('paypal-admin');
-}
-
-/**
  * Add a paypal contact.
  * @return The url to display on completion.
  */
 function command_paypal_payment_contact_add () {
     paypal_payment_contact_save($_POST);
+    return crm_url('paypal-admin');
+}
+
+/**
+ * Delete a paypal contact.
+ * @param $paypal_payment_contact The paypal_payment_contact data structure to delete, must have a 'cid' element.
+ */
+function command_paypal_payment_contact_delete () {
+    paypal_payment_contact_delete($_POST);
     return crm_url('paypal-admin');
 }
 
@@ -693,9 +693,13 @@ function theme_paypal_payment_account_info ($cid) {
     );
     $output = '<div>';
     $amount = payment_format_currency($balance);
-    $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
     if ($balance['value'] > 0) {
+        $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
         $output .= theme('paypal_payment_button', $cid, $params);
+    } else {
+        $balance['value'] = -1*$balance['value'];
+        $amount = payment_format_currency($balance);
+        $output .= "<p><strong>No balance owed.  Account credit:</strong> $amount</p>";
     }
     $output .= '</div>';
     return $output;

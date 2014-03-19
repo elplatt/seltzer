@@ -146,6 +146,8 @@ function amazon_payment_contact_data ($opts = array()) {
     return $names;
 }
 
+// Contact & Payment addition, deletion, update ////////////////////////////////
+
 /**
  * Save an amazon contact.  If the name is already in the database,
  * the mapping is updated.  When updating the mapping, any fields that are not
@@ -250,6 +252,8 @@ function amazon_payment_payment_api ($payment, $op) {
     return $payment;
 }
 
+// Table & Page rendering //////////////////////////////////////////////////////
+
 /**
  * Generate payments contacts table.
  *
@@ -265,7 +269,7 @@ function amazon_payment_contact_table ($opts) {
         "class" => '',
         "rows" => array(),
         "columns" => array()
-    );    
+    );
     // Check for permissions
     if (!user_access('payment_view')) {
         error_register('User does not have permission to view payments');
@@ -347,6 +351,8 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             break;
     }
 }
+
+// Forms ///////////////////////////////////////////////////////////////////////
 
 /**
  * @return an amazon payments import form structure.
@@ -563,6 +569,8 @@ function amazon_payment_form_alter($form, $form_id) {
     return $form;
 }
 
+// Commands ////////////////////////////////////////////////////////////////////
+
 /**
  * Handle amazon payment import request.
  *
@@ -682,6 +690,8 @@ function command_amazon_payment_email () {
     variable_set('amazon_payment_last_email', date('Y-m-d'));
     return crm_url('payments', array('query'=>array('tab'=>'billing')));
 }
+
+// Themes //////////////////////////////////////////////////////////////////////
 
 /**
  * Return themed html for amazon admin links.
