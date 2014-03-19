@@ -34,7 +34,7 @@ $config_site_title = 'Seltzer CRM';
 // The name of the organization to insert into templates
 $config_org_name = 'Seltzer CRM';
 
-// The currency code for dealing with payments, can be GBP, USD, or EUR 
+// The currency code for dealing with payments, can be GBP, USD, or EUR
 $config_currency_code = 'USD';
 
 // The From: address to use when sending email to members
@@ -79,19 +79,19 @@ $config_modules = array(
 // Track payments, manual entry
 $config_modules[] = "payment";
 
+// Automated billing
+$config_modules[] = "billing";
+
 // Amazon payment integration
 $config_modules[] = "amazon_payment";
 
 // Paypal integration
 //$config_modules[] = "paypal_payment";
 
-// Automated billing
-$config_modules[] = "billing";
-
-// Assign a profile picture using gravatar 
+// Assign a profile picture using gravatar
 //$config_modules[] = "profile_picture";
 
-// Assign members a mentor 
+// Assign members a mentor
 //$config_modules[] = "mentor";
 
 // Developer tools
