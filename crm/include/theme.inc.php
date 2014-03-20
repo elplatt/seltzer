@@ -42,7 +42,7 @@ function theme_footer() {
  * @return The themed html string for logo.
 */
 function theme_logo () {
-    return '<div class="logo"><img alt="' . title(). '" src="' . path_to_theme() . '/images/logo.png"/></div>';
+    return '<div class="logo"><img alt="' . title() . '" src="' . path_to_theme() . '/images/logo.png"/></div>';
 }
 
 /**
