@@ -32,7 +32,7 @@ $config_db_db = '';
 $config_site_title = 'Seltzer CRM';
 
 // The name of the organization to insert into templates
-$config_org_name = 'Seltzer CRM';
+$config_org_name = 'Seltzer';
 
 // The currency code for dealing with payments, can be GBP, USD, or EUR 
 $config_currency_code = 'USD';
