@@ -364,6 +364,8 @@ function command_member_membership_delete () {
  */
 function command_member_import () {
     global $config_org_name;
+    global $config_email_to;
+    global $config_email_from;
     
     // Verify permissions
     if (!user_access('member_add')) {
