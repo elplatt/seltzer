@@ -34,6 +34,9 @@ $config_site_title = 'Seltzer CRM';
 // The name of the organization to insert into templates
 $config_org_name = 'Seltzer CRM';
 
+// The organization's website address
+$config_org_website = 'www.seltzercrm.org';
+
 // The currency code for dealing with payments, can be GBP, USD, or EUR 
 $config_currency_code = 'USD';
 
@@ -42,6 +45,13 @@ $config_email_from = '';
 
 // The email address to notify when a user is created
 $config_email_to = '';
+
+// The postal address of the space (used when sending out new member emails)
+$config_address1 = '';
+$config_address2 = '';
+$config_address3 = '';
+$config_town_city = '';
+$config_zipcode = '';
 
 // The hostname of the server
 $config_host = $_SERVER['SERVER_NAME'];
