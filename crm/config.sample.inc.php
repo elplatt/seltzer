@@ -35,7 +35,7 @@ $config_site_title = 'Seltzer CRM';
 $config_org_name = 'Seltzer CRM';
 
 // The organization's website address
-$config_org_website = 'http:\/\/seltzercrm.org';
+$config_org_website = 'www.seltzercrm.org';
 
 // The currency code for dealing with payments, can be GBP, USD, or EUR 
 $config_currency_code = 'USD';
