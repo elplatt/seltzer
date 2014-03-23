@@ -29,6 +29,6 @@
     }
     print '<br /><br />';
     
-    print 'If you have any additional questions, please contact: <a href="' . "$config_email_from" . '">' . "$config_email_from" . '</a> or visit the website at <a href="' . "$config_org_website" . '">' . "$config_org_website";
+    print 'If you have any additional questions, please contact: <a href="mailto:' . "$config_email_from" . '">' . "$config_email_from" . '</a> or visit the website at <a href="' . "$config_org_website" . '">' . "$config_org_website";
     ?>
 </p>
