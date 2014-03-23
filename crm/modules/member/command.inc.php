@@ -118,13 +118,6 @@ function command_member_add () {
         if (!$res) crm_error(mysql_error());
     }
     
-    if (function_exists('paypal_payment_revision')) {
-        $create_paypal_contact = $_POST['create_paypal_contact'] ? '1' : '0';
-        if ($create_paypal_contact === '1') {
-            paypal_payment_contact_save ($contact);
-        }
-    }
-    
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
