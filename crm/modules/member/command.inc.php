@@ -390,33 +390,6 @@ function command_member_import () {
             $row[$new_key] = $value;
         }
         
-        // Add contact
-        $firstName = mysql_real_escape_string($row['firstname']);
-        $middleName = mysql_real_escape_string($row['middlename']);
-        $lastName = mysql_real_escape_string($row['lastname']);
-        $email = mysql_real_escape_string($row['email']);
-        $phone = mysql_real_escape_string($row['phone']);
-        $emergencyName = mysql_real_escape_string($row['emergencyname']);
-        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
-        $sql = "
-            INSERT INTO `contact`
-            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
-            VALUES
-            ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $cid = mysql_insert_id();
-        $esc_cid = mysql_real_escape_string($cid);
-        
-        // Add member
-        $sql = "
-            INSERT INTO `member`
-            (`cid`)
-            VALUES
-            ('$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        
         // Find Username
         $username = $row['username'];
         $n = 0;
@@ -443,6 +416,33 @@ function command_member_import () {
             error_register('Please specify a username');
             return crm_url('members&tab=import');
         }
+        
+        // Add contact
+        $firstName = mysql_real_escape_string($row['firstname']);
+        $middleName = mysql_real_escape_string($row['middlename']);
+        $lastName = mysql_real_escape_string($row['lastname']);
+        $email = mysql_real_escape_string($row['email']);
+        $phone = mysql_real_escape_string($row['phone']);
+        $emergencyName = mysql_real_escape_string($row['emergencyname']);
+        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
+        $sql = "
+            INSERT INTO `contact`
+            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
+            VALUES
+            ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        $cid = mysql_insert_id();
+        $esc_cid = mysql_real_escape_string($cid);
+        
+        // Add member
+        $sql = "
+            INSERT INTO `member`
+            (`cid`)
+            VALUES
+            ('$esc_cid')";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
         
         // Add user
         $user = array();
