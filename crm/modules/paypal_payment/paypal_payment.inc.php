@@ -236,7 +236,7 @@ function paypal_payment_contact_delete ($paypal_payment_contact) {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     if (mysql_affected_rows() > 0) {
-        message_register('Contact info deleted.');
+        message_register('Paypal contact info deleted for: ' . theme('contact_name', $esc_cid));
     }
     return crm_url('paypal-admin');
 }
