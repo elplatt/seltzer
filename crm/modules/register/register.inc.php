@@ -182,10 +182,6 @@ function command_register () {
         if (!$res) crm_error(mysql_error());
     }
     
-    if (function_exists('paypal_payment_revision')) {
-        paypal_payment_contact_save ($contact);
-    }
-    
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
