@@ -293,6 +293,28 @@ function command_member_membership_update () {
 }
 
 /**
+ * Handle membership delete request.
+ *
+ * @return The url to display on completion.
+ */
+function command_member_membership_delete () {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('member_membership_edit')) {
+        error_register('Permission denied: member_membership_edit');
+        return crm_url('members');
+    }
+    
+    // Delete membership
+    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    
+    return crm_url('members');
+}
+
+/**
  * Handle member filter request.
  *
  * @return The url to display on completion.
@@ -326,28 +348,6 @@ function command_member_filter () {
     }
     
     return crm_url('members') . $query;
-}
-
-/**
- * Handle membership delete request.
- *
- * @return The url to display on completion.
- */
-function command_member_membership_delete () {
-    global $esc_post;
-    
-    // Verify permissions
-    if (!user_access('member_membership_edit')) {
-        error_register('Permission denied: member_membership_edit');
-        return crm_url('members');
-    }
-    
-    // Delete membership
-    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    
-    return crm_url('members');
 }
 
 /**
