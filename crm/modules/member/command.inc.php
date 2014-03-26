@@ -118,13 +118,6 @@ function command_member_add () {
         if (!$res) crm_error(mysql_error());
     }
     
-    if (function_exists('paypal_payment_revision')) {
-        $create_paypal_contact = $_POST['create_paypal_contact'] ? '1' : '0';
-        if ($create_paypal_contact === '1') {
-            paypal_payment_contact_save ($contact);
-        }
-    }
-    
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
@@ -300,6 +293,28 @@ function command_member_membership_update () {
 }
 
 /**
+ * Handle membership delete request.
+ *
+ * @return The url to display on completion.
+ */
+function command_member_membership_delete () {
+    global $esc_post;
+    
+    // Verify permissions
+    if (!user_access('member_membership_edit')) {
+        error_register('Permission denied: member_membership_edit');
+        return crm_url('members');
+    }
+    
+    // Delete membership
+    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    
+    return crm_url('members');
+}
+
+/**
  * Handle member filter request.
  *
  * @return The url to display on completion.
@@ -333,28 +348,6 @@ function command_member_filter () {
     }
     
     return crm_url('members') . $query;
-}
-
-/**
- * Handle membership delete request.
- *
- * @return The url to display on completion.
- */
-function command_member_membership_delete () {
-    global $esc_post;
-    
-    // Verify permissions
-    if (!user_access('member_membership_edit')) {
-        error_register('Permission denied: member_membership_edit');
-        return crm_url('members');
-    }
-    
-    // Delete membership
-    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    
-    return crm_url('members');
 }
 
 /**
@@ -399,33 +392,6 @@ function command_member_import () {
             $row[$new_key] = $value;
         }
         
-        // Add contact
-        $firstName = mysql_real_escape_string($row['firstname']);
-        $middleName = mysql_real_escape_string($row['middlename']);
-        $lastName = mysql_real_escape_string($row['lastname']);
-        $email = mysql_real_escape_string($row['email']);
-        $phone = mysql_real_escape_string($row['phone']);
-        $emergencyName = mysql_real_escape_string($row['emergencyname']);
-        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
-        $sql = "
-            INSERT INTO `contact`
-            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
-            VALUES
-            ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $cid = mysql_insert_id();
-        $esc_cid = mysql_real_escape_string($cid);
-        
-        // Add member
-        $sql = "
-            INSERT INTO `member`
-            (`cid`)
-            VALUES
-            ('$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        
         // Find Username
         $username = $row['username'];
         $n = 0;
@@ -453,28 +419,38 @@ function command_member_import () {
             return crm_url('members&tab=import');
         }
         
+        // Add contact
+        $firstName = mysql_real_escape_string($row['firstname']);
+        $middleName = mysql_real_escape_string($row['middlename']);
+        $lastName = mysql_real_escape_string($row['lastname']);
+        $email = mysql_real_escape_string($row['email']);
+        $phone = mysql_real_escape_string($row['phone']);
+        $emergencyName = mysql_real_escape_string($row['emergencyname']);
+        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
+        $sql = "
+            INSERT INTO `contact`
+            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
+            VALUES
+            ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        $cid = mysql_insert_id();
+        $esc_cid = mysql_real_escape_string($cid);
+        
+        // Add member
+        $sql = "
+            INSERT INTO `member`
+            (`cid`)
+            VALUES
+            ('$esc_cid')";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        
         // Add user
         $user = array();
         $user['username'] = $username;
         $user['cid'] = $cid;
         user_save($user);
-        
-        // Add role entry
-        $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $role_row = mysql_fetch_assoc($res);
-        $esc_rid = mysql_real_escape_string($role_row['rid']);
-        
-        if ($role_row) {
-            $sql = "
-                INSERT INTO `user_role`
-                (`cid`, `rid`)
-                VALUES
-                ('$esc_cid', '$esc_rid')";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
-        }
         
         // Add plan if necessary
         $esc_plan_name = mysql_real_escape_string($row['plan']);
@@ -508,6 +484,23 @@ function command_member_import () {
         ";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
+        
+        // Add role entry
+        $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        $role_row = mysql_fetch_assoc($res);
+        $esc_rid = mysql_real_escape_string($role_row['rid']);
+        
+        if ($role_row) {
+            $sql = "
+                INSERT INTO `user_role`
+                (`cid`, `rid`)
+                VALUES
+                ('$esc_cid', '$esc_rid')";
+            $res = mysql_query($sql);
+            if (!$res) crm_error(mysql_error());
+        }
         
         if (function_exists('paypal_payment_revision')) {
             $contact['email']=$email;

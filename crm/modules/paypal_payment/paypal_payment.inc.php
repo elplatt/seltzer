@@ -169,6 +169,26 @@ function paypal_payment_contact_data ($opts = array()) {
 // Contact & Payment addition, deletion, update ////////////////////////////////
 
 /**
+ * Update paypal payment contact data when a contact is updated.
+ * @param $contact The contact data array.
+ * @param $op The operation being performed.
+ */
+function paypal_payment_contact_api ($contact, $op) {
+    switch ($op) {
+        case 'create':
+            paypal_payment_contact_save ($contact);
+            break;
+        case 'update':
+            // TODO
+            break;
+        case 'delete':
+            paypal_payment_contact_delete($contact);
+            break;
+    }
+    return $contact;
+}
+
+/**
  * Save a paypal contact.  If the name is already in the database,
  * the mapping is updated.  When updating the mapping, any fields that are not
  * set are not modified.
@@ -216,7 +236,7 @@ function paypal_payment_contact_delete ($paypal_payment_contact) {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     if (mysql_affected_rows() > 0) {
-        message_register('Contact info deleted.');
+        message_register('Paypal contact info deleted for: ' . theme('contact_name', $esc_cid));
     }
     return crm_url('paypal-admin');
 }
@@ -544,19 +564,6 @@ function paypal_payment_form_alter(&$form, $form_id) {
                 }
             }
         }
-    }
-    if ($form_id === 'member_add') {
-        $form['fields'][] = array(
-            'type' => 'fieldset',
-            'label' => 'Paypal Contact',
-            'fields' => array(
-                array(
-                    'type' => 'checkbox',
-                    'label' => 'Create Paypal Contact',
-                    'name' => 'create_paypal_contact'
-                )
-            )
-        );
     }
     return $form;
 }
