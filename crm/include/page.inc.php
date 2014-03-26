@@ -55,7 +55,7 @@ function core_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         
         case '<front>':
-            page_add_content_top($page_data, '<p>Welcome to SeltzerCRM!</p>');
+            page_add_content_top($page_data, '<p>Welcome to ' . title() . '!</p>');
             break;
         case 'install':
             page_add_content_top($page_data, theme('form', module_install_form()));

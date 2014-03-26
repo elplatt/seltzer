@@ -11,7 +11,7 @@
     Examples:
     We have one called "Respected", which entitles a member to get a physical key to the building....
     Or one called "Machinist", which means they have passed basic safety assessment to permit them to use our Mill/Lathe.
-    It's kinda like an extension to the Permissions system, but for managing things external to SeltzerCRM.
+    It's kinda like an extension to the Permissions system, but for managing things external to Seltzer.
 
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
