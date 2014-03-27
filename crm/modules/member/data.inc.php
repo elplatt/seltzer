@@ -71,7 +71,7 @@ function member_data ($opts = array()) {
     }
     $sql .= " GROUP BY `member`.`cid` ";
     $sql .= " ORDER BY `lastName`, `firstName`, `middleName` ASC ";
-
+    
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     
@@ -275,7 +275,7 @@ function member_plan_data ($opts = array()) {
         $pid = mysql_real_escape_string($opts[pid]);
         $sql .= " AND `plan`.`pid`='$pid' ";
     }
-
+    
     // Query database for plans
     $res = mysql_query($sql);
     if (!$res) { crm_error(mysql_error()); }
