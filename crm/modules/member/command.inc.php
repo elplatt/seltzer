@@ -469,23 +469,6 @@ function command_member_import () {
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
         
-        // Add role entry
-        $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $role_row = mysql_fetch_assoc($res);
-        $esc_rid = mysql_real_escape_string($role_row['rid']);
-        
-        if ($role_row) {
-            $sql = "
-                INSERT INTO `user_role`
-                (`cid`, `rid`)
-                VALUES
-                ('$esc_cid', '$esc_rid')";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
-        }
-        
         if (function_exists('paypal_payment_revision')) {
             $contact['email']=$email;
             $contact['cid']=$esc_cid;
