@@ -292,6 +292,27 @@ function member_plan_data ($opts = array()) {
 }
 
 /**
+ * Generates an associative array mapping membership plan pids to
+ * strings describing those membership plan.
+ * 
+ * @param $opts Options to be passed to member_plan_data().
+ * @return The associative array of membership plan descriptions.
+ */
+function member_plan_options ($opts = NULL) {
+    
+    // Get plan data
+    $plans = member_plan_data($opts);
+    
+    // Add option for each member plan
+    $options = array();
+    foreach ($plans as $plan) {
+        $options[$plan['pid']] = "$plan[name] - $plan[price]";
+    }
+    
+    return $options;
+}
+
+/**
  * Return data for one or more memberships.
  *
  * @param $opts An associative array of options, possible keys are:
@@ -413,27 +434,6 @@ function member_membership_save ($membership) {
         $membership['sid'] = mysql_insert_id();
     }
     return $membership;
-}
-
-/**
- * Generates an associative array mapping membership plan pids to
- * strings describing those membership plan.
- * 
- * @param $opts Options to be passed to member_plan_data().
- * @return The associative array of membership plan descriptions.
- */
-function member_plan_options ($opts = NULL) {
-    
-    // Get plan data
-    $plans = member_plan_data($opts);
-    
-    // Add option for each member plan
-    $options = array();
-    foreach ($plans as $plan) {
-        $options[$plan['pid']] = "$plan[name] - $plan[price]";
-    }
-    
-    return $options;
 }
 
 /**
