@@ -54,6 +54,9 @@ function theme_login_status () {
     if (user_id()) {
         $output .= 'Welcome, ' . theme('contact_name', user_id(), true) . '. <a href="index.php?command=logout">Log out</a>';
     } else {
+        if (function_exists('register_revision')) {
+            $output .= '<a href='. crm_url('register') . '>Register</a>&nbsp;&nbsp;&nbsp;';
+        }
         $output .= '<a href='. crm_url('login') . '>Log in</a>&nbsp;&nbsp;&nbsp;';
         $output .= '<a href='. crm_url('reset') . '>Reset password</a>';
     }

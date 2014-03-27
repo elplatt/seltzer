@@ -27,6 +27,7 @@ function core_page_list () {
     $pages = array();
     $pages[] = '<front>';
     $pages[] = 'install';
+    $pages[] = 'register';
     $pages[] = 'login';
     $pages[] = 'reset';
     $pages[] = 'reset-confirm';
@@ -59,6 +60,9 @@ function core_page (&$page_data, $page_name, $options) {
             break;
         case 'install':
             page_add_content_top($page_data, theme('form', module_install_form()));
+            break;
+        case 'register':
+            page_add_content_top($page_data, theme('form', register_form()));
             break;
         case 'login':
             page_add_content_top($page_data, theme('login_form'));

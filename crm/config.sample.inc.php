@@ -97,6 +97,9 @@ $config_modules[] = "amazon_payment";
 // Developer tools
 //$config_modules[] = "devel";
 
+// User self-registration
+//$config_modules[] = "register";
+
 // Links to show in the main menu
 $config_links = array(
     '<front>' => 'Home'
