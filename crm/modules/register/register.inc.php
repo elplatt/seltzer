@@ -5,7 +5,7 @@
     Copyright 2013-2014 Chris Murray <chris.f.murray@hotmail.co.uk>
 
     This file is part of the Seltzer CRM Project
-    register.inc.php - LDAP interface module
+    register.inc.php - registration module
 
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
