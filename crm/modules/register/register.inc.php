@@ -164,23 +164,7 @@ function command_register () {
     // Save to database
     $contact = contact_save($contact);
     
-    // Add role entry
-    $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $row = mysql_fetch_assoc($res);
     $esc_cid = mysql_real_escape_string($contact['cid']);
-    $esc_rid = mysql_real_escape_string($row['rid']);
-    
-    if ($row) {
-        $sql = "
-            INSERT INTO `user_role`
-            (`cid`, `rid`)
-            VALUES
-            ('$esc_cid', '$esc_rid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-    }
     
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
