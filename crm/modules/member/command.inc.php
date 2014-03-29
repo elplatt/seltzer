@@ -503,18 +503,16 @@ function command_member_plan_import () {
         }
         
         // Add plan
-        $name = mysql_real_escape_string($row['planname']);
-        $price = mysql_real_escape_string($row['price']);
-        $active = mysql_real_escape_string($row['active']);
-        $voting = mysql_real_escape_string($row['voting']);
-        $sql = "
-            INSERT INTO `plan`
-            (`name`,`price`,`active`,`voting`)
-            VALUES
-            ('$name','$price','$active','$voting')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $pid = mysql_insert_id();
+        $plan = array(
+            'name' => $row['name']
+            , 'price' => $row['price']
+            , 'voting' => $row['voting'] ? '1' : '0'
+            , 'active' => $row['active'] ? '1' : '0'
+            , 'pid' => $row['pid']
+        );
+        
+        // Add plan
+        member_plan_save($plan);
     }
     
     return crm_url('plans');
