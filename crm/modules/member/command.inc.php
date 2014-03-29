@@ -356,6 +356,27 @@ function command_member_import () {
             $row[$new_key] = $value;
         }
         
+        // Add plan if necessary
+        $esc_plan_name = mysql_real_escape_string($row['plan']);
+        $sql = "SELECT `pid` FROM `plan` WHERE `name`='$esc_plan_name'";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        if (mysql_num_rows($res) < 1) {
+            
+            $plan = array(
+                'name' => $esc_plan_name
+                , 'price' => '0'
+                , 'voting' => '0'
+                , 'active' => '1'
+                , 'pid' => $_POST['pid']
+            );
+            
+            member_plan_save($plan);
+        } else {
+            $plan_row = mysql_fetch_assoc($res);
+            $pid = $plan_row['pid'];
+        }
+        
         // Find Username
         $username = $row['username'];
         $n = 0;
@@ -415,26 +436,6 @@ function command_member_import () {
         $user['username'] = $username;
         $user['cid'] = $esc_cid;
         user_save($user);
-        
-        // Add plan if necessary
-        $esc_plan_name = mysql_real_escape_string($row['plan']);
-        $sql = "SELECT `pid` FROM `plan` WHERE `name`='$esc_plan_name'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        if (mysql_num_rows($res) < 1) {
-            $sql = "
-                INSERT INTO `plan`
-                (`name`, `active`, `price`, `voting`)
-                VALUES
-                ('$esc_plan_name', '1', '0', '0' )
-            ";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
-            $pid = mysql_insert_id();
-        } else {
-            $plan_row = mysql_fetch_assoc($res);
-            $pid = $plan_row['pid'];
-        }
         
         // Add membership
         $esc_start = mysql_real_escape_string($row['startdate']);
