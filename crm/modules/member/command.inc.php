@@ -370,8 +370,10 @@ function command_member_import () {
                 , 'active' => '1'
                 , 'pid' => $_POST['pid']
             );
-            
             member_plan_save($plan);
+            $res = mysql_query($sql);
+            $plan_row = mysql_fetch_assoc($res);
+            $pid = $plan_row['pid'];
         } else {
             $plan_row = mysql_fetch_assoc($res);
             $pid = $plan_row['pid'];
