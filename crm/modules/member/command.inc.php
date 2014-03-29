@@ -407,55 +407,37 @@ function command_member_import () {
         }
         
         // Add contact
-        $firstName = mysql_real_escape_string($row['firstname']);
-        $middleName = mysql_real_escape_string($row['middlename']);
-        $lastName = mysql_real_escape_string($row['lastname']);
-        $email = mysql_real_escape_string($row['email']);
-        $phone = mysql_real_escape_string($row['phone']);
-        $emergencyName = mysql_real_escape_string($row['emergencyname']);
-        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
-        $sql = "
-            INSERT INTO `contact`
-            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
-            VALUES
-            ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $cid = mysql_insert_id();
-        $esc_cid = mysql_real_escape_string($cid);
-        
-        // Add member
-        $sql = "
-            INSERT INTO `member`
-            (`cid`)
-            VALUES
-            ('$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $contact = array(
+            'firstName' => $row['firstname']
+            , 'middleName' => $row['middlename']
+            , 'lastName' => $row['lastname']
+            , 'email' => $row['email']
+            , 'phone' => $row['phone']
+            , 'emergencyName' => $row['emergencyname']
+            , 'emergencyPhone' => $row['emergencyphone']
+        );
         
         // Add user
-        $user = array();
-        $user['username'] = $username;
-        $user['cid'] = $esc_cid;
-        user_save($user);
-        
+        $user = array('username' => $username);
+        $contact['user'] = $user;
         // Add membership
         $esc_start = mysql_real_escape_string($row['startdate']);
         $esc_pid = mysql_real_escape_string($pid);
-        
-        // Construct membership object and save
         $membership = array(
-            'cid' => $esc_cid
-            , 'pid' => $esc_pid
-            , 'start' => $esc_start
+            array(
+                'pid' => $esc_pid
+                , 'start' => $esc_start
+            )
         );
-        member_membership_save($membership);
+        $member = array('membership' => $membership);
+        $contact['member'] = $member;
+        // Add user
+        $user = array('username' => $username);
+        $contact['user'] = $user;
         
-        if (function_exists('paypal_payment_revision')) {
-            $contact['email']=$email;
-            $contact['cid']=$esc_cid;
-            paypal_payment_contact_save ($contact);
-        }
+        $contact = contact_save($contact);
+        
+        $esc_cid = mysql_real_escape_string($cid);
         
         // Notify admins
         $from = "\"$config_org_name\" <$config_email_from>";
