@@ -313,6 +313,44 @@ function member_plan_options ($opts = NULL) {
 }
 
 /**
+ * Saves or updates a membership plan
+ */
+function member_plan_save ($plan) {
+    
+    $esc_name = mysql_real_escape_string($plan['name']);
+    $esc_price = mysql_real_escape_string($plan['price']);
+    $esc_voting = mysql_real_escape_string($plan['voting']);
+    $esc_active = mysql_real_escape_string($plan['active']);
+    $esc_pid = mysql_real_escape_string($plan['pid']);
+    if (isset($plan['pid'])) {
+        // Update
+        $sql = "
+            UPDATE `plan`
+            SET
+                `name`='$esc_name',
+                `price`='$esc_price',
+                `active`='$esc_active',
+                `voting`='$esc_voting'
+            WHERE `pid`='$esc_pid'
+        ";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+    } else {
+        // Insert
+        $sql = "
+            INSERT INTO `plan`
+            (`name`,`price`, `voting`, `active`)
+            VALUES
+            ('$esc_name', '$esc_price', '$esc_voting', '$esc_active')
+        ";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        $plan['pid'] = mysql_insert_id();
+    }
+    return $plan;
+}
+
+/**
  * Deletes a membership plan
  */
 function member_plan_delete ($pid) {

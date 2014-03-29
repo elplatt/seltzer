@@ -125,10 +125,15 @@ function command_member_add () {
  * @return The url to display on completion.
  */
 function command_member_plan_add () {
-    $esc_name = mysql_real_escape_string($_POST['name']);
-    $esc_price = mysql_real_escape_string($_POST['price']);
-    $esc_voting = $_POST['voting'] ? '1' : '0';
-    $esc_active = $_POST['active'] ? '1' : '0';
+    global $esc_post;
+    
+    $plan = array(
+        'name' => $_POST['name']
+        , 'price' => $_POST['price']
+        , 'voting' => $_POST['voting'] ? '1' : '0'
+        , 'active' => $_POST['active'] ? '1' : '0'
+        , 'pid' => $_POST['pid']
+    );
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -137,15 +142,7 @@ function command_member_plan_add () {
     }
     
     // Add plan
-    $sql = "
-        INSERT INTO `plan`
-        (`name`,`price`, `voting`, `active`)
-        VALUES
-        ('$esc_name', '$esc_price', '$esc_voting', '$esc_active')
-    ";
-    
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_plan_save($plan);
     
     return crm_url('plans');
 }
@@ -156,11 +153,15 @@ function command_member_plan_add () {
  * @return The url to display on completion.
  */
 function command_member_plan_update () {
-    $esc_name = mysql_real_escape_string($_POST['name']);
-    $esc_price = mysql_real_escape_string($_POST['price']);
-    $esc_active = $_POST['active'] ? '1' : '0';
-    $esc_voting = $_POST['voting'] ? '1' : '0';
-    $esc_pid = mysql_real_escape_string($_POST['pid']);
+    global $esc_post;
+    
+    $plan = array(
+        'name' => $_POST['name']
+        , 'price' => $_POST['price']
+        , 'voting' => $_POST['voting'] ? '1' : '0'
+        , 'active' => $_POST['active'] ? '1' : '0'
+        , 'pid' => $_POST['pid']
+    );
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -169,18 +170,7 @@ function command_member_plan_update () {
     }
     
     // Update plan
-    $sql = "
-        UPDATE `plan`
-        SET
-            `name`='$esc_name',
-            `price`='$esc_price',
-            `active`='$esc_active',
-            `voting`='$esc_voting'
-        WHERE `pid`='$esc_pid'
-    ";
-    
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_plan_save($plan);
     
     return crm_url('plans');
 }
