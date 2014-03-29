@@ -487,6 +487,16 @@ function member_membership_save ($membership) {
 }
 
 /**
+ * Deletes a membership
+ */
+function member_membership_delete ($sid) {
+    $esc_sid = mysql_real_escape_string($sid);
+    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_sid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+}
+
+/**
  * Return data for one or more contacts.  Use contact_data() instead.
  * 
  * @param $opts An associative array of options, possible keys are:

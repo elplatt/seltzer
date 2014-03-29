@@ -236,6 +236,7 @@ function command_member_membership_add () {
  */
 function command_member_membership_update () {
     global $esc_post;
+    
     // Verify permissions
     if (!user_access('member_edit')) {
         error_register('Permission denied: member_edit');
@@ -272,11 +273,9 @@ function command_member_membership_delete () {
     }
     
     // Delete membership
-    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_membership_delete($esc_post['sid']);
     
-    return crm_url('members');
+    return crm_url("contact&cid=$_POST[cid]");
 }
 
 /**
