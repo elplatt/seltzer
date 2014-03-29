@@ -313,6 +313,18 @@ function member_plan_options ($opts = NULL) {
 }
 
 /**
+ * Deletes a membership plan
+ */
+function member_plan_delete ($pid) {
+    $esc_pid = mysql_real_escape_string($pid);
+    $description = theme('member_plan_description', $esc_pid);
+    $sql = "DELETE FROM `plan` WHERE `pid`='$esc_pid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    message_register("Deleted plan: $description");
+}
+
+/**
  * Return data for one or more memberships.
  *
  * @param $opts An associative array of options, possible keys are:

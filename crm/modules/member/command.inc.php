@@ -200,9 +200,7 @@ function command_member_plan_delete () {
     }
     
     // Delete plan
-    $sql = "DELETE FROM `plan` WHERE `pid`='$esc_post[pid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_plan_delete($esc_post['pid']);
     
     return crm_url('plans');
 }
