@@ -224,23 +224,16 @@ function command_member_membership_add () {
     }
     
     // Add membership
-    $sql = "
-        INSERT INTO `membership`
-        (`cid`,`pid`,`start`";
-    if (!empty($esc_post['end'])) {
-        $sql .= ", `end`";
-    }
-    $sql .= ")
-        VALUES
-        ('$esc_post[cid]','$esc_post[pid]','$esc_post[start]'";
-        
-    if (!empty($esc_post['end'])) {
-        $sql .= ",'$esc_post[end]'";
-    }
-    $sql .= ")";
     
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    // Construct membership object and save
+    $membership = array(
+        'sid' => $_POST['sid']
+        , 'cid' => $_POST['cid']
+        , 'pid' => $_POST['pid']
+        , 'start' => $_POST['start']
+        , 'end' => $_POST['end']
+    );
+    member_membership_save($membership);
     
     return crm_url("contact&cid=$_POST[cid]");
 }
@@ -431,7 +424,7 @@ function command_member_import () {
         // Add user
         $user = array();
         $user['username'] = $username;
-        $user['cid'] = $cid;
+        $user['cid'] = $esc_cid;
         user_save($user);
         
         // Add plan if necessary
@@ -458,14 +451,13 @@ function command_member_import () {
         $esc_start = mysql_real_escape_string($row['startdate']);
         $esc_pid = mysql_real_escape_string($pid);
         
-        $sql = "
-            INSERT INTO `membership`
-            (`cid`, `pid`, `start`)
-            VALUES
-            ('$esc_cid', '$esc_pid', '$esc_start')
-        ";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        // Construct membership object and save
+        $membership = array(
+            'cid' => $esc_cid
+            , 'pid' => $esc_pid
+            , 'start' => $esc_start
+        );
+        member_membership_save($membership);
         
         if (function_exists('paypal_payment_revision')) {
             $contact['email']=$email;
