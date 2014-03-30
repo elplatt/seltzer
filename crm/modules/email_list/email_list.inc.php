@@ -24,6 +24,21 @@ function email_list_revision () {
     return 1;
 }
 
+/**
+ * @return An array of the permissions provided by this module.
+ */
+function email_list_permissions () {
+    return array(
+        'email_list_view'
+        , 'email_list_edit'
+        , 'email_list_delete'
+        , 'email_list_subscribe'
+        , 'email_list_unsubscribe'
+    );
+}
+
+
+
 // Installation functions //////////////////////////////////////////////////////
 
 /**
@@ -35,7 +50,7 @@ function email_list_install ($old_revision = 0) {
     if ($old_revision < 1) {
         // Create a table to associate email addresses with a CID
         $sql = '
-            CREATE TABLE IF NOT EXISTS `email_list_associations` (
+            CREATE TABLE IF NOT EXISTS `email_list_subscriptions` (
               `lid` mediumint(8) unsigned NOT NULL,
               `cid` mediumint(8) unsigned NOT NULL,
               `email` varchar(255) NOT NULL,
@@ -48,13 +63,42 @@ function email_list_install ($old_revision = 0) {
         // Create a table to associate email list names with a LID (list ID)
         $sql = '
               CREATE TABLE IF NOT EXISTS `email_lists` (
-              `lid` mediumint(8) unsigned NOT NULL,
+              `lid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
               `list_name` varchar(255) NOT NULL,
               PRIMARY KEY (`lid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ';
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
+        
+        //Set Permissions
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        $default_perms = array(
+            'director' => array('email_list_view', 'email_list_edit', 'email_list_delete'
+                                , 'email_list_subscribe', 'email_list_unsubscribe')
+            , 'webAdmin' => array('email_list_view', 'email_list_edit', 'email_list_delete'
+                                  , 'email_list_subscribe', 'email_list_unsubscribe')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysql_real_escape_string($rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysql_real_escape_string($perm);
+                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
+                    $res = mysql_query($sql);
+                    if (!$res) die(mysql_error());
+                }
+            }
+        }
     }
 }
 // Pages ///////////////////////////////////////////////////////////////////////
@@ -89,15 +133,16 @@ function email_list_page (&$page_data, $page_name) {
             
             // Add email lists tab
             if (user_access('contact_view') || user_access('contact_edit') || user_access('contact_delete') || $cid == user_id()) {
-                $email_lists = theme('table', 'email_lists', array('cid' => $cid));
+                $email_lists = theme('table', 'email_list', array('cid' => $cid));
                 $email_lists .= theme('email_list_subscribe_form', $cid);
                 page_add_content_bottom($page_data, $email_lists, 'Emails');
             }
             break;
         case 'email_lists':
             page_set_title($page_data, 'Email Lists');
-            if (user_access('email_lists_view')) {
-                $email_lists = theme('table', 'email_lists', array('join'=>array('contact', 'member'), 'show_export'=>true));
+            if (user_access('contact_view')) {
+                $email_lists = theme('table', 'email_list', array('join'=>array('contact', 'member'), 'show_export'=>false));
+                $email_lists .= theme('email_list_create_form', $cid);
                 page_add_content_top($page_data, $email_lists, 'View');
             }
             break;
@@ -117,13 +162,16 @@ function email_list_page (&$page_data, $page_name) {
  * @return An array with each element representing a single key card assignment.
 */ 
 function email_list_data ($opts = array()) {
-    // Query database
+    // Query database for subscriptions
     $sql = "
         SELECT
-        `lid`
+        `email_list_subscriptions`.`lid`
+        , `email_lists`.`list_name`
         , `cid`
         , `email`
-        FROM `email_list_associations`
+        FROM `email_list_subscriptions`
+        INNER JOIN `email_lists`
+        ON `email_list_subscriptions`.`lid`=`email_lists`.`lid`
         WHERE 1";
     if (!empty($opts['lid'])) {
         $esc_lid = mysql_real_escape_string($opts['lid']);
@@ -148,15 +196,15 @@ function email_list_data ($opts = array()) {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     // Store data
-    $email_list_associations = array();
+    $email_list_subscriptions = array();
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
         // Contents of row are lid, cid, email
-        $email_list_associations[] = $row;
+        $email_list_subscriptions[] = $row;
         $row = mysql_fetch_assoc($res);
     }
     // Return data
-    return $email_list_associations;
+    return $email_list_subscriptions;
 }
 
 /**
@@ -179,12 +227,12 @@ function email_list_data_alter ($type, $data = array(), $opts = array()) {
             $email_list_opts['cid'] = $cids;
             // Get an array of email list subscriptions for each cid
             $email_list_data = crm_get_data('email_list', $email_list_opts);
-            // Create a map from cid to an array of key structures
+            // Create a map from cid to an array of list subscriptions
             $cid_to_email_lists = array();
             foreach ($email_list_data as $subscription) {
                 $cid_to_email_lists[$subscription['cid']][] = $subscription;
             }
-            // Add key structures to the contact structures
+            // Add email subscription structures to the contact structures
             foreach ($data as $i => $contact) {
                 if (array_key_exists($contact['cid'], $cid_to_email_lists)) {
                     $email_lists = $cid_to_email_lists[$contact['cid']];
@@ -250,6 +298,7 @@ function email_list_save ($subscription) {
  * @param $lid The list id of the list to delete
  */
 function email_list_delete ($lid) {
+    
     $esc_lid = mysql_real_escape_string($lid);
     $sql = "DELETE FROM `email_lists` WHERE `lid`='$esc_lid'";
     $res = mysql_query($sql);
@@ -257,8 +306,33 @@ function email_list_delete ($lid) {
     if (mysql_affected_rows() > 0) {
         message_register('List deleted.');
     }
-    //TODO: also delete any subscriptions that are associated with this list.
     
+    //delete any subscriptions that are associated with this list.
+    $sql = "DELETE FROM `email_list_subscriptions` WHERE `lid`='$esc_lid'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_affected_rows() > 0) {
+        message_register('Associated subscriptions deleted.');
+    }
+}
+
+/**
+ * Delete a subscription.
+ * @param $subscription The subscription structure to delete, must have both 'cid' and 'lid' element.
+ */
+function email_list_unsubscribe ($subscription) {
+    $esc_lid = mysql_real_escape_string($subscription['lid']);
+    $esc_cid = mysql_real_escape_string($subscription['cid']);
+
+    $sql = "DELETE FROM `email_list_subscriptions` WHERE `lid`='$esc_lid' AND `cid`='$esc_cid'";
+    $res = mysql_query($sql);
+    if (!$res) die(mysql_error());
+    if (mysql_affected_rows() > 0) {
+        message_register('Subscription deleted.');
+    } if (mysql_affected_rows() > 1){
+        error_register("More than one subscription was deleted. This shouldn't happen
+                       under normal circumstances. Please make sure your database is okay!");
+    }
 }
 
 
@@ -270,7 +344,7 @@ function email_list_delete ($lid) {
  * @param $opts The options to pass to email_list_data().
  * @return The table structure.
 */
-function email_lists_table ($opts) {
+function email_list_table ($opts) {
     // Determine settings
     $export = false;
     foreach ($opts as $option => $value) {
@@ -303,7 +377,7 @@ function email_lists_table ($opts) {
     if (user_access('contact_view') || $opts['cid'] == user_id()) {
         if ($export) {
             $table['columns'][] = array("title"=>'cid', 'class'=>'', 'id'=>'');
-            $table['columns'][] = array("title"=>'lid'. 'class'=>'', 'id'=>'');
+            $table['columns'][] = array("title"=>'lid', 'class'=>'', 'id'=>'');
         }
         $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Email', 'class'=>'', 'id'=>'');
@@ -326,7 +400,7 @@ function email_lists_table ($opts) {
             $row[] = theme('contact_name', $cid_to_contact[$subscription['cid']], !$export);
             $row[] = $subscription['email'];
             //fetch list_name here.
-            $row[] = $key['list_name'];
+            $row[] = $subscription['list_name'];
         }
         if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
             // Construct ops array
@@ -338,7 +412,7 @@ function email_lists_table ($opts) {
             }
             // Add delete op
             if (user_access('contact_delete')) {
-                //$ops[] = '<a href=' . crm_url('delete&type=key&id=' . $key['kid']) . '>delete</a>';
+                $ops[] = '<a href=' . crm_url('unsubscribe&type=email_list&cid=' . $subscription['cid']) . '&lid=' . $subscription['lid']. '>unsubscribe</a>';
             }
             // Add ops row
             $row[] = join(' ', $ops);
@@ -369,28 +443,30 @@ function email_list_options () {
     
     $sql = '
      SELECT
-        `list_name`
+        `lid`
+        ,`list_name`
         FROM `email_lists`
-        WHERE 1";
+        WHERE 1
     ';
     $sql .= "
-        ORDER BY `list_name`, `lid` ASC";
+        ORDER BY `list_name`, `lid` ASC
+    ";
+    
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     // Store data
-    $keys = array();
+    $lists = array();
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
-        // Contents of row are list_name
-        $keys[] = $row;
+        // Contents of row are lid, list_name
+        $lists[] = $row;
         $row = mysql_fetch_assoc($res);
     }
     
     // put email lists into an options array
-    foreach ($keys as $key){
-        $options[] = $key['list_name'];
+    foreach ($lists as $list){
+        $options[$list['lid']] = $list['list_name'];
     }
-
     return $options;
 }
 
@@ -416,9 +492,9 @@ function email_list_subscribe_form ($cid) {
                         , 'value' => 'Use this form to subscribe a contact to an email list'
                     )
                     ,array(
-                        'type' => 'text'
+                        'type' => 'select'
                         , 'label' => 'Email List'
-                        , 'name' => 'list_name'
+                        , 'name' => 'lid'
                         , 'options' => email_list_options()
                     )
                     , array(
@@ -488,7 +564,7 @@ function command_email_list_subscribe () {
     if (/* email is valid */ true) {
         //save the email
         $esc_email = mysql_real_escape_string($email);
-        $sql = "INSERT INTO `email_list_associations` (`lid`, `cid`, `email`) VALUES ('$lid', '$cid', '$esc_email')";
+        $sql = "INSERT INTO `email_list_subscriptions` (`lid`, `cid`, `email`) VALUES ('$lid', '$cid', '$esc_email')";
         $res = mysql_query($sql);
         if (!$res) die(mysql_error());
         
@@ -498,6 +574,25 @@ function command_email_list_subscribe () {
 
     } 
     return crm_url('contact&cid=' . $cid);
+}
+
+
+/**
+ * Handle email list unsubscribe request.
+ *
+ * @return The url to display on completion.
+ */
+function command_email_list_unsubscribe () {
+    global $esc_post;
+    
+    // Verify permissions
+    //TODO: fix or add this permission. this is just for testing right now
+    if (!user_access('email_list_unsubscribe') && False ) {
+        error_register('Permission denied: email_list_unsubscribe');
+        return crm_url('contact&cid=' . $esc_post['cid']);
+    }
+    email_list_unsubscribe($_POST);
+    return crm_url('contact&cid=' . $esc_post['cid'] . '#tab-emails');
 }
 
 /**
@@ -519,6 +614,49 @@ function command_email_list_create () {
     
     message_register('Email List created');
     return crm_url('email_lists');
+}
+
+/**
+ * Handle email list delete request.
+ *
+ * @return The url to display on completion.
+ */
+function command_email_list_delete () {
+    global $esc_post;
+    
+    //verify permissions first
+    if (!user_access('email_list_delete') && False) {
+        error_register('Permission denied: email_list_delete');
+        return crm_url('email_lists');
+    }
+    email_list_delete($esc_post['lid']);
+
+    return crm_url('email_lists');
+}
+
+
+
+
+// Themeing ////////////////////////////////////////////////////////////////////
+
+/**
+ * Return the themed html for an email list creation form.
+ *
+ * @param $cid The id of the contact to add a key assignment for.
+ * @return The themed html string.
+ */
+function theme_email_list_create_form ($cid) {
+    return theme('form', crm_get_form('email_list_create', $cid));
+}
+
+/**
+ * Return themed html for an email list subscribe form.
+ *
+ * @param $cid The cid of the contact to subscribe
+ * @return The themed html string.
+ */
+function theme_email_list_subscribe_form ($cid) {
+    return theme('form', crm_get_form('email_list_subscribe', $cid));
 }
 
 ?>
