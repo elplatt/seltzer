@@ -43,7 +43,7 @@ function theme_member_contact_table ($opts = NULL) {
 /**
  * Returned the themed html for edit member form.
  *
- * @param $cid The cd of the member to edit.
+ * @param $cid The cid of the member to edit.
  * @return The themed html.
 */
 function theme_member_edit_form ($cid) {

@@ -71,7 +71,7 @@ function member_data ($opts = array()) {
     }
     $sql .= " GROUP BY `member`.`cid` ";
     $sql .= " ORDER BY `lastName`, `firstName`, `middleName` ASC ";
-
+    
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     
@@ -215,6 +215,22 @@ function member_contact_api ($contact, $op) {
                     $contact['member']['membership'][$i] = $membership;
                 }
             }
+            // Add role entry
+            $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
+            $res = mysql_query($sql);
+            if (!$res) crm_error(mysql_error());
+            $row = mysql_fetch_assoc($res);
+            $esc_rid = mysql_real_escape_string($row['rid']);
+            
+            if ($row) {
+                $sql = "
+                    INSERT INTO `user_role`
+                    (`cid`, `rid`)
+                    VALUES
+                    ('$esc_cid', '$esc_rid')";
+                $res = mysql_query($sql);
+                if (!$res) crm_error(mysql_error());
+            }
             break;
         case 'update':
             // TODO
@@ -275,7 +291,7 @@ function member_plan_data ($opts = array()) {
         $pid = mysql_real_escape_string($opts[pid]);
         $sql .= " AND `plan`.`pid`='$pid' ";
     }
-
+    
     // Query database for plans
     $res = mysql_query($sql);
     if (!$res) { crm_error(mysql_error()); }
@@ -289,6 +305,77 @@ function member_plan_data ($opts = array()) {
     }
     
     return $plans;
+}
+
+/**
+ * Generates an associative array mapping membership plan pids to
+ * strings describing those membership plan.
+ * 
+ * @param $opts Options to be passed to member_plan_data().
+ * @return The associative array of membership plan descriptions.
+ */
+function member_plan_options ($opts = NULL) {
+    
+    // Get plan data
+    $plans = member_plan_data($opts);
+    
+    // Add option for each member plan
+    $options = array();
+    foreach ($plans as $plan) {
+        $options[$plan['pid']] = "$plan[name] - $plan[price]";
+    }
+    
+    return $options;
+}
+
+/**
+ * Saves or updates a membership plan
+ */
+function member_plan_save ($plan) {
+    
+    $esc_name = mysql_real_escape_string($plan['name']);
+    $esc_price = mysql_real_escape_string($plan['price']);
+    $esc_voting = mysql_real_escape_string($plan['voting']);
+    $esc_active = mysql_real_escape_string($plan['active']);
+    $esc_pid = mysql_real_escape_string($plan['pid']);
+    if (isset($plan['pid'])) {
+        // Update
+        $sql = "
+            UPDATE `plan`
+            SET
+                `name`='$esc_name',
+                `price`='$esc_price',
+                `active`='$esc_active',
+                `voting`='$esc_voting'
+            WHERE `pid`='$esc_pid'
+        ";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+    } else {
+        // Insert
+        $sql = "
+            INSERT INTO `plan`
+            (`name`,`price`, `voting`, `active`)
+            VALUES
+            ('$esc_name', '$esc_price', '$esc_voting', '$esc_active')
+        ";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        $plan['pid'] = mysql_insert_id();
+    }
+    return $plan;
+}
+
+/**
+ * Deletes a membership plan
+ */
+function member_plan_delete ($pid) {
+    $esc_pid = mysql_real_escape_string($pid);
+    $description = theme('member_plan_description', $esc_pid);
+    $sql = "DELETE FROM `plan` WHERE `pid`='$esc_pid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
+    message_register("Deleted plan: $description");
 }
 
 /**
@@ -416,24 +503,13 @@ function member_membership_save ($membership) {
 }
 
 /**
- * Generates an associative array mapping membership plan pids to
- * strings describing those membership plan.
- * 
- * @param $opts Options to be passed to member_plan_data().
- * @return The associative array of membership plan descriptions.
+ * Deletes a membership
  */
-function member_plan_options ($opts = NULL) {
-    
-    // Get plan data
-    $plans = member_plan_data($opts);
-    
-    // Add option for each member plan
-    $options = array();
-    foreach ($plans as $plan) {
-        $options[$plan['pid']] = "$plan[name] - $plan[price]";
-    }
-    
-    return $options;
+function member_membership_delete ($sid) {
+    $esc_sid = mysql_real_escape_string($sid);
+    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_sid'";
+    $res = mysql_query($sql);
+    if (!$res) crm_error(mysql_error());
 }
 
 /**
