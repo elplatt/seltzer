@@ -385,7 +385,7 @@ function user_contact_api ($contact, $op) {
  * @return an array representing the user that was saved in the database.
  */
 function user_save ($user) {
-    // First figure out wether the user is in the database or not
+    // First figure out whether the user is in the database or not
     $opts = array();
     $opts['cid'] = $user['cid'];
     $user_array = user_data($opts);
