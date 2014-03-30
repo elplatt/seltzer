@@ -20,7 +20,7 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Members
+// Members /////////////////////////////////////////////////////////////////////
 
 /**
  * @return The form structure for adding a member.
@@ -134,7 +134,7 @@ function member_delete_form ($cid) {
     return $form;
 }
 
-// Plans
+// Plans ///////////////////////////////////////////////////////////////////////
 
 /**
  * @return The form structure for adding a membership plan.
@@ -303,7 +303,7 @@ function member_plan_delete_form ($pid) {
     return $form;
 }
 
-// Memberships
+// Memberships /////////////////////////////////////////////////////////////////
 
 /**
  * Return the form structure for adding a membership.
@@ -499,7 +499,7 @@ function member_membership_delete_form ($sid) {
     return $form;
 }
 
-// Filters
+// Filters /////////////////////////////////////////////////////////////////////
 
 /**
  * Return the form structure for a member filter.
@@ -552,7 +552,7 @@ function member_filter_form () {
     return $form;
 }
 
-// Imports
+// Imports /////////////////////////////////////////////////////////////////////
 
 /**
  * @return the form structure for a member import form.
