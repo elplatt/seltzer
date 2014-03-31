@@ -27,7 +27,7 @@
  */
 function member_install($old_revision = 0) {
     if ($old_revision == 1) {
-        error_log('The database version is too old to upgrade to this release of Seltzer.  Please upgrade one release at a time.');
+        error_log('The database version is too old to upgrade to this release of ' . title(). '.  Please upgrade one release at a time.');
         return;
     }
     // Initial installation

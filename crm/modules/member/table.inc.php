@@ -79,7 +79,7 @@ function member_table ($opts = NULL) {
     if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
-
+    
     // Loop through member data
     foreach ($members as $member) {
         
@@ -238,7 +238,7 @@ function member_plan_table ($opts = NULL) {
         $table['columns'][] = array('title'=>'Voting','class'=>'');
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
-
+    
     // Loop through plan data
     foreach ($plans as $plan) {
         
