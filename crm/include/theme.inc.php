@@ -105,7 +105,7 @@ function theme_navigation_link ($path, $title) {
  * @return The themed html for a delete confirmation form.
 */
 function theme_delete_form ($type, $id) {
-    return theme('form', delete_form($type, $id));
+    return theme('form', crm_get_form('delete', $type, $id));
 }
 
 ?>
