@@ -333,7 +333,7 @@ function amazon_payment_page (&$page_data, $page_name, $options) {
             break;
         case 'amazon-admin':
             page_set_title($page_data, 'Administer Amazon Contacts');
-            page_add_content_top($page_data, theme('table', 'amazon_payment_contact', array('show_export'=>true)), 'View');
+            page_add_content_top($page_data, theme('table', crm_get_table('amazon_payment_contact', array('show_export'=>true)), 'View'));
             page_add_content_top($page_data, theme('form', crm_get_form('amazon_payment_contact_add')), 'Add');
             break;
     }
