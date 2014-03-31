@@ -830,7 +830,7 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('plan_meta_view') || user_access('plan_meta_edit') || user_access('plan_meta_delete')) {
-                page_add_content_top($page_data, theme('plan_meta_edit_form', $pmid), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('plan_meta_edit_form', $pmid)), 'Edit');
             }
             
             break;
