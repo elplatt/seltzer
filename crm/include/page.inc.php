@@ -59,22 +59,22 @@ function core_page (&$page_data, $page_name, $options) {
             page_add_content_top($page_data, '<p>Welcome to ' . title() . '!</p>');
             break;
         case 'install':
-            page_add_content_top($page_data, theme('form', module_install_form()));
+            page_add_content_top($page_data, theme('form', crm_get_form('module_install')));
             break;
         case 'register':
-            page_add_content_top($page_data, theme('form', register_form()));
+            page_add_content_top($page_data, theme('form', crm_get_form('register')));
             break;
         case 'login':
-            page_add_content_top($page_data, theme('login_form'));
+            page_add_content_top($page_data, theme('form', crm_get_form('login')));
             break;
         case 'reset':
-            page_add_content_top($page_data, theme('user_reset_password_form'));
+            page_add_content_top($page_data, theme('form', crm_get_form('user_reset_password')));
             break;
         case 'reset-confirm':
-            page_add_content_top($page_data, theme('user_reset_password_confirm_form', $_GET['v']));
+            page_add_content_top($page_data, theme('form', crm_get_form('user_reset_password_confirm', $_GET['v'])));
             break;
         case 'delete':
-            page_add_content_top($page_data, theme('delete_form', $_GET['type'], $_GET['id']));
+            page_add_content_top($page_data, theme('form', crm_get_form('delete', $_GET['type'], $_GET['id'])));
             break;
         case 'reports':
             if (user_access('report_view')) {
@@ -84,14 +84,14 @@ function core_page (&$page_data, $page_name, $options) {
         case 'permissions':
             if (user_access('user_permissions_edit')) {
                 page_set_title($page_data, 'Permissions');
-                page_add_content_top($page_data, theme('form', user_permissions_form()));
+                page_add_content_top($page_data, theme('form', crm_get_form('user_permissions')));
             }
             break;
         case 'upgrade':
             if (user_access('module_upgrade')) {
                 page_set_title($page_data, 'Upgrade Modules');
-                $content = theme('table', 'module_upgrade');
-                $content .= theme('form', module_upgrade_form());
+                $content = theme('table', crm_get_table('module_upgrade'));
+                $content .= theme('form', crm_get_form('module_upgrade'));
                 page_add_content_top($page_data, $content);
             }
     }   
