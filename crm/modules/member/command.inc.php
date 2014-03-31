@@ -186,7 +186,7 @@ function command_member_plan_delete () {
     // Verify permissions
     if (!user_access('member_plan_edit')) {
         error_register('Permission denied: member_plan_edit');
-        return crm_url('members');
+        return crm_url('plans');
     }
     
     // Delete plan

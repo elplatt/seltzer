@@ -236,7 +236,7 @@ function member_contact_api ($contact, $op) {
             // TODO
             break;
         case 'delete':
-            member_delete($contact['cid']);
+            member_delete($esc_cid);
             break;
     }
     return $contact;
