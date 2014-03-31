@@ -78,62 +78,6 @@ function member_add_form () {
     return $form;
 }
 
-/**
- * Return the form structure to delete a member.
- *
- * @param $cid The cid of the member to delete.
- * @return The form structure.
-*/
-function member_delete_form ($cid) {
-    
-    // Ensure user is allowed to delete members
-    if (!user_access('member_delete')) {
-        return NULL;
-    }
-    
-    // Get member data
-    $data = member_data(array('cid'=>$cid));
-    $member = $data[0];
-    
-    // Construct member name
-    if (empty($member) || count($member) < 1) {
-        return array();
-    }
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'member_delete',
-        'hidden' => array(
-            'cid' => $member['contact']['cid']
-        ),
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Delete Member',
-                'fields' => array(
-                    array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the member "' . theme_contact_name($member['cid']) . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Delete all contact info?',
-                        'name' => 'deleteContact',
-                        'checked' => true
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
-                    )
-                )
-            )
-        )
-    );
-    
-    return $form;
-}
-
 // Plans ///////////////////////////////////////////////////////////////////////
 
 /**
