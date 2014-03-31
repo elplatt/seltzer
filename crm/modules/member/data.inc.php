@@ -203,7 +203,8 @@ function member_contact_api ($contact, $op) {
                 INSERT INTO `member`
                 (`cid`)
                 VALUES
-                ('$esc_cid')";
+                ('$esc_cid')
+            ";
             $res = mysql_query($sql);
             if (!$res) crm_error(mysql_error());
             $contact['member']['cid'] = $contact['cid'];
