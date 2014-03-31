@@ -44,7 +44,7 @@ function register_install($old_revision = 0) {
  * @return The themed html string for a registration form.
 */
 function theme_register_form () {
-    return theme('form', register_form());
+    return theme('form', crm_get_form('register'));
 }
 
 /**

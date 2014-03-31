@@ -1235,14 +1235,14 @@ function user_table ($opts) {
  * @return The themed html string for a login form.
 */
 function theme_login_form () {
-    return theme('form', login_form());
+    return theme('form', crm_get_form('login'));
 }
 
 /**
  * @return The themed html for a password reset form.
 */
 function theme_user_reset_password_form () {
-    return theme('form', user_reset_password_form());
+    return theme('form', crm_get_form('user_reset_password_form'));
 }
 
 /**
@@ -1255,7 +1255,7 @@ function theme_user_reset_password_confirm_form ($code) {
         return '<p>Invalid code</p>';
     }
     
-    return theme('form', user_reset_password_confirm_form($code));
+    return theme('form', crm_get_form('user_reset_password_confirm', $code));
 }
 
 /**
@@ -1265,7 +1265,7 @@ function theme_user_reset_password_confirm_form ($code) {
  * @return The themed html string.
  */
 function theme_user_role_edit_form ($cid) {
-    return theme('form', user_role_edit_form($cid));
+    return theme('form', crm_get_form('user_role_edit', $cid));
 }
 
 /**
@@ -1290,7 +1290,7 @@ function user_page (&$page_data, $page_name, $options) {
             $view_content = '';
             if (user_id() == $_GET['cid'] || user_access('user_edit')) {
                 $view_content .= '<h3>User Info</h3>';
-                $view_content .= theme('table_vertical', 'user', array('cid' => $cid));
+                $view_content .= theme('table_vertical', crm_get_table('user', array('cid' => $cid)));
                 $view_content .= theme('form', crm_get_form('user_set_password', $cid));
             }
             if (!empty($view_content)) {
