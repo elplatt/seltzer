@@ -50,7 +50,7 @@ function command_member_add () {
     $n = 0;
     while (empty($username) && $n < 100) {
         
-        // Contruct test username
+        // Construct test username
         $test_username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
         if ($n > 0) {
             $test_username .= $n;
@@ -100,23 +100,7 @@ function command_member_add () {
     // Save to database
     $contact = contact_save($contact);
     
-    // Add role entry
-    $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $row = mysql_fetch_assoc($res);
     $esc_cid = mysql_real_escape_string($contact['cid']);
-    $esc_rid = mysql_real_escape_string($row['rid']);
-    
-    if ($row) {
-        $sql = "
-            INSERT INTO `user_role`
-            (`cid`, `rid`)
-            VALUES
-            ('$esc_cid', '$esc_rid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-    }
     
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
@@ -141,10 +125,15 @@ function command_member_add () {
  * @return The url to display on completion.
  */
 function command_member_plan_add () {
-    $esc_name = mysql_real_escape_string($_POST['name']);
-    $esc_price = mysql_real_escape_string($_POST['price']);
-    $esc_voting = $_POST['voting'] ? '1' : '0';
-    $esc_active = $_POST['active'] ? '1' : '0';
+    global $esc_post;
+    
+    $plan = array(
+        'name' => $_POST['name']
+        , 'price' => $_POST['price']
+        , 'voting' => $_POST['voting'] ? '1' : '0'
+        , 'active' => $_POST['active'] ? '1' : '0'
+        , 'pid' => $_POST['pid']
+    );
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -153,15 +142,7 @@ function command_member_plan_add () {
     }
     
     // Add plan
-    $sql = "
-        INSERT INTO `plan`
-        (`name`,`price`, `voting`, `active`)
-        VALUES
-        ('$esc_name', '$esc_price', '$esc_voting', '$esc_active')
-    ";
-    
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_plan_save($plan);
     
     return crm_url('plans');
 }
@@ -172,11 +153,15 @@ function command_member_plan_add () {
  * @return The url to display on completion.
  */
 function command_member_plan_update () {
-    $esc_name = mysql_real_escape_string($_POST['name']);
-    $esc_price = mysql_real_escape_string($_POST['price']);
-    $esc_active = $_POST['active'] ? '1' : '0';
-    $esc_voting = $_POST['voting'] ? '1' : '0';
-    $esc_pid = mysql_real_escape_string($_POST['pid']);
+    global $esc_post;
+    
+    $plan = array(
+        'name' => $_POST['name']
+        , 'price' => $_POST['price']
+        , 'voting' => $_POST['voting'] ? '1' : '0'
+        , 'active' => $_POST['active'] ? '1' : '0'
+        , 'pid' => $_POST['pid']
+    );
     
     // Verify permissions
     if (!user_access('member_plan_edit')) {
@@ -185,18 +170,7 @@ function command_member_plan_update () {
     }
     
     // Update plan
-    $sql = "
-        UPDATE `plan`
-        SET
-            `name`='$esc_name',
-            `price`='$esc_price',
-            `active`='$esc_active',
-            `voting`='$esc_voting'
-        WHERE `pid`='$esc_pid'
-    ";
-    
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_plan_save($plan);
     
     return crm_url('plans');
 }
@@ -212,13 +186,11 @@ function command_member_plan_delete () {
     // Verify permissions
     if (!user_access('member_plan_edit')) {
         error_register('Permission denied: member_plan_edit');
-        return crm_url('members');
+        return crm_url('plans');
     }
     
     // Delete plan
-    $sql = "DELETE FROM `plan` WHERE `pid`='$esc_post[pid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_plan_delete($esc_post['pid']);
     
     return crm_url('plans');
 }
@@ -242,23 +214,16 @@ function command_member_membership_add () {
     }
     
     // Add membership
-    $sql = "
-        INSERT INTO `membership`
-        (`cid`,`pid`,`start`";
-    if (!empty($esc_post['end'])) {
-        $sql .= ", `end`";
-    }
-    $sql .= ")
-        VALUES
-        ('$esc_post[cid]','$esc_post[pid]','$esc_post[start]'";
-        
-    if (!empty($esc_post['end'])) {
-        $sql .= ",'$esc_post[end]'";
-    }
-    $sql .= ")";
     
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    // Construct membership object and save
+    $membership = array(
+        'sid' => $_POST['sid']
+        , 'cid' => $_POST['cid']
+        , 'pid' => $_POST['pid']
+        , 'start' => $_POST['start']
+        , 'end' => $_POST['end']
+    );
+    member_membership_save($membership);
     
     return crm_url("contact&cid=$_POST[cid]");
 }
@@ -271,6 +236,7 @@ function command_member_membership_add () {
  */
 function command_member_membership_update () {
     global $esc_post;
+    
     // Verify permissions
     if (!user_access('member_edit')) {
         error_register('Permission denied: member_edit');
@@ -307,11 +273,9 @@ function command_member_membership_delete () {
     }
     
     // Delete membership
-    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_post[sid]'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    member_membership_delete($esc_post['sid']);
     
-    return crm_url('members');
+    return crm_url("contact&cid=$_POST[cid]");
 }
 
 /**
@@ -392,6 +356,29 @@ function command_member_import () {
             $row[$new_key] = $value;
         }
         
+        // Add plan if necessary
+        $esc_plan_name = mysql_real_escape_string($row['plan']);
+        $sql = "SELECT `pid` FROM `plan` WHERE `name`='$esc_plan_name'";
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+        if (mysql_num_rows($res) < 1) {
+            
+            $plan = array(
+                'name' => $esc_plan_name
+                , 'price' => '0'
+                , 'voting' => '0'
+                , 'active' => '1'
+                , 'pid' => $_POST['pid']
+            );
+            member_plan_save($plan);
+            $res = mysql_query($sql);
+            $plan_row = mysql_fetch_assoc($res);
+            $pid = $plan_row['pid'];
+        } else {
+            $plan_row = mysql_fetch_assoc($res);
+            $pid = $plan_row['pid'];
+        }
+        
         // Find Username
         $username = $row['username'];
         $n = 0;
@@ -420,93 +407,37 @@ function command_member_import () {
         }
         
         // Add contact
-        $firstName = mysql_real_escape_string($row['firstname']);
-        $middleName = mysql_real_escape_string($row['middlename']);
-        $lastName = mysql_real_escape_string($row['lastname']);
-        $email = mysql_real_escape_string($row['email']);
-        $phone = mysql_real_escape_string($row['phone']);
-        $emergencyName = mysql_real_escape_string($row['emergencyname']);
-        $emergencyPhone = mysql_real_escape_string($row['emergencyphone']);
-        $sql = "
-            INSERT INTO `contact`
-            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
-            VALUES
-            ('$firstName','$middleName','$lastName','$email','$phone','$emergencyName','$emergencyPhone')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $cid = mysql_insert_id();
-        $esc_cid = mysql_real_escape_string($cid);
-        
-        // Add member
-        $sql = "
-            INSERT INTO `member`
-            (`cid`)
-            VALUES
-            ('$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $contact = array(
+            'firstName' => $row['firstname']
+            , 'middleName' => $row['middlename']
+            , 'lastName' => $row['lastname']
+            , 'email' => $row['email']
+            , 'phone' => $row['phone']
+            , 'emergencyName' => $row['emergencyname']
+            , 'emergencyPhone' => $row['emergencyphone']
+        );
         
         // Add user
-        $user = array();
-        $user['username'] = $username;
-        $user['cid'] = $cid;
-        user_save($user);
-        
-        // Add plan if necessary
-        $esc_plan_name = mysql_real_escape_string($row['plan']);
-        $sql = "SELECT `pid` FROM `plan` WHERE `name`='$esc_plan_name'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        if (mysql_num_rows($res) < 1) {
-            $sql = "
-                INSERT INTO `plan`
-                (`name`, `active`, `price`, `voting`)
-                VALUES
-                ('$esc_plan_name', '1', '0', '0' )
-            ";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
-            $pid = mysql_insert_id();
-        } else {
-            $plan_row = mysql_fetch_assoc($res);
-            $pid = $plan_row['pid'];
-        }
-        
+        $user = array('username' => $username);
+        $contact['user'] = $user;
         // Add membership
         $esc_start = mysql_real_escape_string($row['startdate']);
         $esc_pid = mysql_real_escape_string($pid);
+        $membership = array(
+            array(
+                'pid' => $esc_pid
+                , 'start' => $esc_start
+            )
+        );
+        $member = array('membership' => $membership);
+        $contact['member'] = $member;
+        // Add user
+        $user = array('username' => $username);
+        $contact['user'] = $user;
         
-        $sql = "
-            INSERT INTO `membership`
-            (`cid`, `pid`, `start`)
-            VALUES
-            ('$esc_cid', '$esc_pid', '$esc_start')
-        ";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $contact = contact_save($contact);
         
-        // Add role entry
-        $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $role_row = mysql_fetch_assoc($res);
-        $esc_rid = mysql_real_escape_string($role_row['rid']);
-        
-        if ($role_row) {
-            $sql = "
-                INSERT INTO `user_role`
-                (`cid`, `rid`)
-                VALUES
-                ('$esc_cid', '$esc_rid')";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
-        }
-        
-        if (function_exists('paypal_payment_revision')) {
-            $contact['email']=$email;
-            $contact['cid']=$esc_cid;
-            paypal_payment_contact_save ($contact);
-        }
+        $esc_cid = mysql_real_escape_string($cid);
         
         // Notify admins
         $from = "\"$config_org_name\" <$config_email_from>";
@@ -557,18 +488,16 @@ function command_member_plan_import () {
         }
         
         // Add plan
-        $name = mysql_real_escape_string($row['planname']);
-        $price = mysql_real_escape_string($row['price']);
-        $active = mysql_real_escape_string($row['active']);
-        $voting = mysql_real_escape_string($row['voting']);
-        $sql = "
-            INSERT INTO `plan`
-            (`name`,`price`,`active`,`voting`)
-            VALUES
-            ('$name','$price','$active','$voting')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $pid = mysql_insert_id();
+        $plan = array(
+            'name' => $row['name']
+            , 'price' => $row['price']
+            , 'voting' => $row['voting'] ? '1' : '0'
+            , 'active' => $row['active'] ? '1' : '0'
+            , 'pid' => $row['pid']
+        );
+        
+        // Add plan
+        member_plan_save($plan);
     }
     
     return crm_url('plans');

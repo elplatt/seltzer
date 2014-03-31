@@ -5,7 +5,7 @@
     Copyright 2013-2014 Chris Murray <chris.f.murray@hotmail.co.uk>
 
     This file is part of the Seltzer CRM Project
-    register.inc.php - LDAP interface module
+    register.inc.php - registration module
 
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -114,7 +114,7 @@ function command_register () {
     $n = 0;
     while (empty($username) && $n < 100) {
         
-        // Contruct test username
+        // Construct test username
         $test_username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
         if ($n > 0) {
             $test_username .= $n;
@@ -164,23 +164,7 @@ function command_register () {
     // Save to database
     $contact = contact_save($contact);
     
-    // Add role entry
-    $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $row = mysql_fetch_assoc($res);
     $esc_cid = mysql_real_escape_string($contact['cid']);
-    $esc_rid = mysql_real_escape_string($row['rid']);
-    
-    if ($row) {
-        $sql = "
-            INSERT INTO `user_role`
-            (`cid`, `rid`)
-            VALUES
-            ('$esc_cid', '$esc_rid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-    }
     
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
