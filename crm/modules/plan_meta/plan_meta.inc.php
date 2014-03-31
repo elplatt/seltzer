@@ -801,8 +801,8 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             
             // Add metas tab
             if (user_access('plan_meta_view') || user_access('plan_meta_edit') || user_access('plan_meta_delete')) {
-                $plan_metas = theme('table', 'plan_meta', array('pid' => $pid));
-                $plan_metas .= theme('plan_meta_add_form', $pid); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                $plan_metas = theme('table', crm_get_table('plan_meta', array('pid' => $pid)));
+                $plan_metas .= theme('form', crm_get_form('plan_meta_add', $pid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
                 page_add_content_bottom($page_data, $plan_metas, 'Meta-Tags');
             }
             
@@ -812,7 +812,7 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, 'Meta-Tags');
             if (user_access('plan_meta_view')) {
                 // meta_cross_table ( displays tags across the screen, not down )
-                $plan_metas = theme('table', 'plan_meta_cross', array('join'=>array('contact', 'member'), 'show_export'=>true));
+                $plan_metas = theme('table', crm_get_table('plan_meta_cross', array('join'=>array('contact', 'member'), 'show_export'=>true)));
                 page_add_content_top($page_data, $plan_metas, 'View');
             }
             break;
