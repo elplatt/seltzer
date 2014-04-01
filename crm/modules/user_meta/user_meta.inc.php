@@ -897,7 +897,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete')) {
-                page_add_content_top($page_data, theme('form', crm_get_form('user_meta_edit', $umid), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('user_meta_edit', $umid)), 'Edit');
             }
             
             break;
