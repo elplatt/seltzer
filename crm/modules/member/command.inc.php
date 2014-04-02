@@ -487,7 +487,7 @@ function command_member_plan_import () {
             $row[$new_key] = $value;
         }
         
-        // Add plan
+        // Build plan object
         $plan = array(
             'name' => $row['name']
             , 'price' => $row['price']
