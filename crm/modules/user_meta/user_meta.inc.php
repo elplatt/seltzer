@@ -868,8 +868,8 @@ function user_meta_page (&$page_data, $page_name, $options) {
             
             // Add metas tab
             if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete') || $cid == user_id()) {
-                $user_metas = theme('table', 'user_meta', array('cid' => $cid));
-                $user_metas .= theme('user_meta_add_form', $cid); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                $user_metas = theme('table', crm_get_table('user_meta', array('cid' => $cid)));
+                $user_metas .= theme('form', crm_get_form('user_meta_add', $cid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
                 page_add_content_bottom($page_data, $user_metas, 'Meta-Tags');
             }
             
@@ -879,7 +879,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, 'Meta-Tags');
             if (user_access('user_meta_view')) {
                 // meta_cross_table ( displays tags across the screen, not down )
-                $user_metas = theme('table', 'user_meta_cross', array('join'=>array('contact', 'member'), 'show_export'=>true));
+                $user_metas = theme('table', crm_get_table('user_meta_cross', array('join'=>array('contact', 'member'), 'show_export'=>true)));
                 page_add_content_top($page_data, $user_metas, 'View');
             }
             break;
@@ -897,7 +897,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete')) {
-                page_add_content_top($page_data, theme('user_meta_edit_form', $umid), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('user_meta_edit', $umid)), 'Edit');
             }
             
             break;

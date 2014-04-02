@@ -588,7 +588,7 @@ function contact_page (&$page_data, $page_name) {
                     'show_export'=>true
                     , 'exclude'=>array('emergencyName', 'emergencyPhone')
                 );
-                $view = theme('table', 'contact', $opts);
+                $view = theme('table', crm_get_table('contact', $opts));
                 page_add_content_top($page_data, $view, 'View');
             }
             // Add add tab
@@ -618,7 +618,7 @@ function contact_page (&$page_data, $page_name) {
                     'cid' => $cid
                     , 'ops' => false
                 );
-                $view_content .= theme('table_vertical', 'contact', array('cid' => $cid));
+                $view_content .= theme('table_vertical', crm_get_table('contact', array('cid' => $cid)));
             }
             if (!empty($view_content)) {
                 page_add_content_top($page_data, $view_content, 'View');
