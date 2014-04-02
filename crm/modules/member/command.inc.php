@@ -489,7 +489,7 @@ function command_member_plan_import () {
         
         // Build plan object
         $plan = array(
-            'name' => $row['name']
+            'name' => $row['planname']
             , 'price' => $row['price']
             , 'voting' => $row['voting'] ? '1' : '0'
             , 'active' => $row['active'] ? '1' : '0'
