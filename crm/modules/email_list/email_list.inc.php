@@ -10,7 +10,7 @@
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+=
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -111,6 +111,7 @@ function email_list_page_list () {
     $pages = array();
         if (user_access('email_list_view')) {
         $pages[] = 'email_lists';
+        $pages[] = 'email_lists/unsubscribe';
     }
     return $pages;
 }
@@ -147,6 +148,19 @@ function email_list_page (&$page_data, $page_name) {
                 page_add_content_top($page_data, $email_lists, 'View');
             }
             break;
+        case 'email_list/unsubscribe':
+            // Capture contact id and lid
+            $cid = $_GET['cid'];
+            $lid = $_GET['lid'];
+            if (empty($cid) || empty($lid)) {
+                return;
+            }
+            page_set_title($page_data, 'Email Lists');
+                if (user_access('email_list_unsubscribe')) {
+                    $email_lists = theme('email_list_unsubscribe_form', array('cid'=>$cid, 'lid'=>$lid));
+                    page_add_content_top($page_data, $email_lists);
+                }
+            break;
     }
 }
 
@@ -176,7 +190,7 @@ function email_list_data ($opts = array()) {
         WHERE 1";
     if (!empty($opts['lid'])) {
         $esc_lid = mysql_real_escape_string($opts['lid']);
-        $sql .= " AND `lid`='$esc_lid'";
+        $sql .= " AND `email_lists`.`lid`='$esc_lid'";
     }
     if (!empty($opts['cid'])) {
         if (is_array($opts['cid'])) {
@@ -193,7 +207,7 @@ function email_list_data ($opts = array()) {
     }
   
     $sql .= "
-        ORDER BY `lid`, `cid` ASC";
+        ORDER BY `email_lists`.`lid`, `cid` ASC";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     // Store data
@@ -434,7 +448,7 @@ function email_list_table ($opts) {
             }
             // Add unsubscribe op
             if (user_access('email_list_unsubscribe')) {
-                $ops[] = '<a href=' . crm_url('unsubscribe&type=email_list&cid=' . $subscription['cid']) . '&lid=' . $subscription['lid']. '>unsubscribe</a>';
+                $ops[] = '<a href=' . crm_url('email_list/unsubscribe&cid=' . $subscription['cid']) . '&lid=' . $subscription['lid']. '>unsubscribe</a>';
             }
             // Add ops row
             $row[] = join(' ', $ops);
@@ -549,13 +563,14 @@ function email_list_unsubscribe_form ($subscription) {
         return NULL;
     }
     
-    // Get subscription data
-    
+    // Get subscription data    
     $data = crm_get_data('email_list', array('lid'=>$subscription['lid'], 'cid'=>$subscription['cid']));
     $subscription = $data[0];
     
+    
+    
     // Construct email list subscription name
-    $subscription_name = "email:$subscription[email] from list:$subscription[list_name]";
+    $subscription_name = "email:" . $subscription['email'] ." from list:" . $subscription['list_name'];
     
     // Create form structure
     $form = array(
@@ -722,5 +737,16 @@ function theme_email_list_create_form () {
 function theme_email_list_subscribe_form ($cid) {
     return theme('form', crm_get_form('email_list_subscribe', $cid));
 }
+
+/**
+ * Return themed html for an email list unsubscribe form.
+ *
+ * @param $cid The cid of the contact to subscribe
+ * @return The themed html string.
+ */
+function theme_email_list_unsubscribe_form ($subscription) {
+    return theme('form', crm_get_form('email_list_unsubscribe', $subscription));
+}
+
 
 ?>
