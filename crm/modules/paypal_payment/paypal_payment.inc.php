@@ -555,6 +555,12 @@ function paypal_payment_form_alter(&$form, $form_id) {
             }
         }
     }
+    if ($form_id === 'member_add') {
+        
+    }
+    if ($form_id === 'register') {
+        
+    }
     return $form;
 }
 
@@ -640,3 +646,23 @@ function command_paypal_payment_contact_delete () {
 function theme_paypal_payment_admin () {
     return '<p><a href=' . crm_url('paypal-admin') . '>Administer</a></p>';
 }
+
+/**
+ * Return themed html for a paypal payment button.
+ * @param $cid The cid to create a button for.
+ * @param $params Options for the button.
+ * @return A string containing the themed html.
+ */
+function theme_paypal_payment_button ($cid, $params = array()) {
+    
+]
+
+/**
+ * Return themed html for a paypal subscription button.
+ * @param $cid The cid to create a button for.
+ * @param $params Options for the button.
+ * @return A string containing the themed html.
+ */
+function theme_paypal_subscription_button ($cid, $params = array()) {
+    
+]
