@@ -653,9 +653,9 @@ function theme_paypal_payment_admin () {
  * @param $params Options for the button.
  * @return A string containing the themed html.
  */
-function theme_paypal_payment_button ($cid, $params = array()) {
+function theme_paypal_payment_button () {
     
-]
+}
 
 /**
  * Return themed html for a paypal subscription button.
@@ -665,4 +665,4 @@ function theme_paypal_payment_button ($cid, $params = array()) {
  */
 function theme_paypal_subscription_button ($cid, $params = array()) {
     
-]
+}
