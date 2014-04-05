@@ -1335,7 +1335,7 @@ function command_payment_email () {
         $subject = "[$config_site_title] Payment Due";
         $from = $config_email_from;
         $headers = "Content-type: text/html\r\nFrom: $from\r\n";
-        $message = "<p>Hello,<br/><br/>Your current account balance is $amount.  To pay this balance using </p>"
+        $message = "<p>Hello,<br/><br/>Your current account balance is $amount.  To pay this balance using </p>";
         if (!function_exists('amazon_payment_revision')) {
             $message .= "<p>Amazon Payments, please click the button below.</p>$button1";
         }
