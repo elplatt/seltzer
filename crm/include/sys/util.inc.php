@@ -94,3 +94,9 @@ function crm_error ($text) {
     print "</pre>";
     die();
 }
+
+function crm_version() {
+    global $crm_version;
+    $version = implode(".", $crm_version);
+    return $version;
+}
