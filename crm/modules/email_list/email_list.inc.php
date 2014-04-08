@@ -862,7 +862,7 @@ function command_email_list_subscribe () {
     $email = $_POST['email'];
     $lid = $_POST['lid'];
     
-    //TODO: qualify the email as a valid email.
+    //TODO: Qualify the email as a valid email.
     if (/* email is valid */ true) {
         //save the email
         $esc_email = mysql_real_escape_string($email);
