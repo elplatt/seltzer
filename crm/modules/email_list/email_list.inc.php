@@ -614,6 +614,10 @@ function email_list_options () {
  * @return an email subscribe form structure.
  */
 function email_list_subscribe_form ($cid) {
+
+    $contact_data = crm_get_data('contact', array('cid'=>$cid));
+    $contact = $contact_data[0];
+
     return array(
         'type' => 'form'
         , 'method' => 'post'
@@ -638,10 +642,11 @@ function email_list_subscribe_form ($cid) {
                         , 'options' => email_list_options()
                     )
                     , array(
-                        // TODO: by default, pre-populate this field w/ member's existing email
+                        // By default, pre-populate this field with member's existing email
                         'type' => 'text'
                         , 'label' => 'Email'
                         , 'name' => 'email'
+                        , 'value' => $contact['email']
                     )
                     , array(
                         'type' => 'submit'
