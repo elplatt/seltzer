@@ -377,18 +377,8 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
             break;
         case 'paypal-admin':
             page_set_title($page_data, 'Administer Paypal Contacts');
-            page_add_content_top($page_data, theme('table', 'paypal_payment_contact', array('show_export'=>true)), 'View');
+            page_add_content_top($page_data, theme('table', crm_get_table('paypal_payment_contact', array('show_export'=>true)), 'View'));
             page_add_content_top($page_data, theme('form', crm_get_form('paypal_payment_contact_add')), 'Add');
-            break;
-        case 'contact':
-            if (user_access('payment_view') || $_GET['cid'] == user_id()) {
-                page_add_content_bottom($page_data, theme('paypal_payment_account_info', $_GET['cid']), 'Account');
-            }
-            if (function_exists('billing_revision')) {
-                if (user_access('payment_view') || $_GET['cid'] == user_id()) {
-                    page_add_content_bottom($page_data, theme('paypal_payment_first_month', $_GET['cid']), 'Plan');
-                }
-            }
             break;
     }
 }
@@ -565,6 +555,12 @@ function paypal_payment_form_alter(&$form, $form_id) {
             }
         }
     }
+    if ($form_id === 'member_add') {
+        
+    }
+    if ($form_id === 'register') {
+        
+    }
     return $form;
 }
 
@@ -652,62 +648,21 @@ function theme_paypal_payment_admin () {
 }
 
 /**
- * Return themed html for prorated first month button.
+ * Return themed html for a paypal payment button.
+ * @param $cid The cid to create a button for.
+ * @param $params Options for the button.
+ * @return A string containing the themed html.
  */
-function theme_paypal_payment_first_month ($cid) {
-    if (!function_exists('billing_revision')) {
-        return 'Prorated dues payment requires billing module.';
-    }
-    $contact = crm_get_one('contact', array('cid'=>$cid));
-    // Calculate fraction of the billing period
-    $mship = end($contact['member']['membership']);
-    $date = getdate(strtotime($mship['start']));
-    $period = billing_days_in_period($date);
-    $day = $date['mday'];
-    $fraction = ($period - $day + 1.0) / $period;
-    // Get payment amount
-    $due = payment_parse_currency($mship['plan']['price']);
-    $due['value'] = ceil($due['value'] * $fraction);
-    $html .= $due['value'];
-    // Create button
-    $html = "<fieldset><legend>First month prorated dues</legend>";
-    $params = array(
-        'referenceId' => $cid
-        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false) 
-        , 'description' => 'CRM Dues Payment'
-    );
-    $amount = payment_format_currency($due);
-    $html .= "<p><strong>First month's dues:</strong> $amount</p>";
-    if ($due['value'] > 0) {
-        $html .= theme('paypal_payment_button', $cid, $params);
-    }
-    $html .= '</fieldset>';
-    return $html;
+function theme_paypal_payment_button () {
+    
 }
 
 /**
- * Return an account summary and paypal payment button.
- * @param $cid The cid of the contact to create a form for.
- * @return An html string for the summary and button.
+ * Return themed html for a paypal subscription button.
+ * @param $cid The cid to create a button for.
+ * @param $params Options for the button.
+ * @return A string containing the themed html.
  */
-function theme_paypal_payment_account_info ($cid) {
-    $balances = payment_accounts(array('cid'=>$cid));
-    $balance = $balances[$cid];
-    $params = array(
-        'referenceId' => $cid
-        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
-        , 'description' => 'CRM Dues Payment'
-    );
-    $output = '<div>';
-    $amount = payment_format_currency($balance);
-    if ($balance['value'] > 0) {
-        $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
-        $output .= theme('paypal_payment_button', $cid, $params);
-    } else {
-        $balance['value'] = -1*$balance['value'];
-        $amount = payment_format_currency($balance);
-        $output .= "<p><strong>No balance owed.  Account credit:</strong> $amount</p>";
-    }
-    $output .= '</div>';
-    return $output;
+function theme_paypal_subscription_button ($cid, $params = array()) {
+    
 }
