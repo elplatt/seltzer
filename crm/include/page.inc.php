@@ -53,10 +53,18 @@ function core_page_list () {
 */
 function core_page (&$page_data, $page_name, $options) {
     
+    $latestNews = '<p>Welcome to ' . title() . ' version ' . crm_version() . '!</p>';
+    
+    // Modify this variable with valid HTML between the apostrophes to display update text to users on login
+    
+    $latestNews = $latestNews . '
+        <p><p>
+    ';
+    
     switch ($page_name) {
         
         case '<front>':
-            page_add_content_top($page_data, "<p>Welcome to " . title() . " version " . crm_version() . "!</p>");
+            page_add_content_top($page_data, $latestNews);
             break;
         case 'install':
             page_add_content_top($page_data, theme('form', crm_get_form('module_install')));
