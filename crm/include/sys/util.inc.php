@@ -95,6 +95,10 @@ function crm_error ($text) {
     die();
 }
 
+/**
+ * Parse and return the version of the CRM as specified in crm.inc.php under £crm_version.
+ * @return A string representation of the array
+ */
 function crm_version() {
     global $crm_version;
     $version = implode(".", $crm_version);
