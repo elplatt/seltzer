@@ -237,7 +237,7 @@ function billing_page (&$page_data, $page_name, $options) {
             // Add view and add tabs
             if (user_access('payment_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('billing')), 'Billing');
-                page_add_content_top($page_data, theme('form', crm_get_form('email_bills')), 'Emails');
+                page_add_content_top($page_data, theme('form', crm_get_form('email_bills')), 'Billing');
             }
             break;
         case 'contact':
