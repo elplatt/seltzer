@@ -186,13 +186,13 @@ function command_billing_email () {
         $params = array(
             'referenceId' => $cid
             , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
-            , 'description' => 'CRM Dues Payment'
+            , 'description' => 'Membership Dues Payment'
         );
         $amount = payment_format_currency($balance);
-        if (!function_exists('amazon_payment_revision')) {
+        if (function_exists('amazon_payment_revision')) {
             $button1 = theme('amazon_payment_button', $cid, $params);
         }
-        if (!function_exists('paypal_payment_revision')) {
+        if (function_exists('paypal_payment_revision')) {
             $button2 = theme('paypal_payment_button', $cid, $params);
         }
         // Send email
@@ -201,10 +201,10 @@ function command_billing_email () {
         $from = $config_email_from;
         $headers = "Content-type: text/html\r\nFrom: $from\r\n";
         $message = "<p>Hello,<br/><br/>Your current account balance is $amount.  To pay this balance using </p>";
-        if (!function_exists('amazon_payment_revision')) {
+        if (function_exists('amazon_payment_revision')) {
             $message .= "<p>Amazon Payments, please click the button below.</p>$button1";
         }
-        if (!function_exists('paypal_payment_revision')) {
+        if (function_exists('paypal_payment_revision')) {
             $message .= "<p>Paypal, please click the button below.</p>$button2";
         }
         $res = mail($to, $subject, $message, $headers);
@@ -392,10 +392,10 @@ function theme_billing_first_month ($cid) {
     $amount = payment_format_currency($due);
     $html .= "<p><strong>First month's dues:</strong> $amount</p>";
     if ($due['value'] > 0) {
-        if (!function_exists('amazon_payment_revision')) {
+        if (function_exists('amazon_payment_revision')) {
             $html .= theme('amazon_payment_button', $cid, $params);
         }
-        if (!function_exists('paypal_payment_revision')) {
+        if (function_exists('paypal_payment_revision')) {
             $html .= theme('paypal_payment_button', $cid, $params);
         }
     }
@@ -420,10 +420,10 @@ function theme_billing_account_info ($cid) {
     $amount = payment_format_currency($balance);
     if ($balance['value'] > 0) {
         $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
-        if (!function_exists('amazon_payment_revision')) {
+        if (function_exists('amazon_payment_revision')) {
             $output .= theme('amazon_payment_button', $cid, $params);
         }
-        if (!function_exists('paypal_payment_revision')) {
+        if (function_exists('paypal_payment_revision')) {
             $output .= theme('paypal_payment_button', $cid, $params);
         }
     } else {
