@@ -56,7 +56,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add view tab
             if (user_access('member_view')) {
-                $view = theme('member_filter_form');
+                $view = theme('form', crm_get_form('member_filter'));
                 $opts = array(
                     'filter'=>$_SESSION['member_filter']
                     , 'show_export'=>true
