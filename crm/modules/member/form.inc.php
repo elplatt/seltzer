@@ -27,12 +27,6 @@
 */
 function member_add_form () {
     
-    // Ensure user is allowed to add members
-    if (!user_access('member_add')) {
-        error_register('Permission denied: member_add');
-        return NULL;
-    }
-    
     // Start with contact form
     $form = crm_get_form('contact');
     
