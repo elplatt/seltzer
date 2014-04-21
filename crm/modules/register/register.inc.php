@@ -53,96 +53,10 @@ function theme_register_form () {
 function register_form () {
     
     // Start with contact form
-    $form = crm_get_form('contact');
+    $form = crm_get_form('member_add');
     
     // Change form command
-    $form['command'] = 'register';
     $form['submit'] = 'Register';
     
     return $form;
-}
-
-/**
- * Handle member registration request.
- *
- * @return The url to display when complete.
- */
-function command_register () {
-    global $esc_post;
-    global $config_email_to;
-    global $config_email_from;
-    global $config_org_name;
-    
-    // Find username or create a new one
-    $username = $_POST['username'];
-    $n = 0;
-    while (empty($username) && $n < 100) {
-        
-        // Construct test username
-        $test_username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
-        if ($n > 0) {
-            $test_username .= $n;
-        }
-        
-        // Check whether username is taken
-        $esc_test_name = mysql_real_escape_string($test_username);
-        $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $row = mysql_fetch_assoc($res);
-        if (!$row) {
-            $username = $test_username;
-        }
-        $n++;
-    }
-    if (empty($username)) {
-        error_register('Please specify a username');
-        return crm_url('register');
-    }
-    
-    // Build contact object
-    $contact = array(
-        'firstName' => $_POST['firstName']
-        , 'middleName' => $_POST['middleName']
-        , 'lastName' => $_POST['lastName']
-        , 'email' => $_POST['email']
-        , 'phone' => $_POST['phone']
-        , 'emergencyName' => $_POST['emergencyName']
-        , 'emergencyPhone' => $_POST['emergencyPhone']
-    );
-    // Add user fields
-    $user = array('username' => $username);
-    $contact['user'] = $user;
-    // Add member fields
-    $membership = array(
-        array(
-            'pid' => $_POST['pid']
-            , 'start' => $_POST['start']
-        )
-    );
-    $member = array('membership' => $membership);
-    $contact['member'] = $member;
-    // Add user fields
-    $user = array('username' => $username);
-    $contact['user'] = $user;
-    // Save to database
-    $contact = contact_save($contact);
-    
-    $esc_cid = mysql_real_escape_string($contact['cid']);
-    
-    // Notify admins
-    $from = "\"$config_org_name\" <$config_email_from>";
-    $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
-    if (!empty($config_email_to)) {
-        $name = theme_contact_name($contact['cid']);
-        $content = theme('member_created_email', $contact['cid']);
-        mail($config_email_to, "New Member: $name", $content, $headers);
-    }
-    
-    // Notify user
-    $confirm_url = user_reset_password_url($contact['user']['username']);
-    $content = theme('member_welcome_email', $contact['user']['cid'], $confirm_url);
-    mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
-    
-    return crm_url('login');
 }

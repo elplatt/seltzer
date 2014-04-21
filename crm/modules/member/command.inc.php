@@ -31,20 +31,6 @@ function command_member_add () {
     global $config_email_from;
     global $config_org_name;
     
-    // Verify permissions
-    if (!user_access('member_add')) {
-        error_register('Permission denied: member_add');
-        return crm_url('members');
-    }
-    if (!user_access('contact_add')) {
-        error_register('Permission denied: contact_add');
-        return crm_url('members');
-    }
-    if (!user_access('user_add')) {
-        error_register('Permission denied: user_add');
-        return crm_url('members');
-    }
-    
     // Find username or create a new one
     $username = $_POST['username'];
     $n = 0;
