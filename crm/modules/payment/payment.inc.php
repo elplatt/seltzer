@@ -1054,24 +1054,6 @@ function payment_delete_form ($pmtid) {
     return $form;
 }
 
-// Command handlers ////////////////////////////////////////////////////////////
-
-/**
- * Handle payment delete request.
- *
- * @return The url to display on completion.
- */
-function command_payment_delete() {
-    global $esc_post;
-    // Verify permissions
-    if (!user_access('payment_delete')) {
-        error_register('Permission denied: payment_delete');
-        return crm_url('payment&pmtid=' . $esc_post['pmtid']);
-    }
-    payment_delete($_POST['pmtid']);
-    return crm_url('payments');
-}
-
 /**
  * Return the form structure for a payment filter.
  * @return The form structure.
@@ -1222,6 +1204,22 @@ function command_payment_edit() {
     $payment['value'] = $value['value'];
     payment_save($payment);
     message_register('1 payment updated.');
+    return crm_url('payments');
+}
+
+/**
+ * Handle payment delete request.
+ *
+ * @return The url to display on completion.
+ */
+function command_payment_delete() {
+    global $esc_post;
+    // Verify permissions
+    if (!user_access('payment_delete')) {
+        error_register('Permission denied: payment_delete');
+        return crm_url('payment&pmtid=' . $esc_post['pmtid']);
+    }
+    payment_delete($_POST['pmtid']);
     return crm_url('payments');
 }
 

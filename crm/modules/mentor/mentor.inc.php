@@ -113,8 +113,8 @@ function mentor_page (&$page_data, $page_name, $options) {
             
             // Add mentors tab
             if (user_access('mentor_view') || user_access('mentor_edit') || user_access('mentor_delete') || $cid == user_id()) {
-                $mentorships = theme('table', 'mentor', array('cid' => $cid));
-                $mentorships .= theme('mentor_add_form', $cid);
+                $mentorships = theme('table', crm_get_table('mentor', array('cid' => $cid)));
+                $mentorships .= theme('form', crm_get_form('mentor_add', $cid));
                 page_add_content_bottom($page_data, $mentorships, 'Mentor');
             }
             
@@ -133,7 +133,7 @@ function mentor_page (&$page_data, $page_name, $options) {
  * @return The themed html string.
  */
 function theme_mentor_add_form ($cid) {
-    return theme('form', mentor_add_form($cid));
+    return theme('form', crm_get_form('mentor_add', $cid));
 }
 
 /**
@@ -143,7 +143,7 @@ function theme_mentor_add_form ($cid) {
  * @return The themed html string.
  */
 function theme_mentor_edit_form ($cid) {
-    return theme('form', mentor_edit_form($cid));
+    return theme('form', crm_get_form('mentor_edit', $cid));
 }
 
 // DB to Object mapping ////////////////////////////////////////////////////////
@@ -158,30 +158,7 @@ function theme_mentor_edit_form ($cid) {
 */ 
 function mentor_data ($opts = array()) {
     
-    if (array_key_exists('cid', $opts)) {
-        foreach ($opts['cid'] as $cid) {
-            
-        }
-    }
-    
-    // Create map from cids to contact names if necessary
-    // TODO: Add filters for speed
-    if ($join_contact) {
-        $contacts = member_contact_data();
-        $cidToContact = array();
-        foreach ($contacts as $contact) {
-            $cidToContact[$contact['cid']] = $contact;
-        }
-    }
-    
-    if ($join_member) {
-        $members = member_data();
-        $cidToMember = array();
-        foreach ($members as $member) {
-            $cidToMember[$member['cid']] = $member;
-        }
-    }
-    
+   
     // Query database
     $sql = "
         SELECT
@@ -233,7 +210,7 @@ function mentor_data ($opts = array()) {
     // the same cid
     $mentor_data = array();
     foreach ($mentorships as $mentorship){
-        if (!empty($mentor_data[$mentorship['cid']])){
+        if (empty($mentor_data[$mentorship['cid']])){
             //this is a new cid. Create an array.
             $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(),
                                                      'protege_cids' => array());
@@ -244,15 +221,16 @@ function mentor_data ($opts = array()) {
         
         //now do the opposite. that is to say, assign the protege to the mentor_cid
         //of course, this involves creating the mentor_cid if it doesn't exist yet
-        if (!empty($mentor_data[$mentorship['mentor_cid']])){
+        if (empty($mentor_data[$mentorship['mentor_cid']])){
             //this is a new cid. Create an array.
-            $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(),
+            $mentor_data[$mentorship['mentor_cid']] = array('mentor_cids' => array(),
                                                      'protege_cids' => array());
         }
         //populate the mentor's array with protege cid.
         $mentor_data[$mentorship['mentor_cid']]['protege_cids'][] = $mentorship['cid'];
     }  
     // Return data
+    
     return $mentor_data;
 }
 
