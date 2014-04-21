@@ -55,45 +55,9 @@ function register_form () {
     // Start with contact form
     $form = crm_get_form('contact');
     
-    // Generate default start date, first of current month
-    $start = date("Y-m-d");
-    
     // Change form command
     $form['command'] = 'register';
     $form['submit'] = 'Register';
-    
-    // Add member data
-    $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'User Info',
-        'fields' => array(
-            array(
-                'type' => 'text',
-                'label' => 'Username',
-                'name' => 'username'
-            )
-        )
-    );
-    $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'Membership Info',
-        'fields' => array(
-            array(
-                'type' => 'select',
-                'label' => 'Plan',
-                'name' => 'pid',
-                'selected' => '',
-                'options' => member_plan_options(array('filter'=>array('active'=>true)))
-            ),
-            array(
-                'type' => 'text',
-                'label' => 'Start Date',
-                'name' => 'start',
-                'value' => $start,
-                'class' => 'date'
-            )
-        )
-    );
     
     return $form;
 }

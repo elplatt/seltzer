@@ -72,7 +72,7 @@ function member_page (&$page_data, $page_name, $options) {
             }
             
             // Add import tab
-            if (user_access('contact_edit') && user_access('member_edit')) {
+            if (user_access('contact_add') && user_access('member_add') && user_access('user_add')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('member_import')), 'Import');
             }
             
