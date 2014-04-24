@@ -27,7 +27,7 @@
  * @return The themed html string.
 */
 function theme_member_table ($opts = NULL) {
-    return theme('table', crm_get_table('member_table', $opts));
+    return theme('table', crm_get_table('member', $opts));
 }
 
 /**
