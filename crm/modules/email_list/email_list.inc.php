@@ -38,8 +38,6 @@ function email_list_permissions () {
     );
 }
 
-
-
 // Installation functions //////////////////////////////////////////////////////
 
 /**
@@ -138,8 +136,8 @@ function email_list_page (&$page_data, $page_name, $options) {
             // Add email lists tab
             if (user_access('contact_view') || user_access('contact_edit') 
                     || user_access('contact_delete') || $cid == user_id()) {
-                $email_lists = theme('table', 'email_list_subscriptions', array('cid' => $cid));
-                $email_lists .= theme('email_list_subscribe_form', $cid);
+                $email_lists = theme('table', crm_get_table('email_list_subscriptions', array('cid' => $cid)));
+                $email_lists .= theme('form', crm_get_form('email_list_subscribe', $cid));
                 page_add_content_bottom($page_data, $email_lists, 'Emails');
             }
             break;
@@ -149,7 +147,7 @@ function email_list_page (&$page_data, $page_name, $options) {
                 $email_lists = theme('table', 'email_list'
                     , array('join'=>array('contact', 'member'), 'show_export'=>false
                         , 'lists_only'=>true));
-                $email_lists .= theme('email_list_create_form');
+                $email_lists .= theme('form', crm_get_form('email_list_create'));
                 page_add_content_top($page_data, $email_lists, 'View');
             }
             break;
@@ -162,26 +160,21 @@ function email_list_page (&$page_data, $page_name, $options) {
             }
             page_set_title($page_data, 'Email Lists');
                 if (user_access('email_list_unsubscribe')) {
-                    $email_lists = theme('email_list_unsubscribe_form'
-                        , array('cid'=>$cid, 'lid'=>$lid));
+                    $email_lists = theme('form', crm_get_form('email_list_unsubscribe', array('cid'=>$cid, 'lid'=>$lid)));
                     page_add_content_top($page_data, $email_lists);
                 }
             break;
-
         case 'email_list':
             $lid = $options['lid'];
             if(empty($lid)) {
                 return;
             }
-
             //Set page title
             page_set_title($page_data, email_list_description($lid));
-
             // Add edit tab
             if (user_access('email_list_view') || user_access('email_list_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('email_list_edit', $lid), 'Edit'));
             }
-
             break;
     }
 }
@@ -195,7 +188,6 @@ function email_list_page (&$page_data, $page_name, $options) {
  * @return The description string.
  */
 function email_list_description ($lid) {
-    
     // Get key data
     $data = crm_get_data('email_list', array('lid' => $lid, 'lists_only'=>true));
     if (empty($data)) {
@@ -209,8 +201,6 @@ function email_list_description ($lid) {
     
     return $description;
 }
-
-
 
 // DB to Object mapping ////////////////////////////////////////////////////////
 
@@ -368,13 +358,11 @@ function email_list_save ($list) {
     //return crm_get_one('email_list', array('kid'=>$kid));
 }
 
-
 /**
  * Delete an email list.
  * @param $list the list data structure to delete, must have a 'lid' element.
  */
 function email_list_delete ($list) {
-
     $esc_lid = mysql_real_escape_string($list['lid']);
     $sql = "DELETE FROM `email_lists` WHERE `lid`='$esc_lid'";
     $res = mysql_query($sql);
@@ -399,7 +387,7 @@ function email_list_delete ($list) {
 function email_list_unsubscribe ($subscription) {
     $esc_lid = mysql_real_escape_string($subscription['lid']);
     $esc_cid = mysql_real_escape_string($subscription['cid']);
-
+    
     $sql = "DELETE FROM `email_list_subscriptions` WHERE `lid`='$esc_lid' AND `cid`='$esc_cid'";
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
@@ -410,7 +398,6 @@ function email_list_unsubscribe ($subscription) {
                        under normal circumstances. Please make sure your database is okay!");
     }
 }
-
 
 // Table data structures ///////////////////////////////////////////////////////
 
@@ -564,7 +551,6 @@ function email_list_subscriptions_table ($opts) {
     return $table;
 }
 
-
 // Forms ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -614,10 +600,8 @@ function email_list_options () {
  * @return an email subscribe form structure.
  */
 function email_list_subscribe_form ($cid) {
-
     $contact_data = crm_get_data('contact', array('cid'=>$cid));
     $contact = $contact_data[0];
-
     return array(
         'type' => 'form'
         , 'method' => 'post'
@@ -665,7 +649,6 @@ function email_list_subscribe_form ($cid) {
  * @return The form structure.
 */
 function email_list_unsubscribe_form ($subscription) {
-
     // Ensure user is allowed to unsubscribe
     if (!user_access('email_list_unsubscribe')) {
         error_register('User does not have permission: email_list_unsubscribe');
@@ -676,8 +659,6 @@ function email_list_unsubscribe_form ($subscription) {
     $data = crm_get_data('email_list', array('lid'=>$subscription['lid']
         , 'cid'=>$subscription['cid']));
     $subscription = $data[0];
-    
-    
     
     // Construct email list subscription name
     $subscription_name = "email:" . $subscription['email'] ." from list:"
@@ -710,7 +691,6 @@ function email_list_unsubscribe_form ($subscription) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -718,7 +698,7 @@ function email_list_unsubscribe_form ($subscription) {
  * @return an email list create form structure.
  */
 function email_list_create_form () {
-    return array(
+    $form = array(
         'type' => 'form'
         , 'method' => 'post'
         , 'enctype' => 'multipart/form-data'
@@ -745,6 +725,7 @@ function email_list_create_form () {
             )
         )
     );
+    return $form;
 }
 
 /**
@@ -753,19 +734,18 @@ function email_list_create_form () {
  * @return The form structure.
  */
 function email_list_edit_form ($lid) {
-
     if (!user_access('email_list_edit')) {
         error_register('User does not have permission: email_list_edit');
         return NULL;
     }
-
+    
     // Get email list data
     $data = crm_get_data('email_list', array('lid'=>$lid, 'lists_only'=>true));
     if (count($data) < 1) {
         return array();
     }
     $list = $data[0];
-
+    
     return array(
         'type' => 'form'
         , 'method' => 'post'
@@ -797,7 +777,6 @@ function email_list_edit_form ($lid) {
             )
         )
     );
-
     return $form;
 }
 
@@ -847,10 +826,10 @@ function email_list_delete_form ($lid) {
             )
         )
     );
-    
     return $form;
 }
 
+// Command handlers ////////////////////////////////////////////////////////////
 
 /**
  * Handle email list subscribe request.
@@ -874,11 +853,9 @@ function command_email_list_subscribe () {
         message_register('Successfully subscribed user to email list.');
     } else {
         error_register('Invalid email. Check email syntax.');
-
     } 
     return crm_url('contact&cid=' . $cid);
 }
-
 
 /**
  * Handle email list unsubscribe request.
@@ -903,7 +880,6 @@ function command_email_list_unsubscribe () {
  * @return The url to display on completion.
  */
 function command_email_list_create () {
-
     //verify permissions first
     if (!user_access('email_list_edit')) {
         error_register('Permission denied: email_list_edit');
@@ -919,7 +895,6 @@ function command_email_list_create () {
  * @return The url to display on completion.
  */
 function command_email_list_edit () {
-
     //verify permissions first
     if (!user_access('email_list_edit')) {
         error_register('Permission denied: email_list_edit');
@@ -936,7 +911,6 @@ function command_email_list_edit () {
  */
 function command_email_list_delete () {
     global $esc_post;
-    
     //verify permissions first
     if (!user_access('email_list_delete')) {
         error_register('Permission denied: email_list_delete');
@@ -946,20 +920,17 @@ function command_email_list_delete () {
     return crm_url('email_lists');
 }
 
-
-
-
 // Themeing ////////////////////////////////////////////////////////////////////
 
 /**
  * Return the themed html for an email list creation form.
- *
  * 
  * @return The themed html string.
  */
 function theme_email_list_create_form () {
     return theme('form', crm_get_form('email_list_create'));
 }
+
 /**
  * Return themed html for an edit list form.
  *
@@ -969,7 +940,6 @@ function theme_email_list_create_form () {
 function theme_email_list_edit_form ($kid) {
     return theme('form', crm_get_form('email_list_edit', $lid));
 }
-
 
 /**
  * Return themed html for an email list subscribe form.
@@ -990,6 +960,4 @@ function theme_email_list_subscribe_form ($cid) {
 function theme_email_list_unsubscribe_form ($subscription) {
     return theme('form', crm_get_form('email_list_unsubscribe', $subscription));
 }
-
-
 ?>

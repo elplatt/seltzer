@@ -110,6 +110,9 @@ $config_modules[] = "amazon_payment";
 // User self-registration
 //$config_modules[] = "register";
 
+// Email list management
+//$config_modules[] = "email_list";
+
 // Links to show in the main menu
 $config_links = array(
     '<front>' => 'Home'
@@ -120,6 +123,7 @@ $config_links = array(
     , 'plan_metas' => 'Plan Meta Data'
     , 'payments' => 'Payments'
     , 'accounts' => 'Accounts'
+    , 'email_lists' => 'Email Lists'
     , 'reports' => 'Reports'
     , 'permissions' => 'Permissions'
     , 'upgrade' => 'Upgrade'
