@@ -262,6 +262,9 @@ function member_membership_add_form ($cid) {
         return NULL;
     }
     
+    // Generate default start date, first of current month
+    $start = date("Y-m-d");
+    
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -285,7 +288,8 @@ function member_membership_add_form ($cid) {
                         'type' => 'text',
                         'label' => 'Start',
                         'name' => 'start',
-                        'class' => 'date'
+                        'class' => 'date',
+                        'value' => $start
                     ),
                     array(
                         'type' => 'text',
@@ -510,7 +514,19 @@ function member_import_form () {
         , 'fields' => array(
             array(
                 'type' => 'message'
-                , 'value' => '<p>To import members, upload a csv.  The csv should have a header row with the following fields:</p><ul><li>First Name</li><li>Middle Name</li><li>Last Name</li><li>Email</li><li>Phone</li><li>Emergency Name</li><li>Emergency Phone</li><li>Username</li><li>Plan</li><li>Start Date</li></ul>'
+                , 'value' => '<p>To import members, upload a csv.  The csv should have a header row with the following fields:</p>
+                <ul>
+                <li>First Name</li>
+                <li>Middle Name</li>
+                <li>Last Name</li>
+                <li>Email</li>
+                <li>Phone</li>
+                <li>Emergency Name</li>
+                <li>Emergency Phone</li>
+                <li>Username</li>
+                <li>Plan</li>
+                <li>Start Date</li>
+                </ul>'
             )
             , array(
                 'type' => 'file'
@@ -537,7 +553,13 @@ function plan_import_form () {
         , 'fields' => array(
             array(
                 'type' => 'message'
-                , 'value' => '<p>To import plans, upload a csv.  The csv should have a header row with the following fields:</p><ul><li>Plan Name</li><li>Price</li><li>Active (Set to 1/0 signalling Y/N)</li><li>Voting (Set to 1/0 signalling Y/N)</li></ul>'
+                , 'value' => '<p>To import plans, upload a csv.  The csv should have a header row with the following fields:</p>
+                <ul>
+                <li>Plan Name</li>
+                <li>Price</li>
+                <li>Active (Set to 1/0 signalling Y/N)</li>
+                <li>Voting (Set to 1/0 signalling Y/N)</li>
+                </ul>'
             )
             , array(
                 'type' => 'file'
