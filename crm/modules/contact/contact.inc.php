@@ -144,7 +144,8 @@ function contact_data ($opts = array()) {
         }
     }
     $sql .= "
-        ORDER BY `lastName`, `firstName`, `middleName` ASC";
+        ORDER BY `lastName`, `firstName`, `middleName` ASC
+    ";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     // Store data
@@ -171,7 +172,9 @@ function contact_data ($opts = array()) {
  * Saves a contact.
  */
 function contact_save ($contact) {
-    $fields = array('cid', 'firstName', 'middleName', 'lastName', 'email', 'phone', 'emergencyName', 'emergencyPhone');
+    $fields = array(
+        'cid', 'firstName', 'middleName', 'lastName', 'email', 'phone', 'emergencyName', 'emergencyPhone'
+    );
     $escaped = array();
     foreach ($fields as $field) {
         $escaped[$field] = mysql_real_escape_string($contact[$field]);
@@ -201,7 +204,8 @@ function contact_save ($contact) {
             INSERT INTO `contact`
             (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
             VALUES
-            ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[emergencyName]','$escaped[emergencyPhone]')";
+            ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[emergencyName]','$escaped[emergencyPhone]')
+        ";
         $res = mysql_query($sql);
         if (!$res) crm_error(mysql_error());
         $contact['cid'] = mysql_insert_id();
@@ -586,7 +590,10 @@ function contact_page (&$page_data, $page_name) {
             if (user_access('contact_view')) {
                 $opts = array(
                     'show_export'=>true
-                    , 'exclude'=>array('emergencyName', 'emergencyPhone')
+                    , 'exclude'=>array(
+                        'emergencyName',
+                        'emergencyPhone'
+                    )
                 );
                 $view = theme('table', crm_get_table('contact', $opts));
                 page_add_content_top($page_data, $view, 'View');
