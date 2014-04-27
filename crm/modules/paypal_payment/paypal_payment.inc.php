@@ -654,7 +654,13 @@ function theme_paypal_payment_admin () {
  * @return A string containing the themed html.
  */
 function theme_paypal_payment_button () {
-    
+    require_once ("expresscheckout.php");
+    $html = <<<EOF
+<form action='modules/paypal_payment/expresscheckout.php' METHOD='POST'>
+<input type='image' name='submit' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif' border='0' align='top' alt='Check out with PayPal'/>
+</form>
+EOF;
+    return $html;
 }
 
 /**
