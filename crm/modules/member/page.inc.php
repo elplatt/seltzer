@@ -60,7 +60,10 @@ function member_page (&$page_data, $page_name, $options) {
                 $opts = array(
                     'filter'=>$_SESSION['member_filter']
                     , 'show_export'=>true
-                    , 'exclude'=>array('emergencyName', 'emergencyPhone')
+                    , 'exclude'=>array(
+                        'emergencyName',
+                        'emergencyPhone'
+                    )
                 );
                 $view .= theme('table', crm_get_table('member', $opts));
                 page_add_content_top($page_data, $view, 'View');
