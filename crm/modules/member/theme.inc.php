@@ -274,8 +274,8 @@ function theme_member_contact_name ($cid) {
     $output = member_name(
         $data[0]['contact']['firstName']
         , $data[0]['contact']['middleName']
-        , $data[0]['contact']['lastName']);
-    
+        , $data[0]['contact']['lastName']
+    );
     return $output;
 }
 
