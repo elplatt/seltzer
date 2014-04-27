@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /*
     Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
     
