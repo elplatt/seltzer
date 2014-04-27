@@ -228,7 +228,8 @@ function member_contact_api ($contact, $op) {
                     INSERT INTO `user_role`
                     (`cid`, `rid`)
                     VALUES
-                    ('$esc_cid', '$esc_rid')";
+                    ('$esc_cid', '$esc_rid')
+                ";
                 $res = mysql_query($sql);
                 if (!$res) crm_error(mysql_error());
             }

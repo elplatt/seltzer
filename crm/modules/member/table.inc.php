@@ -177,7 +177,7 @@ function member_voting_report_table () {
         $table['columns'][] = array('title'=>'D','class'=>'');
         $table['columns'][] = array('title'=>'E','class'=>'');
     }
-
+    
     // Loop through member data
     foreach ($members as $member) {
         
