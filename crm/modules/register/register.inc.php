@@ -158,9 +158,6 @@ function command_register () {
     );
     $member = array('membership' => $membership);
     $contact['member'] = $member;
-    // Add user fields
-    $user = array('username' => $username);
-    $contact['user'] = $user;
     // Save to database
     $contact = contact_save($contact);
     
