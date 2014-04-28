@@ -22,7 +22,7 @@
 // Save path of directory containing index.php
 $crm_root = dirname(__FILE__);
 
-// Bootstrap the crm
+// Bootstrap the site
 require_once('include/crm.inc.php');
 
 header('Content-type: text/csv');
