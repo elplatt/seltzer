@@ -82,14 +82,14 @@ function member_data ($opts = array()) {
         $member = array(
             'cid' => $row['cid'],
             'contact' => array(
-                'cid' => $row['cid'],
-                'firstName' => $row['firstName'],
-                'middleName' => $row['middleName'],
-                'lastName' => $row['lastName'],
-                'email' => $row['email'],
-                'phone' => $row['phone'],
-                'emergencyName' => $row['emergencyName'],
-                'emergencyPhone' => $row['emergencyPhone']
+                'cid' => $row['cid']
+                , 'firstName' => $row['firstName']
+                , 'middleName' => $row['middleName']
+                , 'lastName' => $row['lastName']
+                , 'email' => $row['email']
+                , 'phone' => $row['phone']
+                , 'emergencyName' => $row['emergencyName']
+                , 'emergencyPhone' => $row['emergencyPhone']
             ),
             'user' => array(
                 'cid' => $row['cid'],
@@ -311,7 +311,7 @@ function member_plan_data ($opts = array()) {
 
 /**
  * Generates an associative array mapping membership plan pids to
- * strings describing those membership plan.
+ * strings describing those membership plans.
  * 
  * @param $opts Options to be passed to member_plan_data().
  * @return The associative array of membership plan descriptions.

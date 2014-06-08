@@ -370,11 +370,11 @@ function member_contact_table ($opts) {
     
     // Add row
     $table['rows'][] = array(
-        theme('contact_name', $contact),
-        $contact['email'],
-        $contact['phone'],
-        $contact['emergencyName'],
-        $contact['emergencyPhone']
+        theme('contact_name', $contact)
+        , $contact['email']
+        , $contact['phone']
+        , $contact['emergencyName']
+        , $contact['emergencyPhone']
     );
     
     return $table;

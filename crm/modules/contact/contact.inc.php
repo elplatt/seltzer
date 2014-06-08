@@ -153,14 +153,14 @@ function contact_data ($opts = array()) {
     $row = mysql_fetch_assoc($res);
     while (!empty($row)) {
         $contacts[] = array(
-            'cid' => $row['cid'],
-            'firstName' => $row['firstName'],
-            'middleName' => $row['middleName'],
-            'lastName' => $row['lastName'],
-            'email' => $row['email'],
-            'phone' => $row['phone'],
-            'emergencyName' => $row['emergencyName'],
-            'emergencyPhone' => $row['emergencyPhone']
+            'cid' => $row['cid']
+            , 'firstName' => $row['firstName']
+            , 'middleName' => $row['middleName']
+            , 'lastName' => $row['lastName']
+            , 'email' => $row['email']
+            , 'phone' => $row['phone']
+            , 'emergencyName' => $row['emergencyName']
+            , 'emergencyPhone' => $row['emergencyPhone']
         );
         $row = mysql_fetch_assoc($res);
     }
