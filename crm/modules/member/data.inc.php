@@ -380,7 +380,6 @@ function member_plan_delete ($pid) {
     $sql = "DELETE FROM `plan` WHERE `pid`='$esc_pid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-    $plan = module_invoke_api('plan', $plan, 'delete');
     message_register("Deleted plan: $description");
 }
 
