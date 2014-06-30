@@ -113,6 +113,7 @@ function payment_parse_currency ($value, $code = null) {
     }
     // Remove all irrelevant characters
     switch ($code) {
+        case 'SGD':
         case 'USD':
             $to_remove = '/[^0-9\.]/';
             break;
@@ -129,6 +130,7 @@ function payment_parse_currency ($value, $code = null) {
     // Split the amount into parts
     $count = 0;
     switch ($code) {
+        case 'SGD':
         case 'USD':
             $parts = explode('\.', $clean_value);
             $dollars = $parts[0];
@@ -188,6 +190,7 @@ function payment_format_currency ($value, $symbol = true) {
         $sign = -1;
     }
     switch ($value['code']) {
+        case 'SGD':
         case 'USD':
             if (strlen($count) > 2) {
                 $dollars = substr($count, 0, -2);
