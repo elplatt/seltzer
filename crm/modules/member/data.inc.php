@@ -375,6 +375,8 @@ function member_plan_save ($plan) {
 function member_plan_delete ($pid) {
     $esc_pid = mysql_real_escape_string($pid);
     $description = theme('member_plan_description', $esc_pid);
+    $plan = crm_get_one('member_plan', array('pid'=>$pid));
+    $plan = module_invoke_api('plan', $plan, 'delete');
     $sql = "DELETE FROM `plan` WHERE `pid`='$esc_pid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
@@ -513,10 +515,11 @@ function member_membership_save ($membership) {
  */
 function member_membership_delete ($sid) {
     $esc_sid = mysql_real_escape_string($sid);
+    $membership = crm_get_one('membership', array('sid'=>$sid));
+    $membership = module_invoke_api('membership', $membership, 'delete');
     $sql = "DELETE FROM `membership` WHERE `sid`='$esc_sid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
-    $membership = module_invoke_api('membership', $membership, 'delete');
 }
 
 /**
