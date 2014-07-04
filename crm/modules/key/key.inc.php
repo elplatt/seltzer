@@ -386,6 +386,7 @@ function key_add_form ($cid) {
     
     // Ensure user is allowed to edit keys
     if (!user_access('key_edit')) {
+        error_register('User does not have permission: key_edit');
         return NULL;
     }
     
@@ -446,6 +447,7 @@ function key_add_form ($cid) {
 function key_edit_form ($kid) {
     // Ensure user is allowed to edit key
     if (!user_access('key_edit')) {
+        error_register('User does not have permission: key_edit');
         return NULL;
     }
     // Get key data
@@ -524,6 +526,7 @@ function key_delete_form ($kid) {
     
     // Ensure user is allowed to delete keys
     if (!user_access('key_delete')) {
+        error_register('User does not have permission: key_delete');
         return NULL;
     }
     
@@ -660,8 +663,8 @@ function key_page (&$page_data, $page_name, $options) {
             
             // Add keys tab
             if (user_access('key_view') || user_access('key_edit') || user_access('key_delete') || $cid == user_id()) {
-                $keys = theme('table', 'key', array('cid' => $cid));
-                $keys .= theme('key_add_form', $cid);
+                $keys = theme('table', crm_get_table('key', array('cid' => $cid)));
+                $keys .= theme('form', crm_get_form('key_add', $cid));
                 page_add_content_bottom($page_data, $keys, 'Keys');
             }
             
@@ -670,7 +673,7 @@ function key_page (&$page_data, $page_name, $options) {
         case 'keys':
             page_set_title($page_data, 'Keys');
             if (user_access('key_view')) {
-                $keys = theme('table', 'key', array('join'=>array('contact', 'member'), 'show_export'=>true));
+                $keys = theme('table', crm_get_table('key', array('join'=>array('contact', 'member'), 'show_export'=>true)));
                 page_add_content_top($page_data, $keys, 'View');
             }
             break;
@@ -688,7 +691,7 @@ function key_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
-                page_add_content_top($page_data, theme('key_edit_form', $kid), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('key_edit', $kid), 'Edit'));
             }
             
             break;

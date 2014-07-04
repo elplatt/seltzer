@@ -105,7 +105,7 @@ function module_install () {
     
     // Check whether already installed
     if (module_core_installed()) {
-        error_register('The database must be empty before you can install Seltzer CRM!');
+        error_register('The database must be empty before you can install ' . title() . " " . crm_version() . '!');
         return false;
     }
     
@@ -196,7 +196,7 @@ function module_install_form () {
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Install SeltzerCRM',
+                'label' => 'Install ' . title() . " " . crm_version(),
                 'fields' => array(
                     array(
                         'type' => 'text',
@@ -234,7 +234,7 @@ function module_upgrade_form () {
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Upgrade SeltzerCRM Modules',
+                'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules',
                 'fields' => array(
                     array(
                         'type' => 'submit',
@@ -287,7 +287,7 @@ function command_module_install () {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     
-    message_register('Seltzer CRM has been installed.');
+    message_register(title() . " " . crm_version() . ' has been installed.');
     message_register('You may log in as user "admin"');
     return crm_url('login');
 }
@@ -306,7 +306,7 @@ function command_module_upgrade () {
         return crm_url();
     }
     
-    message_register('Seltzer CRM has been upgraded.');
+    message_register(title() . " " . crm_version() . ' has been upgraded.');
     return crm_url();
 }
 

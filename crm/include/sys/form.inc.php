@@ -262,6 +262,13 @@ function theme_form_text ($field) {
     if (!empty($field['autocomplete'])) {
         array_push($classes, 'autocomplete');
     }
+    if (!empty($field['suggestion'])) {
+        array_push($classes, 'autocomplete');
+    }
+    if (!empty($field['value']) && array_key_exists('defaultClear', $field) && $field['defaultClear'] == True)
+    {
+        array_push($classes, 'defaultClear');
+    }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -277,6 +284,10 @@ function theme_form_text ($field) {
     if (empty($field['autocomplete'])) {
         if (!empty($field['value'])) {
             $output .= ' value="' . $field['value'] . '"';
+            
+            if (array_key_exists('defaultClear', $field) && $field['defaultClear'] == True) {
+                $output .= ' title="' . $field['value'] . '"';
+            }
         }
     } else {
         if (!empty($field['description'])) {
@@ -284,6 +295,10 @@ function theme_form_text ($field) {
         }
     }
     $output .= '/>';
+    if(array_key_exists('suggestion', $field))
+    {
+        $output .= '<span class="autocomplete" style="display:none;">' . $field['suggestion'] . '</span>';
+    }
     if (array_key_exists('autocomplete', $field) && !empty($field['autocomplete'])) {
         $val = array_key_exists('value', $field) ? $field['value'] : '';
         $output .= '<input class="autocomplete-value" type="hidden" name="' . $field['name'] . '"';

@@ -20,6 +20,8 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Members /////////////////////////////////////////////////////////////////////
+
 /**
  * @return The form structure for adding a member.
 */
@@ -75,6 +77,8 @@ function member_add_form () {
     
     return $form;
 }
+
+// Plans ///////////////////////////////////////////////////////////////////////
 
 /**
  * @return The form structure for adding a membership plan.
@@ -199,6 +203,53 @@ function member_plan_edit_form ($pid) {
 }
 
 /**
+ * Return the form structure to delete a membership plan.
+ *
+ * @param $pid The pid of the plan to delete.
+ * @return The form structure.
+*/
+function member_plan_delete_form ($pid) {
+    
+    // Ensure user is allowed to edit plans
+    if (!user_access('member_plan_edit')) {
+        return NULL;
+    }
+    
+    // Get plan description
+    $description = theme('member_plan_description', $pid);
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'member_plan_delete',
+        'hidden' => array(
+            'pid' => $pid,
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Delete Plan',
+                'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => '<p>Are you sure you want to delete the plan "' . $description. '"? This cannot be undone.',
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Delete'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+// Memberships /////////////////////////////////////////////////////////////////
+
+/**
  * Return the form structure for adding a membership.
  *
  * @param cid the cid of the member to add a membership for.
@@ -245,168 +296,6 @@ function member_membership_add_form ($cid) {
                     array(
                         'type' => 'submit',
                         'value' => 'Add'
-                    )
-                )
-            )
-        )
-    );
-    
-    return $form;
-}
-
-/**
- * Return the form structure to delete a membership plan.
- *
- * @param $pid The pid of the plan to delete.
- * @return The form structure.
-*/
-function member_plan_delete_form ($pid) {
-    
-    // Ensure user is allowed to edit plans
-    if (!user_access('member_plan_edit')) {
-        return NULL;
-    }
-    
-    // Get plan description
-    $description = theme('member_plan_description', $pid);
-    
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'member_plan_delete',
-        'hidden' => array(
-            'pid' => $pid,
-        ),
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Delete Plan',
-                'fields' => array(
-                    array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the plan "' . $description. '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
-                    )
-                )
-            )
-        )
-    );
-    
-    return $form;
-}
-
-/**
- * Return the form structure to delete a member.
- *
- * @param $cid The cid of the member to delete.
- * @return The form structure.
-*/
-function member_delete_form ($cid) {
-    
-    // Ensure user is allowed to delete members
-    if (!user_access('member_delete')) {
-        return NULL;
-    }
-    
-    // Get member data
-    $data = member_data(array('cid'=>$cid));
-    $member = $data[0];
-    
-    // Construct member name
-    if (empty($member) || count($member) < 1) {
-        return array();
-    }
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'member_delete',
-        'hidden' => array(
-            'cid' => $member['contact']['cid']
-        ),
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Delete Member',
-                'fields' => array(
-                    array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the member "' . theme_contact_name($member['cid']) . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Delete all contact info?',
-                        'name' => 'deleteContact',
-                        'checked' => true
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
-                    )
-                )
-            )
-        )
-    );
-    
-    return $form;
-}
-
-/**
- * Return the form structure to delete a membership.
- *
- * @param $sid id of the membership to delete.
- * @return The form structure.
-*/
-function member_membership_delete_form ($sid) {
-    
-    // Ensure user is allowed to edit memberships
-    if (!user_access('member_membership_edit')) {
-        return NULL;
-    }
-    
-    // Get membership data
-    $data = member_membership_data(array('sid'=>$sid));
-    $membership = $data[0];
-    
-    // Construct member name
-    /* TODO
-    if (empty($member) || count($member) < 1) {
-        return array();
-    }
-    $member_name = $member['contact']['firstName'];
-    if (!empty($member['contact']['middleName'])) {
-        $member_name .= ' ' . $member['contact']['middleName'];
-    }
-    $member_name .= ' ' . $member['contact']['lastName'];
-    */
-    
-    // Construct membership name
-    $membership_name = "user:$membership[cid] $membership[start] -- $membership[end]";
-    
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'member_membership_delete',
-        'hidden' => array(
-            'sid' => $membership['sid']
-        ),
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Delete Membership',
-                'fields' => array(
-                    array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the membership "' . $membership_name . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
                     )
                 )
             )
@@ -492,7 +381,69 @@ function member_membership_edit_form ($sid) {
     
     return $form;
 }
-// Filters
+
+/**
+ * Return the form structure to delete a membership.
+ *
+ * @param $sid id of the membership to delete.
+ * @return The form structure.
+*/
+function member_membership_delete_form ($sid) {
+    
+    // Ensure user is allowed to edit memberships
+    if (!user_access('member_membership_edit')) {
+        return NULL;
+    }
+    
+    // Get membership data
+    $data = member_membership_data(array('sid'=>$sid));
+    $membership = $data[0];
+    
+    // Construct member name
+    /* TODO
+    if (empty($member) || count($member) < 1) {
+        return array();
+    }
+    $member_name = $member['contact']['firstName'];
+    if (!empty($member['contact']['middleName'])) {
+        $member_name .= ' ' . $member['contact']['middleName'];
+    }
+    $member_name .= ' ' . $member['contact']['lastName'];
+    */
+    
+    // Construct membership name
+    $membership_name = "user:$membership[cid] $membership[start] -- $membership[end]";
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'member_membership_delete',
+        'hidden' => array(
+            'sid' => $membership['sid']
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Delete Membership',
+                'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => '<p>Are you sure you want to delete the membership "' . $membership_name . '"? This cannot be undone.',
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Delete'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
+// Filters /////////////////////////////////////////////////////////////////////
 
 /**
  * Return the form structure for a member filter.
@@ -544,6 +495,8 @@ function member_filter_form () {
     
     return $form;
 }
+
+// Imports /////////////////////////////////////////////////////////////////////
 
 /**
  * @return the form structure for a member import form.

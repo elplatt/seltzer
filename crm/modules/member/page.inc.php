@@ -56,13 +56,13 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add view tab
             if (user_access('member_view')) {
-                $view = theme('member_filter_form');
+                $view = theme('form', crm_get_form('member_filter'));
                 $opts = array(
                     'filter'=>$_SESSION['member_filter']
                     , 'show_export'=>true
                     , 'exclude'=>array('emergencyName', 'emergencyPhone')
                 );
-                $view .= theme('table', 'member', $opts);
+                $view .= theme('table', crm_get_table('member', $opts));
                 page_add_content_top($page_data, $view, 'View');
             }
             
@@ -72,8 +72,8 @@ function member_page (&$page_data, $page_name, $options) {
             }
             
             // Add import tab
-            if (user_access('contact_edit') && user_access('member_edit')) {
-                page_add_content_top($page_data, theme('form', member_import_form()), 'Import');
+            if (user_access('contact_add') && user_access('user_add') && user_access('member_add')) {
+                page_add_content_top($page_data, theme('form', crm_get_form('member_import')), 'Import');
             }
             
             break;
@@ -85,9 +85,9 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add view, add and import tabs
             if (user_access('member_plan_edit')) {
-                page_add_content_top($page_data, theme('table', 'member_plan'), 'View');
-                page_add_content_top($page_data, theme('member_plan_add_form'), 'Add');
-                page_add_content_top($page_data, theme('form', plan_import_form()), 'Import');
+                page_add_content_top($page_data, theme('table', crm_get_table('member_plan')), 'View');
+                page_add_content_top($page_data, theme('form', crm_get_form('member_plan_add')), 'Add');
+                page_add_content_top($page_data, theme('form', crm_get_form('plan_import')), 'Import');
             }
             
             break;
@@ -105,7 +105,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('member_plan_edit')) {
-                page_add_content_top($page_data, theme('member_plan_edit_form', $pid), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('member_plan_edit', $pid)), 'Edit');
             }
             
             break;
@@ -120,12 +120,12 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add plan and role tabs
             if (user_access('member_membership_edit') || $cid == user_id()) {
-                $plan = theme('table', 'member_membership', array('cid' => $cid));
-                $plan .= theme('member_membership_add_form', $cid);
+                $plan = theme('table', crm_get_table('member_membership', array('cid' => $cid)));
+                $plan .= theme('form', crm_get_form('member_membership_add', $cid));
                 page_add_content_top($page_data, $plan, 'Plan');
             }
             if (user_access('member_membership_edit')) {
-                $roles = theme('user_role_edit_form', $cid);
+                $roles = theme('form', crm_get_form('user_role_edit', $cid));
                 page_add_content_top($page_data, $roles, 'Roles');
             }
             
@@ -144,7 +144,7 @@ function member_page (&$page_data, $page_name, $options) {
             
             // Add edit tab
             if (user_access('member_membership_edit') && user_access('member_edit')) {
-                page_add_content_top($page_data, theme('member_membership_edit_form', $sid), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('member_membership_edit', $sid)), 'Edit');
             }
             break;
         

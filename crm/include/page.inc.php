@@ -27,6 +27,7 @@ function core_page_list () {
     $pages = array();
     $pages[] = '<front>';
     $pages[] = 'install';
+    $pages[] = 'register';
     $pages[] = 'login';
     $pages[] = 'reset';
     $pages[] = 'reset-confirm';
@@ -52,25 +53,36 @@ function core_page_list () {
 */
 function core_page (&$page_data, $page_name, $options) {
     
+    $latestNews = '<p>Welcome to ' . title() . ' version ' . crm_version() . '!</p>';
+    
+    // Modify this variable with valid HTML between the apostrophes to display update text to users on login
+    
+    $latestNews = $latestNews . '
+        <p><p>
+    ';
+    
     switch ($page_name) {
         
         case '<front>':
-            page_add_content_top($page_data, '<p>Welcome to SeltzerCRM!</p>');
+            page_add_content_top($page_data, $latestNews);
             break;
         case 'install':
-            page_add_content_top($page_data, theme('form', module_install_form()));
+            page_add_content_top($page_data, theme('form', crm_get_form('module_install')));
+            break;
+        case 'register':
+            page_add_content_top($page_data, theme('form', crm_get_form('register')));
             break;
         case 'login':
-            page_add_content_top($page_data, theme('login_form'));
+            page_add_content_top($page_data, theme('form', crm_get_form('login')));
             break;
         case 'reset':
-            page_add_content_top($page_data, theme('user_reset_password_form'));
+            page_add_content_top($page_data, theme('form', crm_get_form('user_reset_password')));
             break;
         case 'reset-confirm':
-            page_add_content_top($page_data, theme('user_reset_password_confirm_form', $_GET['v']));
+            page_add_content_top($page_data, theme('form', crm_get_form('user_reset_password_confirm', $_GET['v'])));
             break;
         case 'delete':
-            page_add_content_top($page_data, theme('delete_form', $_GET['type'], $_GET['id']));
+            page_add_content_top($page_data, theme('form', crm_get_form('delete', $_GET['type'], $_GET['id'])));
             break;
         case 'reports':
             if (user_access('report_view')) {
@@ -80,14 +92,14 @@ function core_page (&$page_data, $page_name, $options) {
         case 'permissions':
             if (user_access('user_permissions_edit')) {
                 page_set_title($page_data, 'Permissions');
-                page_add_content_top($page_data, theme('form', user_permissions_form()));
+                page_add_content_top($page_data, theme('form', crm_get_form('user_permissions')));
             }
             break;
         case 'upgrade':
             if (user_access('module_upgrade')) {
                 page_set_title($page_data, 'Upgrade Modules');
-                $content = theme('table', 'module_upgrade');
-                $content .= theme('form', module_upgrade_form());
+                $content = theme('table', crm_get_table('module_upgrade'));
+                $content .= theme('form', crm_get_form('module_upgrade'));
                 page_add_content_top($page_data, $content);
             }
     }   
