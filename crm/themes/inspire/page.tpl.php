@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="<?php print path_to_theme(); ?>/style.css"/>
     <link rel="stylesheet" type="text/css" href="<?php print path_to_theme(); ?>/css/ui-lightness/jquery-ui-1.8.14.custom.css"/>
     <?php print $stylesheets; ?>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript" src="<?php print path_to_theme(); ?>/js/jquery-ui-1.8.14.custom.min.js"></script>
     <script type="text/javascript" src="<?php print path_to_theme(); ?>/js/d3.v3.min.js"></script>
     <script type="text/javascript" src="<?php print path_to_theme(); ?>/script.js"></script>
