@@ -103,7 +103,6 @@ function profile_picture_page (&$page_data, $page_name) {
     }
 }
 
-
 /**
  * @return a profile picture upload form structure.
  */
@@ -243,6 +242,7 @@ function command_profile_picture_upload () {
     } 
     return crm_url('contact&cid=' . $_POST['cid']);
 }
+
 // DB to Object mapping ////////////////////////////////////////////////////////
 
 /**
@@ -251,7 +251,6 @@ function command_profile_picture_upload () {
  *
  * @return bool true if succeded, false if failed.
  */
-
 function profile_picture_delete ($cid) {
     //Remove existing profile picture associated with this CID (both the file, and the row in the database)
     //Attempt to fetch a picture filename in the database associated with this cid.
@@ -305,7 +304,7 @@ function theme_profile_picture ($contact) {
         //else, grab a gravatar associated with this email (if there is one).
         $email = $contact['email'];
         $size = 120; //default size of the gravatar
-        $grav_url = "http://www.gravatar.com/avatar/" . md5(strtolower(trim($email)))."?d=retro&s=" .$size;
+        $grav_url = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($email)))."?d=retro&s=" .$size;
         $html = '<div class="userimage"><img src = "'.$grav_url.'"></div>';
     }
     return $html;
