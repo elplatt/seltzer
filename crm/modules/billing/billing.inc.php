@@ -268,7 +268,7 @@ function billing_bill_membership ($membership, $until, $after = '') {
     $until_date = strtotime($until);
     $membership_start = strtotime($membership['start']);
     // Find first unbilled day
-    if (empty($after) || $membership_start > strtotime($after)) {
+    if (empty($after) || $membership_start >= strtotime($after)) {
         // Membership started on or after first billable day
         // Start billing on membership start date
         $period_start = $membership_start;
