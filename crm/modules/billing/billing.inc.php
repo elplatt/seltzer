@@ -290,7 +290,7 @@ function billing_bill_membership ($membership, $until, $after = '') {
             , 'code' => $prorated['code']
             , 'value' => $prorated['value']
             , 'credit_cid' => $membership['cid']
-            , 'method' => 'cash'
+            , 'method' => ''
         );
         payment_save($payment);
         // Advance to beginning of first full period
@@ -305,7 +305,7 @@ function billing_bill_membership ($membership, $until, $after = '') {
             , 'code' => $price['code']
             , 'value' => $price['value']
             , 'credit_cid' => $membership['cid']
-            , 'method' => 'cash'
+            , 'method' => ''
         );
         payment_save($payment);
         // Advance to next billing period
