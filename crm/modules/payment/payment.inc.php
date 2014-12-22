@@ -201,7 +201,7 @@ function payment_format_currency ($value, $symbol = true) {
             }
             $result .= $dollars . '.' . $cents;
             if ($sign < 0) {
-                $result = '(' . $result . ')';
+                $result = '-' . $result;
             }
             break;
         case 'GBP':
@@ -217,7 +217,7 @@ function payment_format_currency ($value, $symbol = true) {
             }
             $result .= $pounds . '.' . $pence;
             if ($sign < 0) {
-                $result = '(' . $result . ')';
+                $result = '-' . $result;
             }
             break;
         case 'EUR':
@@ -233,7 +233,7 @@ function payment_format_currency ($value, $symbol = true) {
             }
             $result .= $euros . '.' . $cents;
             if ($sign < 0) {
-                $result = '(' . $result . ')';
+                $result = '-' . $result;
             }
             break;
         default:
