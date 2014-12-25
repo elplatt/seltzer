@@ -649,7 +649,8 @@ function payment_table ($opts) {
         $table['columns'][] = array("title"=>'description');
         $table['columns'][] = array("title"=>'credit');
         $table['columns'][] = array("title"=>'debit');
-        $table['columns'][] = array("title"=>'amount');
+        $table['columns'][] = array("title"=>'amount charged');
+        $table['columns'][] = array("title"=>'amount paid');
         $table['columns'][] = array("title"=>'method');
         $table['columns'][] = array("title"=>'confirmation');
         $table['columns'][] = array("title"=>'notes');
@@ -676,7 +677,16 @@ function payment_table ($opts) {
             } else {
                 $row[] = '';
             }
-            $row[] = payment_format_currency($payment, true);
+            if ($payment['value']<=0) {
+                $row[] = payment_format_currency($payment, true);
+            } else {
+                $row[] = '';
+            }
+            if ($payment['value']>=0) {
+                $row[] = payment_format_currency($payment, true);
+            } else {
+                $row[] = '';
+            }
             $row[] = $payment['method'];
             $row[] = $payment['confirmation'];
             $row[] = $payment['notes'];
