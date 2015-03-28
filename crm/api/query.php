@@ -23,7 +23,7 @@ function testInput($data) {
 //ones you want to have back.
 function getMemberInfoByRFID($rfid,$fieldNames)
 {  
-  require('dbconnect.php');
+  require('db.inc.php');
   
   $rfid = testInput($rfid);
   $fieldNames = testInput($fieldNames);
@@ -57,7 +57,7 @@ function getMemberInfoByRFID($rfid,$fieldNames)
 // for the member with the given RFID.
 function getMemberLastPaymentTimestamp($rfid)
 { 
-  require('dbconnect.php');
+  require('db.inc.php');
   
   $rfid = testInput($rfid);
   
@@ -104,7 +104,7 @@ function getMemberLastPaymentTimestamp($rfid)
 //returns JSON array of all key serial values for all members who made a payment in the last 45 days.
 function getRFIDWhitelist($fields)
 {
-	require('dbconnect.php');
+	require('db.inc.php');
 	
 	$fields = testInput($fields);
 	
@@ -113,6 +113,10 @@ function getRFIDWhitelist($fields)
 		$fields = "*";
 	}
 	
+	//This SQL query is supposed to return all the members who have a current account
+	// balance LESS than two times their current plan's monthly dues.  For example:
+	// if someone is on the $50 a month plan, then it should return everyone who's
+	// balance is less than $100.
 	//$query = "SELECT k.serial, c.firstname, c.lastname, p.date, p.value
 	$query = "SELECT " . $fields . "
 				FROM (
@@ -140,36 +144,55 @@ function getRFIDWhitelist($fields)
 }
 
 //action=doorLockCheck&rfid=<scanned RFID>
-//returns JSON string TRUE if key owner has made payment in last 45 days, FALSE if not.
+//returns JSON string TRUE if key owner has a balance less than 2 times
+// their current montly plan price, FALSE or error string if not.
 function doorLockCheck($rfid)
 {
-	require('dbconnect.php');
+	require('db.inc.php');
 	
 	$rfid = testInput($rfid);
 	
-	$query = "SELECT serial
-				FROM (
+	//get the key owner and their current membership plan
+	$query = "SELECT c.cid, p.price
+				FROM ((
 				`key` k
 				LEFT JOIN  `contact` c ON k.cid = c.cid
 				)
-				LEFT JOIN  `payment` p ON p.credit = c.cid
-				WHERE p.date
-				BETWEEN CURDATE( ) - INTERVAL 45 
-				DAY AND CURDATE( ) 
-				AND p.value >0
-				AND k.serial = '" . $rfid . "'
-				LIMIT 0 , 30";
+				LEFT JOIN `membership` m ON m.cid = c.cid
+				)
+				LEFT JOIN `plan` p ON p.pid = m.pid
+				where k.serial = '" . $rfid . "'";
 				
 	$result = mysqli_query($con, $query) 
-		  or die(json_encode(array("doorLockCheckQueryERROR"=>mysql_error())));
+		  or die(json_encode(array("doorLockCheckQueryERROR"=>mysqli_error($con))));
  
-	if (mysqli_num_rows($result)) 
-	{
-    	$jsonResponse = true;
- 	}
- 	else
+ 	//if no rows returned then that key wasn't even found in the DB
+ 	if(mysqli_num_rows($result) == 0)
  	{
-		$jsonResponse = false;
+ 		$jsonResponse = array("key " . $rfid . " not found in db");
+	}
+ 	else
+ 	{		
+	 	$row = mysqli_fetch_assoc($result); 	
+	 	
+	 	$memberID = $row["cid"];
+	 	$planPrice = $row["price"];
+		
+		$accountData = payment_accounts(array("cid" => $memberID));
+		//{"2":{"credit":"2","code":"USD","value":5000}}
+		
+		$memberBalance = $accountData[$memberID]["value"] / 100;
+		
+		//if the current key owner's balance is equal or 
+		// greater than 2 months of dues then access is denied!
+		if ($memberBalance >= ($planPrice * 2))
+		{
+			$jsonResponse = array("member balance = " . $memberBalance);
+		}
+		else
+		{
+			$jsonResponse = true;
+		}
 	}
 	
 	return $jsonResponse;
@@ -215,6 +238,6 @@ if (isset($_GET["action"]) && in_array($_GET["action"], $possible_url))
     }
 }
 
-//return JSON array
+//return JSON object as the response to client
 exit(json_encode($value));
 ?>
