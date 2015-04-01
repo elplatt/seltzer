@@ -102,45 +102,37 @@ function getMemberLastPaymentTimestamp($rfid)
 
 //action=getRFIDWhitelist
 //returns JSON array of all key serial values for all members who made a payment in the last 45 days.
-function getRFIDWhitelist($fields)
+function getRFIDWhitelist()
 {
 	require('db.inc.php');
 	
-	$fields = testInput($fields);
+	$whiteList = array();
 	
-	if(!$fields)
-	{
-		$fields = "*";
-	}
+	//get everyone's plan prices and balances and check here
+	$balances = payment_accounts();
+	foreach ($balances as $cid => $bal) {
+		//now get this member's monthly plan amount
+		$memberData = member_data(array("cid"=>$cid));
+		$planAmount = $memberData[0]["membership"][0]["plan"]["price"];
+		$firstName = $memberData[0]["contact"]["firstName"];
+		$lastName = $memberData[0]["contact"]["lastName"];
+		$memberBalance = $bal['value'] / 100;
+        if ($memberBalance < ($planAmount * 2)) {
+            //this member has paid their dues. Add to whitelist.
+            //get their key serial and add that too!
+            $query = "SELECT serial FROM `key` WHERE char_length(serial) > 5 and cid = " . $cid;
+            $result = mysqli_query($con, $query) 
+		  		or die(json_encode(array("getRFIDWhitelistQueryERROR"=>mysqli_error($con))));
+            $r = mysqli_fetch_assoc($result);
+            $serial = $r["serial"];
+            if ($serial != NULL)
+            {
+				$whiteList[] = array("firstName"=>$firstName,"lastName"=>$lastName,"serial"=>$serial);	
+			}
+        }
+    }
 	
-	//This SQL query is supposed to return all the members who have a current account
-	// balance LESS than two times their current plan's monthly dues.  For example:
-	// if someone is on the $50 a month plan, then it should return everyone who's
-	// balance is less than $100.
-	//$query = "SELECT k.serial, c.firstname, c.lastname, p.date, p.value
-	$query = "SELECT " . $fields . "
-				FROM (
-				`key` k
-				LEFT JOIN  `contact` c ON k.cid = c.cid
-				)
-				LEFT JOIN  `payment` p ON p.credit = c.cid
-				WHERE p.date
-				BETWEEN CURDATE( ) - INTERVAL 45 
-				DAY AND CURDATE( ) 
-				AND p.value >0
-				LIMIT 0 , 30";
-				
-	$result = mysqli_query($con, $query) 
-		  or die(json_encode(array("getRFIDWhitelistQueryERROR"=>mysql_error())));
- 
-	while($r = mysqli_fetch_assoc($result)){
-	    // $rows[] = $r; has the same effect, without the superfluous data attribute
-	    //$rows[] = array('data' => $r);
-	    $rows[] = $r;
-	}
-
-	$jsonResponse = $rows;
-	return $jsonResponse;
+	return $whiteList;
 }
 
 //action=doorLockCheck&rfid=<scanned RFID>
@@ -191,7 +183,7 @@ function doorLockCheck($rfid)
 		}
 		else
 		{
-			$jsonResponse = true;
+			$jsonResponse = array("True");
 		}
 	}
 	
