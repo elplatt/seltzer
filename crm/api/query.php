@@ -101,7 +101,8 @@ function getMemberLastPaymentTimestamp($rfid)
 }
 
 //action=getRFIDWhitelist
-//returns JSON array of all key serial values for all members who made a payment in the last 45 days.
+//returns JSON array of all key serial values for all members who owe less than 2 months
+// of their monthly plan's dues.
 function getRFIDWhitelist()
 {
 	require('db.inc.php');
@@ -117,7 +118,7 @@ function getRFIDWhitelist()
 		$firstName = $memberData[0]["contact"]["firstName"];
 		$lastName = $memberData[0]["contact"]["lastName"];
 		$memberBalance = $bal['value'] / 100;
-        if ($memberBalance < ($planAmount * 2) || $memberBalance == 0) {
+        if ($memberBalance <= ($planAmount * 2) || $memberBalance == 0) {
             //this member has paid their dues. Add to whitelist.
             //get their key serial and add that too!
             $query = "SELECT serial FROM `key` WHERE char_length(serial) > 5 and cid = " . $cid;
@@ -175,10 +176,10 @@ function doorLockCheck($rfid)
 		
 		$memberBalance = $accountData[$memberID]["value"] / 100;
 		
-		//if the current key owner's balance is equal or 
+		//if the current key owner's balance is 
 		// greater than 2 months of dues then access is denied!
 		// Unless thier plan price is zero then 0 balance == 0 price is OK.
-		if ($memberBalance >= ($planPrice * 2) && $memberBalance > 0)
+		if ($memberBalance > ($planPrice * 2) && $memberBalance > 0)
 		{
 			$jsonResponse = array("member balance = " . $memberBalance);
 		}
