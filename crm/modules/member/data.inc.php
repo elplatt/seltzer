@@ -38,7 +38,7 @@ function member_data ($opts = array()) {
         FROM `member`
         LEFT JOIN `contact` ON `member`.`cid`=`contact`.`cid`
         LEFT JOIN `user` ON `member`.`cid`=`user`.`cid`
-        LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND `membership`.`end` IS NULL)
+        LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()))
         LEFT JOIN `plan` ON `plan`.`pid`=`membership`.`pid`
         WHERE 1
     ";
@@ -60,18 +60,20 @@ function member_data ($opts = array()) {
         $filter = $opts['filter'];
         if (isset($filter['active'])) {
             if ($filter['active']) {
-                $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL)";
+				//get active members:
+                $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()))";
             } else {
-                $sql .= " AND (`membership`.`start` IS NULL OR `membership`.`end` IS NOT NULL)";
+				//get NOT active members:
+                $sql .= " AND (`membership`.`start` IS NULL OR `membership`.`start` > NOW() OR `membership`.`end` < NOW())";
             }
         }
         if (isset($filter['voting'])) {
-            $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`end` IS NULL AND `plan`.`voting` <> 0)";
+            $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()) AND `plan`.`voting` <> 0)";
         }
     }
     $sql .= " GROUP BY `member`.`cid` ";
     $sql .= " ORDER BY `lastName`, `firstName`, `middleName` ASC ";
-
+	
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
     
