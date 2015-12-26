@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
     Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
@@ -94,9 +94,6 @@ function command_member_add () {
     );
     $member = array('membership' => $membership);
     $contact['member'] = $member;
-    // Add user fields
-    $user = array('username' => $username);
-    $contact['user'] = $user;
     // Save to database
     $contact = contact_save($contact);
     
@@ -213,8 +210,6 @@ function command_member_membership_add () {
         return crm_url('members');
     }
     
-    // Add membership
-    
     // Construct membership object and save
     $membership = array(
         'sid' => $_POST['sid']
@@ -225,7 +220,7 @@ function command_member_membership_add () {
     );
     member_membership_save($membership);
     
-    return crm_url("contact&cid=$_POST[cid]");
+    return crm_url("contact&cid=$_POST[cid]&tab=plan");
 }
 
 /**
@@ -275,7 +270,7 @@ function command_member_membership_delete () {
     // Delete membership
     member_membership_delete($esc_post['sid']);
     
-    return crm_url("contact&cid=$_POST[cid]");
+    return crm_url("contact&cid=$_POST[cid]&tab=plan");
 }
 
 /**
@@ -431,9 +426,6 @@ function command_member_import () {
         );
         $member = array('membership' => $membership);
         $contact['member'] = $member;
-        // Add user
-        $user = array('username' => $username);
-        $contact['user'] = $user;
         
         $contact = contact_save($contact);
         

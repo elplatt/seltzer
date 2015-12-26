@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
     Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
@@ -82,14 +82,14 @@ function member_data ($opts = array()) {
         $member = array(
             'cid' => $row['cid'],
             'contact' => array(
-                'cid' => $row['cid'],
-                'firstName' => $row['firstName'],
-                'middleName' => $row['middleName'],
-                'lastName' => $row['lastName'],
-                'email' => $row['email'],
-                'phone' => $row['phone'],
-                'emergencyName' => $row['emergencyName'],
-                'emergencyPhone' => $row['emergencyPhone']
+                'cid' => $row['cid']
+                , 'firstName' => $row['firstName']
+                , 'middleName' => $row['middleName']
+                , 'lastName' => $row['lastName']
+                , 'email' => $row['email']
+                , 'phone' => $row['phone']
+                , 'emergencyName' => $row['emergencyName']
+                , 'emergencyPhone' => $row['emergencyPhone']
             ),
             'user' => array(
                 'cid' => $row['cid'],
@@ -228,7 +228,8 @@ function member_contact_api ($contact, $op) {
                     INSERT INTO `user_role`
                     (`cid`, `rid`)
                     VALUES
-                    ('$esc_cid', '$esc_rid')";
+                    ('$esc_cid', '$esc_rid')
+                ";
                 $res = mysql_query($sql);
                 if (!$res) crm_error(mysql_error());
             }
@@ -310,7 +311,7 @@ function member_plan_data ($opts = array()) {
 
 /**
  * Generates an associative array mapping membership plan pids to
- * strings describing those membership plan.
+ * strings describing those membership plans.
  * 
  * @param $opts Options to be passed to member_plan_data().
  * @return The associative array of membership plan descriptions.

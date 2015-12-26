@@ -776,7 +776,9 @@ function payment_history_table ($opts) {
         if (user_access('payment_delete')) {
             $ops .= '<a href=' . crm_url('delete&type=payment&id=' . $payment['pmtid']) . '>delete</a>';
         }
-        $row[] = $ops;
+        if (user_access('payment_edit') || user_access('payment_delete')) {
+            $row[] = $ops;
+        }
         $table['rows'][] = $row;
     }
     

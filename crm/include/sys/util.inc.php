@@ -1,4 +1,5 @@
 <?php
+
 /*
     Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
     
@@ -96,7 +97,7 @@ function crm_error ($text) {
 }
 
 /**
- * Parse and return the version of the CRM as specified in crm.inc.php under £crm_version.
+ * Parse and return the version of the CRM as specified in crm.inc.php under $crm_version.
  * @return A string representation of the array
  */
 function crm_version() {

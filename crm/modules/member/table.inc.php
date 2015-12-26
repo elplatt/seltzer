@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
     Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
@@ -177,7 +177,7 @@ function member_voting_report_table () {
         $table['columns'][] = array('title'=>'D','class'=>'');
         $table['columns'][] = array('title'=>'E','class'=>'');
     }
-
+    
     // Loop through member data
     foreach ($members as $member) {
         
@@ -370,11 +370,11 @@ function member_contact_table ($opts) {
     
     // Add row
     $table['rows'][] = array(
-        theme('contact_name', $contact),
-        $contact['email'],
-        $contact['phone'],
-        $contact['emergencyName'],
-        $contact['emergencyPhone']
+        theme('contact_name', $contact)
+        , $contact['email']
+        , $contact['phone']
+        , $contact['emergencyName']
+        , $contact['emergencyPhone']
     );
     
     return $table;
