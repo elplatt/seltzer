@@ -121,6 +121,19 @@ function member_page (&$page_data, $page_name, $options) {
                 return;
             }
             
+            // Add view tab
+            $view_content = '';
+            if (user_id() == $_GET['cid'] || ((user_access('contact_edit') && user_access('member_edit')))) {
+                $view_content .= '<h3>Member Info</h3>';
+                $view_content .= theme('table_vertical', crm_get_table('member_info', array('cid' => $cid)));
+                page_add_content_bottom($page_data, $view_content, 'View');
+            }
+            // Add edit tab
+            if (user_id() == $_GET['cid'] || ((user_access('contact_edit') && user_access('member_edit')))) {
+                $edit = theme('form', crm_get_form('member_edit', $cid), 'Edit Member Info');
+                page_add_content_bottom($page_data, $edit, 'Edit');
+            }
+            
             // Add plan and role tabs
             if (user_access('member_membership_edit') || $cid == user_id()) {
                 $plan = theme('table', crm_get_table('member_membership', array('cid' => $cid)));

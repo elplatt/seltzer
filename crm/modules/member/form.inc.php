@@ -52,6 +52,16 @@ function member_add_form () {
                 'label' => 'Username',
                 'name' => 'username'
             )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
+            )
         )
     );
     $form['fields'][] = array(
@@ -75,6 +85,57 @@ function member_add_form () {
         )
     );
     
+    return $form;
+}
+
+/**
+ * @return The form structure for editing a member.
+*/
+function member_edit_form ($cid) {
+    
+    // Create form
+    if ($cid) {
+        $memb_data = crm_get_data('member', array('cid'=>$cid));
+        $member = $memb_data[0]['member'];
+        $user_data = crm_get_data('user', array('cid'=>$cid));
+        $user = $user_data[0];
+    }
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'member_edit'
+        , 'hidden' => array(
+            'cid' => $cid
+        )
+        , 'fields' => array()
+        , 'submit' => 'Update'
+    );
+    
+    // Edit member data
+    $form['fields'][] = array(
+        'type' => 'fieldset',
+        'label' => 'User Info',
+        'fields' => array(
+            array(
+                'type' => 'readonly',
+                'label' => 'Username',
+                'name' => 'username',
+                'value' => $user['username']
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+                , 'value' => $member['emergencyName']
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
+                , 'value' => $member['emergencyPhone']
+            )
+        )
+    );
     return $form;
 }
 
