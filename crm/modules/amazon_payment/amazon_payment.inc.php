@@ -636,11 +636,11 @@ function theme_amazon_payment_button ($cid, $params = array()) {
         , 'amount' => 'USD 1.1'
         , 'cobrandingStyle' => 'logo'
         , 'description' => 'Test Widget'
-        , 'ipnUrl' => 'http://' . $config_host . base_path() . 'modules/amazon_payment/ipn.php'
-        , 'returnUrl' => 'http://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
+        , 'ipnUrl' => 'https://' . $config_host . base_path() . 'modules/amazon_payment/ipn.php'
+        , 'returnUrl' => 'https://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
         , 'processImmediate' => '1'
         , 'cobrandingStyle' => 'logo'
-        , 'abandonUrl' => 'http://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
+        , 'abandonUrl' => 'https://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
     );
     // Use defaults for parameters not specified
     foreach ($defaults as $key => $value) {
