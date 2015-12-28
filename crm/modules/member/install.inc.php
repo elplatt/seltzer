@@ -93,4 +93,31 @@ function member_install($old_revision = 0) {
             }
         }
     }
+    if ($old_revision < 4) {
+        // Alter member table
+        $sql = '
+            ALTER TABLE `member`
+              ADD COLUMN `emergencyName` varchar(255) NOT NULL,
+              ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
+            ;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $sql = '
+            UPDATE contact, member
+            SET member.emergencyName=contact.emergencyName,  
+            member.emergencyPhone = contact.emergencyPhone
+            WHERE member.cid=contact.cid;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) die(mysql_error());
+        $sql = '
+            ALTER TABLE `contact`
+              DROP column `emergencyName`
+              , DROP column `emergencyPhone`
+            ;
+        ';
+        $res = mysql_query($sql);
+        if (!$res) crm_error(mysql_error());
+    }
 }
