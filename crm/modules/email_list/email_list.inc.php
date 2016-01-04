@@ -1,8 +1,9 @@
 <?php 
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
-    
+    Copyright 2009-2016 Edward L. Platt <ed@elplatt.com>
+    Copyright 2014-2016 Matt J. Oehrlein <matt.oehrlein@gmail.com>
+	
     This file is part of the Seltzer CRM Project
     email_list.inc.php - Associates contact's emails with email lists
 
@@ -10,7 +11,7 @@
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-=
+
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
