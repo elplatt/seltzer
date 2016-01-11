@@ -192,7 +192,7 @@ function amazon_payment_contact_delete ($amazon_payment_contact) {
     $res = mysql_query($sql);
     if (!$res) die(mysql_error());
     if (mysql_affected_rows() > 0) {
-        message_register('Contact info deleted.');
+        message_register('Amazon contact info deleted for: ' . theme('contact_name', $esc_cid));
     }
     return crm_url('amazon-admin');
 }
@@ -451,7 +451,7 @@ function amazon_payment_contact_delete_form ($cid) {
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Delete Paypal Contact',
+                'label' => 'Delete Amazon Contact',
                 'fields' => array(
                     array(
                         'type' => 'message',
