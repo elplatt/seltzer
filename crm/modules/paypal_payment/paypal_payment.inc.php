@@ -578,6 +578,7 @@ function command_paypal_payment_import () {
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);
     $count = 0;
+    message_register("Processing " . count($data) . " row(s)");
     foreach ($data as $row) {
         
         // Skip transactions that have already been imported
@@ -586,6 +587,7 @@ function command_paypal_payment_import () {
         );
         $data = payment_data($payment_opts);
         if (count($data) > 0) {
+            message_register("Skipping previously imported payment: " . $row['Transaction ID']);
             continue;
         }
         // Parse value
