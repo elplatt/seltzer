@@ -300,13 +300,13 @@ function paypal_payment_payment_api ($payment, $op) {
 // Table & Page rendering //////////////////////////////////////////////////////
 
 /**
- * Generate payments contacts table
+ * Generate payments contacts table.
  *
  * @param $opts an array of options passed to the paypal_payment_contact_data function
  * @return a table (array) listing the contacts represented by all payments
  *   and their associated paypal email
- */ 
-function paypal_payment_contact_table($opts){
+ */
+function paypal_payment_contact_table ($opts) {
     $data = crm_get_data('paypal_payment_contact', $opts);
     // Initialize table
     $table = array(
@@ -520,7 +520,7 @@ function paypal_payment_contact_delete_form ($cid) {
  * @param &$form_data Metadata about the form.
  * @param $form_id The name of the form.
  */
-function paypal_payment_form_alter(&$form, $form_id) {
+function paypal_payment_form_alter ($form, $form_id) {
     if ($form_id === 'payment_edit') {
         // Modify paypal payments only
         $payment = $form['data']['payment'];
