@@ -174,11 +174,15 @@ function amazon_payment_contact_save ($contact) {
         }
     } else {
         // Name is not in database, insert new
-        $sql = "
-            INSERT INTO `contact_amazon`
-            (`amazon_name`, `cid`) VALUES ('$esc_name', '$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        if (!empty($esc_name)) {
+            $sql = "
+                INSERT INTO `contact_amazon`
+                (`amazon_name`, `cid`)
+                VALUES
+                ('$esc_name', '$esc_cid')";
+            $res = mysql_query($sql);
+            if (!$res) crm_error(mysql_error());
+        }
     }
 }
 
@@ -190,7 +194,7 @@ function amazon_payment_contact_delete ($amazon_payment_contact) {
     $esc_cid = mysql_real_escape_string($amazon_payment_contact['cid']);
     $sql = "DELETE FROM `contact_amazon` WHERE `cid`='$esc_cid'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     if (mysql_affected_rows() > 0) {
         message_register('Amazon contact info deleted for: ' . theme('contact_name', $esc_cid));
     }
@@ -377,7 +381,7 @@ function amazon_payment_import_form () {
 /**
  * Return the form structure for the add amazon contact form.
  *
- * @param The cid of the contact to add a amazon contact for.
+ * @param The cid of the contact to add an amazon contact for.
  * @return The form structure.
 */
 function amazon_payment_contact_add_form () {
@@ -475,7 +479,7 @@ function amazon_payment_contact_delete_form ($cid) {
  * @param &$form_data Metadata about the form.
  * @param $form_id The name of the form.
  */
-function amazon_payment_form_alter($form, $form_id) {
+function amazon_payment_form_alter ($form, $form_id) {
     if ($form_id === 'payment_edit') {
         // Modify amazon payments only
         $payment = $form['data']['payment'];
