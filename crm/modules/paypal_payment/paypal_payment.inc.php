@@ -235,7 +235,7 @@ function paypal_payment_contact_delete ($paypal_payment_contact) {
     $esc_cid = mysql_real_escape_string($paypal_payment_contact['cid']);
     $sql = "DELETE FROM `contact_paypal` WHERE `cid`='$esc_cid'";
     $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    if (!$res) crm_error(mysql_error());
     if (mysql_affected_rows() > 0) {
         message_register('Paypal contact info deleted for: ' . theme('contact_name', $esc_cid));
     }
@@ -283,7 +283,7 @@ function paypal_payment_payment_api ($payment, $op) {
                 WHERE `pmtid` = '$esc_pmtid'
             ";
             $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            if (!$res) crm_error(mysql_error());
             paypal_payment_contact_save($paypal_contact);
             break;
         case 'delete':
