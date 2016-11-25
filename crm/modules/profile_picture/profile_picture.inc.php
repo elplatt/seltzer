@@ -95,7 +95,14 @@ function profile_picture_page (&$page_data, $page_name) {
                 );
                 $view_content .= theme('profile_picture', $contact);
             }
-            $view_content .= theme('form', crm_get_form('profile_picture_upload',  $cid));
+            
+            //only allow users to upload photos for their OWN profile!
+            // OR if they have contact_edit permission.
+            if ($cid == user_id() || user_access('contact_edit'))
+            {
+                $view_content .= theme('form', crm_get_form('profile_picture_upload',  $cid));
+            }
+            
             if (!empty($view_content)) {
                 page_add_content_top($page_data, $view_content, 'View');
             }
@@ -236,7 +243,7 @@ function command_profile_picture_upload () {
             }
         }
     } else {
-        error_register('Invalid file. Did you upload an image (gif, jpeg, jpg, png) that is less than 20mb?');
+        error_register('Invalid file. Did you upload an image (gif, jpeg, jpg, png) that is less than 20mb and no bigger than 1000x1024?');
         error_register('File Type is: ' . $_FILES['profile-picture-file']['type']);
         error_register('File Size is: ' . $_FILES['profile-picture-file']['size'] / 1024 . "kB");
     } 
