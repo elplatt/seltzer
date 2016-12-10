@@ -380,7 +380,7 @@ function command_member_import () {
         while (empty($username) && $n < 100) {
             
             // Contruct test username
-            $test_username = strtolower($row['firstname']{0} . $row['lastName']);
+            $test_username = strtolower($row['firstname']{0} . $row['lastname']);
             if ($n > 0) {
                 $test_username .= $n;
             }
