@@ -1,8 +1,9 @@
 <?php 
 
 /*
-    Copyright 2009-2013 Edward L. Platt <ed@elplatt.com>
-    
+    Copyright 2009-2016 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2016 Matt J. Oehrlein <matt.oehrlein@gmail.com>
+	
     This file is part of the Seltzer CRM Project
     profile_picture.inc.php - Defines contact entity
 
