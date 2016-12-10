@@ -38,7 +38,7 @@ function member_data ($opts = array()) {
         FROM `member`
         LEFT JOIN `contact` ON `member`.`cid`=`contact`.`cid`
         LEFT JOIN `user` ON `member`.`cid`=`user`.`cid`
-        LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND `membership`.`end` IS NULL OR `membership`.`end` > NOW()))
+        LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()))
         LEFT JOIN `plan` ON `plan`.`pid`=`membership`.`pid`
         WHERE 1
     ";
