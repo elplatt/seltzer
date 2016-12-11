@@ -556,6 +556,12 @@ function paypal_payment_form_alter(&$form, $form_id) {
             }
         }
     }
+    if ($form_id === 'member_add') {
+        
+    }
+    if ($form_id === 'register') {
+        
+    }
     return $form;
 }
 
@@ -640,4 +646,30 @@ function command_paypal_payment_contact_delete () {
  */
 function theme_paypal_payment_admin () {
     return '<p><a href=' . crm_url('paypal-admin') . '>Administer</a></p>';
+}
+
+/**
+ * Return themed html for a paypal payment button.
+ * @param $cid The cid to create a button for.
+ * @param $params Options for the button.
+ * @return A string containing the themed html.
+ */
+function theme_paypal_payment_button () {
+    require_once ("expresscheckout.php");
+    $html = <<<EOF
+<form action='modules/paypal_payment/expresscheckout.php' METHOD='POST'>
+<input type='image' name='submit' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif' border='0' align='top' alt='Check out with PayPal'/>
+</form>
+EOF;
+    return $html;
+}
+
+/**
+ * Return themed html for a paypal subscription button.
+ * @param $cid The cid to create a button for.
+ * @param $params Options for the button.
+ * @return A string containing the themed html.
+ */
+function theme_paypal_subscription_button ($cid, $params = array()) {
+    
 }
