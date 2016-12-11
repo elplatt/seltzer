@@ -383,6 +383,7 @@ function member_plan_delete ($pid) {
     $sql = "DELETE FROM `plan` WHERE `pid`='$esc_pid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
+    $plan = module_invoke_api('plan', $plan, 'delete');
     message_register("Deleted plan: $description");
 }
 
@@ -522,6 +523,7 @@ function member_membership_delete ($sid) {
     $sql = "DELETE FROM `membership` WHERE `sid`='$esc_sid'";
     $res = mysql_query($sql);
     if (!$res) crm_error(mysql_error());
+    $membership = module_invoke_api('membership', $membership, 'delete');
 }
 
 /**
