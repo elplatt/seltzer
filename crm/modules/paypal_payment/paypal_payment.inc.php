@@ -1,8 +1,8 @@
 <?php
 
 /*
-    Copyright 2009-2016 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2016 Chris Murray <chris.f.murray@hotmail.co.uk>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2017 Chris Murray <chris.f.murray@hotmail.co.uk>
     
     This file is part of the Seltzer CRM Project
     paypal_payment.inc.php - Paypal payments extensions for the payment module.
