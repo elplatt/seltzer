@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2016 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     csv.inc.php - Parses comma-separated variable files
@@ -26,9 +26,18 @@
  * @return The $content string will all line endings converted to "\n".
  */
 function csv_normalize ($content) {
+	$content = remove_utf8_bom($content);
     $content = str_replace("\r\n", "\n", $content);
     $content = str_replace("\r", "\n", $content);
     return $content;
+}
+
+//Removes UTF8 Byte order mark
+function remove_utf8_bom($text)
+{
+    $bom = pack('H*','EFBBBF');
+    $text = preg_replace("/^$bom/", '', $text);
+    return $text;
 }
 
 /**
