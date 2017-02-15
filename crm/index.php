@@ -37,8 +37,10 @@ if (!empty($command)) {
     die();
 }
 
-if ($_GET['q'] == 'logout') {
-    session_destroy();
+if(isset($_GET['q'])) {
+    if ($_GET['q'] == 'logout') {
+        session_destroy();
+    }
 }
 
 $template_vars = array('path' => path());
