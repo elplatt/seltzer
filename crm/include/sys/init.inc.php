@@ -20,13 +20,9 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Connect to database server
-$res = mysql_connect($config_db_host, $config_db_user, $config_db_password);
-if (!$res) die(mysql_error());
-
-// Select database
-$res = mysql_selectdb($config_db_db);
-if (!$res) die(mysql_error());
+// Connect to database server and select database
+$res = mysqli_connect($config_db_host, $config_db_user, $config_db_password, $config_db_db);
+if (!$res) die(mysqli_error($res));
 
 // Connect to session
 session_start();
