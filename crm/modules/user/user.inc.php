@@ -53,7 +53,7 @@ function user_install ($old_revision = 0) {
     if ($old_revision < 1) {
         // If user table exists, this code was already run when it was
         // part of the core module
-        if (mysqli_num_rows(mysql_query("SHOW TABLES LIKE 'user'")) == 0) {
+        if (mysqli_num_rows(mysqli_query($db_connect, "SHOW TABLES LIKE 'user'")) == 0) {
             $sql = '
                 CREATE TABLE IF NOT EXISTS `resetPassword` (
                   `cid` mediumint(8) unsigned NOT NULL,
