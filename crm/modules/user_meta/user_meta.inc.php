@@ -136,7 +136,7 @@ function user_meta_description ($umid) {
  * @return An array with each element representing a single meta-tag assignment.
  */
 function user_meta_data ($opts = array()) {
-    
+    global $db_connect;
     // Determine joins
     $join_contact = false;
     $join_member = false;
