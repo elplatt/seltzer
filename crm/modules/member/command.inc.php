@@ -32,7 +32,6 @@ function command_member_add () {
     global $config_email_to;
     global $config_email_from;
     
-    
     // Verify permissions
     if (!user_access('member_add')) {
         error_register('Permission denied: member_add');
@@ -63,8 +62,8 @@ function command_member_add () {
         $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $row = mysqli_fetch_assoc($res);
-        if (!$row) {
+        $user_row = mysqli_fetch_assoc($res);
+        if (!$user_row) {
             $username = $test_username;
         }
         $n++;
@@ -381,7 +380,7 @@ function command_member_import () {
             $pid = $plan_row['pid'];
         }
         
-        // Find Username or create a new one
+        // Find username or create a new one
         $username = $row['username'];
         $n = 0;
         while (empty($username) && $n < 100) {
@@ -444,8 +443,8 @@ function command_member_import () {
         $from = "\"$config_org_name\" <$config_email_from>";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         if (!empty($config_email_to)) {
-            $name = theme_contact_name($_POST['cid']);
-            $content = theme('member_created_email', $user['cid']);
+            $name = theme_contact_name($contact['cid']);
+            $content = theme('member_created_email', $contact['cid']);
             mail($config_email_to, "New Member: $name", $content, $headers);
         }
         
