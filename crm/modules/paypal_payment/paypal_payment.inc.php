@@ -241,7 +241,7 @@ function paypal_payment_contact_delete ($paypal_payment_contact) {
     $sql = "DELETE FROM `contact_paypal` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) die(mysqli_error($res));
-    if (mysql_affected_rows() > 0) {
+    if (mysqli_affected_rows() > 0) {
         message_register('Paypal contact info deleted for: ' . theme('contact_name', $esc_cid));
     }
     return crm_url('paypal-admin');

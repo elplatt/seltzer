@@ -196,7 +196,7 @@ function amazon_payment_contact_delete ($amazon_payment_contact) {
     $sql = "DELETE FROM `contact_amazon` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) die(mysqli_error($res));
-    if (mysql_affected_rows() > 0) {
+    if (mysqli_affected_rows() > 0) {
         message_register('Contact info deleted.');
     }
     return crm_url('amazon-admin');
