@@ -34,6 +34,7 @@ function amazon_payment_revision () {
  *   module has never been installed.
  */
 function amazon_payment_install($old_revision = 0) {
+    global $db_connect;
     // Create initial database table
     if ($old_revision < 1) {
         
@@ -45,8 +46,8 @@ function amazon_payment_install($old_revision = 0) {
               PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
         
         // Additional contact info for amazon payments
         $sql = '
@@ -56,8 +57,8 @@ function amazon_payment_install($old_revision = 0) {
               PRIMARY KEY (`amazon_name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
     }
 }
 
@@ -92,22 +93,23 @@ function amazon_payment_data_alter ($type, $data = array(), $opts = array()) {
  * Return data for one or more amazon payments.
  */
 function amazon_payment_data ($opts = array()) {
+    global $db_connect;
     $sql = "SELECT `pmtid`, `amazon_name` FROM `payment_amazon` WHERE 1";
     if (isset($opts['pmtid'])) {
         if (is_array($opts['pmtid'])) {
             $terms = array();
-            foreach ($opts['pmtid'] as $id) { $terms[] = mysql_real_escape_string($id); }
+            foreach ($opts['pmtid'] as $id) { $terms[] = mysqli_real_escape_string($db_connect, $id); }
             $sql .= " AND `pmtid` IN (" . join(',', $terms) . ") ";
         } else {
-            $esc_pmtid = mysql_real_escape_string($opts['pmtid']);
+            $esc_pmtid = mysqli_real_escape_string($db_connect, $opts['pmtid']);
             $sql .= " AND `pmtid`='$esc_pmtid' ";
         }
     }
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     // Read from database and store in a structure
     $amazon_payment_data = array();
-    while ($db_row = mysql_fetch_assoc($res)) {
+    while ($db_row = mysqli_fetch_assoc($res)) {
         $amazon_payment_data[] = $db_row;
     }
     return $amazon_payment_data;
@@ -122,26 +124,27 @@ function amazon_payment_data ($opts = array()) {
  * @return An array with each element representing a single payment.
 */
 function amazon_payment_contact_data ($opts = array()) {
+    global $db_connect;
     $sql = "SELECT `cid`, `amazon_name` FROM `contact_amazon` WHERE 1";
     if (isset($opts['filter'])) {
         foreach ($opts['filter'] as $filter => $value) {
             if ($filter === 'amazon_name') {
-                $esc_name = mysql_real_escape_string($value);
+                $esc_name = mysqli_real_escape_string($db_connect, $value);
                 $sql .= " AND `amazon_name`='$esc_name' ";
             }
         }
     }
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     $names = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
         $name = array(
             'cid' => $row['cid']
             , 'amazon_name' => $row['amazon_name']
         );
         $names[] = $name;
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     return $names;
 }
@@ -154,13 +157,14 @@ function amazon_payment_contact_data ($opts = array()) {
  * set are not modified.
  */
 function amazon_payment_contact_save ($contact) {
-    $esc_name = mysql_real_escape_string($contact['amazon_name']);
-    $esc_cid = mysql_real_escape_string($contact['cid']);    
+    global $db_connect;
+    $esc_name = mysqli_real_escape_string($db_connect, $contact['amazon_name']);
+    $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);    
     // Check whether the amazon contact already exists in the database
     $sql = "SELECT * FROM `contact_amazon` WHERE `amazon_name` = '$esc_name'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    $row = mysqli_fetch_assoc($res);
     if ($row) {
         // Name is already in database, update if the cid is set
         if (isset($contact['cid'])) {
@@ -169,16 +173,16 @@ function amazon_payment_contact_save ($contact) {
                 SET `cid`='$esc_cid'
                 WHERE `amazon_name`='$esc_name'
             ";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
         }
     } else {
         // Name is not in database, insert new
         $sql = "
             INSERT INTO `contact_amazon`
             (`amazon_name`, `cid`) VALUES ('$esc_name', '$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
     }
 }
 
@@ -187,10 +191,11 @@ function amazon_payment_contact_save ($contact) {
  * @param $amazon_payment_contact The amazon_payment_contact data structure to delete, must have a 'cid' element.
  */
 function amazon_payment_contact_delete ($amazon_payment_contact) {
-    $esc_cid = mysql_real_escape_string($amazon_payment_contact['cid']);
+    global $db_connect;
+    $esc_cid = mysqli_real_escape_string($db_connect, $amazon_payment_contact['cid']);
     $sql = "DELETE FROM `contact_amazon` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     if (mysql_affected_rows() > 0) {
         message_register('Contact info deleted.');
     }
@@ -203,14 +208,15 @@ function amazon_payment_contact_delete ($amazon_payment_contact) {
  * @param $op The operation being performed.
  */
 function amazon_payment_payment_api ($payment, $op) {
+    global $db_connect;
     if ($payment['method'] !== 'amazon') {
         return $payment;
     }
     $name = $payment['amazon_name'];
     $pmtid = $payment['pmtid'];
     $credit_cid = $payment['credit_cid'];
-    $esc_name = mysql_real_escape_string($name);
-    $esc_pmtid = mysql_real_escape_string($pmtid);
+    $esc_name = mysqli_real_escape_string($db_connect, $name);
+    $esc_pmtid = mysqli_real_escape_string($db_connect, $pmtid);
     // Create link between the amazon payment name and contact id
     $amazon_contact = array();
     if (isset($payment['amazon_name'])) {
@@ -227,8 +233,8 @@ function amazon_payment_payment_api ($payment, $op) {
                 VALUES
                 ('$esc_pmtid', '$esc_name')
             ";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             amazon_payment_contact_save($amazon_contact);
             break;
         case 'update':
@@ -237,16 +243,16 @@ function amazon_payment_payment_api ($payment, $op) {
                 SET `amazon_name` = '$esc_name'
                 WHERE `pmtid` = '$esc_pmtid'
             ";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             amazon_payment_contact_save($amazon_contact);
             break;
         case 'delete':
             $sql = "
                 DELETE FROM `payment_amazon`
                 WHERE `pmtid`='$esc_pmtid'";
-                $res = mysql_query($sql);
-                if (!$res) crm_error(mysql_error());
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) crm_error(mysqli_error($res));
             break;
     }
     return $payment;

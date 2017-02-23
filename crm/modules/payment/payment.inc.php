@@ -45,6 +45,7 @@ function payment_permissions () {
  *   module has never been installed.
  */
 function payment_install($old_revision = 0) {
+    global $db_connect;
     // Create initial database table
     if ($old_revision < 1) {
         $sql = '
@@ -63,8 +64,8 @@ function payment_install($old_revision = 0) {
               PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
         // Set default permissions
         $roles = array(
             '1' => 'authenticated'
@@ -81,13 +82,13 @@ function payment_install($old_revision = 0) {
             , 'webAdmin' => array('payment_view', 'payment_edit', 'payment_delete')
         );
         foreach ($roles as $rid => $role) {
-            $esc_rid = mysql_real_escape_string($rid);
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
-                    $esc_perm = mysql_real_escape_string($perm);
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
-                    $res = mysql_query($sql);
-                    if (!$res) die(mysql_error());
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) die(mysqli_error($res));
                 }
             }
         }
@@ -283,6 +284,7 @@ function payment_invert_currency ($value) {
  * @return An array with each element representing a single payment.
 */ 
 function payment_data ($opts = array()) {
+    global $db_connect;
     $sql = "
         SELECT
         `pmtid`
@@ -299,16 +301,16 @@ function payment_data ($opts = array()) {
     ";
     $sql .= "WHERE 1 ";
     if (array_key_exists('pmtid', $opts)) {
-        $pmtid = mysql_real_escape_string($opts['pmtid']);
+        $pmtid = mysqli_real_escape_string($db_connect, $opts['pmtid']);
         $sql .= " AND `pmtid`='$pmtid' ";
     }
     if (array_key_exists('cid', $opts)) {
-        $cid = mysql_real_escape_string($opts['cid']);
+        $cid = mysqli_real_escape_string($db_connect, $opts['cid']);
         $sql .= " AND (`debit`='$cid' OR `credit`='$cid') ";
     }
     if (array_key_exists('filter', $opts) && !empty($opts['filter'])) {
         foreach($opts['filter'] as $name => $value) {
-            $esc_value = mysql_real_escape_string($value);
+            $esc_value = mysqli_real_escape_string($db_connect, $value);
             switch ($name) {
                 case 'confirmation':
                     $sql .= " AND (`confirmation`='$esc_value') ";
@@ -351,10 +353,10 @@ function payment_data ($opts = array()) {
         // Default to date, created from newest to oldest
         $sql .= " ORDER BY `date` DESC, `created` DESC ";
     }
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     $payments = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
         $payment = array(
             'pmtid' => $row['pmtid']
@@ -369,7 +371,7 @@ function payment_data ($opts = array()) {
             , 'notes' => $row['notes']
         );
         $payments[] = $payment;
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     return $payments;
 }
@@ -385,6 +387,7 @@ function payment_data ($opts = array()) {
  * @return A new associative array representing the payment.
  */
 function payment_save ($payment) {
+    global $db_connect;
     // Verify permissions and validate input
     if (!user_access('payment_edit')) {
         error_register('Permission denied: payment_edit');
@@ -394,16 +397,16 @@ function payment_save ($payment) {
         return NULL;
     }
     // Sanitize input
-    $esc_pmtid = mysql_real_escape_string($payment['pmtid']);
-    $esc_date = mysql_real_escape_string($payment['date']);
-    $esc_description = mysql_real_escape_string($payment['description']);
-    $esc_code = mysql_real_escape_string($payment['code']);
-    $esc_value = mysql_real_escape_string($payment['value']);
-    $esc_credit = mysql_real_escape_string($payment['credit_cid']);
-    $esc_debit = mysql_real_escape_string($payment['debit_cid']);
-    $esc_method = mysql_real_escape_string($payment['method']);
-    $esc_confirmation = mysql_real_escape_string($payment['confirmation']);
-    $esc_notes = mysql_real_escape_string($payment['notes']);
+    $esc_pmtid = mysqli_real_escape_string($db_connect, $payment['pmtid']);
+    $esc_date = mysqli_real_escape_string($db_connect, $payment['date']);
+    $esc_description = mysqli_real_escape_string($db_connect, $payment['description']);
+    $esc_code = mysqli_real_escape_string($db_connect, $payment['code']);
+    $esc_value = mysqli_real_escape_string($db_connect, $payment['value']);
+    $esc_credit = mysqli_real_escape_string($db_connect, $payment['credit_cid']);
+    $esc_debit = mysqli_real_escape_string($db_connect, $payment['debit_cid']);
+    $esc_method = mysqli_real_escape_string($db_connect, $payment['method']);
+    $esc_confirmation = mysqli_real_escape_string($db_connect, $payment['confirmation']);
+    $esc_notes = mysqli_real_escape_string($db_connect, $payment['notes']);
     // Query database
     if (array_key_exists('pmtid', $payment) && !empty($payment['pmtid'])) {
         // Payment already exists, update
@@ -422,8 +425,8 @@ function payment_save ($payment) {
             WHERE
             `pmtid` = '$esc_pmtid'
         ";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
         $payment = module_invoke_api('payment', $payment, 'update');
     } else {
         // Payment does not yet exist, create
@@ -453,9 +456,9 @@ function payment_save ($payment) {
                 , '$esc_notes'
             )
         ";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $payment['pmtid'] = mysql_insert_id();
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $payment['pmtid'] = mysqli_insert_id($db_connect);
         $payment = module_invoke_api('payment', $payment, 'insert');
     }
     return $payment;
@@ -466,15 +469,16 @@ function payment_save ($payment) {
  * @param $pmtid The payment id.
  */
 function payment_delete ($pmtid) {
+    global $db_connect;
     $payment = crm_get_one('payment', array('pmtid'=>$pmtid));
     $payment = module_invoke_api('payment', $payment, 'delete');
     // Query database
-    $esc_pmtid = mysql_real_escape_string($pmtid);
+    $esc_pmtid = mysqli_real_escape_string($db_connect, $pmtid);
     $sql = "
         DELETE FROM `payment`
         WHERE `pmtid`='$esc_pmtid'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     if (mysql_affected_rows() > 0) {
         message_register('Deleted payment with id ' . $pmtid);
     }
@@ -487,6 +491,7 @@ function payment_delete ($pmtid) {
  * @return The associative array mapping cids to payment objects.
  */
 function payment_accounts ($opts = array()) {
+    global $db_connect;
     $cid_to_balance = array();
     // Get credits
     $sql = "
@@ -499,20 +504,20 @@ function payment_accounts ($opts = array()) {
                     $terms = array();
                     if (!empty($value)) {
                         foreach ($value as $cid) {
-                            $terms[] = mysql_real_escape_string($cid);
+                            $terms[] = mysqli_real_escape_string($db_connect, $cid);
                         }
                         $sql .= " AND `credit` IN (" . join(',', $terms) . ") ";
                     }
                 } else {
-                    $sql .= " AND `credit`=" . mysql_real_escape_string($value) . " ";
+                    $sql .= " AND `credit`=" . mysqli_real_escape_string($db_connect, $value) . " ";
                 }
                 break;
         }
     }
     $sql .= " GROUP BY `credit`, `code` ";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $db_row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    $db_row = mysqli_fetch_assoc($res);
     while ($db_row) {
         $cid = $db_row['credit'];
         // Subtract all credits from balance owed
@@ -522,7 +527,7 @@ function payment_accounts ($opts = array()) {
         } else {
             $cid_to_balance[$cid] = payment_invert_currency($db_row);
         }
-        $db_row = mysql_fetch_assoc($res);
+        $db_row = mysqli_fetch_assoc($res);
     }
     // Get debits
     $sql = "
@@ -535,20 +540,20 @@ function payment_accounts ($opts = array()) {
                     $terms = array();
                     if (!empty($value)) {
                         foreach ($value as $cid) {
-                            $terms[] = mysql_real_escape_string($cid);
+                            $terms[] = mysqli_real_escape_string($db_connect, $cid);
                         }
                         $sql .= " AND `debit` IN (" . join(',', $terms) . ") ";
                     }
                 } else {
-                    $sql .= " AND `debit`=" . mysql_real_escape_string($value) . " ";
+                    $sql .= " AND `debit`=" . mysqli_real_escape_string($db_connect, $value) . " ";
                 }
                 break;
         }
     }
     $sql .= " GROUP BY `debit`, `code` ";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $db_row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    $db_row = mysqli_fetch_assoc($res);
     while ($db_row) {
         // Add all debits to balance owed
         $cid = $db_row['debit'];
@@ -557,7 +562,7 @@ function payment_accounts ($opts = array()) {
         } else {
             $cid_to_balance[$cid] = $db_row;
         }
-        $db_row = mysql_fetch_assoc($res);
+        $db_row = mysqli_fetch_assoc($res);
     }
     return $cid_to_balance;
 }
