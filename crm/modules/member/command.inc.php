@@ -126,7 +126,6 @@ function command_member_add () {
  * @return The url to display on completion.
  */
 function command_member_plan_add () {
-    global $db_connect;
     global $esc_post;
     
     $plan = array(
