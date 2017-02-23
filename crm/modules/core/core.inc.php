@@ -34,11 +34,11 @@ function core_revision () {
  *   module has never been installed.
  */
 function core_install ($old_revision = 0) {
-    
+    global $db_connect;
     if ($old_revision < 1) {
         $sql = 'SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         
         $sql = '
             CREATE TABLE IF NOT EXISTS `module` (
@@ -48,8 +48,8 @@ function core_install ($old_revision = 0) {
                 PRIMARY KEY (`did`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
     }
 }
 
