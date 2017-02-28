@@ -47,6 +47,7 @@ function email_list_permissions () {
  *   module has never been installed.
  */
 function email_list_install ($old_revision = 0) {
+    global $db_connect;
     if ($old_revision < 1) {
         // Create a table to associate email addresses with a CID
         $sql = '
@@ -57,8 +58,8 @@ function email_list_install ($old_revision = 0) {
               PRIMARY KEY ( `lid`,`cid`,`email`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         
         // Create a table to associate email list names with a LID (list ID)
         $sql = '
@@ -68,8 +69,8 @@ function email_list_install ($old_revision = 0) {
               PRIMARY KEY (`lid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         
         //Set Permissions
         $roles = array(
@@ -91,13 +92,13 @@ function email_list_install ($old_revision = 0) {
                                   , 'email_list_edit_subscription')
         );
         foreach ($roles as $rid => $role) {
-            $esc_rid = mysql_real_escape_string($rid);
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
-                    $esc_perm = mysql_real_escape_string($perm);
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
-                    $res = mysql_query($sql);
-                    if (!$res) die(mysql_error());
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) die(mysqli_error($res));
                 }
             }
         }
@@ -215,6 +216,7 @@ function email_list_description ($lid) {
  * @return An array with each element representing a single key card assignment.
 */ 
 function email_list_data ($opts = array()) {
+    global $db_connect;
     // Query database for subscriptions
     if(!empty($opts['lists_only'])){
         // This block queries only the lists themselves. It does not return
@@ -226,7 +228,7 @@ function email_list_data ($opts = array()) {
             FROM `email_lists`
             WHERE 1";
         if (!empty($opts['lid'])) {
-            $esc_lid = mysql_real_escape_string($opts['lid']);
+            $esc_lid = mysqli_real_escape_string($db_connect, $opts['lid']);
             $sql .= " AND `email_lists`.`lid`='$esc_lid'";
         }
         $sql .= "
@@ -245,19 +247,19 @@ function email_list_data ($opts = array()) {
             ON `email_list_subscriptions`.`lid`=`email_lists`.`lid`
             WHERE 1";
         if (!empty($opts['lid'])) {
-            $esc_lid = mysql_real_escape_string($opts['lid']);
+            $esc_lid = mysqli_real_escape_string($db_connect, $opts['lid']);
             $sql .= " AND `email_lists`.`lid`='$esc_lid'";
         }
         if (!empty($opts['cid'])) {
             if (is_array($opts['cid'])) {
                 $terms = array();
                 foreach ($opts['cid'] as $cid) {
-                    $esc_cid = mysql_real_escape_string($cid);
+                    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
                     $terms[] = "'$cid'";
                 }
                 $sql .= " AND `cid` IN (" . implode(', ', $terms) . ") ";
             } else {
-                $esc_cid = mysql_real_escape_string($opts['cid']);
+                $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
                 $sql .= " AND `cid`='$esc_cid'";
             }
         }
@@ -265,15 +267,15 @@ function email_list_data ($opts = array()) {
         $sql .= "
             ORDER BY `email_lists`.`lid`, `cid` ASC";
     }
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     // Store data
     $email_list_data = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         // Contents of row are lid, cid, email
         $email_list_data[] = $row;
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     // Return data
     return $email_list_data;
@@ -323,22 +325,23 @@ function email_list_data_alter ($type, $data = array(), $opts = array()) {
  * @return The key structure with as it now exists in the database.
  */
 function email_list_save ($list) {
+    global $db_connect;
     // Escape values
     $fields = array('lid', 'list_name');
     if (isset($list['lid'])) {
         // Update existing email list
         $lid = $list['lid'];
-        $esc_lid = mysql_real_escape_string($lid);
+        $esc_lid = mysqli_real_escape_string($db_connect, $lid);
         $clauses = array();
         foreach ($fields as $k) {
             if (isset($list[$k]) && $k != 'lid') {
-                $clauses[] = "`$k`='" . mysql_real_escape_string($list[$k]) . "' ";
+                $clauses[] = "`$k`='" . mysqli_real_escape_string($db_connect, $list[$k]) . "' ";
             }
         }
         $sql = "UPDATE `email_lists` SET " . implode(', ', $clauses) . " ";
         $sql .= "WHERE `lid`='$esc_lid'";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         message_register('Email list updated');
     } else {
         // Insert new email list
@@ -347,13 +350,13 @@ function email_list_save ($list) {
         foreach ($fields as $k) {
             if (isset($list[$k])) {
                 $cols[] = "`$k`";
-                $values[] = "'" . mysql_real_escape_string($list[$k]) . "'";
+                $values[] = "'" . mysqli_real_escape_string($db_connect, $list[$k]) . "'";
             }
         }
         $sql = "INSERT INTO `email_lists` (" . implode(', ', $cols) . ") ";
         $sql .= " VALUES (" . implode(', ', $values) . ")";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         message_register('Email list created');
     }
     //return crm_get_one('email_list', array('kid'=>$kid));
@@ -364,19 +367,20 @@ function email_list_save ($list) {
  * @param $list the list data structure to delete, must have a 'lid' element.
  */
 function email_list_delete ($list) {
-    $esc_lid = mysql_real_escape_string($list['lid']);
+    global $db_connect;
+    $esc_lid = mysqli_real_escape_string($db_connect, $list['lid']);
     $sql = "DELETE FROM `email_lists` WHERE `lid`='$esc_lid'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    if (mysql_affected_rows() > 0) {
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    if (mysqli_affected_rows() > 0) {
         message_register('List deleted.');
     }
     
     //delete any subscriptions that are associated with this list.
     $sql = "DELETE FROM `email_list_subscriptions` WHERE `lid`='$esc_lid'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    if (mysql_affected_rows() > 0) {
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    if (mysqli_affected_rows() > 0) {
         message_register('Associated subscriptions deleted.');
     }
 }
@@ -386,15 +390,16 @@ function email_list_delete ($list) {
  * @param $subscription The subscription structure to delete, must have both 'cid' and 'lid' element.
  */
 function email_list_unsubscribe ($subscription) {
-    $esc_lid = mysql_real_escape_string($subscription['lid']);
-    $esc_cid = mysql_real_escape_string($subscription['cid']);
+    global $db_connect;
+    $esc_lid = mysqli_real_escape_string($db_connect, $subscription['lid']);
+    $esc_cid = mysqli_real_escape_string($db_connect, $subscription['cid']);
     
     $sql = "DELETE FROM `email_list_subscriptions` WHERE `lid`='$esc_lid' AND `cid`='$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    if (mysql_affected_rows() > 0) {
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    if (mysqli_affected_rows() > 0) {
         message_register('Subscription deleted.');
-    } if (mysql_affected_rows() > 1){
+    } if (mysqli_affected_rows() > 1){
         error_register("More than one subscription was deleted. This shouldn't happen
                        under normal circumstances. Please make sure your database is okay!");
     }
@@ -558,6 +563,7 @@ function email_list_subscriptions_table ($opts) {
  * @return Array mapping payment method values to descriptions.
  */
 function email_list_options () {
+    global $db_connect;
     $options = array();
     
     //populate an array with available email list options.
@@ -579,15 +585,15 @@ function email_list_options () {
         ORDER BY `list_name`, `lid` ASC
     ";
     
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     // Store data
     $lists = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         // Contents of row are lid, list_name
         $lists[] = $row;
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     
     // put email lists into an options array
@@ -838,6 +844,7 @@ function email_list_delete_form ($lid) {
  * @return The url to display on completion.
  */
 function command_email_list_subscribe () {
+    global $db_connect;
     $cid = $_POST['cid'];
     $email = $_POST['email'];
     $lid = $_POST['lid'];
@@ -845,11 +852,11 @@ function command_email_list_subscribe () {
     //TODO: Qualify the email as a valid email.
     if (/* email is valid */ true) {
         //save the email
-        $esc_email = mysql_real_escape_string($email);
+        $esc_email = mysqli_real_escape_string($db_connect, $email);
         $sql = "INSERT INTO `email_list_subscriptions` (`lid`, `cid`, `email`)
             VALUES ('$lid', '$cid', '$esc_email')";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         
         message_register('Successfully subscribed user to email list.');
     } else {

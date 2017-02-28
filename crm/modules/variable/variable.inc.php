@@ -34,6 +34,7 @@ function variable_revision () {
  *   module has never been installed.
  */
 function variable_install($old_revision = 0) {
+    global $db_connect;
     // Create initial database table
     if ($old_revision < 1) {
         $sql = '
@@ -43,8 +44,8 @@ function variable_install($old_revision = 0) {
               PRIMARY KEY (`name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
     }
 }
 
@@ -56,24 +57,24 @@ function variable_install($old_revision = 0) {
  * @param $value
  */
 function variable_set ($name, $value) {
-    
-    $esc_name = mysql_real_escape_string($name);
-    $esc_value = mysql_real_escape_string($value);
+    global $db_connect;
+    $esc_name = mysqli_real_escape_string($db_connect, $name);
+    $esc_value = mysqli_real_escape_string($db_connect, $value);
     
     // Check if variable exists
     $sql = "SELECT `value` FROM `variable` WHERE `name`='$esc_name'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     
-    if (mysql_num_rows($res) > 0) {
+    if (mysqli_num_rows($res) > 0) {
         // Update
         $sql = "
             UPDATE `variable`
             SET `value`='$esc_value'
             WHERE `name`='$esc_name'
         ";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
     } else {
         // Insert
         $sql = "
@@ -81,8 +82,8 @@ function variable_set ($name, $value) {
             (`name`, `value`)
             VALUES ('$esc_name', '$esc_value')
         ";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
     }
 }
 
@@ -93,14 +94,14 @@ function variable_set ($name, $value) {
  * @return The value of the variable named $name, or $default if not found.
  */
 function variable_get ($name, $default) {
-    
-    $esc_name = mysql_real_escape_string($name);
+    global $db_connect;
+    $esc_name = mysqli_real_escape_string($db_connect, $name);
     
     $sql = "SELECT `value` FROM `variable` WHERE `name`='$esc_name'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     
-    $variable = mysql_fetch_assoc($res);
+    $variable = mysqli_fetch_assoc($res);
     if ($variable) {
         return $variable['value'];
     }

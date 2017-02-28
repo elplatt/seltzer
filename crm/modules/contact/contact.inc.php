@@ -54,6 +54,7 @@ function contact_permissions () {
  *   module has never been installed.
  */
 function contact_install ($old_revision = 0) {
+    global $db_connect;
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `contact` (
@@ -68,8 +69,8 @@ function contact_install ($old_revision = 0) {
               PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
     }
 }
 
@@ -84,6 +85,7 @@ function contact_install ($old_revision = 0) {
  * @return An array with each element representing a contact.
 */ 
 function contact_data ($opts = array()) {
+    global $db_connect;
     // Query database
     $sql = "
         SELECT * FROM `contact`
@@ -94,13 +96,13 @@ function contact_data ($opts = array()) {
             if (!empty($opts['cid'])) {
                 $terms = array();
                 foreach ($opts['cid'] as $cid) {
-                    $terms[] = "'" . mysql_real_escape_string($cid) . "'";
+                    $terms[] = "'" . mysqli_real_escape_string($db_connect, $cid) . "'";
                 }
                 $esc_list = '(' . implode(',', $terms) . ')';
                 $sql .= " AND `cid` IN $esc_list";
             }
         } else {
-            $esc_cid = mysql_real_escape_string($opts['cid']);
+            $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
             $sql .= " AND `cid`='$esc_cid'";
         }
     }
@@ -116,7 +118,7 @@ function contact_data ($opts = array()) {
                         $nameParts = preg_split('/\s+/', $part);
                         foreach ($nameParts as $name) {
                             if (!empty($name)) {
-                               $names[] = mysql_real_escape_string($name);
+                               $names[] = mysqli_real_escape_string($db_connect, $name);
                             }
                         }
                     }
@@ -146,11 +148,11 @@ function contact_data ($opts = array()) {
     $sql .= "
         ORDER BY `lastName`, `firstName`, `middleName` ASC
     ";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     // Store data
     $contacts = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         $contacts[] = array(
             'cid' => $row['cid']
@@ -162,7 +164,7 @@ function contact_data ($opts = array()) {
             , 'emergencyName' => $row['emergencyName']
             , 'emergencyPhone' => $row['emergencyPhone']
         );
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     // Return data
     return $contacts;
@@ -172,12 +174,13 @@ function contact_data ($opts = array()) {
  * Saves a contact.
  */
 function contact_save ($contact) {
+    global $db_connect;
     $fields = array(
         'cid', 'firstName', 'middleName', 'lastName', 'email', 'phone', 'emergencyName', 'emergencyPhone'
     );
     $escaped = array();
     foreach ($fields as $field) {
-        $escaped[$field] = mysql_real_escape_string($contact[$field]);
+        $escaped[$field] = mysqli_real_escape_string($db_connect, $contact[$field]);
     }
     if (isset($contact['cid'])) {
         // Update contact
@@ -192,8 +195,8 @@ function contact_save ($contact) {
                 , `emergencyPhone`='$escaped[emergencyPhone]'
             WHERE `cid`='$escaped[cid]'
         ";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
         if (mysql_affected_rows() < 1) {
             return null;
         }
@@ -206,9 +209,9 @@ function contact_save ($contact) {
             VALUES
             ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[emergencyName]','$escaped[emergencyPhone]')
         ";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $contact['cid'] = mysql_insert_id();
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $contact['cid'] = mysqli_insert_id($db_connect);
         $contact = module_invoke_api('contact', $contact, 'create');
     }
     return $contact;
@@ -219,6 +222,7 @@ function contact_save ($contact) {
  * @param $cid The contact id.
  */
 function contact_delete ($cid) {
+    global $db_connect;
     $contact = crm_get_one('contact', array('cid'=>$cid));
     if (empty($contact)) {
         error_register("No contact with cid $cid");
@@ -227,10 +231,10 @@ function contact_delete ($cid) {
     // Notify other modules the contact is being deleted
     $contact = module_invoke_api('contact', $contact, 'delete');
     // Remove the contact from the database
-    $esc_cid = mysql_real_escape_string($cid);
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `contact` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     message_register('Deleted contact: ' . theme('contact_name', $contact));
 }
 

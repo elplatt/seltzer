@@ -49,10 +49,11 @@ function user_permissions () {
  *   module has never been installed.
  */
 function user_install ($old_revision = 0) {
+    global $db_connect;
     if ($old_revision < 1) {
         // If user table exists, this code was already run when it was
         // part of the core module
-        if (mysql_num_rows(mysql_query("SHOW TABLES LIKE 'user'")) == 0) {
+        if (mysqli_num_rows(mysqli_query($db_connect, "SHOW TABLES LIKE 'user'")) == 0) {
             $sql = '
                 CREATE TABLE IF NOT EXISTS `resetPassword` (
                   `cid` mediumint(8) unsigned NOT NULL,
@@ -60,8 +61,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`cid`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) die(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `role` (
@@ -70,8 +71,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`rid`)
                 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) die(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `role_permission` (
@@ -80,8 +81,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`rid`,`permission`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) die(mysqli_error($res));
             
             $sql = "
                 CREATE TABLE IF NOT EXISTS `user` (
@@ -92,8 +93,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`cid`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
             ";
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) die(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `user_role` (
@@ -102,8 +103,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`cid`,`rid`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) die(mysqli_error($res));
             
             // Create default roles
             $roles = array(
@@ -118,8 +119,8 @@ function user_install ($old_revision = 0) {
             );
             foreach ($roles as $rid => $role) {
                 $sql = "INSERT INTO `role` (`rid`, `name`) VALUES ('$rid', '$role')";
-                $res = mysql_query($sql);
-                if (!$res) die(mysql_error());
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) die(mysqli_error($res));
             }
             $default_perms = array(
                 'member' => array('report_view', 'contact_view')
@@ -130,8 +131,8 @@ function user_install ($old_revision = 0) {
                 if (array_key_exists($role, $default_perms)) {
                     foreach ($default_perms[$role] as $perm) {
                         $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
-                        $res = mysql_query($sql);
-                        if (!$res) die(mysql_error());
+                        $res = mysqli_query($db_connect, $sql);
+                        if (!$res) die(mysqli_error($res));
                     }
                 }
             }
@@ -152,6 +153,7 @@ function user_install ($old_revision = 0) {
  * @return An array with each element representing a user.
 */ 
 function user_data ($opts) {
+    global $db_connect;
     // Create a map of user permissions if join was specified
     $join_perm = !array_key_exists('join', $opts) || in_array('permission', $opts['join']);
     if ($join_perm) {
@@ -166,25 +168,25 @@ function user_data ($opts) {
             if (is_array($opts['cid'])) {
                 $terms = array();
                 foreach ($opts['cid'] as $cid) {
-                    $terms[] = "'" . mysql_real_escape_string($cid) . "'";
+                    $terms[] = "'" . mysqli_real_escape_string($db_connect, $cid) . "'";
                 }
                 $sql .= " AND `user`.`cid` IN (" . implode(',', $terms) . ") ";
             } else {
-                $esc_cid = mysql_real_escape_string($opts['cid']);
+                $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
                 $sql .= " AND `user`.`cid`='$esc_cid' ";
             }
         }
-        $res = mysql_query($sql);
-        if (!$res) { die(mysql_error()); }
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) { die(mysqli_error($res)); }
         $permMap = array();
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
         while ($row) {
             $cid = $row['cid'];
             if (!array_key_exists($cid, $permMap)) {
                 $permMap[$cid] = array();
             }
             $permMap[$cid][] = $row['permission'];
-            $row = mysql_fetch_assoc($res);
+            $row = mysqli_fetch_assoc($res);
         }
     }
     
@@ -195,17 +197,17 @@ function user_data ($opts) {
             SELECT `user_role`.`cid`, `role`.`rid`, `role`.`name`
             FROM `user_role` INNER JOIN `role` ON `user_role`.`rid`=`role`.`rid`
         ";
-        $res = mysql_query($sql);
-        if (!$res) { die(mysql_error()); }
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) { die(mysqli_error($res)); }
         $roles = array();
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
         while ($row) {
             $cid = $row['cid'];
             if (!array_key_exists($cid, $roles)) {
                 $roles[$cid] = array();
             }
             $roles[$cid][] = $row['name'];
-            $row = mysql_fetch_assoc($res);
+            $row = mysqli_fetch_assoc($res);
         }
     }
     
@@ -224,7 +226,7 @@ function user_data ($opts) {
             $cids = array($opts['cid']);
         }
         foreach ($cids as $cid) {
-            $esc_cid = mysql_real_escape_string($cid);
+            $esc_cid = mysqli_real_escape_string($db_connect, $cid);
             $clauses[] = " `user`.`cid`='$esc_cid' ";
         }
         $sql .= " AND (" . implode(' OR ', $clauses) . ")";
@@ -232,18 +234,18 @@ function user_data ($opts) {
     if (array_key_exists('filter', $opts)) {
         foreach ($opts['filter'] as $key => $value) {
             if ($key === 'username') {
-                $sql .= " AND `username`='" . mysql_real_escape_string($value) . "' ";
+                $sql .= " AND `username`='" . mysqli_real_escape_string($db_connect, $value) . "' ";
             } else if ($key === 'email') {
-                $sql .= " AND `contact`.`email`='" . mysql_real_escape_string($value) . "' ";
+                $sql .= " AND `contact`.`email`='" . mysqli_real_escape_string($db_connect, $value) . "' ";
             }
         }
     }
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
     
     // Create result array
     $users = array();    
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
         $user = $row;
         if ($join_role) {
@@ -261,7 +263,7 @@ function user_data ($opts) {
             }
         }
         $users[] = $user;
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     
     return $users;
@@ -311,30 +313,30 @@ function user_data_alter ($type, $data = array(), $opts = array()) {
  * @return An array with each element representing a role.
 */ 
 function user_role_data ($opts = NULL) {
-    
+    global $db_connect;
     // Construct map from role ids to arrays of permissions granted
     $permissionMap = array();
     $sql = "SELECT `rid`, `permission` FROM `role_permission` WHERE 1 ";
     if (!empty($opts['rid'])) {
-        $sql .= "AND `rid`='" . mysql_real_escape_string($opts['rid']) . "' ";
+        $sql .= "AND `rid`='" . mysqli_real_escape_string($db_connect, $opts['rid']) . "' ";
     }
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    $row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
         if (!array_key_exists($row['rid'], $permissionMap)) {
             $permissionMap[$row['rid']] = array();
         }
         $permissionMap[$row['rid']][] = $row['permission'];
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     
     // Construct query for roles
     $sql = "SELECT `rid`, `name` FROM `role` WHERE 1 ";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
     $roles = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
         $role = $row;
         if (array_key_exists($row['rid'], $permissionMap)) {
@@ -343,7 +345,7 @@ function user_role_data ($opts = NULL) {
             $role['permissions'] = array();
         }
         $roles[] = $role;
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     return $roles;
 }
@@ -385,22 +387,23 @@ function user_contact_api ($contact, $op) {
  * @return an array representing the user that was saved in the database.
  */
 function user_save ($user) {
+    global $db_connect;
     // First figure out whether the user is in the database or not
     $opts = array();
     $opts['cid'] = $user['cid'];
     $user_array = user_data($opts);
     if(empty($user_array)){
         // The user is not in the db, insert it
-        $esc_name = mysql_real_escape_string($user['username']);
-        $esc_cid = mysql_real_escape_string($user['cid']);
+        $esc_name = mysqli_real_escape_string($db_connect, $user['username']);
+        $esc_cid = mysqli_real_escape_string($db_connect, $user['cid']);
         // Add user
         $sql = "
             INSERT INTO `user`
             (`username`, `cid`)
             VALUES
             ('$esc_name', '$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
     } else {
         // The user already exists, update it
         $sql = "
@@ -410,8 +413,8 @@ function user_save ($user) {
             `salt`='$esc_salt'
             WHERE `cid`='$esc_cid'
             ";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
     }
     
     return $user;
@@ -422,12 +425,13 @@ function user_save ($user) {
  * @param $cid The user's cid.
  */
 function user_delete ($cid) {
-    $esc_cid = mysql_real_escape_string($cid);
+    global $db_connect;
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `user` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
+    $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(msyql_error());
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
+    $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(msyql_error());
     message_register("Deleted user data for: " . theme('contact_name', $cid));
 }
@@ -523,15 +527,16 @@ function user_username($cid = NULL) {
  * @return An array of role names.
  */
 function user_role_list () {
+    global $db_connect;
     $sql = "SELECT * FROM `role` WHERE 1";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
     
     $roles = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
         $roles[] = $row['name'];
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     
     return $roles;
@@ -578,19 +583,20 @@ function user_access ($permission) {
  * @return A string containing a password reset url.
 */
 function user_reset_password_url ($username) {
+    global $db_connect;
     global $config_host;
     global $config_base_path;
     
     // Get user info
-    $esc_username = mysql_real_escape_string($username);
+    $esc_username = mysqli_real_escape_string($db_connect, $username);
     $sql = "
         SELECT * FROM `user`
         INNER JOIN `contact` ON `user`.`cid`=`contact`.`cid`
         WHERE `user`.`username`='$esc_username'
         ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    $row = mysqli_fetch_assoc($res);
     
     // Make sure user exists
     if (empty($row)) {
@@ -602,14 +608,14 @@ function user_reset_password_url ($username) {
     $code = sha1(uniqid(time()));
     
     // Insert code into reminder table
-    $esc_cid = mysql_real_escape_string($row['cid']);
-    $esc_code = mysql_real_escape_string($code);
+    $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
+    $esc_code = mysqli_real_escape_string($db_connect, $code);
     $sql = "
         REPLACE INTO `resetPassword`
         (`cid`, `code`)
         VALUES
         ('$esc_cid', '$esc_code')";
-    $res = mysql_query($sql);
+    $res = mysqli_query($db_connect, $sql);
     
     // Generate reset url
     $url = 'http://' . $config_host . crm_url("reset-confirm&v=" . $code);
@@ -623,15 +629,15 @@ function user_reset_password_url ($username) {
  * @return True if the specified reset code exists.
 */
 function user_check_reset_code ($code) {
-    
+    global $db_connect;
     // Query database for code
-    $esc_code = mysql_real_escape_string($code);
+    $esc_code = mysqli_real_escape_string($db_connect, $code);
     $sql = "SELECT * FROM `resetPassword` WHERE `code`='$esc_code'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
     
     // Fetch first row
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     
     // Return true if row is not empty
     return (boolean)$row;
@@ -734,6 +740,7 @@ function command_logout () {
  * Respond to reset password request.
 */
 function command_reset_password () {
+    global $db_connect;
     global $config_host;
     global $config_base_path;
     global $config_email_from;
@@ -769,6 +776,7 @@ function command_reset_password () {
  * @return The url to display after the command is processed.
 */
 function command_reset_password_confirm () {
+    global $db_connect;
     global $esc_post;
     
     // Check code
@@ -785,15 +793,15 @@ function command_reset_password_confirm () {
     
     // Get user id
     $sql = "SELECT * FROM `resetPassword` WHERE `code`='$esc_post[code]'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    $row = mysql_fetch_assoc($res);
-    $esc_cid = mysql_real_escape_string($row['cid']);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
+    $row = mysqli_fetch_assoc($res);
+    $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
     
     // Calculate hash
     $salt = user_salt();
-    $esc_hash = mysql_real_escape_string(user_hash($_POST['password'], $salt));
-    $esc_salt = mysql_real_escape_string($salt);
+    $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
+    $esc_salt = mysqli_real_escape_string($db_connect, $salt);
     
     // Update password
     $sql = "
@@ -802,8 +810,8 @@ function command_reset_password_confirm () {
         , `salt`='$esc_salt'
         WHERE `cid`='$esc_cid'
         ";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
     
     // Notify user to check their email
     message_register('Your password has been reset, you may now log in');
@@ -816,6 +824,7 @@ function command_reset_password_confirm () {
  * @return The url to display after the command is processed.
 */
 function command_set_password () {
+    global $db_connect;
     global $esc_post;
     
     // Check that passwords match
@@ -826,15 +835,15 @@ function command_set_password () {
     
     // Get user id
     $sql = "SELECT * FROM `user` WHERE `cid`='$esc_post[cid]'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    $row = mysql_fetch_assoc($res);
-    $esc_cid = mysql_real_escape_string($row['cid']);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
+    $row = mysqli_fetch_assoc($res);
+    $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
     
     // Calculate hash
     $salt = user_salt();
-    $esc_hash = mysql_real_escape_string(user_hash($_POST['password'], $salt));
-    $esc_salt = mysql_real_escape_string($salt);
+    $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
+    $esc_salt = mysqli_real_escape_string($db_connect, $salt);
     
     // Update password
     $sql = "
@@ -843,8 +852,8 @@ function command_set_password () {
         , `salt`='$esc_salt'
         WHERE `cid`='$esc_cid'
         ";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
     message_register("The user's password has been reset");
     
     return crm_url("contact&cid=$esc_cid");
@@ -856,6 +865,7 @@ function command_set_password () {
  * @return The url to display on completion.
  */
 function command_user_permissions_update () {
+    global $db_connect;
     global $esc_post;
     
     // Check permissions
@@ -868,18 +878,18 @@ function command_user_permissions_update () {
     $perms = user_permissions_list();
     $roles = user_role_data();
     foreach ($perms as $perm) {
-        $esc_perm = mysql_real_escape_string($perm);
+        $esc_perm = mysqli_real_escape_string($db_connect, $perm);
         foreach ($roles as $role) {
             $key = "$perm-$role[name]";
-            $esc_rid = mysql_real_escape_string($role['rid']);
+            $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
             if ($_POST[$key]) {
                 // Ensure the role has this permission
                 $sql = "
                     SELECT * FROM `role_permission`
                     WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
                 ";
-                $res = mysql_query($sql);
-                if (!$res) { die(mysql_error()); }
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) { die(mysqli_error($res)); }
                 if (mysql_numrows($res) === 0) {
                     $sql = "
                         INSERT INTO `role_permission`
@@ -888,16 +898,16 @@ function command_user_permissions_update () {
                         ('$esc_rid', '$esc_perm')
                     ";
                 }
-                $res = mysql_query($sql);
-                if (!$res) { die(mysql_error()); }
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) { die(mysqli_error($res)); }
             } else {
                 // Delete the permission for this role
                 $sql = "
                     DELETE FROM `role_permission`
                     WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
                 ";
-                $res = mysql_query($sql);
-                if (!$res) { die(mysql_error()); }
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) { die(mysqli_error($res)); }
             }
         }
     }
@@ -912,6 +922,7 @@ function command_user_permissions_update () {
  * @return The url to display on completion.
  */
 function command_user_role_update () {
+    global $db_connect;
     global $esc_post;
     
     // Check permissions
@@ -928,22 +939,22 @@ function command_user_role_update () {
     
     // Delete all roles for specified user
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
     
     // Re-add each role
     $roles = user_role_data();
     foreach ($roles as $role) {
         if ($_POST[$role['name']]) {
-            $esc_rid = mysql_real_escape_string($role['rid']);
+            $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
             $sql = "
                 INSERT INTO `user_role`
                 (`cid`, `rid`)
                 VALUES
                 ('$esc_post[cid]', '$esc_rid')
             ";
-            $res = mysql_query($sql);
-            if (!$res) { die(mysql_error()); }
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) { die(mysqli_error($res)); }
         }
     }
     

@@ -20,13 +20,10 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Connect to database server
-$res = mysql_connect($config_db_host, $config_db_user, $config_db_password);
-if (!$res) die(mysql_error());
-
-// Select database
-$res = mysql_selectdb($config_db_db);
-if (!$res) die(mysql_error());
+// Connect to database server and select database
+$db_connect = mysqli_connect($config_db_host, $config_db_user, $config_db_password, $config_db_db);
+$res = $db_connect;
+if (!$res) die(mysqli_error($res));
 
 // Connect to session
 session_start();
@@ -34,11 +31,11 @@ session_start();
 // Escape all http parameters
 $esc_get = array();
 foreach ($_GET as $k => $v) {
-    $esc_get[$k] = mysql_real_escape_string($v);
+    $esc_get[$k] = mysqli_real_escape_string($db_connect, $v);
 }
 $esc_post = array();
 foreach ($_POST as $k => $v) {
-    $esc_post[$k] = mysql_real_escape_string($v);
+    $esc_post[$k] = mysqli_real_escape_string($db_connect, $v);
 }
 
 // Initialize error array

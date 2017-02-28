@@ -54,6 +54,7 @@ function user_meta_permissions () {
  * module has never been installed.
  */
 function user_meta_install($old_revision = 0) {
+    global $db_connect;
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `user_meta` (
@@ -65,8 +66,8 @@ function user_meta_install($old_revision = 0) {
             PRIMARY KEY (`umid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         
         // Set default permissions
         $roles = array(
@@ -85,13 +86,13 @@ function user_meta_install($old_revision = 0) {
             'member' => array('user_meta_view')
         );
         foreach ($roles as $rid => $role) {
-            $esc_rid = mysql_real_escape_string($rid);
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
-                    $esc_perm = mysql_real_escape_string($perm);
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
-                    $res = mysql_query($sql);
-                    if (!$res) die(mysql_error());
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) die(mysqli_error($res));
                 }
             }
         }
@@ -135,7 +136,7 @@ function user_meta_description ($umid) {
  * @return An array with each element representing a single meta-tag assignment.
  */
 function user_meta_data ($opts = array()) {
-    
+    global $db_connect;
     // Determine joins
     $join_contact = false;
     $join_member = false;
@@ -179,11 +180,11 @@ function user_meta_data ($opts = array()) {
         FROM `user_meta`
         WHERE 1";
     if (!empty($opts['umid'])) {
-        $esc_umid = mysql_real_escape_string($opts['umid']);
+        $esc_umid = mysqli_real_escape_string($db_connect, $opts['umid']);
         $sql .= " AND `umid`='$esc_umid'";
     }
     if (!empty($opts['cid'])) {
-        $esc_cid = mysql_real_escape_string($opts['cid']);
+        $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
         $sql .= " AND `cid`='$esc_cid'";
     }
     if (!empty($opts['filter'])) {
@@ -201,12 +202,12 @@ function user_meta_data ($opts = array()) {
     }
     $sql .= "
         ORDER BY `tagstr` ASC";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     
     // Store data
     $user_metas = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         $user_meta = array(
             'umid' => $row['umid'],
@@ -226,7 +227,7 @@ function user_meta_data ($opts = array()) {
             }
         }
         $user_metas[] = $user_meta;
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     
     // Return data
@@ -277,25 +278,26 @@ function user_meta_data_alter ($type, $data = array(), $opts = array()) {
  * @return The user meta data structure with as it now exists in the database.
  */
 function user_meta_save ($user_meta) {
+    global $db_connect;
     // Escape values
     $fields = array('umid', 'cid', 'tagstr', 'start', 'end');
     if (isset($user_meta['umid'])) {
         // Update existing user meta data
         $umid = $user_meta['umid'];
-        $esc_umid = mysql_real_escape_string($umid);
+        $esc_umid = mysqli_real_escape_string($db_connect, $umid);
         $clauses = array();
         foreach ($fields as $k) {
             if ($k == 'end' && empty($user_meta[$k])) {
                 continue;
             }
             if (isset($user_meta[$k]) && $k != 'umid') {
-                $clauses[] = "`$k`='" . mysql_real_escape_string($user_meta[$k]) . "' ";
+                $clauses[] = "`$k`='" . mysqli_real_escape_string($db_connect, $user_meta[$k]) . "' ";
             }
         }
         $sql = "UPDATE `user_meta` SET " . implode(', ', $clauses) . " ";
         $sql .= "WHERE `umid`='$esc_umid'";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         message_register('User Meta  Data updated');
     } else {
         // Insert new user meta data
@@ -307,14 +309,14 @@ function user_meta_save ($user_meta) {
                     continue;
                 }
                 $cols[] = "`$k`";
-                $values[] = "'" . mysql_real_escape_string($user_meta[$k]) . "'";
+                $values[] = "'" . mysqli_real_escape_string($db_connect, $user_meta[$k]) . "'";
             }
         }
         $sql = "INSERT INTO `user_meta` (" . implode(', ', $cols) . ") ";
         $sql .= " VALUES (" . implode(', ', $values) . ")";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
-        $umid = mysql_insert_id();
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
+        $umid = mysqli_insert_id($db_connect);
         message_register('User Meta Data added');
     }
     return crm_get_one('user_meta', array('umid'=>$umid));
@@ -325,11 +327,12 @@ function user_meta_save ($user_meta) {
  * @param $user_meta The user meta data data structure to delete, must have a 'umid' element.
  */
 function user_meta_delete ($user_meta) {
-    $esc_umid = mysql_real_escape_string($user_meta['umid']);
+    global $db_connect;
+    $esc_umid = mysqli_real_escape_string($db_connect, $user_meta['umid']);
     $sql = "DELETE FROM `user_meta` WHERE `umid`='$esc_umid'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    if (mysql_affected_rows() > 0) {
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    if (mysqli_affected_rows() > 0) {
         message_register('User Meta Data deleted.');
     }
 }
@@ -373,11 +376,11 @@ function user_meta_cross_table ($opts) {
     
     // determine max/total number of tags, as we'll use one column for each:
     $sql = "SELECT distinct tagstr from user_meta order by tagstr asc";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $count = mysql_num_rows($res); // just one row.
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    $count = mysqli_num_rows($res); // just one row.
         $tags = array();
-        while ($row = mysql_fetch_array($res, MYSQL_NUM))
+        while ($row = mysqli_fetch_array($res, MYSQL_NUM))
         {
             $tags[] = $row[0];
         }
@@ -568,17 +571,18 @@ function user_meta_table ($opts) {
  * @param $fragment
  */
 function meta_tag_autocomplete ($fragment) {
+    global $db_connect;
     $data = array();
     $sql = "SELECT DISTINCT(`tagstr`) FROM `user_meta`";
-    $userMeta = mysql_query($sql);
+    $userMeta = mysqli_query($db_connect, $sql);
     if (!$userMeta) return $data;
-    $mysqlRow = mysql_fetch_assoc($userMeta);
+    $mysqlRow = mysqli_fetch_assoc($userMeta);
     while (!empty($mysqlRow)) {
             $row = array();
             $row['value'] = $mysqlRow['tagstr'];
             $row['label'] = $mysqlRow['tagstr'];
             $data[] = $row;
-            $mysqlRow = mysql_fetch_assoc($userMeta);
+            $mysqlRow = mysqli_fetch_assoc($userMeta);
     }
     return $data;
 }

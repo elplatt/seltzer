@@ -37,6 +37,7 @@ function profile_picture_revision () {
  *   module has never been installed.
  */
 function profile_picture_install ($old_revision = 0) {
+    global $db_connect;
     if ($old_revision < 1) {
         // There is nothing to install. Do nothing
     }
@@ -49,8 +50,8 @@ function profile_picture_install ($old_revision = 0) {
               PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         // Create folder directory if it does not exist to store uploaded profile pictures in.
         if(!file_exists('./files/profile_picture')){
             if (!mkdir('./files/profile_picture/', 0775, true)) {
@@ -95,15 +96,12 @@ function profile_picture_page (&$page_data, $page_name) {
                     , 'ops' => false
                 );
                 $view_content .= theme('profile_picture', $contact);
-            }
-            
+            }            
             //only allow users to upload photos for their OWN profile!
             // OR if they have contact_edit permission.
-            if ($cid == user_id() || user_access('contact_edit'))
-            {
+            if ($cid == user_id() || user_access('contact_edit')){
                 $view_content .= theme('form', crm_get_form('profile_picture_upload',  $cid));
             }
-            
             if (!empty($view_content)) {
                 page_add_content_top($page_data, $view_content, 'View');
             }
@@ -229,11 +227,11 @@ function command_profile_picture_upload () {
             if (!profile_picture_delete($cid)){
                 return crm_url('contact&cid=' . $_POST['cid']);
             }
-            $esc_cid = mysql_real_escape_string($cid);
+            $esc_cid = mysqli_real_escape_string($db_connect, $cid);
             // Associate this CID with uploaded file by storing a cid=>filepath row in the profile_picture table
             $sql = "INSERT INTO `profile_picture` (`cid`, `filename`) VALUES ('$esc_cid', '$destFileName')";
-                    $res = mysql_query($sql);
-                    if (!$res) die(mysql_error());
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) die(mysqli_error($res));
                     
             //save the file. Literally just moving from /tmp/ to the right directory
             if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], $destFilePath)){
@@ -260,13 +258,14 @@ function command_profile_picture_upload () {
  * @return bool true if succeded, false if failed.
  */
 function profile_picture_delete ($cid) {
+    global $db_connect;
     //Remove existing profile picture associated with this CID (both the file, and the row in the database)
     //Attempt to fetch a picture filename in the database associated with this cid.
-    $esc_cid = mysql_real_escape_string($cid);
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "SELECT `cid`, `filename` FROM `profile_picture` WHERE 1 AND `cid` = '$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    $row = mysqli_fetch_assoc($res);
     if (!empty($row)){
             $oldProfilePictureFilePath = "files/profile_picture/" . $row['filename'];
             //First, delete the profile picture file associated with this cid.
@@ -276,8 +275,8 @@ function profile_picture_delete ($cid) {
             }
             //Next, Attempt to delete the existing profile picture filename association with this cid.
             $sql = "DELETE FROM `profile_picture` WHERE `cid`='$esc_cid'";
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) die(mysqli_error($res));
             if (mysql_affected_rows() > 0) {
             message_register('Existing profile picture removed');
         }
@@ -295,15 +294,16 @@ function profile_picture_delete ($cid) {
  * @return The html of the user's profile picture.
  */
 function theme_profile_picture ($contact) {
+    global $db_connect;
     if (!is_array($contact)) {
         $contact = crm_get_one('contact', array('cid'=>$contact));
     }
     $cid = $contact['cid'];
     //Attempt to fetch a picture filename in the database associated with this cid.
     $sql = "SELECT `cid`, `filename` FROM `profile_picture` WHERE 1 AND `cid` = '$cid'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(mysql_error());
-    $row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    $row = mysqli_fetch_assoc($res);
     if (!empty($row)){
         // If a row exists in the database that associates this user's CID with a filename, return the HTML that
         // shows that user's profile picture.
