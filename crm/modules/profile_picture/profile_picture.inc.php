@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
     Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
@@ -151,6 +151,7 @@ function profile_picture_upload_form ($cid) {
  * @return The url to display on completion.
  */
 function command_profile_picture_upload () {
+    global $db_connect;
     $cid = $_POST['cid'];
     
     if (!array_key_exists('profile-picture-file', $_FILES)) {
@@ -277,7 +278,7 @@ function profile_picture_delete ($cid) {
             $sql = "DELETE FROM `profile_picture` WHERE `cid`='$esc_cid'";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) die(mysqli_error($res));
-            if (mysql_affected_rows() > 0) {
+            if (mysqli_affected_rows($db_connect) > 0) {
             message_register('Existing profile picture removed');
         }
     }
