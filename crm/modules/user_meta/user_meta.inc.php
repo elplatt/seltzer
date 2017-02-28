@@ -794,7 +794,6 @@ function user_meta_command ($command, &$url, &$params) {
  * @return The url to display on completion.
  */
 function command_user_meta_add() {
-    global $db_connect;
     global $esc_post;
     
     // Verify permissions
@@ -812,7 +811,6 @@ function command_user_meta_add() {
  * @return The url to display on completion.
  */
 function command_user_meta_update() {
-    global $db_connect;
     global $esc_post;
     
     // Verify permissions
@@ -830,7 +828,6 @@ function command_user_meta_update() {
  * @return The url to display on completion.
  */
 function command_user_meta_delete() {
-    global $db_connect;
     global $esc_post;
     // Verify permissions
     if (!user_access('user_meta_delete')) {
