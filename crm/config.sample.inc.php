@@ -67,6 +67,11 @@ $config_theme = "inspire";
 $config_amazon_payment_secret = '';
 $config_amazon_payment_access_key_id = '';
 
+// Paypal API credentials
+$config_paypal_API_UserName = '';
+$config_paypal_API_Password = '';
+$config_paypal_API_Signature = '';
+
 // Base modules
 $config_modules = array(
     "contact",
