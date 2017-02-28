@@ -105,7 +105,9 @@ function key_install($old_revision = 0) {
 function key_description ($kid) {
     
     // Get key data
-    $data = crm_get_data('key', array('kid' => $kid));
+    if (user_access('key_view')) {
+        $data = crm_get_data('key', array('kid' => $kid));
+    }
     if (empty($data)) {
         return '';
     }
