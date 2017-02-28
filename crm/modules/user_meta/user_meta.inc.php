@@ -1,11 +1,12 @@
 <?php
 
 /*
-    Copyright 2009-2016 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2016 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
-
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2017 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
+    
     This file is part of the Seltzer CRM Project
     user_meta.inc.php - Meta-Tag tracking module
+
     This module is for associating arbitrary "meta data" with member/s.
     This can be useful for making arbitrary groupings of users that have special meaning to you.
     Examples:
