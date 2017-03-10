@@ -240,8 +240,8 @@ function paypal_payment_contact_delete ($paypal_payment_contact) {
     $esc_cid = mysqli_real_escape_string($db_connect, $paypal_payment_contact['cid']);
     $sql = "DELETE FROM `contact_paypal` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
-    if (mysqli_affected_rows() > 0) {
+    if (!$res) crm_error(mysqli_error($res));
+    if (mysqli_affected_rows($db_connect) > 0) {
         message_register('Paypal contact info deleted for: ' . theme('contact_name', $esc_cid));
     }
     return crm_url('paypal-admin');
@@ -289,7 +289,7 @@ function paypal_payment_payment_api ($payment, $op) {
                 WHERE `pmtid` = '$esc_pmtid'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) die(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($res));
             paypal_payment_contact_save($paypal_contact);
             break;
         case 'delete':
@@ -306,13 +306,13 @@ function paypal_payment_payment_api ($payment, $op) {
 // Table & Page rendering //////////////////////////////////////////////////////
 
 /**
- * Generate payments contacts table
+ * Generate payments contacts table.
  *
  * @param $opts an array of options passed to the paypal_payment_contact_data function
  * @return a table (array) listing the contacts represented by all payments
  *   and their associated paypal email
- */ 
-function paypal_payment_contact_table($opts){
+ */
+function paypal_payment_contact_table ($opts) {
     $data = crm_get_data('paypal_payment_contact', $opts);
     // Initialize table
     $table = array(
@@ -526,7 +526,7 @@ function paypal_payment_contact_delete_form ($cid) {
  * @param &$form_data Metadata about the form.
  * @param $form_id The name of the form.
  */
-function paypal_payment_form_alter(&$form, $form_id) {
+function paypal_payment_form_alter ($form, $form_id) {
     if ($form_id === 'payment_edit') {
         // Modify paypal payments only
         $payment = $form['data']['payment'];
@@ -584,6 +584,7 @@ function command_paypal_payment_import () {
     $csv = file_get_contents($_FILES['payment-file']['tmp_name']);
     $data = csv_parse($csv);
     $count = 0;
+    message_register("Processing " . count($data) . " row(s)");
     foreach ($data as $row) {
         
         // Skip transactions that have already been imported
@@ -592,6 +593,7 @@ function command_paypal_payment_import () {
         );
         $data = payment_data($payment_opts);
         if (count($data) > 0) {
+            message_register("Skipping previously imported payment: " . $row['Transaction ID']);
             continue;
         }
         // Parse value

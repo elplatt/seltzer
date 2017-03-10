@@ -62,7 +62,7 @@ function user_install ($old_revision = 0) {
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) die(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `role` (
@@ -72,7 +72,7 @@ function user_install ($old_revision = 0) {
                 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) die(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `role_permission` (
@@ -82,7 +82,7 @@ function user_install ($old_revision = 0) {
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) die(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = "
                 CREATE TABLE IF NOT EXISTS `user` (
@@ -94,7 +94,7 @@ function user_install ($old_revision = 0) {
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) die(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `user_role` (
@@ -104,7 +104,7 @@ function user_install ($old_revision = 0) {
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) die(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($res));
             
             // Create default roles
             $roles = array(
@@ -120,7 +120,7 @@ function user_install ($old_revision = 0) {
             foreach ($roles as $rid => $role) {
                 $sql = "INSERT INTO `role` (`rid`, `name`) VALUES ('$rid', '$role')";
                 $res = mysqli_query($db_connect, $sql);
-                if (!$res) die(mysqli_error($res));
+                if (!$res) crm_error(mysqli_error($res));
             }
             $default_perms = array(
                 'member' => array('report_view', 'contact_view')
@@ -132,7 +132,7 @@ function user_install ($old_revision = 0) {
                     foreach ($default_perms[$role] as $perm) {
                         $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
                         $res = mysqli_query($db_connect, $sql);
-                        if (!$res) die(mysqli_error($res));
+                        if (!$res) crm_error(mysqli_error($res));
                     }
                 }
             }
@@ -177,7 +177,7 @@ function user_data ($opts) {
             }
         }
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) { die(mysqli_error($res)); }
+        if (!$res) { crm_error(mysqli_error($res)); }
         $permMap = array();
         $row = mysqli_fetch_assoc($res);
         while ($row) {
@@ -198,7 +198,7 @@ function user_data ($opts) {
             FROM `user_role` INNER JOIN `role` ON `user_role`.`rid`=`role`.`rid`
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) { die(mysqli_error($res)); }
+        if (!$res) { crm_error(mysqli_error($res)); }
         $roles = array();
         $row = mysqli_fetch_assoc($res);
         while ($row) {
@@ -241,7 +241,7 @@ function user_data ($opts) {
         }
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     
     // Create result array
     $users = array();    
@@ -321,7 +321,7 @@ function user_role_data ($opts = NULL) {
         $sql .= "AND `rid`='" . mysqli_real_escape_string($db_connect, $opts['rid']) . "' ";
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     $row = mysqli_fetch_assoc($res);
     while ($row) {
         if (!array_key_exists($row['rid'], $permissionMap)) {
@@ -334,7 +334,7 @@ function user_role_data ($opts = NULL) {
     // Construct query for roles
     $sql = "SELECT `rid`, `name` FROM `role` WHERE 1 ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     $roles = array();
     $row = mysqli_fetch_assoc($res);
     while ($row) {
@@ -374,7 +374,7 @@ function user_contact_api ($contact, $op) {
             unset($contact['user']);
             break;
         default:
-            die('Unkown operation: ' . $op);
+            crm_error('Unkown operation: ' . $op);
             break;
     }
     return $contact;
@@ -403,7 +403,7 @@ function user_save ($user) {
             VALUES
             ('$esc_name', '$esc_cid')";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
     } else {
         // The user already exists, update it
         $sql = "
@@ -414,7 +414,7 @@ function user_save ($user) {
             WHERE `cid`='$esc_cid'
             ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
     }
     
     return $user;
@@ -429,10 +429,10 @@ function user_delete ($cid) {
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `user` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(msyql_error());
+    if (!$res) crm_error(mysqli_error($res));
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(msyql_error());
+    if (!$res) crm_error(mysqli_error($res));
     message_register("Deleted user data for: " . theme('contact_name', $cid));
 }
 
@@ -530,7 +530,7 @@ function user_role_list () {
     global $db_connect;
     $sql = "SELECT * FROM `role` WHERE 1";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     
     $roles = array();
     $row = mysqli_fetch_assoc($res);
@@ -595,7 +595,7 @@ function user_reset_password_url ($username) {
         WHERE `user`.`username`='$esc_username'
         ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     $row = mysqli_fetch_assoc($res);
     
     // Make sure user exists
@@ -634,7 +634,7 @@ function user_check_reset_code ($code) {
     $esc_code = mysqli_real_escape_string($db_connect, $code);
     $sql = "SELECT * FROM `resetPassword` WHERE `code`='$esc_code'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     
     // Fetch first row
     $row = mysqli_fetch_assoc($res);
@@ -728,7 +728,7 @@ function command_login () {
  * @return The url to display when complete.
  */
 function command_logout () {
-
+    
     // Unset all of the session variables.
     $_SESSION = array();
     
@@ -744,7 +744,7 @@ function command_logout () {
     
     // Finally, destroy the session.
     session_destroy();
-
+    
     // Redirect to index
     return crm_url();
 }
@@ -753,7 +753,6 @@ function command_logout () {
  * Respond to reset password request.
 */
 function command_reset_password () {
-    global $db_connect;
     global $config_host;
     global $config_base_path;
     global $config_email_from;
@@ -807,7 +806,7 @@ function command_reset_password_confirm () {
     // Get user id
     $sql = "SELECT * FROM `resetPassword` WHERE `code`='$esc_post[code]'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     $row = mysqli_fetch_assoc($res);
     $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
     
@@ -824,7 +823,7 @@ function command_reset_password_confirm () {
         WHERE `cid`='$esc_cid'
         ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     
     // Notify user to check their email
     message_register('Your password has been reset, you may now log in');
@@ -849,7 +848,7 @@ function command_set_password () {
     // Get user id
     $sql = "SELECT * FROM `user` WHERE `cid`='$esc_post[cid]'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     $row = mysqli_fetch_assoc($res);
     $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
     
@@ -866,7 +865,7 @@ function command_set_password () {
         WHERE `cid`='$esc_cid'
         ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     message_register("The user's password has been reset");
     
     return crm_url("contact&cid=$esc_cid");
@@ -902,8 +901,8 @@ function command_user_permissions_update () {
                     WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
                 ";
                 $res = mysqli_query($db_connect, $sql);
-                if (!$res) { die(mysqli_error($res)); }
-                if (mysql_numrows($res) === 0) {
+                if (!$res) { crm_error(mysqli_error($res)); }
+                if (mysqli_num_rows($res) === 0) {
                     $sql = "
                         INSERT INTO `role_permission`
                         (`rid`, `permission`)
@@ -912,7 +911,7 @@ function command_user_permissions_update () {
                     ";
                 }
                 $res = mysqli_query($db_connect, $sql);
-                if (!$res) { die(mysqli_error($res)); }
+                if (!$res) { crm_error(mysqli_error($res)); }
             } else {
                 // Delete the permission for this role
                 $sql = "
@@ -920,11 +919,10 @@ function command_user_permissions_update () {
                     WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
                 ";
                 $res = mysqli_query($db_connect, $sql);
-                if (!$res) { die(mysqli_error($res)); }
+                if (!$res) { crm_error(mysqli_error($res)); }
             }
         }
     }
-    
     
     return crm_url('permissions');
 }
@@ -953,7 +951,7 @@ function command_user_role_update () {
     // Delete all roles for specified user
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     
     // Re-add each role
     $roles = user_role_data();
@@ -967,7 +965,7 @@ function command_user_role_update () {
                 ('$esc_post[cid]', '$esc_rid')
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) { die(mysqli_error($res)); }
+            if (!$res) { crm_error(mysqli_error($res)); }
         }
     }
     

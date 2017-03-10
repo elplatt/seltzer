@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
     Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
@@ -61,7 +61,7 @@ function key_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
     }
     // Permissions moved to DB, set defaults on install/upgrade
     if ($old_revision < 2) {
@@ -87,7 +87,7 @@ function key_install($old_revision = 0) {
                     $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) die(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($res));
                 }
             }
         }
@@ -126,7 +126,7 @@ function key_description ($kid) {
  * Return data for one or more key card assignments.
  *
  * @param $opts An associative array of options, possible keys are:
- *   'kid' If specified, returns a single memeber with the matching key id;
+ *   'kid' If specified, returns a single member with the matching key id;
  *   'cid' If specified, returns all keys assigned to the contact with specified id;
  *   'filter' An array mapping filter names to filter values;
  *   'join' A list of tables to join to the key table.
@@ -144,7 +144,8 @@ function key_data ($opts = array()) {
         , `serial`
         , `slot`
         FROM `key`
-        WHERE 1";
+        WHERE 1
+    ";
     if (!empty($opts['kid'])) {
         $esc_kid = mysqli_real_escape_string($db_connect, $opts['kid']);
         $sql .= " AND `kid`='$esc_kid'";
@@ -176,9 +177,10 @@ function key_data ($opts = array()) {
         }
     }
     $sql .= "
-        ORDER BY `start`, `kid` ASC";
+        ORDER BY `start`, `kid` ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     // Store data
     $keys = array();
     $row = mysqli_fetch_assoc($res);
@@ -254,7 +256,7 @@ function key_save ($key) {
         $sql = "UPDATE `key` SET " . implode(', ', $clauses) . " ";
         $sql .= "WHERE `kid`='$esc_kid'";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         message_register('Key updated');
     } else {
         // Insert new key
@@ -272,7 +274,7 @@ function key_save ($key) {
         $sql = "INSERT INTO `key` (" . implode(', ', $cols) . ") ";
         $sql .= " VALUES (" . implode(', ', $values) . ")";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         $kid = mysqli_insert_id($db_connect);
         message_register('Key added');
     }
@@ -288,8 +290,8 @@ function key_delete ($key) {
     $esc_kid = mysqli_real_escape_string($db_connect, $key['kid']);
     $sql = "DELETE FROM `key` WHERE `kid`='$esc_kid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
-    if (mysqli_affected_rows() > 0) {
+    if (!$res) crm_error(mysqli_error($res));
+    if (mysqli_affected_rows($db_connect) > 0) {
         message_register('Key deleted.');
     }
 }
@@ -440,7 +442,6 @@ function key_add_form ($cid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -451,7 +452,7 @@ function key_add_form ($cid) {
  * @return The form structure.
 */
 function key_edit_form ($kid) {
-    // Ensure user is allowed to edit key
+    // Ensure user is allowed to edit keys
     if (!user_access('key_edit')) {
         error_register('User does not have permission: key_edit');
         return NULL;
@@ -518,12 +519,11 @@ function key_edit_form ($kid) {
             )
         )
     );
-    
     return $form;
 }
 
 /**
- * Return the delete key assigment form structure.
+ * Return the delete key assignment form structure.
  *
  * @param $kid The kid of the key assignment to delete.
  * @return The form structure.
@@ -568,7 +568,6 @@ function key_delete_form ($kid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -677,7 +676,9 @@ function key_page (&$page_data, $page_name, $options) {
             break;
         
         case 'keys':
+            // Set page title
             page_set_title($page_data, 'Keys');
+            // Add view tab
             if (user_access('key_view')) {
                 $keys = theme('table', crm_get_table('key', array('join'=>array('contact', 'member'), 'show_export'=>true)));
                 page_add_content_top($page_data, $keys, 'View');

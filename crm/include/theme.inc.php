@@ -35,7 +35,7 @@ function theme_header () {
  * @return The themed html string for a page footer.
 */
 function theme_footer() {
-    return 'Powered by <a href="http://github.com/elplatt/seltzer">Seltzer CRM ' . crm_version() . '</a>';
+    return 'Powered by <a href="https://github.com/elplatt/seltzer">Seltzer CRM ' . crm_version() . '</a>';
 }
 
 /**

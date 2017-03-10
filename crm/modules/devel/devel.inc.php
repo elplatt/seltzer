@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
     Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
@@ -51,4 +51,3 @@ function devel_page (&$page_data, $page_name) {
             break;
     }
 }
-

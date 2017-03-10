@@ -97,7 +97,7 @@ function crm_error ($text) {
 }
 
 /**
- * Parse and return the version of the CRM as specified in crm.inc.php under $crm_version.
+ * Parse and return the version of the app as specified in crm.inc.php under $crm_version.
  * @return A string representation of the array
  */
 function crm_version() {

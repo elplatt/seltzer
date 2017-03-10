@@ -197,7 +197,7 @@ function contact_save ($contact) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        if (mysql_affected_rows() < 1) {
+        if (mysqli_affected_rows($db_connect) < 1) {
             return null;
         }
         $contact = module_invoke_api('contact', $contact, 'update');

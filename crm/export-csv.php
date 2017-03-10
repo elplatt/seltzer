@@ -27,7 +27,7 @@ $crm_root = dirname(__FILE__);
 require_once('include/crm.inc.php');
 
 if (!user_id()) {
-    die ("ERROR: User not logged in");
+    crm_error("ERROR: User not logged in");
 }
 
 header('Content-type: text/csv');
