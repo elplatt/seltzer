@@ -1,9 +1,9 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2014 Chris Murray <chris.f.murray@hotmail.co.uk>
-
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2017 Chris Murray <chris.f.murray@hotmail.co.uk>
+    
     This file is part of the Seltzer CRM Project
     register.inc.php - registration module
 
@@ -114,6 +114,7 @@ function register_form () {
  * @return The url to display when complete.
  */
 function command_register () {
+    global $db_connect;
     global $esc_post;
     global $config_email_to;
     global $config_email_from;
@@ -131,11 +132,11 @@ function command_register () {
         }
         
         // Check whether username is taken
-        $esc_test_name = mysql_real_escape_string($test_username);
+        $esc_test_name = mysqli_real_escape_string($db_connect, $test_username);
         $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $row = mysql_fetch_assoc($res);
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $row = mysqli_fetch_assoc($res);
         if (!$row) {
             $username = $test_username;
         }
@@ -178,7 +179,7 @@ function command_register () {
     // Save to database
     $contact = contact_save($contact);
     
-    $esc_cid = mysql_real_escape_string($contact['cid']);
+    $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);
     
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";

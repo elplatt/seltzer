@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     command.inc.php - Member module - request handlers
@@ -26,10 +26,11 @@
  * @return The url to display when complete.
  */
 function command_member_add () {
+    global $db_connect;
     global $esc_post;
+    global $config_org_name;
     global $config_email_to;
     global $config_email_from;
-    global $config_org_name;
     
     // Verify permissions
     if (!user_access('member_add')) {
@@ -51,18 +52,18 @@ function command_member_add () {
     while (empty($username) && $n < 100) {
         
         // Construct test username
-        $test_username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
+        $test_username = strtolower($_POST['firstName']{0} . $_POST['lastName']);
         if ($n > 0) {
             $test_username .= $n;
         }
         
         // Check whether username is taken
-        $esc_test_name = mysql_real_escape_string($test_username);
+        $esc_test_name = mysqli_real_escape_string($db_connect, $test_username);
         $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        $row = mysql_fetch_assoc($res);
-        if (!$row) {
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $user_row = mysqli_fetch_assoc($res);
+        if (!$user_row) {
             $username = $test_username;
         }
         $n++;
@@ -80,9 +81,11 @@ function command_member_add () {
         , 'email' => $_POST['email']
         , 'phone' => $_POST['phone']
     );
+    
     // Add user fields
     $user = array('username' => $username);
     $contact['user'] = $user;
+    
     // Add member fields
     $membership = array(
         array(
@@ -101,10 +104,11 @@ function command_member_add () {
         , 'emergency' => $emergency
     );
     $contact['member'] = $member;
+    
     // Save to database
     $contact = contact_save($contact);
     
-    $esc_cid = mysql_real_escape_string($contact['cid']);
+    $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);
     
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
@@ -133,7 +137,7 @@ function command_member_edit () {
     
     $member_data = crm_get_data('member', array('cid'=>$_POST['cid']));
     $member = $member_data[0]['member'];
-    $esc_cid = mysql_real_escape_string($_POST['cid']);
+    $esc_cid = mysqli_real_escape_string($db_connect, $_POST['cid']);
     
     // Add member fields
     $member = array(
@@ -346,6 +350,7 @@ function command_member_filter () {
  * @return The url to display on completion.
  */
 function command_member_import () {
+    global $db_connect;
     global $config_org_name;
     global $config_email_to;
     global $config_email_from;
@@ -383,11 +388,11 @@ function command_member_import () {
         }
         
         // Add plan if necessary
-        $esc_plan_name = mysql_real_escape_string($row['plan']);
+        $esc_plan_name = mysqli_real_escape_string($db_connect, $row['plan']);
         $sql = "SELECT `pid` FROM `plan` WHERE `name`='$esc_plan_name'";
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
-        if (mysql_num_rows($res) < 1) {
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        if (mysqli_num_rows($res) < 1) {
             
             $plan = array(
                 'name' => $esc_plan_name
@@ -397,31 +402,31 @@ function command_member_import () {
                 , 'pid' => $_POST['pid']
             );
             member_plan_save($plan);
-            $res = mysql_query($sql);
-            $plan_row = mysql_fetch_assoc($res);
+            $res = mysqli_query($db_connect, $sql);
+            $plan_row = mysqli_fetch_assoc($res);
             $pid = $plan_row['pid'];
         } else {
-            $plan_row = mysql_fetch_assoc($res);
+            $plan_row = mysqli_fetch_assoc($res);
             $pid = $plan_row['pid'];
         }
         
-        // Find Username
+        // Find username or create a new one
         $username = $row['username'];
         $n = 0;
         while (empty($username) && $n < 100) {
             
-            // Contruct test username
-            $test_username = strtolower($row['firstname']{0} . $row['lastName']);
+            // Construct test username
+            $test_username = strtolower($row['firstname']{0} . $row['lastname']);
             if ($n > 0) {
                 $test_username .= $n;
             }
             
             // Check whether username is taken
-            $esc_test_name = mysql_real_escape_string($test_username);
+            $esc_test_name = mysqli_real_escape_string($db_connect, $test_username);
             $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
-            $res = mysql_query($sql);
-            if (!$res) crm_error(mysql_error());
-            $user_row = mysql_fetch_assoc($res);
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
+            $user_row = mysqli_fetch_assoc($res);
             if (!$user_row) {
                 $username = $test_username;
             }
@@ -432,7 +437,7 @@ function command_member_import () {
             return crm_url('members&tab=import');
         }
         
-        // Add contact
+        // Build contact object
         $contact = array(
             'firstName' => $row['firstname']
             , 'middleName' => $row['middlename']
@@ -441,12 +446,13 @@ function command_member_import () {
             , 'phone' => $row['phone']
         );
         
-        // Add user
+        // Add user fields
         $user = array('username' => $username);
         $contact['user'] = $user;
-        // Add membership
-        $esc_start = mysql_real_escape_string($row['startdate']);
-        $esc_pid = mysql_real_escape_string($pid);
+        
+        // Add membership fields
+        $esc_start = mysqli_real_escape_string($db_connect, $row['startdate']);
+        $esc_pid = mysqli_real_escape_string($db_connect, $pid);
         $membership = array(
             array(
                 'pid' => $esc_pid
@@ -465,16 +471,17 @@ function command_member_import () {
         );
         $contact['member'] = $member;
         
+        // Save to database
         $contact = contact_save($contact);
         
-        $esc_cid = mysql_real_escape_string($cid);
+        $esc_cid = mysqli_real_escape_string($db_connect, $cid);
         
         // Notify admins
         $from = "\"$config_org_name\" <$config_email_from>";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         if (!empty($config_email_to)) {
-            $name = theme_contact_name($_POST['cid']);
-            $content = theme('member_created_email', $user['cid']);
+            $name = theme_contact_name($contact['cid']);
+            $content = theme('member_created_email', $contact['cid']);
             mail($config_email_to, "New Member: $name", $content, $headers);
         }
         

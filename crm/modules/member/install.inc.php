@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     install.inc.php - Member module installation code
@@ -26,6 +26,7 @@
  *   module has never been installed.
  */
 function member_install($old_revision = 0) {
+    global $db_connect;
     if ($old_revision == 1) {
         error_log('The database version is too old to upgrade to this release of ' . title(). '.  Please upgrade one release at a time.');
         return;
@@ -39,8 +40,8 @@ function member_install($old_revision = 0) {
               PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         // Create membership table
         $sql = '
             CREATE TABLE IF NOT EXISTS `membership` (
@@ -52,8 +53,8 @@ function member_install($old_revision = 0) {
               PRIMARY KEY (`sid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         // Create plan table
         $sql = '
             CREATE TABLE IF NOT EXISTS `plan` (
@@ -65,8 +66,8 @@ function member_install($old_revision = 0) {
               PRIMARY KEY (`pid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         // Create default permissions
         $roles = array(
             '1' => 'authenticated'
@@ -87,8 +88,8 @@ function member_install($old_revision = 0) {
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
-                    $res = mysql_query($sql);
-                    if (!$res) die(mysql_error());
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) die(mysqli_error($res));
                 }
             }
         }
@@ -101,23 +102,23 @@ function member_install($old_revision = 0) {
               ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
             ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         $sql = '
             UPDATE contact, member
             SET member.emergencyName=contact.emergencyName,  
             member.emergencyPhone = contact.emergencyPhone
             WHERE member.cid=contact.cid;
         ';
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) die(mysqli_error($res));
         $sql = '
             ALTER TABLE `contact`
               DROP column `emergencyName`
               , DROP column `emergencyPhone`
             ;
         ';
-        $res = mysql_query($sql);
-        if (!$res) crm_error(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
     }
 }
