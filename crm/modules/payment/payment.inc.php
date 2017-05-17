@@ -1115,6 +1115,48 @@ function payment_filter_form () {
     return $form;
 }
 
+/**
+ * Form for initiating membership billing emails.
+ * @return The form structure.
+ */
+function payment_email_bills_form () {
+    
+    $email_date = variable_get('payment_last_email', '');
+    $from_label = empty($email_date) ? 'never' : $email_date;
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'payment_email'
+        , 'fields' => array(
+            array(
+                'type' => 'fieldset'
+                , 'label' => 'Send Billing Emails'
+                , 'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
+                        ),
+                    array(
+                        'type' => 'readonly',
+                        'class' => 'date',
+                        'label' => 'Last Emailed',
+                        'name' => 'last_emailed',
+                        'value' => $from_label
+                    ),
+                    array(
+                        'type' => 'submit'
+                        , 'value' => 'Send Emails'
+                    )
+                )
+            )
+        )
+    );
+    
+    return $form;
+}
+
 // Pages ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -1153,6 +1195,9 @@ function payment_page (&$page_data, $page_name, $options) {
                 );
                 $content .= theme('table', crm_get_table('payment', $opts));
                 page_add_content_top($page_data, $content, 'View');
+                if (function_exists('billing_revision')) {
+                    page_add_content_top($page_data, theme('form', crm_get_form('payment_email_bills')), 'Billing');
+                }
             }
             break;
         case 'payment':
@@ -1173,6 +1218,14 @@ function payment_page (&$page_data, $page_name, $options) {
             if (user_id() == $_GET['cid'] || user_access('payment_view')) {
                 $content = theme('table', crm_get_table('payment_history', array('cid' => $_GET['cid'])));
                 page_add_content_top($page_data, $content, 'Account');
+            }
+            if (user_access('payment_view') || $_GET['cid'] == user_id()) {
+                page_add_content_bottom($page_data, theme('payment_account_info', $_GET['cid']), 'Account');
+            }
+            if (function_exists('billing_revision')) {
+                if (user_access('payment_view') || $_GET['cid'] == user_id()) {
+                    page_add_content_bottom($page_data, theme('payment_first_month', $_GET['cid']), 'Plan');
+                }
             }
             break;
     }
@@ -1266,4 +1319,121 @@ function command_payment_filter () {
         $query = '&' . implode('&', $params);
     }
     return crm_url('payments') . $query;
+}
+
+/**
+ * Send emails to any members with a positive balance.
+ */
+function command_payment_email () {
+    global $config_email_from;
+    global $config_site_title;
+    // Get balances and contacts
+    $cids = payment_contact_filter(array('balance_due'=>true));
+    $balances = payment_accounts(array('cid'=>$cids));
+    $contacts = crm_get_data('contact', array('cid'=>$cids));
+    $cidToContact = crm_map($contacts, 'cid');
+    // Email each contact with a balance
+    foreach ($balances as $cid => $balance) {
+        // Construct button
+        $params = array(
+            'referenceId' => $cid
+            , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+            , 'description' => 'CRM Dues Payment'
+        );
+        $amount = payment_format_currency($balance);
+        if (!function_exists('amazon_payment_revision')) {
+            $button1 = theme('amazon_payment_button', $cid, $params);
+        }
+        if (!function_exists('paypal_payment_revision')) {
+            $button2 = theme('paypal_payment_button', $cid, $params);
+        }
+        // Send email
+        $to = $cidToContact[$cid]['email'];
+        $subject = "[$config_site_title] Payment Due";
+        $from = $config_email_from;
+        $headers = "Content-type: text/html\r\nFrom: $from\r\n";
+        if (!function_exists('amazon_payment_revision')) {
+            $message = "<p>Hello,<br/>Your current account balance is $amount.  To pay this balance using Amazon Payments, please click the button below.</p>$button1";
+        }
+        if (!function_exists('paypal_payment_revision')) {
+            $message = "<p>Hello,<br/>Your current account balance is $amount.  To pay this balance using Paypal, please click the button below.</p>$button2";
+        }
+        $res = mail($to, $subject, $message, $headers);
+    }
+    message_register('E-mails have been sent');
+    variable_set('payment_last_email', date('Y-m-d'));
+    return crm_url('payments', array('query'=>array('tab'=>'billing')));
+}
+
+// Themes //////////////////////////////////////////////////////////////////////
+
+/**
+ * Return themed html for prorated first month button.
+ */
+function theme_payment_first_month ($cid) {
+    if (!function_exists('billing_revision')) {
+        return 'Prorated dues payment requires billing module.';
+    }
+    $contact = crm_get_one('contact', array('cid'=>$cid));
+    // Calculate fraction of the billing period
+    $mship = end($contact['member']['membership']);
+    $date = getdate(strtotime($mship['start']));
+    $period = billing_days_in_period($date);
+    $day = $date['mday'];
+    $fraction = ($period - $day + 1.0) / $period;
+    // Get payment amount
+    $due = payment_parse_currency($mship['plan']['price']);
+    $due['value'] = ceil($due['value'] * $fraction);
+    $html .= $due['value'];
+    // Create button
+    $html = "<fieldset><legend>First month prorated dues</legend>";
+    $params = array(
+        'referenceId' => $cid
+        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false) 
+        , 'description' => 'CRM Dues Payment'
+    );
+    $amount = payment_format_currency($due);
+    $html .= "<p><strong>First month's dues:</strong> $amount</p>";
+    if ($due['value'] > 0) {
+        if (!function_exists('amazon_payment_revision')) {
+            $html .= theme('amazon_payment_button', $cid, $params);
+        }
+        if (!function_exists('paypal_payment_revision')) {
+            $html .= theme('paypal_payment_button', $cid, $params);
+        }
+    }
+    $html .= '</fieldset>';
+    return $html;
+}
+
+/**
+ * Return an account summary and payment button.
+ * @param $cid The cid of the contact to create a form for.
+ * @return An html string for the summary and button.
+ */
+function theme_payment_account_info ($cid) {
+    $balances = payment_accounts(array('cid'=>$cid));
+    $balance = $balances[$cid];
+    $params = array(
+        'referenceId' => $cid
+        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+        , 'description' => 'CRM Dues Payment'
+    );
+    $output = '<div>';
+    $amount = payment_format_currency($balance);
+    if ($balance['value'] > 0) {
+        $output .= "<p><strong>Outstanding balance:</strong> $amount</p>";
+        if (!function_exists('amazon_payment_revision')) {
+            $output .= theme('amazon_payment_button', $cid, $params);
+        }
+        if (!function_exists('paypal_payment_revision')) {
+            $output .= theme('paypal_payment_button', $cid, $params);
+        }
+    } else {
+        $balance['value'] = -1*$balance['value'];
+        $amount = payment_format_currency($balance);
+        $output .= "<p><strong>No balance owed.  Account credit:</strong> $amount</p>";
+    }
+    $output .= '</div>';
+    return $output;
 }
