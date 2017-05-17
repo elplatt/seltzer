@@ -43,7 +43,7 @@ if ($_GET['q'] == 'logout') {
 
 $template_vars = array('path' => path());
 if (!user_id()) {
-    if (path() != 'login' && path() != 'reset' && path() != 'reset-confirm') {
+    if (path() != 'login' && path() != 'reset' && path() != 'reset-confirm' && path() != 'register') {
         $template_vars = array('path' => 'login');
     }
 }
