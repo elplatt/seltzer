@@ -71,6 +71,11 @@ function member_add_form () {
                 'name' => 'start',
                 'value' => $start,
                 'class' => 'date'
+            ),
+            array(
+                'type' => 'checkbox',
+                'label' => 'DO NOT Send User Notification Email',
+                'name' => 'notify_user'
             )
         )
     );
@@ -532,6 +537,11 @@ function member_import_form () {
                 'type' => 'file'
                 , 'label' => 'CSV File'
                 , 'name' => 'member-file'
+            )
+            , array(
+                'type' => 'checkbox',
+                'label' => 'DO NOT Send User Notification Email',
+                'name' => 'notify_user'
             )
             , array(
                 'type' => 'submit'
