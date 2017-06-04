@@ -106,9 +106,9 @@ function register_form () {
 function command_register () {
     global $db_connect;
     global $esc_post;
+    global $config_org_name;
     global $config_email_to;
     global $config_email_from;
-    global $config_org_name;
     
     // Find username or create a new one
     $username = $_POST['username'];
@@ -116,7 +116,7 @@ function command_register () {
     while (empty($username) && $n < 100) {
         
         // Construct test username
-        $test_username = strtolower($_POST[firstName]{0} . $_POST[lastName]);
+        $test_username = strtolower($_POST['firstName']{0} . $_POST['lastName']);
         if ($n > 0) {
             $test_username .= $n;
         }
@@ -126,8 +126,8 @@ function command_register () {
         $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $row = mysqli_fetch_assoc($res);
-        if (!$row) {
+        $user_row = mysqli_fetch_assoc($res);
+        if (!$user_row) {
             $username = $test_username;
         }
         $n++;

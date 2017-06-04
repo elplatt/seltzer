@@ -26,15 +26,14 @@
  * @return The $content string will all line endings converted to "\n".
  */
 function csv_normalize ($content) {
-	$content = remove_utf8_bom($content);
+    $content = remove_utf8_bom($content);
     $content = str_replace("\r\n", "\n", $content);
     $content = str_replace("\r", "\n", $content);
     return $content;
 }
 
 //Removes UTF8 Byte order mark
-function remove_utf8_bom($text)
-{
+function remove_utf8_bom($text) {
     $bom = pack('H*','EFBBBF');
     $text = preg_replace("/^$bom/", '', $text);
     return $text;

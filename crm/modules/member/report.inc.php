@@ -76,13 +76,13 @@ function member_statistics () {
     // Create temporary table with dates
     $sql = "DROP TEMPORARY TABLE IF EXISTS `temp_months`";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { crm_error(mysql_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     $sql = "CREATE TEMPORARY TABLE `temp_months` (`month` date NOT NULL);";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { crm_error(mysql_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     $sql = "INSERT INTO `temp_months` (`month`) VALUES " . implode(',', $dates) . ";";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { crm_error(mysql_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     // Query number of active memberships for each month
     $sql = "
         SELECT
@@ -100,7 +100,7 @@ function member_statistics () {
         GROUP BY `plan`.`pid`, `month`;
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { crm_error(mysql_error($res)); }
+    if (!$res) { crm_error(mysqli_error($res)); }
     // Build results
     while ($row = mysqli_fetch_assoc($res)) {
         $results[$row['pid']][] = array(
