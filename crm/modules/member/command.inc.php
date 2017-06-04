@@ -80,8 +80,6 @@ function command_member_add () {
         , 'lastName' => $_POST['lastName']
         , 'email' => $_POST['email']
         , 'phone' => $_POST['phone']
-        , 'emergencyName' => $_POST['emergencyName']
-        , 'emergencyPhone' => $_POST['emergencyPhone']
     );
     
     // Add user fields
@@ -95,7 +93,16 @@ function command_member_add () {
             , 'start' => $_POST['start']
         )
     );
-    $member = array('membership' => $membership);
+    $emergency = array(
+        array(
+            'emergencyName' => $_POST['emergencyname']
+            , 'emergencyPhone' => $_POST['emergencyphone']
+        )
+    );
+    $member = array(
+        'membership' => $membership
+        , 'emergency' => $emergency
+    );
     $contact['member'] = $member;
     
     // Save to database
@@ -116,6 +123,30 @@ function command_member_add () {
     $confirm_url = user_reset_password_url($contact['user']['username']);
     $content = theme('member_welcome_email', $contact['user']['cid'], $confirm_url);
     mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
+    
+    return crm_url("contact&cid=$esc_cid");
+}
+
+/**
+ * Handle member edit request.
+ *
+ * @return The url to display when complete.
+ */
+function command_member_edit () {
+    global $esc_post;
+    
+    $member_data = crm_get_data('member', array('cid'=>$_POST['cid']));
+    $member = $member_data[0]['member'];
+    $esc_cid = mysqli_real_escape_string($db_connect, $_POST['cid']);
+    
+    // Add member fields
+    $member = array(
+        'cid'=> $_POST['cid']
+        , 'emergencyName' => $_POST['emergencyName']
+        , 'emergencyPhone' => $_POST['emergencyPhone']
+    );
+    // Save to database
+    $member = member_save($member);
     
     return crm_url("contact&cid=$esc_cid");
 }
@@ -413,8 +444,6 @@ function command_member_import () {
             , 'lastName' => $row['lastname']
             , 'email' => $row['email']
             , 'phone' => $row['phone']
-            , 'emergencyName' => $row['emergencyname']
-            , 'emergencyPhone' => $row['emergencyphone']
         );
         
         // Add user fields
@@ -430,7 +459,16 @@ function command_member_import () {
                 , 'start' => $esc_start
             )
         );
-        $member = array('membership' => $membership);
+        $emergency = array(
+            array(
+                'emergencyName' => $row['emergencyname']
+                , 'emergencyPhone' => $row['emergencyphone']
+            )
+        );
+        $member = array(
+            'membership' => $membership
+            , 'emergency' => $emergency
+        );
         $contact['member'] = $member;
         
         // Save to database

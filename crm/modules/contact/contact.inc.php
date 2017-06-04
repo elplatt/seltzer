@@ -161,8 +161,6 @@ function contact_data ($opts = array()) {
             , 'lastName' => $row['lastName']
             , 'email' => $row['email']
             , 'phone' => $row['phone']
-            , 'emergencyName' => $row['emergencyName']
-            , 'emergencyPhone' => $row['emergencyPhone']
         );
         $row = mysqli_fetch_assoc($res);
     }
@@ -176,7 +174,7 @@ function contact_data ($opts = array()) {
 function contact_save ($contact) {
     global $db_connect;
     $fields = array(
-        'cid', 'firstName', 'middleName', 'lastName', 'email', 'phone', 'emergencyName', 'emergencyPhone'
+        'cid', 'firstName', 'middleName', 'lastName', 'email', 'phone'
     );
     $escaped = array();
     foreach ($fields as $field) {
@@ -191,8 +189,6 @@ function contact_save ($contact) {
                 , `lastName`='$escaped[lastName]'
                 , `email`='$escaped[email]'
                 , `phone`='$escaped[phone]'
-                , `emergencyName`='$escaped[emergencyName]'
-                , `emergencyPhone`='$escaped[emergencyPhone]'
             WHERE `cid`='$escaped[cid]'
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -205,9 +201,9 @@ function contact_save ($contact) {
         // Add contact
         $sql = "
             INSERT INTO `contact`
-            (`firstName`,`middleName`,`lastName`,`email`,`phone`,`emergencyName`,`emergencyPhone`)
+            (`firstName`,`middleName`,`lastName`,`email`,`phone`)
             VALUES
-            ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[emergencyName]','$escaped[emergencyPhone]')
+            ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]')
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -298,12 +294,6 @@ function contact_table ($opts = array()) {
     }
     $table['columns'][] = array('title'=>'E-Mail','class'=>'');
     $table['columns'][] = array('title'=>'Phone','class'=>'');
-    if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
-        $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
-    }
-    if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
-        $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
-    }
     // Add ops column
     if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
@@ -327,12 +317,6 @@ function contact_table ($opts = array()) {
         }
         $row[] = $contact['email'];
         $row[] = $contact['phone'];
-        if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
-            $row[] = $contact['emergencyName'];
-        }
-        if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
-            $row[] = $contact['emergencyPhone'];
-        }
         
         // Construct ops array
         $ops = array();
@@ -430,16 +414,6 @@ function contact_form ($opts = array()) {
                 , 'label' => 'Phone'
                 , 'name' => 'phone'
             )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Contact'
-                , 'name' => 'emergencyName'
-            )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Phone'
-                , 'name' => 'emergencyPhone'
-            )
         )
     );
     return $form;
@@ -510,8 +484,6 @@ function command_contact_add () {
         , 'lastName' => $_POST['lastName']
         , 'email' => $_POST['email']
         , 'phone' => $_POST['phone']
-        , 'emergencyName' => $_POST['emergencyName']
-        , 'emergencyPhone' => $_POST['emergencyPhone']
     );
     // Save to database
     $contact = contact_save($contact);
@@ -543,8 +515,6 @@ function command_contact_update () {
     $contact['lastName'] = $_POST['lastName'];
     $contact['email'] = $_POST['email'];
     $contact['phone'] = $_POST['phone'];
-    $contact['emergencyName'] = $_POST['emergencyName'];
-    $contact['emergencyPhone'] = $_POST['emergencyPhone'];
     // Save changes to database
     $contact = contact_save($contact);
     return crm_url('members');
@@ -592,13 +562,6 @@ function contact_page (&$page_data, $page_name) {
             page_set_title($page_data, 'Contacts');
             // Add view tab
             if (user_access('contact_view')) {
-                $opts = array(
-                    'show_export'=>true
-                    , 'exclude'=>array(
-                        'emergencyName',
-                        'emergencyPhone'
-                    )
-                );
                 $view = theme('table', crm_get_table('contact', $opts));
                 page_add_content_top($page_data, $view, 'View');
             }
