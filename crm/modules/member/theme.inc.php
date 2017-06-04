@@ -258,6 +258,16 @@ function theme_member_plan_edit_form ($pid) {
 }
 
 /**
+ * Return the themed html for a member info table.
+ *
+ * @param $opts The options to pass to member_data().
+ * @return The themed html string.
+ */
+function theme_member_info_table ($opts = NULL) {
+    return theme('table_vertical', crm_get_table('member_info', $opts));
+}
+
+/**
  * Return the themed html for a contact's name.
  *
  * @param $cid The cid of the contact.
