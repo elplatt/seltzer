@@ -44,4 +44,9 @@ if(isset($_GET['q'])) {
 }
 
 $template_vars = array('path' => path());
+if (!user_id()) {
+    if (path() != 'login' && path() != 'reset' && path() != 'reset-confirm' && path() != 'register') {
+        $template_vars = array('path' => 'login');
+    }
+}
 print template_render('page', $template_vars);
