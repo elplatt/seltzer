@@ -600,10 +600,6 @@ function user_subject_access ($cid, $permission) {
     // Get list of the users roles and check each for the permission
     $data = user_data(array('cid'=>$cid));
     $access = in_array($permission, $data[0]['permissions']);
-    if (!$access) {
-        $role = crm_get_one('user_role', array('rid'=>1));
-        $access = in_array($permission, $role['permissions']);
-    }
     $user_permission_cache[$permission] = $access;
     return $access;
 }
