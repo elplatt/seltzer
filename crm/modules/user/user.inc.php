@@ -587,11 +587,6 @@ function user_access ($permission) {
 function user_subject_access ($cid, $permission) {
     global $user_permission_cache;
     
-    // If a user is not logged in, they don't have access to anything
-    if (!$cid) {
-        return false;
-    }
-    
     // The admin user has access to everything
     if ($cid == 1) {
         return true;
