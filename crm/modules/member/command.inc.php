@@ -133,17 +133,20 @@ function command_member_add () {
  * @return The url to display when complete.
  */
 function command_member_edit () {
+    global $db_connect;
     global $esc_post;
     
-    $member_data = crm_get_data('member', array('cid'=>$_POST['cid']));
-    $member = $member_data[0]['member'];
     $esc_cid = mysqli_real_escape_string($db_connect, $_POST['cid']);
+    $esc_emergencyName = mysqli_real_escape_string($db_connect, $_POST['emergencyName']);
+    $esc_emergencyPhone = mysqli_real_escape_string($db_connect, $_POST['emergencyPhone']);
+    $member_data = crm_get_data('member', array('cid'=>$esc_cid));
+    $member = $member_data[0]['member'];
     
     // Add member fields
     $member = array(
-        'cid'=> $_POST['cid']
-        , 'emergencyName' => $_POST['emergencyName']
-        , 'emergencyPhone' => $_POST['emergencyPhone']
+        'cid'=> $esc_cid
+        , 'emergencyName' => $esc_emergencyName
+        , 'emergencyPhone' => $esc_emergencyPhone
     );
     // Save to database
     $member = member_save($member);
