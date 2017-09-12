@@ -578,6 +578,33 @@ function user_access ($permission) {
 }
 
 /**
+ * Check if the user has a specific role
+ *
+ * @param $cid The cid of the user being queried
+ * @param $permission The permission to check for.
+ * @return True if the user is granted $permission.
+*/
+function user_subject_access ($cid, $permission) {
+    global $user_permission_cache;
+    
+    // The admin user has access to everything
+    if ($cid == 1) {
+        return true;
+    }
+    
+    // Check cache
+    if (array_key_exists($permission, $user_permission_cache)) {
+        return $user_permission_cache[$permission];
+    }
+    
+    // Get list of the users roles and check each for the permission
+    $data = user_data(array('cid'=>$cid));
+    $access = in_array($permission, $data[0]['permissions']);
+    $user_permission_cache[$permission] = $access;
+    return $access;
+}
+
+/**
  * Generate a password reset url.
  * @param $username
  * @return A string containing a password reset url.
