@@ -103,7 +103,7 @@ function member_install($old_revision = 0) {
             ;
         ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         $sql = '
             UPDATE contact, member
             SET member.emergencyName=contact.emergencyName,  
@@ -111,7 +111,7 @@ function member_install($old_revision = 0) {
             WHERE member.cid=contact.cid;
         ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         $sql = '
             ALTER TABLE `contact`
               DROP column `emergencyName`
