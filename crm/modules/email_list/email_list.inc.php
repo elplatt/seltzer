@@ -59,7 +59,7 @@ function email_list_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         
         // Create a table to associate email list names with a LID (list ID)
         $sql = '
@@ -70,7 +70,7 @@ function email_list_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         
         //Set Permissions
         $roles = array(
@@ -98,7 +98,7 @@ function email_list_install ($old_revision = 0) {
                     $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) die(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($res));
                 }
             }
         }
@@ -268,7 +268,7 @@ function email_list_data ($opts = array()) {
             ORDER BY `email_lists`.`lid`, `cid` ASC";
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     // Store data
     $email_list_data = array();
     $row = mysqli_fetch_assoc($res);
@@ -341,7 +341,7 @@ function email_list_save ($list) {
         $sql = "UPDATE `email_lists` SET " . implode(', ', $clauses) . " ";
         $sql .= "WHERE `lid`='$esc_lid'";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         message_register('Email list updated');
     } else {
         // Insert new email list
@@ -356,7 +356,7 @@ function email_list_save ($list) {
         $sql = "INSERT INTO `email_lists` (" . implode(', ', $cols) . ") ";
         $sql .= " VALUES (" . implode(', ', $values) . ")";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         message_register('Email list created');
     }
     //return crm_get_one('email_list', array('kid'=>$kid));
@@ -371,7 +371,7 @@ function email_list_delete ($list) {
     $esc_lid = mysqli_real_escape_string($db_connect, $list['lid']);
     $sql = "DELETE FROM `email_lists` WHERE `lid`='$esc_lid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows() > 0) {
         message_register('List deleted.');
     }
@@ -379,7 +379,7 @@ function email_list_delete ($list) {
     //delete any subscriptions that are associated with this list.
     $sql = "DELETE FROM `email_list_subscriptions` WHERE `lid`='$esc_lid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows() > 0) {
         message_register('Associated subscriptions deleted.');
     }
@@ -396,7 +396,7 @@ function email_list_unsubscribe ($subscription) {
     
     $sql = "DELETE FROM `email_list_subscriptions` WHERE `lid`='$esc_lid' AND `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows() > 0) {
         message_register('Subscription deleted.');
     } if (mysqli_affected_rows() > 1){
@@ -586,7 +586,7 @@ function email_list_options () {
     ";
     
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     // Store data
     $lists = array();
     $row = mysqli_fetch_assoc($res);
@@ -856,7 +856,7 @@ function command_email_list_subscribe () {
         $sql = "INSERT INTO `email_list_subscriptions` (`lid`, `cid`, `email`)
             VALUES ('$lid', '$cid', '$esc_email')";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         
         message_register('Successfully subscribed user to email list.');
     } else {

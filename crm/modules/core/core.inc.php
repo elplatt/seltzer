@@ -38,7 +38,7 @@ function core_install ($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = 'SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         
         $sql = '
             CREATE TABLE IF NOT EXISTS `module` (
@@ -49,7 +49,7 @@ function core_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
     }
 }
 

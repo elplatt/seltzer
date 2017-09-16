@@ -51,7 +51,7 @@ function profile_picture_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         // Create folder directory if it does not exist to store uploaded profile pictures in.
         if(!file_exists('./files/profile_picture')){
             if (!mkdir('./files/profile_picture/', 0775, true)) {
@@ -232,7 +232,7 @@ function command_profile_picture_upload () {
             // Associate this CID with uploaded file by storing a cid=>filepath row in the profile_picture table
             $sql = "INSERT INTO `profile_picture` (`cid`, `filename`) VALUES ('$esc_cid', '$destFileName')";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) die(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($res));
                     
             //save the file. Literally just moving from /tmp/ to the right directory
             if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], $destFilePath)){
@@ -277,7 +277,7 @@ function profile_picture_delete ($cid) {
             //Next, Attempt to delete the existing profile picture filename association with this cid.
             $sql = "DELETE FROM `profile_picture` WHERE `cid`='$esc_cid'";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) die(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($res));
             if (mysqli_affected_rows($db_connect) > 0) {
             message_register('Existing profile picture removed');
         }
