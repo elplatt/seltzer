@@ -88,7 +88,7 @@ function payment_install($old_revision = 0) {
                     $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) die(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($res));
                 }
             }
         }

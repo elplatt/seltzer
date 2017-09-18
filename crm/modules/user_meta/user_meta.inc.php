@@ -68,7 +68,7 @@ function user_meta_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         
         // Set default permissions
         $roles = array(
@@ -93,7 +93,7 @@ function user_meta_install($old_revision = 0) {
                     $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) die(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($res));
                 }
             }
         }
@@ -204,7 +204,7 @@ function user_meta_data ($opts = array()) {
     $sql .= "
         ORDER BY `tagstr` ASC";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     
     // Store data
     $user_metas = array();
@@ -298,7 +298,7 @@ function user_meta_save ($user_meta) {
         $sql = "UPDATE `user_meta` SET " . implode(', ', $clauses) . " ";
         $sql .= "WHERE `umid`='$esc_umid'";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         message_register('User Meta  Data updated');
     } else {
         // Insert new user meta data
@@ -316,7 +316,7 @@ function user_meta_save ($user_meta) {
         $sql = "INSERT INTO `user_meta` (" . implode(', ', $cols) . ") ";
         $sql .= " VALUES (" . implode(', ', $values) . ")";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) die(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($res));
         $umid = mysqli_insert_id($db_connect);
         message_register('User Meta Data added');
     }
@@ -332,7 +332,7 @@ function user_meta_delete ($user_meta) {
     $esc_umid = mysqli_real_escape_string($db_connect, $user_meta['umid']);
     $sql = "DELETE FROM `user_meta` WHERE `umid`='$esc_umid'";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows() > 0) {
         message_register('User Meta Data deleted.');
     }
@@ -378,7 +378,7 @@ function user_meta_cross_table ($opts) {
     // determine max/total number of tags, as we'll use one column for each:
     $sql = "SELECT distinct tagstr from user_meta order by tagstr asc";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($res));
     $count = mysqli_num_rows($res); // just one row.
         $tags = array();
         while ($row = mysqli_fetch_array($res, MYSQL_NUM))

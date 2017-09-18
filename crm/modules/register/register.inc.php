@@ -72,6 +72,16 @@ function register_form () {
                 'label' => 'Username',
                 'name' => 'username'
             )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
+            )
         )
     );
     $form['fields'][] = array(
@@ -144,8 +154,6 @@ function command_register () {
         , 'lastName' => $_POST['lastName']
         , 'email' => $_POST['email']
         , 'phone' => $_POST['phone']
-        , 'emergencyName' => $_POST['emergencyName']
-        , 'emergencyPhone' => $_POST['emergencyPhone']
     );
     // Add user fields
     $user = array('username' => $username);
@@ -157,7 +165,16 @@ function command_register () {
             , 'start' => $_POST['start']
         )
     );
-    $member = array('membership' => $membership);
+    $emergency = array(
+        array(
+            'emergencyName' => $_POST['emergencyname']
+            , 'emergencyPhone' => $_POST['emergencyphone']
+        )
+    );
+    $member = array(
+        'membership' => $membership
+        , 'emergency' => $emergency
+    );
     $contact['member'] = $member;
     // Save to database
     $contact = contact_save($contact);
