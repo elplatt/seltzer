@@ -337,8 +337,11 @@ function theme_member_created_email ($cid) {
     $output .= "<p>Membership info:<br/>\n";
     $output .= "Plan: $plan<br/>\n";
     $output .= "Start date: $date\n</p>\n";
-    $output .= "<p>Entered by: $adminName</p>\n";
-    
+    if (user_id()){
+        $output .= "<p>Entered by: $adminName</p>\n";
+    } else {
+        $output .= "<p>User self-registered</p>\n";
+    }
     return $output;
 }
 
