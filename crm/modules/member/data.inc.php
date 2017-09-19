@@ -210,9 +210,9 @@ function member_contact_api ($contact, $op) {
             $member = $contact['member'];
             $sql = "
                 INSERT INTO `member`
-                (`cid`,`emergencyName`,`emergencyPhone`)
+                (`cid`, `emergencyName`, `emergencyPhone`)
                 VALUES
-                ('$esc_cid','$esc_emergencyName','$esc_emergencyPhone')
+                ('$esc_cid', '$esc_emergencyName', '$esc_emergencyPhone')
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));

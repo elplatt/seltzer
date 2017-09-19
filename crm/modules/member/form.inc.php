@@ -84,7 +84,6 @@ function member_add_form () {
             )
         )
     );
-    
     return $form;
 }
 
@@ -366,7 +365,6 @@ function member_membership_add_form ($cid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -443,7 +441,6 @@ function member_membership_edit_form ($sid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -504,7 +501,6 @@ function member_membership_delete_form ($sid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -516,7 +512,7 @@ function member_membership_delete_form ($sid) {
  * @return The form structure.
 */
 function member_filter_form () {
-
+    
     // Available filters    
     $filters = array(
         'all' => 'All',
@@ -557,7 +553,6 @@ function member_filter_form () {
             )
         )
     );
-    
     return $form;
 }
 
