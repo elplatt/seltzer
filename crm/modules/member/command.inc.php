@@ -93,15 +93,10 @@ function command_member_add () {
             , 'start' => $_POST['start']
         )
     );
-    $emergency = array(
-        array(
-            'emergencyName' => $_POST['emergencyname']
-            , 'emergencyPhone' => $_POST['emergencyphone']
-        )
-    );
     $member = array(
         'membership' => $membership
-        , 'emergency' => $emergency
+        , 'emergencyName' => $_POST['emergencyName']
+        , 'emergencyPhone' => $_POST['emergencyPhone']
     );
     $contact['member'] = $member;
     
@@ -462,15 +457,12 @@ function command_member_import () {
                 , 'start' => $esc_start
             )
         );
-        $emergency = array(
-            array(
-                'emergencyName' => $row['emergencyname']
-                , 'emergencyPhone' => $row['emergencyphone']
-            )
-        );
+        
+        // Add member fields
         $member = array(
             'membership' => $membership
-            , 'emergency' => $emergency
+            , 'emergencyName' => $row['emergencyname']
+            , 'emergencyPhone' => $row['emergencyphone']
         );
         $contact['member'] = $member;
         
