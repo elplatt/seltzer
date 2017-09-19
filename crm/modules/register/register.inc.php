@@ -165,15 +165,10 @@ function command_register () {
             , 'start' => $_POST['start']
         )
     );
-    $emergency = array(
-        array(
-            'emergencyName' => $_POST['emergencyname']
-            , 'emergencyPhone' => $_POST['emergencyphone']
-        )
-    );
     $member = array(
         'membership' => $membership
-        , 'emergency' => $emergency
+        , 'emergencyName' => $_POST['emergencyName']
+        , 'emergencyPhone' => $_POST['emergencyPhone']
     );
     $contact['member'] = $member;
     // Save to database
