@@ -38,9 +38,9 @@ function member_add_form () {
     
     // Add member data
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'User Info',
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => 'User Info'
+        , 'fields' => array(
             array(
                 'type' => 'text'
                 , 'label' => 'Username'
@@ -59,22 +59,22 @@ function member_add_form () {
         )
     );
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'Membership Info',
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => 'Membership Info'
+        , 'fields' => array(
             array(
-                'type' => 'select',
-                'label' => 'Plan',
-                'name' => 'pid',
-                'selected' => '',
-                'options' => member_plan_options(array('filter'=>array('active'=>true)))
-            ),
-            array(
-                'type' => 'text',
-                'label' => 'Start Date',
-                'name' => 'start',
-                'value' => $start,
-                'class' => 'date'
+                'type' => 'select'
+                , 'label' => 'Plan'
+                , 'name' => 'pid'
+                , 'selected' => ''
+                , 'options' => member_plan_options(array('filter'=>array('active'=>true)))
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Start Date'
+                , 'name' => 'start'
+                , 'value' => $start
+                , 'class' => 'date'
             )
         )
     );
