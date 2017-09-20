@@ -53,7 +53,7 @@ function theme_register_form () {
 function register_form () {
     
     // Start with contact form
-    $form = crm_get_form('contact');
+    $form = crm_get_form('member_add');
     
     // Generate default start date, first of current month
     $start = date("Y-m-d");
@@ -61,49 +61,6 @@ function register_form () {
     // Change form command
     $form['command'] = 'register';
     $form['submit'] = 'Register';
-    
-    // Add member data
-    $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'User Info',
-        'fields' => array(
-            array(
-                'type' => 'text',
-                'label' => 'Username',
-                'name' => 'username'
-            )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Contact'
-                , 'name' => 'emergencyName'
-            )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Phone'
-                , 'name' => 'emergencyPhone'
-            )
-        )
-    );
-    $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'Membership Info',
-        'fields' => array(
-            array(
-                'type' => 'select',
-                'label' => 'Plan',
-                'name' => 'pid',
-                'selected' => '',
-                'options' => member_plan_options(array('filter'=>array('active'=>true)))
-            ),
-            array(
-                'type' => 'text',
-                'label' => 'Start Date',
-                'name' => 'start',
-                'value' => $start,
-                'class' => 'date'
-            )
-        )
-    );
     
     return $form;
 }
@@ -155,9 +112,11 @@ function command_register () {
         , 'email' => $_POST['email']
         , 'phone' => $_POST['phone']
     );
+    
     // Add user fields
     $user = array('username' => $username);
     $contact['user'] = $user;
+    
     // Add member fields
     $membership = array(
         array(
@@ -171,6 +130,7 @@ function command_register () {
         , 'emergencyPhone' => $_POST['emergencyPhone']
     );
     $contact['member'] = $member;
+    
     // Save to database
     $contact = contact_save($contact);
     
