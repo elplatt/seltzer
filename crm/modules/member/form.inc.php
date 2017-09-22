@@ -27,12 +27,6 @@
 */
 function member_add_form () {
     
-    // Ensure user is allowed to add members
-    if (!user_access('member_add')) {
-        error_register('Permission denied: member_add');
-        return NULL;
-    }
-    
     // Start with contact form
     $form = crm_get_form('contact');
     
@@ -44,13 +38,13 @@ function member_add_form () {
     
     // Add member data
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'User Info',
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => 'User Info'
+        , 'fields' => array(
             array(
-                'type' => 'text',
-                'label' => 'Username',
-                'name' => 'username'
+                'type' => 'text'
+                , 'label' => 'Username'
+                , 'name' => 'username'
             )
             , array(
                 'type' => 'text'
@@ -65,22 +59,22 @@ function member_add_form () {
         )
     );
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'Membership Info',
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => 'Membership Info'
+        , 'fields' => array(
             array(
-                'type' => 'select',
-                'label' => 'Plan',
-                'name' => 'pid',
-                'selected' => '',
-                'options' => member_plan_options(array('filter'=>array('active'=>true)))
-            ),
-            array(
-                'type' => 'text',
-                'label' => 'Start Date',
-                'name' => 'start',
-                'value' => $start,
-                'class' => 'date'
+                'type' => 'select'
+                , 'label' => 'Plan'
+                , 'name' => 'pid'
+                , 'selected' => ''
+                , 'options' => member_plan_options(array('filter'=>array('active'=>true)))
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Start Date'
+                , 'name' => 'start'
+                , 'value' => $start
+                , 'class' => 'date'
             )
         )
     );
