@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     autocomplete.php - Provides data for autocomplete elements
@@ -23,6 +23,7 @@
 // Save path of directory containing index.php
 $crm_root = dirname(__FILE__);
 
+// Bootstrap the site
 include('include/crm.inc.php');
 
 $handler = $_GET['command'] . '_autocomplete';

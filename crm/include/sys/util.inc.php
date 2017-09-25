@@ -1,6 +1,7 @@
 <?php
+
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     util.inc.php - Core utility functions
@@ -93,4 +94,14 @@ function crm_error ($text) {
     print_r(debug_backtrace());
     print "</pre>";
     die();
+}
+
+/**
+ * Parse and return the version of the app as specified in crm.inc.php under $crm_version.
+ * @return A string representation of the array
+ */
+function crm_version() {
+    global $crm_version;
+    $version = implode(".", $crm_version);
+    return $version;
 }

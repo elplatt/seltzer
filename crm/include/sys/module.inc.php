@@ -1,6 +1,7 @@
 <?php
+
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     module.inc.php - Module installation and upgrade functions
@@ -54,14 +55,15 @@ function module_get_code_revision ($module) {
  * @param $module The module's name.
  */
 function module_get_schema_revision ($module) {
-    $esc_module = mysql_real_escape_string($module);
+    global $db_connect;
+    $esc_module = mysqli_real_escape_string($db_connect, $module);
     $sql = "SELECT `revision` FROM `module` WHERE `name`='$esc_module'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    if (mysql_num_rows($res) === 0) {
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
+    if (mysqli_num_rows($res) === 0) {
         return 0;
     }
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     return $row['revision'];
 }
 
@@ -71,28 +73,30 @@ function module_get_schema_revision ($module) {
  * @param $revision The new revision number.
  */
 function module_set_schema_revision ($module, $revision) {
-    $esc_module = mysql_real_escape_string($module);
-    $esc_revision = mysql_real_escape_string($revision);
+    global $db_connect;
+    $esc_module = mysqli_real_escape_string($db_connect, $module);
+    $esc_revision = mysqli_real_escape_string($db_connect, $revision);
     $sql = "SELECT `revision` FROM `module` WHERE `name`='$esc_module'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    if (mysql_num_rows($res) === 0) {
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
+    if (mysqli_num_rows($res) === 0) {
         $sql = "INSERT INTO `module` (`name`, `revision`) VALUES ('$esc_module', '$esc_revision')";
     } else {
         $sql = "UPDATE `module` SET `revision`='$esc_revision' WHERE `name`='$esc_module'";
     }
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { die(mysqli_error($res)); }
 }
 
 /**
  * @return true if core is installed.
  */
 function module_core_installed () {
+    global $db_connect;
     $sql = "SHOW TABLES LIKE 'module'";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    if (mysql_num_rows($res) > 0) {
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    if (mysqli_num_rows($res) > 0) {
         return true;
     }
     return false;
@@ -105,7 +109,7 @@ function module_install () {
     
     // Check whether already installed
     if (module_core_installed()) {
-        error_register('The database must be empty before you can install Seltzer CRM!');
+        error_register('The database must be empty before you can install ' . title() . " " . crm_version() . '!');
         return false;
     }
     
@@ -196,7 +200,7 @@ function module_install_form () {
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Install SeltzerCRM',
+                'label' => 'Install ' . title() . " " . crm_version(),
                 'fields' => array(
                     array(
                         'type' => 'text',
@@ -234,7 +238,7 @@ function module_upgrade_form () {
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Upgrade SeltzerCRM Modules',
+                'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules',
                 'fields' => array(
                     array(
                         'type' => 'submit',
@@ -255,6 +259,7 @@ function module_upgrade_form () {
  * @return The url to redirect to on completion.
  */
 function command_module_install () {
+    global $db_connect;
     global $esc_post;
     
     // Create tables
@@ -270,24 +275,24 @@ function command_module_install () {
         VALUES
         ('Admin', 'User', '$esc_post[email]')
     ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $cid = mysql_insert_id();
-    $esc_cid = mysql_real_escape_string($cid);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    $cid = mysqli_insert_id($db_connect);
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     
     $salt = user_salt();
-    $esc_hash = mysql_real_escape_string(user_hash($_POST['password'], $salt));
-    $esc_salt = mysql_real_escape_string($salt);
+    $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
+    $esc_salt = mysqli_real_escape_string($db_connect, $salt);
     $sql = "
         INSERT INTO `user`
         (`cid`, `username`, `hash`, `salt`)
         VALUES
         ('$esc_cid', 'admin', '$esc_hash', '$esc_salt')
     ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     
-    message_register('Seltzer CRM has been installed.');
+    message_register(title() . " " . crm_version() . ' has been installed.');
     message_register('You may log in as user "admin"');
     return crm_url('login');
 }
@@ -306,7 +311,7 @@ function command_module_upgrade () {
         return crm_url();
     }
     
-    message_register('Seltzer CRM has been upgraded.');
+    message_register(title() . " " . crm_version() . ' has been upgraded.');
     return crm_url();
 }
 

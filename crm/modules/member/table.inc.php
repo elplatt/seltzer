@@ -1,7 +1,7 @@
-<?php 
+<?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     table.inc.php - Member module - table structures
@@ -79,7 +79,7 @@ function member_table ($opts = NULL) {
     if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
-
+    
     // Loop through member data
     foreach ($members as $member) {
         
@@ -110,10 +110,10 @@ function member_table ($opts = NULL) {
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
-                $row[] = $member['contact']['emergencyName'];
+                $row[] = $member['member']['emergencyName'];
             }
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
-                $row[] = $member['contact']['emergencyPhone'];
+                $row[] = $member['member']['emergencyPhone'];
             }
         }
         
@@ -177,7 +177,7 @@ function member_voting_report_table () {
         $table['columns'][] = array('title'=>'D','class'=>'');
         $table['columns'][] = array('title'=>'E','class'=>'');
     }
-
+    
     // Loop through member data
     foreach ($members as $member) {
         
@@ -238,7 +238,7 @@ function member_plan_table ($opts = NULL) {
         $table['columns'][] = array('title'=>'Voting','class'=>'');
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
-
+    
     // Loop through plan data
     foreach ($plans as $plan) {
         
@@ -365,17 +365,98 @@ function member_contact_table ($opts) {
     $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
     $table['columns'][] = array("title"=>'Email', 'class'=>'', 'id'=>'');
     $table['columns'][] = array("title"=>'Phone', 'class'=>'', 'id'=>'');
-    $table['columns'][] = array("title"=>'Emergency contact', 'class'=>'', 'id'=>'');
-    $table['columns'][] = array("title"=>'Emergency phone', 'class'=>'', 'id'=>'');
     
     // Add row
     $table['rows'][] = array(
-        theme('contact_name', $contact),
-        $contact['email'],
-        $contact['phone'],
-        $contact['emergencyName'],
-        $contact['emergencyPhone']
+        theme('contact_name', $contact)
+        , $contact['email']
+        , $contact['phone']
     );
     
+    return $table;
+}
+
+
+/**
+ * Return a table structure representing members' needs.
+ *
+ * @param $opts Options to pass to member_data().
+ * @return The table structure.
+*/
+function member_info_table ($opts = NULL) {
+    
+    // Ensure user is allowed to view members
+    if (!user_access('member_view')) {
+        return NULL;
+    }
+    
+    // Determine settings
+    $export = false;
+    foreach ($opts as $option => $value) {
+        switch ($option) {
+            case 'export':
+                $export = $value;
+                break;
+        }
+    }
+    
+    // Get member data
+    $members = member_data($opts);
+    
+    // Create table structure
+    $table = array(
+        'id' => '',
+        'class' => '',
+        'rows' => array()
+    );
+    
+    // Add columns
+    $table['columns'] = array();
+    
+    if (user_access('member_view')) {
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
+            $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
+        }
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
+            $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
+        }
+    }
+    // Add ops column
+    if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
+    
+    // Loop through member data
+    foreach ($members as $member) {
+        
+        // Add user data
+        $row = array();
+        if (user_access('member_view')) {
+            if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
+                $row[] = $member['member']['emergencyName'];
+            }
+            if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
+                $row[] = $member['member']['emergencyPhone'];
+            }
+        }
+        
+        // Construct ops array
+        $ops = array();
+        
+        // Add edit op
+        if (user_access('member_edit')) {
+            $ops[] = '<a href='. crm_url('contact&cid=' . $member['cid'] . '&tab=edit') . '>edit</a> ';
+        }
+        
+        // Add ops row
+        if (!$export && (user_access('member_edit'))) {
+            $row[] = join(' ', $ops);
+        }
+        
+        // Add row to table
+        $table['rows'][] = $row;
+    }
+    
+    // Return table
     return $table;
 }

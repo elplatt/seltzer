@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     config.inc.php - Sample configuration
@@ -32,9 +32,12 @@ $config_db_db = '';
 $config_site_title = 'Seltzer CRM';
 
 // The name of the organization to insert into templates
-$config_org_name = 'Seltzer CRM';
+$config_org_name = 'Seltzer';
 
-// The currency code for dealing with payments, can be GBP, USD, or EUR 
+// The organization's website address
+$config_org_website = 'www.seltzercrm.org';
+
+// The currency code for dealing with payments, can be GBP, USD, or EUR
 $config_currency_code = 'USD';
 
 // The From: address to use when sending email to members
@@ -43,10 +46,17 @@ $config_email_from = '';
 // The email address to notify when a user is created
 $config_email_to = '';
 
+// The postal address of the space (used when sending out new member emails)
+$config_address1 = '';
+$config_address2 = '';
+$config_address3 = '';
+$config_town_city = '';
+$config_zipcode = '';
+
 // The hostname of the server
 $config_host = $_SERVER['SERVER_NAME'];
 
-// The url path of the crm directory
+// The url path of the app directory
 $config_base_path = '/crm/';
 
 // The name of the theme you want to use
@@ -70,8 +80,17 @@ $config_modules = array(
 // Track RFID key serial numbers
 //$config_modules[] = "key";
 
+// Track user meta data
+//$config_modules[] = "user_meta";
+
+// Track plan meta data
+//$config_modules[] = "plan_meta";
+
 // Track payments, manual entry
 $config_modules[] = "payment";
+
+// Automated billing
+$config_modules[] = "billing";
 
 // Amazon payment integration
 $config_modules[] = "amazon_payment";
@@ -79,14 +98,20 @@ $config_modules[] = "amazon_payment";
 // Paypal integration
 //$config_modules[] = "paypal_payment";
 
-// Automated billing
-$config_modules[] = "billing";
+// Assign a profile picture using gravatar
+//$config_modules[] = "profile_picture";
 
-// Assign members a mentor 
+// Assign members a mentor
 //$config_modules[] = "mentor";
 
 // Developer tools
 //$config_modules[] = "devel";
+
+// User self-registration
+//$config_modules[] = "register";
+
+// Email list management
+//$config_modules[] = "email_list";
 
 // Links to show in the main menu
 $config_links = array(
@@ -94,8 +119,11 @@ $config_links = array(
     , 'members' => 'Members'
     , 'plans' => 'Plans'
     , 'keys' => 'Keys'
+    , 'user_metas' => 'User Meta Data'
+    , 'plan_metas' => 'Plan Meta Data'
     , 'payments' => 'Payments'
     , 'accounts' => 'Accounts'
+    , 'email_lists' => 'Email Lists'
     , 'reports' => 'Reports'
     , 'permissions' => 'Permissions'
     , 'upgrade' => 'Upgrade'

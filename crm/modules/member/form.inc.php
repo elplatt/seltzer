@@ -1,7 +1,7 @@
-<?php 
+<?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     form.inc.php - Member module - form structures
@@ -20,16 +20,12 @@
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Members /////////////////////////////////////////////////////////////////////
+
 /**
  * @return The form structure for adding a member.
 */
 function member_add_form () {
-    
-    // Ensure user is allowed to add members
-    if (!user_access('member_add')) {
-        error_register('Permission denied: member_add');
-        return NULL;
-    }
     
     // Start with contact form
     $form = crm_get_form('contact');
@@ -42,39 +38,101 @@ function member_add_form () {
     
     // Add member data
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'User Info',
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => 'User Info'
+        , 'fields' => array(
             array(
-                'type' => 'text',
-                'label' => 'Username',
-                'name' => 'username'
+                'type' => 'text'
+                , 'label' => 'Username'
+                , 'name' => 'username'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
             )
         )
     );
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => 'Membership Info',
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => 'Membership Info'
+        , 'fields' => array(
             array(
-                'type' => 'select',
-                'label' => 'Plan',
-                'name' => 'pid',
-                'selected' => '',
-                'options' => member_plan_options(array('filter'=>array('active'=>true)))
-            ),
-            array(
-                'type' => 'text',
-                'label' => 'Start Date',
-                'name' => 'start',
-                'value' => $start,
-                'class' => 'date'
+                'type' => 'select'
+                , 'label' => 'Plan'
+                , 'name' => 'pid'
+                , 'selected' => ''
+                , 'options' => member_plan_options(array('filter'=>array('active'=>true)))
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Start Date'
+                , 'name' => 'start'
+                , 'value' => $start
+                , 'class' => 'date'
             )
         )
     );
-    
     return $form;
 }
+
+/**
+ * @return The form structure for editing a member.
+*/
+function member_edit_form ($cid) {
+    
+    // Create form
+    if ($cid) {
+        $memb_data = crm_get_data('member', array('cid'=>$cid));
+        $member = $memb_data[0]['member'];
+        $user_data = crm_get_data('user', array('cid'=>$cid));
+        $user = $user_data[0];
+    }
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'member_edit'
+        , 'hidden' => array(
+            'cid' => $cid
+        )
+        , 'fields' => array()
+        , 'submit' => 'Update'
+    );
+    
+    // Edit member data
+    $form['fields'][] = array(
+        'type' => 'fieldset',
+        'label' => 'User Info',
+        'fields' => array(
+            array(
+                'type' => 'readonly',
+                'label' => 'Username',
+                'name' => 'username',
+                'value' => $user['username']
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+                , 'value' => $member['emergencyName']
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
+                , 'value' => $member['emergencyPhone']
+            )
+        )
+    );
+    return $form;
+}
+
+// Plans ///////////////////////////////////////////////////////////////////////
 
 /**
  * @return The form structure for adding a membership plan.
@@ -199,62 +257,6 @@ function member_plan_edit_form ($pid) {
 }
 
 /**
- * Return the form structure for adding a membership.
- *
- * @param cid the cid of the member to add a membership for.
- * @return The form structure.
-*/
-function member_membership_add_form ($cid) {
-    
-    // Ensure user is allowed to edit memberships
-    if (!user_access('member_membership_edit')) {
-        return NULL;
-    }
-    
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'member_membership_add',
-        'hidden' => array(
-            'cid' => $cid
-        ),
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Add Membership',
-                'fields' => array(
-                    array(
-                        'type' => 'select',
-                        'label' => 'Plan',
-                        'name' => 'pid',
-                        'options' => member_plan_options(array('filter'=>array('active'=>true)))
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Start',
-                        'name' => 'start',
-                        'class' => 'date'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'End',
-                        'name' => 'end',
-                        'class' => 'date'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Add'
-                    )
-                )
-            )
-        )
-    );
-    
-    return $form;
-}
-
-/**
  * Return the form structure to delete a membership plan.
  *
  * @param $pid The pid of the plan to delete.
@@ -299,120 +301,64 @@ function member_plan_delete_form ($pid) {
     return $form;
 }
 
-/**
- * Return the form structure to delete a member.
- *
- * @param $cid The cid of the member to delete.
- * @return The form structure.
-*/
-function member_delete_form ($cid) {
-    
-    // Ensure user is allowed to delete members
-    if (!user_access('member_delete')) {
-        return NULL;
-    }
-    
-    // Get member data
-    $data = member_data(array('cid'=>$cid));
-    $member = $data[0];
-    
-    // Construct member name
-    if (empty($member) || count($member) < 1) {
-        return array();
-    }
-    // Create form structure
-    $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'member_delete',
-        'hidden' => array(
-            'cid' => $member['contact']['cid']
-        ),
-        'fields' => array(
-            array(
-                'type' => 'fieldset',
-                'label' => 'Delete Member',
-                'fields' => array(
-                    array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the member "' . theme_contact_name($member['cid']) . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'checkbox',
-                        'label' => 'Delete all contact info?',
-                        'name' => 'deleteContact',
-                        'checked' => true
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
-                    )
-                )
-            )
-        )
-    );
-    
-    return $form;
-}
+// Memberships /////////////////////////////////////////////////////////////////
 
 /**
- * Return the form structure to delete a membership.
+ * Return the form structure for adding a membership.
  *
- * @param $sid id of the membership to delete.
+ * @param cid the cid of the member to add a membership for.
  * @return The form structure.
 */
-function member_membership_delete_form ($sid) {
+function member_membership_add_form ($cid) {
     
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
         return NULL;
     }
     
-    // Get membership data
-    $data = member_membership_data(array('sid'=>$sid));
-    $membership = $data[0];
-    
-    // Construct member name
-    /* TODO
-    if (empty($member) || count($member) < 1) {
-        return array();
-    }
-    $member_name = $member['contact']['firstName'];
-    if (!empty($member['contact']['middleName'])) {
-        $member_name .= ' ' . $member['contact']['middleName'];
-    }
-    $member_name .= ' ' . $member['contact']['lastName'];
-    */
-    
-    // Construct membership name
-    $membership_name = "user:$membership[cid] $membership[start] -- $membership[end]";
+    // Generate default start date, first of current month
+    $start = date("Y-m-d");
     
     // Create form structure
     $form = array(
         'type' => 'form',
         'method' => 'post',
-        'command' => 'member_membership_delete',
+        'command' => 'member_membership_add',
         'hidden' => array(
-            'sid' => $membership['sid']
+            'cid' => $cid
         ),
         'fields' => array(
             array(
                 'type' => 'fieldset',
-                'label' => 'Delete Membership',
+                'label' => 'Add Membership',
                 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the membership "' . $membership_name . '"? This cannot be undone.',
+                        'type' => 'select',
+                        'label' => 'Plan',
+                        'name' => 'pid',
+                        'options' => member_plan_options(array('filter'=>array('active'=>true)))
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'Start',
+                        'name' => 'start',
+                        'class' => 'date',
+                        'value' => $start
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => 'End',
+                        'name' => 'end',
+                        'class' => 'date'
                     ),
                     array(
                         'type' => 'submit',
-                        'value' => 'Delete'
+                        'value' => 'Add'
                     )
                 )
             )
         )
     );
-    
     return $form;
 }
 
@@ -489,10 +435,70 @@ function member_membership_edit_form ($sid) {
             )
         )
     );
-    
     return $form;
 }
-// Filters
+
+/**
+ * Return the form structure to delete a membership.
+ *
+ * @param $sid id of the membership to delete.
+ * @return The form structure.
+*/
+function member_membership_delete_form ($sid) {
+    
+    // Ensure user is allowed to edit memberships
+    if (!user_access('member_membership_edit')) {
+        return NULL;
+    }
+    
+    // Get membership data
+    $data = member_membership_data(array('sid'=>$sid));
+    $membership = $data[0];
+    
+    // Construct member name
+    /* TODO
+    if (empty($member) || count($member) < 1) {
+        return array();
+    }
+    $member_name = $member['contact']['firstName'];
+    if (!empty($member['contact']['middleName'])) {
+        $member_name .= ' ' . $member['contact']['middleName'];
+    }
+    $member_name .= ' ' . $member['contact']['lastName'];
+    */
+    
+    // Construct membership name
+    $membership_name = "user:$membership[cid] $membership[start] -- $membership[end]";
+    
+    // Create form structure
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'member_membership_delete',
+        'hidden' => array(
+            'sid' => $membership['sid']
+        ),
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Delete Membership',
+                'fields' => array(
+                    array(
+                        'type' => 'message',
+                        'value' => '<p>Are you sure you want to delete the membership "' . $membership_name . '"? This cannot be undone.',
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'value' => 'Delete'
+                    )
+                )
+            )
+        )
+    );
+    return $form;
+}
+
+// Filters /////////////////////////////////////////////////////////////////////
 
 /**
  * Return the form structure for a member filter.
@@ -500,7 +506,7 @@ function member_membership_edit_form ($sid) {
  * @return The form structure.
 */
 function member_filter_form () {
-
+    
     // Available filters    
     $filters = array(
         'all' => 'All',
@@ -541,9 +547,10 @@ function member_filter_form () {
             )
         )
     );
-    
     return $form;
 }
+
+// Imports /////////////////////////////////////////////////////////////////////
 
 /**
  * @return the form structure for a member import form.
@@ -557,7 +564,19 @@ function member_import_form () {
         , 'fields' => array(
             array(
                 'type' => 'message'
-                , 'value' => '<p>To import members, upload a csv.  The csv should have a header row with the following fields:</p><ul><li>First Name</li><li>Middle Name</li><li>Last Name</li><li>Email</li><li>Phone</li><li>Emergency Name</li><li>Emergency Phone</li><li>Username</li><li>Plan</li><li>Start Date</li></ul>'
+                , 'value' => '<p>To import members, upload a csv.  The csv should have a header row with the following fields:</p>
+                <ul>
+                <li>First Name</li>
+                <li>Middle Name</li>
+                <li>Last Name</li>
+                <li>Email</li>
+                <li>Phone</li>
+                <li>Emergency Name</li>
+                <li>Emergency Phone</li>
+                <li>Username</li>
+                <li>Plan</li>
+                <li>Start Date</li>
+                </ul>'
             )
             , array(
                 'type' => 'file'
@@ -584,7 +603,13 @@ function plan_import_form () {
         , 'fields' => array(
             array(
                 'type' => 'message'
-                , 'value' => '<p>To import plans, upload a csv.  The csv should have a header row with the following fields:</p><ul><li>Plan Name</li><li>Price</li><li>Active (Set to 1/0 signalling Y/N)</li><li>Voting (Set to 1/0 signalling Y/N)</li></ul>'
+                , 'value' => '<p>To import plans, upload a csv.  The csv should have a header row with the following fields:</p>
+                <ul>
+                <li>Plan Name</li>
+                <li>Price</li>
+                <li>Active (Set to 1/0 signalling Y/N)</li>
+                <li>Voting (Set to 1/0 signalling Y/N)</li>
+                </ul>'
             )
             , array(
                 'type' => 'file'

@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     crm.inc.php - Loads all core libraries and modules
@@ -23,15 +23,16 @@
 // Configuration ///////////////////////////////////////////////////////////////
 $crm_version = array(
     'major' => 0
-    , 'minor' => 4
-    , 'revision' => '2'
+    , 'minor' => 5
+    , 'patch' => 0
+    , 'revision' => 'dev'
 );
 require_once($crm_root . '/config.inc.php');
 
 // Include base system /////////////////////////////////////////////////////////
 require_once('sys/util.inc.php');       // Generic utility functions
 require_once('sys/csv.inc.php');        // CSV parser
-require_once('sys/command.inc.php');    // Comand processing system
+require_once('sys/command.inc.php');    // Command processing system
 require_once('sys/theme.inc.php');      // Theme system
 require_once('sys/template.inc.php');   // Template system
 require_once('sys/error.inc.php');      // Error reporting system
@@ -53,7 +54,7 @@ array_unshift($config_modules, 'core');
 
 // Optional Modules ////////////////////////////////////////////////////////////
 foreach ($config_modules as $module) {
-    require_once($crm_root. '/modules/' . $module . '/' . $module . '.inc.php');
+    require_once($crm_root . '/modules/' . $module . '/' . $module . '.inc.php');
 }
 
 // Initialize //////////////////////////////////////////////////////////////////

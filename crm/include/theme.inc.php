@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     theme.inc.php - Provides theming for core elements
@@ -35,14 +35,14 @@ function theme_header () {
  * @return The themed html string for a page footer.
 */
 function theme_footer() {
-    return 'Powered by <a href="http://github.com/elplatt/seltzer">Seltzer CRM</a>';
+    return 'Powered by <a href="https://github.com/elplatt/seltzer">Seltzer CRM ' . crm_version() . '</a>';
 }
 
 /**
  * @return The themed html string for logo.
 */
 function theme_logo () {
-    return '<div class="logo"><img alt="i3 Detroit" src="' . path_to_theme() . '/images/logo.png"/></div>';
+    return '<div class="logo"><img alt="' . title() . " " . crm_version() . '" src="' . path_to_theme() . '/images/logo.png"/></div>';
 }
 
 /**
@@ -54,6 +54,9 @@ function theme_login_status () {
     if (user_id()) {
         $output .= 'Welcome, ' . theme('contact_name', user_id(), true) . '. <a href="index.php?command=logout">Log out</a>';
     } else {
+        if (function_exists('register_revision')) {
+            $output .= '<a href='. crm_url('register') . '>Register</a>&nbsp;&nbsp;&nbsp;';
+        }
         $output .= '<a href='. crm_url('login') . '>Log in</a>&nbsp;&nbsp;&nbsp;';
         $output .= '<a href='. crm_url('reset') . '>Reset password</a>';
     }
@@ -102,7 +105,7 @@ function theme_navigation_link ($path, $title) {
  * @return The themed html for a delete confirmation form.
 */
 function theme_delete_form ($type, $id) {
-    return theme('form', delete_form($type, $id));
+    return theme('form', crm_get_form('delete', $type, $id));
 }
 
 ?>

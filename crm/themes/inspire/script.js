@@ -1,5 +1,5 @@
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2016 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     script.js - General javascript code
@@ -47,6 +47,9 @@ $(document).ready(function () {
     // Set up autocomplete forms
     initAutocomplete();
     
+    // Setup input clear
+    initInputClear();
+    
     // Enable focusing
     $('.focus').focus();
 });
@@ -88,5 +91,17 @@ var initAutocomplete = function () {
                 return false;
             }
         });
+    });
+};
+
+var initInputClear = function() {
+    $('.defaultClear').focus(function () {
+    if ($(this).val() == $(this).attr("title")) {
+        $(this).val("");
+    }}).blur(
+    function () {
+        if ($(this).val() == ""){
+            $(this).val($(this).attr("title"));
+        }
     });
 };

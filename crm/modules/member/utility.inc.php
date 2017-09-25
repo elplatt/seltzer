@@ -1,7 +1,7 @@
-<?php 
+<?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     utility.inc.php - Member module - utility functions
@@ -57,9 +57,9 @@ function member_membership_description ($sid) {
     $contact = $data[0];
     
     // Construct description
-    $description = 'Membership : ';
+    $description = 'Membership: ';
     $description .= theme_contact_name($contact['cid']);
-    $description .= ' : ' . $membership['plan']['name'];
+    $description .= ' - Plan: ' . $membership['plan']['name'];
     $description .= ' : Starting ' . $membership['start'];
     
     return $description;

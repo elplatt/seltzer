@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2014 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     user.inc.php - User module
@@ -49,10 +49,11 @@ function user_permissions () {
  *   module has never been installed.
  */
 function user_install ($old_revision = 0) {
+    global $db_connect;
     if ($old_revision < 1) {
         // If user table exists, this code was already run when it was
         // part of the core module
-        if (mysql_num_rows(mysql_query("SHOW TABLES LIKE 'user'")) == 0) {
+        if (mysqli_num_rows(mysqli_query($db_connect, "SHOW TABLES LIKE 'user'")) == 0) {
             $sql = '
                 CREATE TABLE IF NOT EXISTS `resetPassword` (
                   `cid` mediumint(8) unsigned NOT NULL,
@@ -60,8 +61,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`cid`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `role` (
@@ -70,8 +71,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`rid`)
                 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `role_permission` (
@@ -80,8 +81,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`rid`,`permission`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = "
                 CREATE TABLE IF NOT EXISTS `user` (
@@ -92,8 +93,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`cid`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
             ";
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             
             $sql = '
                 CREATE TABLE IF NOT EXISTS `user_role` (
@@ -102,8 +103,8 @@ function user_install ($old_revision = 0) {
                   PRIMARY KEY (`cid`,`rid`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
             ';
-            $res = mysql_query($sql);
-            if (!$res) die(mysql_error());
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             
             // Create default roles
             $roles = array(
@@ -118,8 +119,8 @@ function user_install ($old_revision = 0) {
             );
             foreach ($roles as $rid => $role) {
                 $sql = "INSERT INTO `role` (`rid`, `name`) VALUES ('$rid', '$role')";
-                $res = mysql_query($sql);
-                if (!$res) die(mysql_error());
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) crm_error(mysqli_error($res));
             }
             $default_perms = array(
                 'member' => array('report_view', 'contact_view')
@@ -130,8 +131,8 @@ function user_install ($old_revision = 0) {
                 if (array_key_exists($role, $default_perms)) {
                     foreach ($default_perms[$role] as $perm) {
                         $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
-                        $res = mysql_query($sql);
-                        if (!$res) die(mysql_error());
+                        $res = mysqli_query($db_connect, $sql);
+                        if (!$res) crm_error(mysqli_error($res));
                     }
                 }
             }
@@ -140,6 +141,133 @@ function user_install ($old_revision = 0) {
 }
 
 // Data Model //////////////////////////////////////////////////////////////////
+
+/**
+ * Return data for one or more users.
+ *
+ * @param $opts An associative array of options, possible keys are:
+ *   'cid' If specified, returns a single user with the matching cid,
+ *   'filter' An array mapping filter names to filter values
+ *   'join' Array of entities to be included in the results, options are:
+ *     - role: adds 'roles' key with array of roles as a value.
+ * @return An array with each element representing a user.
+*/ 
+function user_data ($opts) {
+    global $db_connect;
+    // Create a map of user permissions if join was specified
+    $join_perm = !array_key_exists('join', $opts) || in_array('permission', $opts['join']);
+    if ($join_perm) {
+        $sql = "
+            SELECT `user`.`cid`, `role_permission`.`permission`
+            FROM `user`
+            INNER JOIN `user_role` ON `user`.`cid`=`user_role`.`cid`
+            INNER JOIN `role_permission` ON `user_role`.`rid`=`role_permission`.`rid`
+            WHERE 1
+        ";
+        if (array_key_exists('cid', $opts)) {
+            if (is_array($opts['cid'])) {
+                $terms = array();
+                foreach ($opts['cid'] as $cid) {
+                    $terms[] = "'" . mysqli_real_escape_string($db_connect, $cid) . "'";
+                }
+                $sql .= " AND `user`.`cid` IN (" . implode(',', $terms) . ") ";
+            } else {
+                $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
+                $sql .= " AND `user`.`cid`='$esc_cid' ";
+            }
+        }
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) { crm_error(mysqli_error($res)); }
+        $permMap = array();
+        $row = mysqli_fetch_assoc($res);
+        while ($row) {
+            $cid = $row['cid'];
+            if (!array_key_exists($cid, $permMap)) {
+                $permMap[$cid] = array();
+            }
+            $permMap[$cid][] = $row['permission'];
+            $row = mysqli_fetch_assoc($res);
+        }
+    }
+    
+    // Create a map of user roles if role join was specified
+    $join_role = !array_key_exists('join', $opts) || in_array('role', $opts['join']);
+    if ($join_role) {
+        $sql = "
+            SELECT `user_role`.`cid`, `role`.`rid`, `role`.`name`
+            FROM `user_role` INNER JOIN `role` ON `user_role`.`rid`=`role`.`rid`
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) { crm_error(mysqli_error($res)); }
+        $roles = array();
+        $row = mysqli_fetch_assoc($res);
+        while ($row) {
+            $cid = $row['cid'];
+            if (!array_key_exists($cid, $roles)) {
+                $roles[$cid] = array();
+            }
+            $roles[$cid][] = $row['name'];
+            $row = mysqli_fetch_assoc($res);
+        }
+    }
+    
+    // Construct query for users
+    $sql = "
+        SELECT `user`.`cid`, `user`.`username`, `user`.`hash`, `user`.`salt`
+        FROM `user`
+        INNER JOIN `contact` ON `contact`.`cid` = `user`.`cid`
+        WHERE 1
+    ";
+    if (array_key_exists('cid', $opts) && $opts['cid']) {
+        $clauses = array();
+        if (is_array($opts['cid'])) {
+            $cids = $opts['cid'];
+        } else {
+            $cids = array($opts['cid']);
+        }
+        foreach ($cids as $cid) {
+            $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+            $clauses[] = " `user`.`cid`='$esc_cid' ";
+        }
+        $sql .= " AND (" . implode(' OR ', $clauses) . ")";
+    }
+    if (array_key_exists('filter', $opts)) {
+        foreach ($opts['filter'] as $key => $value) {
+            if ($key === 'username') {
+                $sql .= " AND `username`='" . mysqli_real_escape_string($db_connect, $value) . "' ";
+            } else if ($key === 'email') {
+                $sql .= " AND `contact`.`email`='" . mysqli_real_escape_string($db_connect, $value) . "' ";
+            }
+        }
+    }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    
+    // Create result array
+    $users = array();    
+    $row = mysqli_fetch_assoc($res);
+    while ($row) {
+        $user = $row;
+        if ($join_role) {
+            if (array_key_exists($row['cid'], $roles)) {
+                $user['roles'] = $roles[$row['cid']];
+            } else {
+                $user['roles'] = array();
+            }
+        }
+        if ($join_perm) {
+            if (array_key_exists($row['cid'], $permMap)) {
+                $user['permissions'] = $permMap[$row['cid']];
+            } else {
+                $user['permissions'] = array();
+            }
+        }
+        $users[] = $user;
+        $row = mysqli_fetch_assoc($res);
+    }
+    
+    return $users;
+}
 
 /**
  * Implementation of hook_data_alter().
@@ -179,130 +307,50 @@ function user_data_alter ($type, $data = array(), $opts = array()) {
 }
 
 /**
- * Return data for one or more users.
+ * Return data for one or more roles.
  *
- * @param $opts An associative array of options, possible keys are:
- *   'cid' If specified, returns a single user with the matching cid,
- *   'filter' An array mapping filter names to filter values
- *   'join' Array of entities to be included in the results, options are:
- *     - role: adds 'roles' key with array of roles as a value.
- * @return An array with each element representing a user.
+ * @param $opts An associative array of options.
+ * @return An array with each element representing a role.
 */ 
-function user_data ($opts) {
-    // Create a map of user permissions if join was specified
-    $join_perm = !array_key_exists('join', $opts) || in_array('permission', $opts['join']);
-    if ($join_perm) {
-        $sql = "
-            SELECT `user`.`cid`, `role_permission`.`permission`
-            FROM `user`
-            INNER JOIN `user_role` ON `user`.`cid`=`user_role`.`cid`
-            INNER JOIN `role_permission` ON `user_role`.`rid`=`role_permission`.`rid`
-            WHERE 1
-        ";
-        if (array_key_exists('cid', $opts)) {
-            if (is_array($opts['cid'])) {
-                $terms = array();
-                foreach ($opts['cid'] as $cid) {
-                    $terms[] = "'" . mysql_real_escape_string($cid) . "'";
-                }
-                $sql .= " AND `user`.`cid` IN (" . implode(',', $terms) . ") ";
-            } else {
-                $esc_cid = mysql_real_escape_string($opts['cid']);
-                $sql .= " AND `user`.`cid`='$esc_cid' ";
-            }
-        }
-        $res = mysql_query($sql);
-        if (!$res) { die(mysql_error()); }
-        $permMap = array();
-        $row = mysql_fetch_assoc($res);
-        while ($row) {
-            $cid = $row['cid'];
-            if (!array_key_exists($cid, $permMap)) {
-                $permMap[$cid] = array();
-            }
-            $permMap[$cid][] = $row['permission'];
-            $row = mysql_fetch_assoc($res);
-        }
+function user_role_data ($opts = NULL) {
+    global $db_connect;
+    // Construct map from role ids to arrays of permissions granted
+    $permissionMap = array();
+    $sql = "SELECT `rid`, `permission` FROM `role_permission` WHERE 1 ";
+    if (!empty($opts['rid'])) {
+        $sql .= "AND `rid`='" . mysqli_real_escape_string($db_connect, $opts['rid']) . "' ";
     }
-    
-    // Create a map of user roles if role join was specified
-    $join_role = !array_key_exists('join', $opts) || in_array('role', $opts['join']);
-    if ($join_role) {
-        $sql = "
-            SELECT `user_role`.`cid`, `role`.`rid`, `role`.`name`
-            FROM `user_role` INNER JOIN `role` ON `user_role`.`rid`=`role`.`rid`
-        ";
-        $res = mysql_query($sql);
-        if (!$res) { die(mysql_error()); }
-        $roles = array();
-        $row = mysql_fetch_assoc($res);
-        while ($row) {
-            $cid = $row['cid'];
-            if (!array_key_exists($cid, $roles)) {
-                $roles[$cid] = array();
-            }
-            $roles[$cid][] = $row['name'];
-            $row = mysql_fetch_assoc($res);
-        }
-    }
-    
-    // Construct query for users
-    $sql = "
-        SELECT `user`.`cid`, `user`.`username`, `user`.`hash`, `user`.`salt`
-        FROM `user`
-        INNER JOIN `contact` ON `contact`.`cid` = `user`.`cid`
-        WHERE 1
-    ";
-    if (array_key_exists('cid', $opts) && $opts['cid']) {
-        $clauses = array();
-        if (is_array($opts['cid'])) {
-            $cids = $opts['cid'];
-        } else {
-            $cids = array($opts['cid']);
-        }
-        foreach ($cids as $cid) {
-            $esc_cid = mysql_real_escape_string($cid);
-            $clauses[] = " `user`.`cid`='$esc_cid' ";
-        }
-        $sql .= " AND (" . implode(' OR ', $clauses) . ")";
-    }
-    if (array_key_exists('filter', $opts)) {
-        foreach ($opts['filter'] as $key => $value) {
-            if ($key === 'username') {
-                $sql .= " AND `username`='" . mysql_real_escape_string($value) . "' ";
-            } else if ($key === 'email') {
-                $sql .= " AND `contact`.`email`='" . mysql_real_escape_string($value) . "' ";
-            }
-        }
-    }
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    
-    // Create result array
-    $users = array();    
-    $row = mysql_fetch_assoc($res);
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
-        $user = $row;
-        if ($join_role) {
-            if (array_key_exists($row['cid'], $roles)) {
-                $user['roles'] = $roles[$row['cid']];
-            } else {
-                $user['roles'] = array();
-            }
+        if (!array_key_exists($row['rid'], $permissionMap)) {
+            $permissionMap[$row['rid']] = array();
         }
-        if ($join_perm) {
-            if (array_key_exists($row['cid'], $permMap)) {
-                $user['permissions'] = $permMap[$row['cid']];
-            } else {
-                $user['permissions'] = array();
-            }
-        }
-        $users[] = $user;
-        $row = mysql_fetch_assoc($res);
+        $permissionMap[$row['rid']][] = $row['permission'];
+        $row = mysqli_fetch_assoc($res);
     }
     
-    return $users;
+    // Construct query for roles
+    $sql = "SELECT `rid`, `name` FROM `role` WHERE 1 ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    $roles = array();
+    $row = mysqli_fetch_assoc($res);
+    while ($row) {
+        $role = $row;
+        if (array_key_exists($row['rid'], $permissionMap)) {
+            $role['permissions'] = $permissionMap[$row['rid']];
+        } else {
+            $role['permissions'] = array();
+        }
+        $roles[] = $role;
+        $row = mysqli_fetch_assoc($res);
+    }
+    return $roles;
 }
+
+// User adding and deleting ////////////////////////////////////////////////////
 
 /**
  * Update user data when a contact is updated.
@@ -326,7 +374,7 @@ function user_contact_api ($contact, $op) {
             unset($contact['user']);
             break;
         default:
-            die('Unkown operation: ' . $op);
+            crm_error('Unkown operation: ' . $op);
             break;
     }
     return $contact;
@@ -339,22 +387,23 @@ function user_contact_api ($contact, $op) {
  * @return an array representing the user that was saved in the database.
  */
 function user_save ($user) {
-    // First figure out wether the user is in the database or not
+    global $db_connect;
+    // First figure out whether the user is in the database or not
     $opts = array();
     $opts['cid'] = $user['cid'];
     $user_array = user_data($opts);
     if(empty($user_array)){
         // The user is not in the db, insert it
-        $esc_name = mysql_real_escape_string($user['username']);
-        $esc_cid = mysql_real_escape_string($user['cid']);
+        $esc_name = mysqli_real_escape_string($db_connect, $user['username']);
+        $esc_cid = mysqli_real_escape_string($db_connect, $user['cid']);
         // Add user
         $sql = "
             INSERT INTO `user`
             (`username`, `cid`)
             VALUES
             ('$esc_name', '$esc_cid')";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
     } else {
         // The user already exists, update it
         $sql = "
@@ -364,8 +413,8 @@ function user_save ($user) {
             `salt`='$esc_salt'
             WHERE `cid`='$esc_cid'
             ";
-        $res = mysql_query($sql);
-        if (!$res) die(mysql_error());
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
     }
     
     return $user;
@@ -376,60 +425,18 @@ function user_save ($user) {
  * @param $cid The user's cid.
  */
 function user_delete ($cid) {
-    $esc_cid = mysql_real_escape_string($cid);
+    global $db_connect;
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `user` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(msyql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
-    $res = mysql_query($sql);
-    if (!$res) crm_error(msyql_error());
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
     message_register("Deleted user data for: " . theme('contact_name', $cid));
 }
 
-/**
- * Return data for one or more roles.
- *
- * @param $opts An associative array of options.
- * @return An array with each element representing a role.
-*/ 
-function user_role_data ($opts = NULL) {
-    
-    // Construct map from role ids to arrays of permissions granted
-    $permissionMap = array();
-    $sql = "SELECT `rid`, `permission` FROM `role_permission` WHERE 1 ";
-    if (!empty($opts['rid'])) {
-        $sql .= "AND `rid`='" . mysql_real_escape_string($opts['rid']) . "' ";
-    }
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    $row = mysql_fetch_assoc($res);
-    while ($row) {
-        if (!array_key_exists($row['rid'], $permissionMap)) {
-            $permissionMap[$row['rid']] = array();
-        }
-        $permissionMap[$row['rid']][] = $row['permission'];
-        $row = mysql_fetch_assoc($res);
-    }
-    
-    // Construct query for roles
-    $sql = "SELECT `rid`, `name` FROM `role` WHERE 1 ";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    $roles = array();
-    $row = mysql_fetch_assoc($res);
-    while ($row) {
-        $role = $row;
-        if (array_key_exists($row['rid'], $permissionMap)) {
-            $role['permissions'] = $permissionMap[$row['rid']];
-        } else {
-            $role['permissions'] = array();
-        }
-        $roles[] = $role;
-        $row = mysql_fetch_assoc($res);
-    }
-    return $roles;
-}
-
+// Initalisation code //////////////////////////////////////////////////////////
 
 /**
  * Array of all permissions.
@@ -498,36 +505,6 @@ function user_check_password($password, $user) {
 }
 
 /**
- * Generate a table structure for a given user's info.
- * @param $opts An associative array of options to be passed to user_data().
- * @return The table structure.
- */
-function user_table ($opts) {
-    $users = user_data($opts);
-    
-    $table = array(
-        'id' => ''
-        , 'class' => ''
-        , 'columns' => array(
-            array(
-                'title' => 'Username'
-                , 'id' => ''
-                , 'class' => ''
-            )
-        )
-        , 'rows' => array()
-    );
-    
-    foreach ($users as $user) {
-        $user_row = array();
-        $user_row[] = $user['username'];
-        $table['rows'][] = $user_row;
-    }
-    
-    return $table;
-}
-
-/**
  * @param $cid The cid of the user being queried, defaults to current user.
  * @return The username for the specified user.
 */
@@ -550,15 +527,16 @@ function user_username($cid = NULL) {
  * @return An array of role names.
  */
 function user_role_list () {
+    global $db_connect;
     $sql = "SELECT * FROM `role` WHERE 1";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
     
     $roles = array();
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     while ($row) {
         $roles[] = $row['name'];
-        $row = mysql_fetch_assoc($res);
+        $row = mysqli_fetch_assoc($res);
     }
     
     return $roles;
@@ -600,25 +578,124 @@ function user_access ($permission) {
 }
 
 /**
+ * Check if the user has a specific role
+ *
+ * @param $cid The cid of the user being queried
+ * @param $permission The permission to check for.
+ * @return True if the user is granted $permission.
+*/
+function user_subject_access ($cid, $permission) {
+    global $user_permission_cache;
+    
+    // The admin user has access to everything
+    if ($cid == 1) {
+        return true;
+    }
+    
+    // Check cache
+    if (array_key_exists($permission, $user_permission_cache)) {
+        return $user_permission_cache[$permission];
+    }
+    
+    // Get list of the users roles and check each for the permission
+    $data = user_data(array('cid'=>$cid));
+    $access = in_array($permission, $data[0]['permissions']);
+    $user_permission_cache[$permission] = $access;
+    return $access;
+}
+
+/**
+ * Generate a password reset url.
+ * @param $username
+ * @return A string containing a password reset url.
+*/
+function user_reset_password_url ($username) {
+    global $db_connect;
+    global $config_host;
+    global $config_base_path;
+    
+    // Get user info
+    $esc_username = mysqli_real_escape_string($db_connect, $username);
+    $sql = "
+        SELECT * FROM `user`
+        INNER JOIN `contact` ON `user`.`cid`=`contact`.`cid`
+        WHERE `user`.`username`='$esc_username'
+        ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    $row = mysqli_fetch_assoc($res);
+    
+    // Make sure user exists
+    if (empty($row)) {
+        error_register('No such username');
+        return '';
+    }
+    
+    // Generate code
+    $code = sha1(uniqid(time()));
+    
+    // Insert code into reminder table
+    $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
+    $esc_code = mysqli_real_escape_string($db_connect, $code);
+    $sql = "
+        REPLACE INTO `resetPassword`
+        (`cid`, `code`)
+        VALUES
+        ('$esc_cid', '$esc_code')";
+    $res = mysqli_query($db_connect, $sql);
+    
+    // Generate reset url
+    $url = 'http://' . $config_host . crm_url("reset-confirm&v=" . $code);
+    return $url;
+}
+
+/**
  * Check whether a specified password reset code exists.
  *
  * @param $code A string containing the code.
  * @return True if the specified reset code exists.
 */
 function user_check_reset_code ($code) {
-    
+    global $db_connect;
     // Query database for code
-    $esc_code = mysql_real_escape_string($code);
+    $esc_code = mysqli_real_escape_string($db_connect, $code);
     $sql = "SELECT * FROM `resetPassword` WHERE `code`='$esc_code'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
     
     // Fetch first row
-    $row = mysql_fetch_assoc($res);
+    $row = mysqli_fetch_assoc($res);
     
     // Return true if row is not empty
     return (boolean)$row;
 }
+
+/**
+ * @return a random password salt.
+ */
+function user_salt () {
+    $chars = 'abcdefghijklmnopqrstuvwxyz01234567890!@#$%^&*()-_=+[]{}\\|`~;:"\',./<>?';
+    $char_count = strlen($chars);
+    $salt_length = 16;
+    $salt = '';
+    for ($i = 0; $i < 16; $i++) {
+        $salt .= $chars{rand(0, $char_count - 1)};
+    }
+    return $salt;
+}
+
+/**
+ * Generate a salted password hash.
+ * @param $password
+ * @param $salt
+ * @return The hash string.
+ */
+function user_hash ($password, $salt) {
+    $input = empty($salt) ? $password : $salt . $password;
+    return sha1($input);
+}
+
+// Command Handlers ////////////////////////////////////////////////////////////
 
 /**
  * Handle login request.
@@ -678,13 +755,251 @@ function command_login () {
  * @return The url to display when complete.
  */
 function command_logout () {
-
-    // Destroy session data
+    
+    // Unset all of the session variables.
+    $_SESSION = array();
+    
+    // If it's desired to kill the session, also delete the session cookie.
+    // Note: This will destroy the session, and not just the session data!
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    
+    // Finally, destroy the session.
     session_destroy();
     
     // Redirect to index
     return crm_url();
 }
+
+/**
+ * Respond to reset password request.
+*/
+function command_reset_password () {
+    global $config_host;
+    global $config_base_path;
+    global $config_email_from;
+    global $config_site_title;
+    
+    // Send code to user by username
+    $user = crm_get_one('user', array('filter'=>array('username'=>$_POST['username'])));
+    if (empty($user)) {
+        // Try email instead
+        $user = crm_get_one('user', array('filter'=>array('email'=>$_POST['username'])));
+    }
+    if (empty($user)) {
+        error_register('No such username/email.');
+        return crm_url();
+    }
+    $contact = crm_get_one('contact', array('cid'=>$user['cid']));
+    $url = user_reset_password_url($user['username']);
+    if (!empty($url)) {
+        $to = $contact['email'];
+        $subject = "[$config_site_title] Reset Password";
+        $from = $config_email_from;
+        $headers = "From: $from\r\n";
+        $message = "To reset your password, visit the following url: $url";
+        $res = mail($to, $subject, $message, $headers);
+        // Notify user to check their email
+        message_register('Instructions for resetting your password have been sent to your e-mail.');
+    }
+    return crm_url();
+}
+
+/**
+ * Respond to password reset confirmation.
+ * @return The url to display after the command is processed.
+*/
+function command_reset_password_confirm () {
+    global $db_connect;
+    global $esc_post;
+    
+    // Check code
+    if (!user_check_reset_code($_POST['code'])) {
+        error_register('Invalid reset code');
+        return crm_url();
+    }
+    
+    // Check that passwords match
+    if ($_POST['password'] != $_POST['confirm']) {
+        error_register('Passwords do not match');
+        return crm_url();
+    }
+    
+    // Get user id
+    $sql = "SELECT * FROM `resetPassword` WHERE `code`='$esc_post[code]'";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    $row = mysqli_fetch_assoc($res);
+    $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
+    
+    // Calculate hash
+    $salt = user_salt();
+    $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
+    $esc_salt = mysqli_real_escape_string($db_connect, $salt);
+    
+    // Update password
+    $sql = "
+        UPDATE `user`
+        SET `hash`='$esc_hash'
+        , `salt`='$esc_salt'
+        WHERE `cid`='$esc_cid'
+        ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    
+    // Notify user to check their email
+    message_register('Your password has been reset, you may now log in');
+    
+    return crm_url('login');
+}
+
+/**
+ * Set password from member page.
+ * @return The url to display after the command is processed.
+*/
+function command_set_password () {
+    global $db_connect;
+    global $esc_post;
+    
+    // Check that passwords match
+    if ($_POST['password'] != $_POST['confirm']) {
+        error_register('Passwords do not match');
+        return crm_url("contact&cid=$esc_cid");
+    }
+    
+    // Get user id
+    $sql = "SELECT * FROM `user` WHERE `cid`='$esc_post[cid]'";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    $row = mysqli_fetch_assoc($res);
+    $esc_cid = mysqli_real_escape_string($db_connect, $row['cid']);
+    
+    // Calculate hash
+    $salt = user_salt();
+    $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
+    $esc_salt = mysqli_real_escape_string($db_connect, $salt);
+    
+    // Update password
+    $sql = "
+        UPDATE `user`
+        SET `hash`='$esc_hash'
+        , `salt`='$esc_salt'
+        WHERE `cid`='$esc_cid'
+        ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    message_register("The user's password has been reset");
+    
+    return crm_url("contact&cid=$esc_cid");
+}
+
+/**
+ * Handle user permissions update request.
+ *
+ * @return The url to display on completion.
+ */
+function command_user_permissions_update () {
+    global $db_connect;
+    global $esc_post;
+    
+    // Check permissions
+    if (!user_access('user_edit')) {
+        error_register('Current user does not have permission: user_edit');
+        return crm_url('permissions');
+    }
+    
+    // Check status of each permission for each role
+    $perms = user_permissions_list();
+    $roles = user_role_data();
+    foreach ($perms as $perm) {
+        $esc_perm = mysqli_real_escape_string($db_connect, $perm);
+        foreach ($roles as $role) {
+            $key = "$perm-$role[name]";
+            $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
+            if ($_POST[$key]) {
+                // Ensure the role has this permission
+                $sql = "
+                    SELECT * FROM `role_permission`
+                    WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
+                ";
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) { crm_error(mysqli_error($res)); }
+                if (mysqli_num_rows($res) === 0) {
+                    $sql = "
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$esc_rid', '$esc_perm')
+                    ";
+                }
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) { crm_error(mysqli_error($res)); }
+            } else {
+                // Delete the permission for this role
+                $sql = "
+                    DELETE FROM `role_permission`
+                    WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
+                ";
+                $res = mysqli_query($db_connect, $sql);
+                if (!$res) { crm_error(mysqli_error($res)); }
+            }
+        }
+    }
+    
+    return crm_url('permissions');
+}
+
+/**
+ * Handle user role update request.
+ *
+ * @return The url to display on completion.
+ */
+function command_user_role_update () {
+    global $db_connect;
+    global $esc_post;
+    
+    // Check permissions
+    if (!user_access('user_edit')) {
+        error_register('Current user does not have permission: user_edit');
+        return crm_url('members');
+    }
+    
+    // Check permissions
+    if (!user_access('user_role_edit')) {
+        error_register('Current user does not have permission: user_role_edit');
+        return crm_url('members');
+    }
+    
+    // Delete all roles for specified user
+    $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) { crm_error(mysqli_error($res)); }
+    
+    // Re-add each role
+    $roles = user_role_data();
+    foreach ($roles as $role) {
+        if ($_POST[$role['name']]) {
+            $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
+            $sql = "
+                INSERT INTO `user_role`
+                (`cid`, `rid`)
+                VALUES
+                ('$esc_post[cid]', '$esc_rid')
+            ";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) { crm_error(mysqli_error($res)); }
+        }
+    }
+    
+    return crm_url("contact&cid=$_POST[cid]&tab=roles");
+}
+
+// Forms ///////////////////////////////////////////////////////////////////////
 
 /**
  * @return login form structure.
@@ -793,199 +1108,39 @@ function user_reset_password_confirm_form ($code) {
 }
 
 /**
- * Generate a password reset url.
- * @param $username
- * @return A string containing a password reset url.
+ * @return The set password form structure.
 */
-function user_reset_password_url ($username) {
-    global $config_host;
-    global $config_base_path;
-    
-    // Get user info
-    $esc_username = mysql_real_escape_string($username);
-    $sql = "
-        SELECT * FROM `user`
-        INNER JOIN `contact` ON `user`.`cid`=`contact`.`cid`
-        WHERE `user`.`username`='$esc_username'
-        ";
-    $res = mysql_query($sql);
-    if (!$res) die(mysql_error());
-    $row = mysql_fetch_assoc($res);
-    
-    // Make sure user exists
-    if (empty($row)) {
-        error_register('No such username');
-        return '';
-    }
-    
-    // Generate code
-    $code = sha1(uniqid(time()));
-    
-    // Insert code into reminder table
-    $esc_cid = mysql_real_escape_string($row['cid']);
-    $esc_code = mysql_real_escape_string($code);
-    $sql = "
-        REPLACE INTO `resetPassword`
-        (`cid`, `code`)
-        VALUES
-        ('$esc_cid', '$esc_code')";
-    $res = mysql_query($sql);
-    
-    // Generate reset url
-    $url = 'http://' . $config_host . crm_url("reset-confirm&v=" . $code);
-    return $url;
-}
-
-/**
- * Respond to reset password request.
-*/
-function command_reset_password () {
-    global $config_host;
-    global $config_base_path;
-    global $config_email_from;
-    global $config_site_title;
-    
-    // Send code to user by username
-    $user = crm_get_one('user', array('filter'=>array('username'=>$_POST['username'])));
-    if (empty($user)) {
-        // Try email instead
-        $user = crm_get_one('user', array('filter'=>array('email'=>$_POST['username'])));
-    }
-    if (empty($user)) {
-        error_register('No such username/email.');
-        return crm_url();
-    }
-    $contact = crm_get_one('contact', array('cid'=>$user['cid']));
-    $url = user_reset_password_url($user['username']);
-    if (!empty($url)) {
-        $to = $contact['email'];
-        $subject = "[$config_site_title] Reset Password";
-        $from = $config_email_from;
-        $headers = "From: $from\r\n";
-        $message = "To reset your password, visit the following url: $url";
-        $res = mail($to, $subject, $message, $headers);
-        // Notify user to check their email
-        message_register('Instructions for resetting your password have been sent to your e-mail.');
-    }
-    return crm_url();
-}
-
-/**
- * Respond to password reset confirmation.
- * @return The url to display after the command is processed.
-*/
-function command_reset_password_confirm () {
-    global $esc_post;
-    
-    // Check code
-    if (!user_check_reset_code($_POST['code'])) {
-        error_register('Invalid reset code');
-        return crm_url();
-    }
-    
-    // Check that passwords match
-    if ($_POST['password'] != $_POST['confirm']) {
-        error_register('Passwords do not match');
-        return crm_url();
-    }
-    
-    // Get user id
-    $sql = "SELECT * FROM `resetPassword` WHERE `code`='$esc_post[code]'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    $row = mysql_fetch_assoc($res);
-    $esc_cid = mysql_real_escape_string($row['cid']);
-    
-    // Calculate hash
-    $salt = user_salt();
-    $esc_hash = mysql_real_escape_string(user_hash($_POST['password'], $salt));
-    $esc_salt = mysql_real_escape_string($salt);
-    
-    // Update password
-    $sql = "
-        UPDATE `user`
-        SET `hash`='$esc_hash'
-        , `salt`='$esc_salt'
-        WHERE `cid`='$esc_cid'
-        ";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    
-    // Notify user to check their email
-    message_register('Your password has been reset, you may now log in');
-    
-    return crm_url('login');
-}
-
-/**
- * @return The themed html string for a login form.
-*/
-function theme_login_form () {
-    return theme('form', login_form());
-}
-
-/**
- * @return The themed html for a password reset form.
-*/
-function theme_user_reset_password_form () {
-    return theme('form', user_reset_password_form());
-}
-
-/**
- * @param $code The pasword reset code.
- * @return The themed html for a password reset form.
- */
-function theme_user_reset_password_confirm_form ($code) {
-    
-    if (!user_check_reset_code($code)) {
-        return '<p>Invalid code</p>';
-    }
-    
-    return theme('form', user_reset_password_confirm_form($code));
-}
-
-/**
- * Return the form structure for editing user roles.
- *
- * @param $cid The cid of the user.
- * @return The form structure.
-*/
-function user_role_edit_form ($cid) {
-    
-    // Get user data
-    $data = user_data(array('cid'=>$cid));
-    $user = $data[0];
-    
-    // Get role data
-    $roles = user_role_list();
-    
-    // Construct fields
-    $fields = array();
-    foreach ($roles as $role) {
-        if ($role === 'authenticated') {
-            continue;
-        }
-        $fields[] = array(
-            'type' => 'checkbox',
-            'label' => $role,
-            'name' => $role,
-            'checked' => in_array($role, $user['roles'])
-        );
-    }
-    $fields[] = array(
-        'type' => 'submit',
-        'name' => 'submitted',
-        'value' => 'Update'
-    );
-    
+function user_set_password_form ($cid) {
     $form = array(
         'type' => 'form',
         'method' => 'post',
-        'command' => 'user_role_update',
+        'command' => 'set_password',
         'hidden' => array(
             'cid' => $cid
         ),
-        'fields' => $fields
+        'fields' => array(
+            array(
+                'type' => 'fieldset',
+                'label' => 'Change password',
+                'fields' => array(
+                    array(
+                        'type' => 'password',
+                        'label' => 'Password',
+                        'name' => 'password'
+                    ),
+                    array(
+                        'type' => 'password',
+                        'label' => 'Confirm',
+                        'name' => 'confirm'
+                    ),
+                    array(
+                        'type' => 'submit',
+                        'name' => 'submitted',
+                        'value' => 'Change password'
+                    )
+                )
+            )
+        )
     );
     return $form;
 }
@@ -1048,103 +1203,108 @@ function user_permissions_form () {
 }
 
 /**
- * Handle user role update request.
+ * Return the form structure for editing user roles.
  *
- * @return The url to display on completion.
- */
-function command_user_role_update () {
-    global $esc_post;
+ * @param $cid The cid of the user.
+ * @return The form structure.
+*/
+function user_role_edit_form ($cid) {
     
-    // Check permissions
-    if (!user_access('user_edit')) {
-        error_register('Current user does not have permission: user_edit');
-        return crm_url('members');
-    }
+    // Get user data
+    $data = user_data(array('cid'=>$cid));
+    $user = $data[0];
     
-    // Check permissions
-    if (!user_access('user_role_edit')) {
-        error_register('Current user does not have permission: user_role_edit');
-        return crm_url('members');
-    }
+    // Get role data
+    $roles = user_role_list();
     
-    // Delete all roles for specified user
-    $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_post[cid]'";
-    $res = mysql_query($sql);
-    if (!$res) { die(mysql_error()); }
-    
-    // Re-add each role
-    $roles = user_role_data();
+    // Construct fields
+    $fields = array();
     foreach ($roles as $role) {
-        if ($_POST[$role['name']]) {
-            $esc_rid = mysql_real_escape_string($role['rid']);
-            $sql = "
-                INSERT INTO `user_role`
-                (`cid`, `rid`)
-                VALUES
-                ('$esc_post[cid]', '$esc_rid')
-            ";
-            $res = mysql_query($sql);
-            if (!$res) { die(mysql_error()); }
+        if ($role === 'authenticated') {
+            continue;
         }
+        $fields[] = array(
+            'type' => 'checkbox',
+            'label' => $role,
+            'name' => $role,
+            'checked' => in_array($role, $user['roles'])
+        );
+    }
+    $fields[] = array(
+        'type' => 'submit',
+        'name' => 'submitted',
+        'value' => 'Update'
+    );
+    
+    $form = array(
+        'type' => 'form',
+        'method' => 'post',
+        'command' => 'user_role_update',
+        'hidden' => array(
+            'cid' => $cid
+        ),
+        'fields' => $fields
+    );
+    return $form;
+}
+
+// Table, Theme & Page /////////////////////////////////////////////////////////
+
+/**
+ * Generate a table structure for a given user's info.
+ * @param $opts An associative array of options to be passed to user_data().
+ * @return The table structure.
+ */
+function user_table ($opts) {
+    $users = user_data($opts);
+    
+    $table = array(
+        'id' => ''
+        , 'class' => ''
+        , 'columns' => array(
+            array(
+                'title' => 'Username'
+                , 'id' => ''
+                , 'class' => ''
+            )
+        )
+        , 'rows' => array()
+    );
+    
+    foreach ($users as $user) {
+        $user_row = array();
+        $user_row[] = $user['username'];
+        $table['rows'][] = $user_row;
     }
     
-    return crm_url("contact&cid=$_POST[cid]&tab=roles");
+    return $table;
 }
 
 /**
- * Handle user permissions update request.
- *
- * @return The url to display on completion.
+ * @return The themed html string for a login form.
+*/
+function theme_login_form () {
+    return theme('form', crm_get_form('login'));
+}
+
+/**
+ * @return The themed html for a password reset form.
+*/
+function theme_user_reset_password_form () {
+    return theme('form', crm_get_form('user_reset_password_form'));
+}
+
+/**
+ * @param $code The pasword reset code.
+ * @return The themed html for a password reset form.
  */
-function command_user_permissions_update () {
-    global $esc_post;
+function theme_user_reset_password_confirm_form ($code) {
     
-    // Check permissions
-    if (!user_access('user_edit')) {
-        error_register('Current user does not have permission: user_edit');
-        return crm_url('permissions');
+    if (!user_check_reset_code($code)) {
+        return '<p>Invalid code</p>';
     }
     
-    // Check status of each permission for each role
-    $perms = user_permissions_list();
-    $roles = user_role_data();
-    foreach ($perms as $perm) {
-        $esc_perm = mysql_real_escape_string($perm);
-        foreach ($roles as $role) {
-            $key = "$perm-$role[name]";
-            $esc_rid = mysql_real_escape_string($role['rid']);
-            if ($_POST[$key]) {
-                // Ensure the role has this permission
-                $sql = "
-                    SELECT * FROM `role_permission`
-                    WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
-                ";
-                $res = mysql_query($sql);
-                if (!$res) { die(mysql_error()); }
-                if (mysql_numrows($res) === 0) {
-                    $sql = "
-                        INSERT INTO `role_permission`
-                        (`rid`, `permission`)
-                        VALUES
-                        ('$esc_rid', '$esc_perm')
-                    ";
-                }
-                $res = mysql_query($sql);
-                if (!$res) { die(mysql_error()); }
-            } else {
-                // Delete the permission for this role
-                $sql = "
-                    DELETE FROM `role_permission`
-                    WHERE `rid`='$esc_rid' AND `permission`='$esc_perm'
-                ";
-                $res = mysql_query($sql);
-                if (!$res) { die(mysql_error()); }
-            }
-        }
-    }
-    
-    
-    return crm_url('permissions');
+    return theme('form', crm_get_form('user_reset_password_confirm', $code));
 }
 
 /**
@@ -1154,32 +1314,7 @@ function command_user_permissions_update () {
  * @return The themed html string.
  */
 function theme_user_role_edit_form ($cid) {
-    return theme('form', user_role_edit_form($cid));
-}
-
-/**
- * @return a random password salt.
- */
-function user_salt () {
-    $chars = 'abcdefghijklmnopqrstuvwxyz01234567890!@#$%^&*()-_=+[]{}\\|`~;:"\',./<>?';
-    $char_count = strlen($chars);
-    $salt_length = 16;
-    $salt = '';
-    for ($i = 0; $i < 16; $i++) {
-        $salt .= $chars{rand(0, $char_count - 1)};
-    }
-    return $salt;
-}
-
-/**
- * Generate a salted password hash.
- * @param $password
- * @param $salt
- * @return The hash string.
- */
-function user_hash ($password, $salt) {
-    $input = empty($salt) ? $password : $salt . $password;
-    return sha1($input);
+    return theme('form', crm_get_form('user_role_edit', $cid));
 }
 
 /**
@@ -1204,7 +1339,9 @@ function user_page (&$page_data, $page_name, $options) {
             $view_content = '';
             if (user_id() == $_GET['cid'] || user_access('user_edit')) {
                 $view_content .= '<h3>User Info</h3>';
-                $view_content .= theme('table_vertical', 'user', array('cid' => $cid));
+                $view_content .= theme('table_vertical', crm_get_table('user', array('cid' => $cid)));
+                $view_content .= '<h3>Change Password</h3>';
+                $view_content .= theme('form', crm_get_form('user_set_password', $cid));
             }
             if (!empty($view_content)) {
                 page_add_content_bottom($page_data, $view_content, 'View');
