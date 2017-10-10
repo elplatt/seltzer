@@ -56,6 +56,11 @@ function member_add_form () {
                 , 'label' => 'Emergency Phone'
                 , 'name' => 'emergencyPhone'
             )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Relation'
+                , 'name' => 'emergencyRelation'
+            )
         )
     );
     $form['fields'][] = array(
@@ -126,6 +131,12 @@ function member_edit_form ($cid) {
                 , 'label' => 'Emergency Phone'
                 , 'name' => 'emergencyPhone'
                 , 'value' => $member['emergencyPhone']
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Relation'
+                , 'name' => 'emergencyRelation'
+                , 'value' => $member['emergencyRelation']
             )
         )
     );
@@ -573,6 +584,7 @@ function member_import_form () {
                 <li>Phone</li>
                 <li>Emergency Name</li>
                 <li>Emergency Phone</li>
+                <li>Emergency Relation</li>
                 <li>Username</li>
                 <li>Plan</li>
                 <li>Start Date</li>

@@ -74,6 +74,9 @@ function member_table ($opts = NULL) {
         if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
             $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
         }
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
+            $table['columns'][] = array('title'=>'Emergency Relation','class'=>'');
+        }
     }
     // Add ops column
     if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
@@ -114,6 +117,9 @@ function member_table ($opts = NULL) {
             }
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyPhone'];
+            }
+            if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
+                $row[] = $member['member']['emergencyRelation'];
             }
         }
         
@@ -420,6 +426,9 @@ function member_info_table ($opts = NULL) {
         if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
             $table['columns'][] = array('title'=>'Emergency Phone','class'=>'');
         }
+        if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
+            $table['columns'][] = array('title'=>'Emergency Relation','class'=>'');
+        }
     }
     // Add ops column
     if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
@@ -437,6 +446,9 @@ function member_info_table ($opts = NULL) {
             }
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyPhone', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyPhone'];
+            }
+            if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
+                $row[] = $member['member']['emergencyRelation'];
             }
         }
         

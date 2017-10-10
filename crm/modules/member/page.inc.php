@@ -61,8 +61,9 @@ function member_page (&$page_data, $page_name, $options) {
                     'filter'=>$_SESSION['member_filter']
                     , 'show_export'=>true
                     , 'exclude'=>array(
-                        'emergencyName',
-                        'emergencyPhone'
+                        'emergencyName'
+                        , 'emergencyPhone'
+                        , 'emergencyRelation'
                     )
                 );
                 $view .= theme('table', crm_get_table('member', $opts));

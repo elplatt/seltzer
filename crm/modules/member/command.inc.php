@@ -97,6 +97,7 @@ function command_member_add () {
         'membership' => $membership
         , 'emergencyName' => $_POST['emergencyName']
         , 'emergencyPhone' => $_POST['emergencyPhone']
+        , 'emergencyRelation' => $_POST['emergencyRelation']
     );
     $contact['member'] = $member;
     
@@ -134,6 +135,7 @@ function command_member_edit () {
     $esc_cid = mysqli_real_escape_string($db_connect, $_POST['cid']);
     $esc_emergencyName = mysqli_real_escape_string($db_connect, $_POST['emergencyName']);
     $esc_emergencyPhone = mysqli_real_escape_string($db_connect, $_POST['emergencyPhone']);
+    $esc_emergencyRelation = mysqli_real_escape_string($db_connect, $_POST['emergencyRelation']);
     $member_data = crm_get_data('member', array('cid'=>$esc_cid));
     $member = $member_data[0]['member'];
     
@@ -142,6 +144,7 @@ function command_member_edit () {
         'cid'=> $esc_cid
         , 'emergencyName' => $esc_emergencyName
         , 'emergencyPhone' => $esc_emergencyPhone
+        , 'emergencyRelation' => $esc_emergencyRelation
     );
     // Save to database
     $member = member_save($member);
@@ -463,6 +466,7 @@ function command_member_import () {
             'membership' => $membership
             , 'emergencyName' => $row['emergencyname']
             , 'emergencyPhone' => $row['emergencyphone']
+            , 'emergencyRelation' => $row['emergencyrelation']
         );
         $contact['member'] = $member;
         
