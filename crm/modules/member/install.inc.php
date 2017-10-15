@@ -98,16 +98,16 @@ function member_install($old_revision = 0) {
         // Alter member table
         $sql = '
             ALTER TABLE `member`
-              ADD COLUMN `emergencyName` varchar(255) NOT NULL,
-              ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
+              ADD COLUMN `emergencyName` varchar(255) NOT NULL
+              , ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
             ;
         ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $sql = '
             UPDATE contact, member
-            SET member.emergencyName=contact.emergencyName,  
-            member.emergencyPhone = contact.emergencyPhone
+            SET member.emergencyName=contact.emergencyName
+            , member.emergencyPhone = contact.emergencyPhone
             WHERE member.cid=contact.cid;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -116,6 +116,16 @@ function member_install($old_revision = 0) {
             ALTER TABLE `contact`
               DROP column `emergencyName`
               , DROP column `emergencyPhone`
+            ;
+        ';
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+    }
+    if ($old_revision < 5) {
+        // Alter member table
+        $sql = '
+            ALTER TABLE `member`
+              ADD COLUMN `emergencyRelation` varchar(255) NOT NULL
             ;
         ';
         $res = mysqli_query($db_connect, $sql);

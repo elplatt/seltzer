@@ -128,6 +128,7 @@ function command_register () {
         'membership' => $membership
         , 'emergencyName' => $_POST['emergencyName']
         , 'emergencyPhone' => $_POST['emergencyPhone']
+        , 'emergencyRelation' => $_POST['emergencyRelation']
     );
     $contact['member'] = $member;
     
