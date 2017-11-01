@@ -73,6 +73,24 @@ function command_member_add () {
         return crm_url('members&tab=add');
     }
     
+    // Check for duplicate usernames
+    if (!empty($username)) {
+        
+        // Check whether username is in use
+        $test_username = $username;
+        $esc_test_username = mysqli_real_escape_string($db_connect, $test_username);
+        $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_username'";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $username_row = mysqli_fetch_assoc($res);
+        if (!$username_row) {
+            $username = $test_username;
+        } else {
+            error_register('Username already in use, please specify a different username');
+            return crm_url('members&tab=add');
+        }
+    }
+    
     // Check for duplicate email addresses
     $email = $_POST['email'];
     if (!empty($email)) {
@@ -456,6 +474,24 @@ function command_member_import () {
         if (empty($username)) {
             error_register('Please specify a username');
             return crm_url('members&tab=import');
+        }
+        
+        // Check for duplicate usernames
+        if (!empty($username)) {
+            
+            // Check whether username is in use
+            $test_username = $username;
+            $esc_test_username = mysqli_real_escape_string($db_connect, $test_username);
+            $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_username'";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
+            $username_row = mysqli_fetch_assoc($res);
+            if (!$username_row) {
+                $username = $test_username;
+            } else {
+                error_register('Username already in use, please specify a different username');
+                return crm_url('members&tab=import');
+            }
         }
         
         // Check for duplicate email addresses
