@@ -73,12 +73,32 @@ function command_member_add () {
         return crm_url('members&tab=add');
     }
     
+    // Check for duplicate email addresses
+    $email = $_POST['email'];
+    if (!empty($email)) {
+        
+        // Check whether email address is in use
+        $test_email = $email;
+        $esc_test_email = mysqli_real_escape_string($db_connect, $test_email);
+        $sql = "SELECT * FROM `contact` WHERE `email`='$esc_test_email'";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $email_row = mysqli_fetch_assoc($res);
+        if (!$email_row) {
+            $email = $test_email;
+        } else {
+            error_register('Email address already in use');
+            error_register('Please specify a different email address');
+            return crm_url('members&tab=add');
+        }
+    }
+    
     // Build contact object
     $contact = array(
         'firstName' => $_POST['firstName']
         , 'middleName' => $_POST['middleName']
         , 'lastName' => $_POST['lastName']
-        , 'email' => $_POST['email']
+        , 'email' => $email
         , 'phone' => $_POST['phone']
     );
     
@@ -438,12 +458,32 @@ function command_member_import () {
             return crm_url('members&tab=import');
         }
         
+        // Check for duplicate email addresses
+        $email = $row['email'];
+        if (!empty($email)) {
+            
+            // Check whether email address is in use
+            $test_email = $email;
+            $esc_test_email = mysqli_real_escape_string($db_connect, $test_email);
+            $sql = "SELECT * FROM `contact` WHERE `email`='$esc_test_email'";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
+            $email_row = mysqli_fetch_assoc($res);
+            if (!$email_row) {
+                $email = $test_email;
+            } else {
+                error_register('Email address already in use');
+                error_register('Please specify a different email address');
+                return crm_url('members&tab=import');
+            }
+        }
+        
         // Build contact object
         $contact = array(
             'firstName' => $row['firstname']
             , 'middleName' => $row['middlename']
             , 'lastName' => $row['lastname']
-            , 'email' => $row['email']
+            , 'email' => $email
             , 'phone' => $row['phone']
         );
         
