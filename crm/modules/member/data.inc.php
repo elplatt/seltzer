@@ -288,11 +288,6 @@ function member_save ($member) {
  */
 function member_delete ($cid) {
     global $db_connect;
-    // Store name
-    $contact_data = crm_get_data('contact', array('cid'=>$cid));
-    $contact = $contact_data[0];
-    $name = theme('contact_name', $contact);
-    // Delete member
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `member` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
@@ -300,7 +295,7 @@ function member_delete ($cid) {
     $sql = "DELETE FROM `membership` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    message_register("Deleted membership info for: $name");
+    message_register("Deleted membership info for: " . theme('contact_name', $esc_cid));
 }
 
 /**

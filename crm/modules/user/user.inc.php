@@ -433,7 +433,7 @@ function user_delete ($cid) {
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    message_register("Deleted user data for: " . theme('contact_name', $cid));
+    message_register("Deleted user info for: " . theme('contact_name', $esc_cid));
 }
 
 // Initalisation code //////////////////////////////////////////////////////////

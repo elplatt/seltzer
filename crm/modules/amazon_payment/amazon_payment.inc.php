@@ -200,7 +200,7 @@ function amazon_payment_contact_delete ($amazon_payment_contact) {
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows($db_connect) > 0) {
-        message_register("Amazon contact info deleted for: " . theme('contact_name', $esc_cid));
+        message_register("Deleted Amazon contact info for: " . theme('contact_name', $esc_cid));
     }
     return crm_url('amazon-admin');
 }

@@ -219,19 +219,19 @@ function contact_save ($contact) {
  */
 function contact_delete ($cid) {
     global $db_connect;
-    $contact = crm_get_one('contact', array('cid'=>$cid));
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+    $contact = crm_get_one('contact', array('cid'=>$esc_cid));
     if (empty($contact)) {
-        error_register("No contact with cid $cid");
+        error_register("No contact with cid $esc_cid");
         return;
     }
     // Notify other modules the contact is being deleted
     $contact = module_invoke_api('contact', $contact, 'delete');
     // Remove the contact from the database
-    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `contact` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    message_register('Deleted contact: ' . theme('contact_name', $contact));
+    message_register('Deleted contact info for: ' . theme('contact_name', $contact));
 }
 
 // Autocomplete functions //////////////////////////////////////////////////////
