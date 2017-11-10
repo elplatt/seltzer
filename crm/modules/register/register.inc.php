@@ -104,12 +104,50 @@ function command_register () {
         return crm_url('register');
     }
     
+    // Check for duplicate usernames
+    if (!empty($username)) {
+        
+        // Check whether username is in use
+        $test_username = $username;
+        $esc_test_username = mysqli_real_escape_string($db_connect, $test_username);
+        $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_username'";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $username_row = mysqli_fetch_assoc($res);
+        if (!$username_row) {
+            $username = $test_username;
+        } else {
+            error_register('Username already in use, please specify a different username');
+            return crm_url('register');
+        }
+    }
+    
+    // Check for duplicate email addresses
+    $email = $_POST['email'];
+    if (!empty($_POST['email'])) {
+        
+        // Check whether email address is in use
+        $test_email = $email;
+        $esc_test_email = mysqli_real_escape_string($db_connect, $test_email);
+        $sql = "SELECT * FROM `contact` WHERE `email`='$esc_test_email'";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $email_row = mysqli_fetch_assoc($res);
+        if (!$email_row) {
+            $email = $test_email;
+        } else {
+            error_register('Email address already in use');
+            error_register('Please specify a different email address');
+            return crm_url('register');
+        }
+    }
+    
     // Build contact object
     $contact = array(
         'firstName' => $_POST['firstName']
         , 'middleName' => $_POST['middleName']
         , 'lastName' => $_POST['lastName']
-        , 'email' => $_POST['email']
+        , 'email' => $email
         , 'phone' => $_POST['phone']
     );
     
