@@ -5,6 +5,7 @@
     global $config_address3;
     global $config_town_city;
     global $config_zipcode;
+    global $config_site_title;
     global $config_org_name;
     global $config_org_website;
     global $config_email_from;
@@ -12,7 +13,7 @@
     print 'Welcome to ' . "$config_org_name" . '!';
     print '<br /><br />';
     
-    print 'You are receiving this email because you have recently been entered into the ' . "$config_org_name" . ' membership management system, Seltzer.';
+    print 'You are receiving this email because you have recently been entered into the ' . "$config_org_name" . ' membership management system, ' . "$config_site_title" . '.';
     print '<br /><br />';
     
     print 'Your username is ' . "$username" . '. To confirm your email and set your password, visit <a href="' . "$confirm_url". '">' . "$confirm_url" . '</a>.';
