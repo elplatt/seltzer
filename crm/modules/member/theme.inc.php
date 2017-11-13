@@ -258,7 +258,7 @@ function theme_member_plan_edit_form ($pid) {
 }
 
 /**
- * Return the themed html for a member info table.
+ * Return the themed html for a member details table.
  *
  * @param $opts The options to pass to member_data().
  * @return The themed html string.

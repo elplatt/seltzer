@@ -382,9 +382,8 @@ function member_contact_table ($opts) {
     return $table;
 }
 
-
 /**
- * Return a table structure representing members' needs.
+ * Return a table structure representing members' details.
  *
  * @param $opts Options to pass to member_data().
  * @return The table structure.

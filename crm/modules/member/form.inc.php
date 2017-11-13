@@ -115,10 +115,10 @@ function member_edit_form ($cid) {
         'label' => 'User Info',
         'fields' => array(
             array(
-                'type' => 'readonly',
-                'label' => 'Username',
-                'name' => 'username',
-                'value' => $user['username']
+                'type' => 'readonly'
+                , 'label' => 'Username'
+                , 'name' => 'username'
+                , 'value' => $user['username']
             )
             , array(
                 'type' => 'text'
