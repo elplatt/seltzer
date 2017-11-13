@@ -46,7 +46,13 @@ function member_add_form () {
                 , 'label' => 'Username'
                 , 'name' => 'username'
             )
-            , array(
+        )
+    );
+    $form['fields'][] = array(
+        'type' => 'fieldset'
+        , 'label' => 'Member Info'
+        , 'fields' => array(
+            array(
                 'type' => 'text'
                 , 'label' => 'Emergency Contact'
                 , 'name' => 'emergencyName'
