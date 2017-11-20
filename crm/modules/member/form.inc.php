@@ -46,7 +46,13 @@ function member_add_form () {
                 , 'label' => 'Username'
                 , 'name' => 'username'
             )
-            , array(
+        )
+    );
+    $form['fields'][] = array(
+        'type' => 'fieldset'
+        , 'label' => 'Member Info'
+        , 'fields' => array(
+            array(
                 'type' => 'text'
                 , 'label' => 'Emergency Contact'
                 , 'name' => 'emergencyName'
@@ -115,10 +121,10 @@ function member_edit_form ($cid) {
         'label' => 'User Info',
         'fields' => array(
             array(
-                'type' => 'readonly',
-                'label' => 'Username',
-                'name' => 'username',
-                'value' => $user['username']
+                'type' => 'readonly'
+                , 'label' => 'Username'
+                , 'name' => 'username'
+                , 'value' => $user['username']
             )
             , array(
                 'type' => 'text'

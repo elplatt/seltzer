@@ -382,14 +382,13 @@ function member_contact_table ($opts) {
     return $table;
 }
 
-
 /**
- * Return a table structure representing members' needs.
+ * Return a table structure representing members' details.
  *
  * @param $opts Options to pass to member_data().
  * @return The table structure.
 */
-function member_info_table ($opts = NULL) {
+function member_details_table ($opts = NULL) {
     
     // Ensure user is allowed to view members
     if (!user_access('member_view')) {
