@@ -334,41 +334,43 @@ function contact_table ($opts = array()) {
     foreach ($contact_data as $contact) {
         
         $row = array();
-        // Construct name
-        $name_link = theme('contact_name', $contact, true);
-        
-        // Add cells
-        if ($export) {
-            $row[] = $contact['cid'];
-            $row[] = $contact['lastName'];
-            $row[] = $contact['firstName'];
-            $row[] = $contact['middleName'];
-        } else {
-            $row[] = $name_link;
+        if ((user_access('contact_view') && $contact['cid'] == user_id()) || user_access('contact_list')) {
+            // Construct name
+            $name_link = theme('contact_name', $contact, true);
+            
+            // Add cells
+            if ($export) {
+                $row[] = $contact['cid'];
+                $row[] = $contact['lastName'];
+                $row[] = $contact['firstName'];
+                $row[] = $contact['middleName'];
+            } else {
+                $row[] = $name_link;
+            }
+            $row[] = $contact['email'];
+            $row[] = $contact['phone'];
+            
+            // Construct ops array
+            $ops = array();
+            
+            // Add edit op
+            if (user_access('contact_edit')) {
+                $ops[] = '<a href=' . crm_url('contact&cid=' . $contact['cid'] . '&tab=edit') . '>edit</a> ';
+            }
+            
+            // Add delete op
+            if (user_access('contact_delete')) {
+                $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $contact['cid']) . '>delete</a>';
+            }
+            
+            // Add ops row
+            if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+                $row[] = join(' ', $ops);
+            }
+            
+            // Add row to table
+            $table['rows'][] = $row;
         }
-        $row[] = $contact['email'];
-        $row[] = $contact['phone'];
-        
-        // Construct ops array
-        $ops = array();
-        
-        // Add edit op
-        if (user_access('contact_edit')) {
-            $ops[] = '<a href=' . crm_url('contact&cid=' . $contact['cid'] . '&tab=edit') . '>edit</a> ';
-        }
-        
-        // Add delete op
-        if (user_access('contact_delete')) {
-            $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $contact['cid']) . '>delete</a>';
-        }
-        
-        // Add ops row
-        if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
-            $row[] = join(' ', $ops);
-        }
-        
-        // Add row to table
-        $table['rows'][] = $row;
     }
     
     // Return table
@@ -617,7 +619,7 @@ function contact_page (&$page_data, $page_name) {
             page_set_title($page_data, theme('contact_name', $contact));
             // Add view tab
             $view_content = '';
-            if (user_access('contact_view')) {
+            if (user_access('contact_list') || $cid == user_id()) {
                 $view_content .= '<h3>Contact Info</h3>';
                 $opts = array(
                     'cid' => $cid

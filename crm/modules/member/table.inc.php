@@ -88,7 +88,7 @@ function member_table ($opts = NULL) {
         
         // Add user data
         $row = array();
-        if (user_access('member_view')) {
+        if ((user_access('member_view') && $member['contact']['cid'] == user_id()) || user_access('member_list')) {
             
             // Construct name
             $contact = $member['contact'];
@@ -121,28 +121,27 @@ function member_table ($opts = NULL) {
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyRelation'];
             }
+            // Construct ops array
+            $ops = array();
+            
+            // Add edit op
+            if (user_access('member_edit')) {
+                $ops[] = '<a href=' . crm_url('contact&cid=' . $member['cid'] . '&tab=edit') .'>edit</a>';
+            }
+            
+            // Add delete op
+            if (user_access('member_delete')) {
+                $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $member['cid']) . '>delete</a>';
+            }
+            
+            // Add ops row
+            if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
+                $row[] = join(' ', $ops);
+            }
+            
+            // Add row to table
+            $table['rows'][] = $row;
         }
-        
-        // Construct ops array
-        $ops = array();
-        
-        // Add edit op
-        if (user_access('member_edit')) {
-            $ops[] = '<a href=' . crm_url('contact&cid=' . $member['cid'] . '&tab=edit') .'>edit</a>';
-        }
-        
-        // Add delete op
-        if (user_access('member_delete')) {
-            $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $member['cid']) . '>delete</a>';
-        }
-        
-        // Add ops row
-        if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
-            $row[] = join(' ', $ops);
-        }
-        
-        // Add row to table
-        $table['rows'][] = $row;
     }
     
     // Return table

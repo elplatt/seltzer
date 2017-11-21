@@ -25,7 +25,7 @@
  */
 function member_page_list () {
     $pages = array();
-    if (user_access('member_view')) {
+    if (user_access('member_list')) {
         $pages[] = 'members';
     }
     if (user_access('member_plan_edit')) {
@@ -55,7 +55,7 @@ function member_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, 'Members');
             
             // Add view tab
-            if (user_access('member_view')) {
+            if (user_access('member_list')) {
                 $view = theme('form', crm_get_form('member_filter'));
                 $opts = array(
                     'filter'=>$_SESSION['member_filter']
