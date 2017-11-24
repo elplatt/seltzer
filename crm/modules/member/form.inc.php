@@ -101,8 +101,6 @@ function member_edit_form ($cid) {
     if ($cid) {
         $memb_data = crm_get_data('member', array('cid'=>$cid));
         $member = $memb_data[0]['member'];
-        $user_data = crm_get_data('user', array('cid'=>$cid));
-        $user = $user_data[0];
     }
     $form = array(
         'type' => 'form'
@@ -118,15 +116,9 @@ function member_edit_form ($cid) {
     // Edit member data
     $form['fields'][] = array(
         'type' => 'fieldset',
-        'label' => 'User Info',
+        'label' => 'Edit Member Info',
         'fields' => array(
             array(
-                'type' => 'readonly'
-                , 'label' => 'Username'
-                , 'name' => 'username'
-                , 'value' => $user['username']
-            )
-            , array(
                 'type' => 'text'
                 , 'label' => 'Emergency Contact'
                 , 'name' => 'emergencyName'
