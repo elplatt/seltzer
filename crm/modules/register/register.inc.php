@@ -124,7 +124,7 @@ function command_register () {
     
     // Check for duplicate email addresses
     $email = $_POST['email'];
-    if (!empty($_POST['email'])) {
+    if (!empty($email)) {
         
         // Check whether email address is in use
         $test_email = $email;
