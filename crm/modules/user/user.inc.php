@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     user.inc.php - User module
@@ -865,6 +865,12 @@ function command_reset_password_confirm () {
 function command_set_password () {
     global $db_connect;
     global $esc_post;
+    
+    // Check permissions
+    if (!user_access('user_edit')) {
+        error_register('Current user does not have permission: user_edit');
+        return crm_url('permissions');
+    }
     
     // Check that passwords match
     if ($_POST['password'] != $_POST['confirm']) {
