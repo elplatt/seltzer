@@ -867,7 +867,7 @@ function command_set_password () {
     global $esc_post;
     
     // Check permissions
-    if (!user_access('user_edit')) {
+    if ((user_id() != $esc_post['cid']) && !user_access('user_edit')) {
         error_register('Current user does not have permission: user_edit');
         return crm_url("contact&cid=$esc_post[cid]");
     }
