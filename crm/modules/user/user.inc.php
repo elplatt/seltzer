@@ -859,7 +859,7 @@ function command_reset_password_confirm () {
 }
 
 /**
- * Set password from member page.
+ * Set password from user page.
  * @return The url to display after the command is processed.
 */
 function command_set_password () {
