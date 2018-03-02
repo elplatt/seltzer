@@ -869,13 +869,13 @@ function command_set_password () {
     // Check permissions
     if (!user_access('user_edit')) {
         error_register('Current user does not have permission: user_edit');
-        return crm_url('permissions');
+        return crm_url("contact&cid=$esc_post[cid]");
     }
     
     // Check that passwords match
     if ($_POST['password'] != $_POST['confirm']) {
         error_register('Passwords do not match');
-        return crm_url("contact&cid=$esc_cid");
+        return crm_url("contact&cid=$esc_post[cid]");
     }
     
     // Get user id
