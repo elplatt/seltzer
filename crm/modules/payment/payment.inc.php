@@ -479,7 +479,7 @@ function payment_delete ($pmtid) {
         WHERE `pmtid`='$esc_pmtid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    if (mysqli_affected_rows() > 0) {
+    if (mysqli_affected_rows($db_connect) > 0) {
         message_register('Deleted payment with id ' . $pmtid);
     }
 }

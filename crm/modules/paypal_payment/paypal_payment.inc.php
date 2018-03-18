@@ -556,7 +556,7 @@ function paypal_payment_form_alter ($form, $form_id) {
                     // users shouldn't be able to change the method
                     if ($fieldset['fields'][$j]['name'] === 'method') {
                         $form['fields'][$i]['fields'][$j]['options'] = array('paypal' => 'Paypal');
-                        $form['fields'][$i]['fields'][$j]['value'] = paypal;
+                        $form['fields'][$i]['fields'][$j]['value'] = 'paypal';
                     }
                 }
             }

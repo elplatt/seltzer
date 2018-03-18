@@ -186,7 +186,7 @@ function mentor_data ($opts = array()) {
         $esc_cid = mysqli_real_escape_string($db_connect, $opts['mentor_cid']);
         $sql .= " AND `mentor_cid`='$esc_cid'";
     }
-
+    
     //TODO: specify an order? (ORDER BY... ASC)
     
     $res = mysqli_query($db_connect, $sql);
@@ -511,7 +511,7 @@ function mentor_delete_form ($cid) {
     // Construct mentor name (from member/protege)
     $mentor_contact = crm_get_one('contact', $opts = array('cid' => $mentor_cid));
     $mentor_name = theme('contact_name', $mentor_contact);
-
+    
     // Create form structure
     $form = array(
         'type' => 'form',
@@ -578,7 +578,8 @@ function command_mentor_add() {
         INSERT INTO `mentor`
         (`cid`, `mentor_cid`)
         VALUES
-        ('$esc_post[cid]', '$esc_post[mentor_cid]')";
+        ('$esc_post[cid]', '$esc_post[mentor_cid]')
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     
@@ -605,8 +606,9 @@ function command_mentor_update() {
     $sql = "
         UPDATE `mentor`
         SET
-        `start`='$esc_post[start]',";
-    if (!empty($esc_post[end])) {
+        `start`='$esc_post[start]',
+    ";
+    if (!empty($esc_post['end'])) {
         $sql .= "`end`='$esc_post[end]',";
     } else {
         $sql .= "`end`=NULL,";
@@ -614,7 +616,8 @@ function command_mentor_update() {
     $sql .= "
         `serial`='$esc_post[serial]',
         `slot`='$esc_post[slot]'
-        WHERE `kid`='$esc_post[kid]'";
+        WHERE `kid`='$esc_post[kid]'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     
@@ -638,7 +641,8 @@ function command_mentor_delete() {
     // Query database
     $sql = "
         DELETE FROM `mentor`
-        WHERE `cid`='$esc_post[cid]' AND `mentor_cid`='$esc_post[mentor_cid]'";
+        WHERE `cid`='$esc_post[cid]' AND `mentor_cid`='$esc_post[mentor_cid]'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     
