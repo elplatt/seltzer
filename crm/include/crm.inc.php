@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     crm.inc.php - Loads all core libraries and modules
@@ -24,7 +24,7 @@
 $crm_version = array(
     'major' => 0
     , 'minor' => 5
-    , 'patch' => 4
+    , 'patch' => 5
     , 'revision' => 'dev'
 );
 require_once($crm_root . '/config.inc.php');
