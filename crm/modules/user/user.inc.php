@@ -433,7 +433,7 @@ function user_delete ($cid) {
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    message_register("Deleted user info for: " . theme('contact_name', $esc_cid));
+    message_register("Deleted user info for: " . theme('contact_name', $cid));
 }
 
 // Initalisation code //////////////////////////////////////////////////////////
@@ -869,13 +869,13 @@ function command_set_password () {
     // Check permissions
     if ((user_id() != $esc_post['cid']) && !user_access('user_edit')) {
         error_register('Current user does not have permission: user_edit');
-        return crm_url("contact&cid=$esc_post[cid]");
+        return crm_url("contact&cid=$esc_cid");
     }
     
     // Check that passwords match
     if ($_POST['password'] != $_POST['confirm']) {
         error_register('Passwords do not match');
-        return crm_url("contact&cid=$esc_post[cid]");
+        return crm_url("contact&cid=$esc_cid");
     }
     
     // Get user id
