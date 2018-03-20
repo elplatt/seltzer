@@ -25,7 +25,7 @@
  */
 function member_page_list () {
     $pages = array();
-    if (user_access('member_view')) {
+    if (user_access('member_list')) {
         $pages[] = 'members';
     }
     if (user_access('member_plan_edit')) {
@@ -55,14 +55,15 @@ function member_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, 'Members');
             
             // Add view tab
-            if (user_access('member_view')) {
+            if (user_access('member_list')) {
                 $view = theme('form', crm_get_form('member_filter'));
                 $opts = array(
                     'filter'=>$_SESSION['member_filter']
                     , 'show_export'=>true
                     , 'exclude'=>array(
-                        'emergencyName',
-                        'emergencyPhone'
+                        'emergencyName'
+                        , 'emergencyPhone'
+                        , 'emergencyRelation'
                     )
                 );
                 $view .= theme('table', crm_get_table('member', $opts));
@@ -124,13 +125,13 @@ function member_page (&$page_data, $page_name, $options) {
             // Add view tab
             $view_content = '';
             if (user_id() == $_GET['cid'] || ((user_access('contact_edit') && user_access('member_edit')))) {
-                $view_content .= '<h3>Member Info</h3>';
-                $view_content .= theme('table_vertical', crm_get_table('member_info', array('cid' => $cid)));
+                $view_content .= '<h3>Member Details</h3>';
+                $view_content .= theme('table_vertical', crm_get_table('member_details', array('cid' => $cid)));
                 page_add_content_bottom($page_data, $view_content, 'View');
             }
             // Add edit tab
             if (user_id() == $_GET['cid'] || ((user_access('contact_edit') && user_access('member_edit')))) {
-                $edit = theme('form', crm_get_form('member_edit', $cid), 'Edit Member Info');
+                $edit = theme('form', crm_get_form('member_edit', $cid), 'Edit Member Details');
                 page_add_content_bottom($page_data, $edit, 'Edit');
             }
             

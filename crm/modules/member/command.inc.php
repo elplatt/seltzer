@@ -73,12 +73,50 @@ function command_member_add () {
         return crm_url('members&tab=add');
     }
     
+    // Check for duplicate usernames
+    if (!empty($username)) {
+        
+        // Check whether username is in use
+        $test_username = $username;
+        $esc_test_username = mysqli_real_escape_string($db_connect, $test_username);
+        $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_username'";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $username_row = mysqli_fetch_assoc($res);
+        if (!$username_row) {
+            $username = $test_username;
+        } else {
+            error_register('Username already in use, please specify a different username');
+            return crm_url('members&tab=add');
+        }
+    }
+    
+    // Check for duplicate email addresses
+    $email = $_POST['email'];
+    if (!empty($email)) {
+        
+        // Check whether email address is in use
+        $test_email = $email;
+        $esc_test_email = mysqli_real_escape_string($db_connect, $test_email);
+        $sql = "SELECT * FROM `contact` WHERE `email`='$esc_test_email'";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $email_row = mysqli_fetch_assoc($res);
+        if (!$email_row) {
+            $email = $test_email;
+        } else {
+            error_register('Email address already in use');
+            error_register('Please specify a different email address');
+            return crm_url('members&tab=add');
+        }
+    }
+    
     // Build contact object
     $contact = array(
         'firstName' => $_POST['firstName']
         , 'middleName' => $_POST['middleName']
         , 'lastName' => $_POST['lastName']
-        , 'email' => $_POST['email']
+        , 'email' => $email
         , 'phone' => $_POST['phone']
     );
     
@@ -97,6 +135,7 @@ function command_member_add () {
         'membership' => $membership
         , 'emergencyName' => $_POST['emergencyName']
         , 'emergencyPhone' => $_POST['emergencyPhone']
+        , 'emergencyRelation' => $_POST['emergencyRelation']
     );
     $contact['member'] = $member;
     
@@ -134,6 +173,7 @@ function command_member_edit () {
     $esc_cid = mysqli_real_escape_string($db_connect, $_POST['cid']);
     $esc_emergencyName = mysqli_real_escape_string($db_connect, $_POST['emergencyName']);
     $esc_emergencyPhone = mysqli_real_escape_string($db_connect, $_POST['emergencyPhone']);
+    $esc_emergencyRelation = mysqli_real_escape_string($db_connect, $_POST['emergencyRelation']);
     $member_data = crm_get_data('member', array('cid'=>$esc_cid));
     $member = $member_data[0]['member'];
     
@@ -142,6 +182,7 @@ function command_member_edit () {
         'cid'=> $esc_cid
         , 'emergencyName' => $esc_emergencyName
         , 'emergencyPhone' => $esc_emergencyPhone
+        , 'emergencyRelation' => $esc_emergencyRelation
     );
     // Save to database
     $member = member_save($member);
@@ -435,12 +476,50 @@ function command_member_import () {
             return crm_url('members&tab=import');
         }
         
+        // Check for duplicate usernames
+        if (!empty($username)) {
+            
+            // Check whether username is in use
+            $test_username = $username;
+            $esc_test_username = mysqli_real_escape_string($db_connect, $test_username);
+            $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_username'";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
+            $username_row = mysqli_fetch_assoc($res);
+            if (!$username_row) {
+                $username = $test_username;
+            } else {
+                error_register('Username already in use, please specify a different username');
+                return crm_url('members&tab=import');
+            }
+        }
+        
+        // Check for duplicate email addresses
+        $email = $row['email'];
+        if (!empty($email)) {
+            
+            // Check whether email address is in use
+            $test_email = $email;
+            $esc_test_email = mysqli_real_escape_string($db_connect, $test_email);
+            $sql = "SELECT * FROM `contact` WHERE `email`='$esc_test_email'";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
+            $email_row = mysqli_fetch_assoc($res);
+            if (!$email_row) {
+                $email = $test_email;
+            } else {
+                error_register('Email address already in use');
+                error_register('Please specify a different email address');
+                return crm_url('members&tab=import');
+            }
+        }
+        
         // Build contact object
         $contact = array(
             'firstName' => $row['firstname']
             , 'middleName' => $row['middlename']
             , 'lastName' => $row['lastname']
-            , 'email' => $row['email']
+            , 'email' => $email
             , 'phone' => $row['phone']
         );
         
@@ -463,6 +542,7 @@ function command_member_import () {
             'membership' => $membership
             , 'emergencyName' => $row['emergencyname']
             , 'emergencyPhone' => $row['emergencyphone']
+            , 'emergencyRelation' => $row['emergencyrelation']
         );
         $contact['member'] = $member;
         

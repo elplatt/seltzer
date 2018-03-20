@@ -34,7 +34,7 @@ function member_data ($opts = array()) {
     $sql = "
         SELECT
         `member`.`cid`, `firstName`, `middleName`, `lastName`, `email`, `phone`,
-        `emergencyName`, `emergencyPhone`,
+        `emergencyName`, `emergencyPhone`, `emergencyRelation`,
         `username`, `hash`
         FROM `member`
         LEFT JOIN `contact` ON `member`.`cid`=`contact`.`cid`
@@ -100,6 +100,7 @@ function member_data ($opts = array()) {
             'member' => array(
                 'emergencyName' => $row['emergencyName']
                 , 'emergencyPhone' => $row['emergencyPhone']
+                , 'emergencyRelation' => $row['emergencyRelation']
             ),
             'membership' => array()
         );
@@ -203,6 +204,7 @@ function member_contact_api ($contact, $op) {
     $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);
     $esc_emergencyName = mysqli_real_escape_string($db_connect, $contact['member']['emergencyName']);
     $esc_emergencyPhone = mysqli_real_escape_string($db_connect, $contact['member']['emergencyPhone']);
+    $esc_emergencyRelation = mysqli_real_escape_string($db_connect, $contact['member']['emergencyRelation']);
     
     switch ($op) {
         case 'create':
@@ -210,9 +212,9 @@ function member_contact_api ($contact, $op) {
             $member = $contact['member'];
             $sql = "
                 INSERT INTO `member`
-                (`cid`, `emergencyName`, `emergencyPhone`)
+                (`cid`, `emergencyName`, `emergencyPhone`, `emergencyRelation`)
                 VALUES
-                ('$esc_cid', '$esc_emergencyName', '$esc_emergencyPhone')
+                ('$esc_cid', '$esc_emergencyName', '$esc_emergencyPhone', '$esc_emergencyRelation')
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
@@ -258,7 +260,7 @@ function member_contact_api ($contact, $op) {
  */
 function member_save ($member) {
     global $db_connect;
-    $fields = array('cid', 'emergencyName', 'emergencyPhone');
+    $fields = array('cid', 'emergencyName', 'emergencyPhone', 'emergencyRelation');
     $escaped = array();
     foreach ($fields as $field) {
         $escaped[$field] = mysqli_real_escape_string($db_connect, $member[$field]);
@@ -269,6 +271,7 @@ function member_save ($member) {
             UPDATE `member`
             SET `emergencyName`='$escaped[emergencyName]'
                 , `emergencyPhone`='$escaped[emergencyPhone]'
+                , `emergencyRelation`='$escaped[emergencyRelation]'
             WHERE `cid`='$escaped[cid]'
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -285,11 +288,6 @@ function member_save ($member) {
  */
 function member_delete ($cid) {
     global $db_connect;
-    // Store name
-    $contact_data = crm_get_data('contact', array('cid'=>$cid));
-    $contact = $contact_data[0];
-    $name = theme('contact_name', $contact);
-    // Delete member
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `member` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
@@ -297,7 +295,7 @@ function member_delete ($cid) {
     $sql = "DELETE FROM `membership` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    message_register("Deleted membership info for: $name");
+    message_register("Deleted membership info for: " . theme('contact_name', $esc_cid));
 }
 
 /**
@@ -326,7 +324,7 @@ function member_plan_data ($opts = array()) {
         }
     }
     if (!empty($opts['pid'])) {
-        $pid = mysqli_real_escape_string($db_connect, $opts[pid]);
+        $pid = mysqli_real_escape_string($db_connect, $opts['pid']);
         $sql .= " AND `plan`.`pid`='$pid' ";
     }
     

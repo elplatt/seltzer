@@ -40,6 +40,7 @@ function member_email_report ($opts) {
  * @return the earliest date of any membership.
  */
 function member_membership_earliest_date () {
+    global $db_connect;
     $sql = "SELECT `start` FROM `membership` ORDER BY `start` ASC LIMIT 1";
     $res = mysqli_query($db_connect, $sql);
     $row = mysqli_fetch_assoc($res);
@@ -53,6 +54,7 @@ function member_membership_earliest_date () {
  * @return json structure containing membership statistics.
  */
 function member_statistics () {
+    global $db_connect;
     // Get plans and earliest date
     $plans = crm_map(member_plan_data(), 'pid');
     $results = array();

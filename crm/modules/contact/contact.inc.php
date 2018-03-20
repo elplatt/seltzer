@@ -25,7 +25,7 @@
  * this number.
  */
 function contact_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -40,6 +40,7 @@ function contact_stylesheets () {
 function contact_permissions () {
     return array(
         'contact_view'
+        , 'contact_list'
         , 'contact_add'
         , 'contact_edit'
         , 'contact_delete'
@@ -71,6 +72,36 @@ function contact_install ($old_revision = 0) {
         ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
+    }
+    if ($old_revision < 2) {
+        // Set default permissions
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        $default_perms = array(
+            'director' => array('contact_list')
+            , 'webAdmin' => array('contact_list')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
+                    $sql = "
+                        INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')
+                    ";
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) crm_error(mysqli_error($res));
+                }
+            }
+        }
     }
 }
 
@@ -219,19 +250,19 @@ function contact_save ($contact) {
  */
 function contact_delete ($cid) {
     global $db_connect;
-    $contact = crm_get_one('contact', array('cid'=>$cid));
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+    $contact = crm_get_one('contact', array('cid'=>$esc_cid));
     if (empty($contact)) {
-        error_register("No contact with cid $cid");
+        error_register("No contact with cid $esc_cid");
         return;
     }
     // Notify other modules the contact is being deleted
     $contact = module_invoke_api('contact', $contact, 'delete');
     // Remove the contact from the database
-    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $sql = "DELETE FROM `contact` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    message_register('Deleted contact: ' . theme('contact_name', $contact));
+    message_register('Deleted contact info for: ' . theme('contact_name', $contact));
 }
 
 // Autocomplete functions //////////////////////////////////////////////////////
@@ -303,41 +334,43 @@ function contact_table ($opts = array()) {
     foreach ($contact_data as $contact) {
         
         $row = array();
-        // Construct name
-        $name_link = theme('contact_name', $contact, true);
-        
-        // Add cells
-        if ($export) {
-            $row[] = $contact['cid'];
-            $row[] = $contact['lastName'];
-            $row[] = $contact['firstName'];
-            $row[] = $contact['middleName'];
-        } else {
-            $row[] = $name_link;
+        if ((user_access('contact_view') && $contact['cid'] == user_id()) || user_access('contact_list')) {
+            // Construct name
+            $name_link = theme('contact_name', $contact, true);
+            
+            // Add cells
+            if ($export) {
+                $row[] = $contact['cid'];
+                $row[] = $contact['lastName'];
+                $row[] = $contact['firstName'];
+                $row[] = $contact['middleName'];
+            } else {
+                $row[] = $name_link;
+            }
+            $row[] = $contact['email'];
+            $row[] = $contact['phone'];
+            
+            // Construct ops array
+            $ops = array();
+            
+            // Add edit op
+            if (user_access('contact_edit')) {
+                $ops[] = '<a href=' . crm_url('contact&cid=' . $contact['cid'] . '&tab=edit') . '>edit</a> ';
+            }
+            
+            // Add delete op
+            if (user_access('contact_delete')) {
+                $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $contact['cid']) . '>delete</a>';
+            }
+            
+            // Add ops row
+            if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+                $row[] = join(' ', $ops);
+            }
+            
+            // Add row to table
+            $table['rows'][] = $row;
         }
-        $row[] = $contact['email'];
-        $row[] = $contact['phone'];
-        
-        // Construct ops array
-        $ops = array();
-        
-        // Add edit op
-        if (user_access('contact_edit')) {
-            $ops[] = '<a href=' . crm_url('contact&cid=' . $contact['cid'] . '&tab=edit') . '>edit</a> ';
-        }
-        
-        // Add delete op
-        if (user_access('contact_delete')) {
-            $ops[] = '<a href=' . crm_url('delete&type=contact&amp;id=' . $contact['cid']) . '>delete</a>';
-        }
-        
-        // Add ops row
-        if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
-            $row[] = join(' ', $ops);
-        }
-        
-        // Add row to table
-        $table['rows'][] = $row;
     }
     
     // Return table
@@ -586,7 +619,7 @@ function contact_page (&$page_data, $page_name) {
             page_set_title($page_data, theme('contact_name', $contact));
             // Add view tab
             $view_content = '';
-            if (user_access('contact_view')) {
+            if (user_access('contact_list') || $cid == user_id()) {
                 $view_content .= '<h3>Contact Info</h3>';
                 $opts = array(
                     'cid' => $cid

@@ -81,8 +81,8 @@ function member_install($old_revision = 0) {
         );
         $default_perms = array(
             'member' => array('member_view', 'member_membership_view')
-            , 'director' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit',  'member_plan_edit')
-            , 'webAdmin' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit',  'member_plan_edit')
+            , 'director' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit', 'member_plan_edit')
+            , 'webAdmin' => array('member_view', 'member_add', 'member_edit', 'member_delete', 'member_membership_view', 'member_membership_edit', 'member_plan_edit')
         );
         foreach ($roles as $rid => $role) {
             if (array_key_exists($role, $default_perms)) {
@@ -98,16 +98,16 @@ function member_install($old_revision = 0) {
         // Alter member table
         $sql = '
             ALTER TABLE `member`
-              ADD COLUMN `emergencyName` varchar(255) NOT NULL,
-              ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
+              ADD COLUMN `emergencyName` varchar(255) NOT NULL
+              , ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
             ;
         ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $sql = '
             UPDATE contact, member
-            SET member.emergencyName=contact.emergencyName,  
-            member.emergencyPhone = contact.emergencyPhone
+            SET member.emergencyName=contact.emergencyName
+            , member.emergencyPhone = contact.emergencyPhone
             WHERE member.cid=contact.cid;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -120,5 +120,45 @@ function member_install($old_revision = 0) {
         ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
+    }
+    if ($old_revision < 5) {
+        // Alter member table
+        $sql = '
+            ALTER TABLE `member`
+              ADD COLUMN `emergencyRelation` varchar(255) NOT NULL
+            ;
+        ';
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+    }
+    if ($old_revision < 6) {
+        // Set default permissions
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        $default_perms = array(
+            'director' => array('member_list')
+            , 'webAdmin' => array('member_list')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
+                    $sql = "
+                        INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')
+                    ";
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) crm_error(mysqli_error($res));
+                }
+            }
+        }
     }
 }

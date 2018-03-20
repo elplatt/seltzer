@@ -200,7 +200,7 @@ function amazon_payment_contact_delete ($amazon_payment_contact) {
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows($db_connect) > 0) {
-        message_register("Amazon contact info deleted for: " . theme('contact_name', $esc_cid));
+        message_register("Deleted Amazon contact info for: " . theme('contact_name', $esc_cid));
     }
     return crm_url('amazon-admin');
 }
@@ -514,7 +514,7 @@ function amazon_payment_form_alter ($form, $form_id) {
                     // users shouldn't be able to change the method
                     if ($fieldset['fields'][$j]['name'] === 'method') {
                         $form['fields'][$i]['fields'][$j]['options'] = array('amazon' => 'Amazon');
-                        $form['fields'][$i]['fields'][$j]['value'] = amazon;
+                        $form['fields'][$i]['fields'][$j]['value'] = 'amazon';
                     }
                 }
             }
