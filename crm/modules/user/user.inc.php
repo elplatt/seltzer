@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     user.inc.php - User module
@@ -433,7 +433,7 @@ function user_delete ($cid) {
     $sql = "DELETE FROM `user_role` WHERE `cid`='$esc_cid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    message_register("Deleted user info for: " . theme('contact_name', $esc_cid));
+    message_register("Deleted user info for: " . theme('contact_name', $cid));
 }
 
 // Initalisation code //////////////////////////////////////////////////////////
@@ -865,6 +865,12 @@ function command_reset_password_confirm () {
 function command_set_password () {
     global $db_connect;
     global $esc_post;
+    
+    // Check permissions
+    if ((user_id() != $esc_post['cid']) && !user_access('user_edit')) {
+        error_register('Current user does not have permission: user_edit');
+        return crm_url("contact&cid=$esc_cid");
+    }
     
     // Check that passwords match
     if ($_POST['password'] != $_POST['confirm']) {
