@@ -25,7 +25,7 @@
  * this number.
  */
 function user_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -134,6 +134,36 @@ function user_install ($old_revision = 0) {
                         $res = mysqli_query($db_connect, $sql);
                         if (!$res) crm_error(mysqli_error($res));
                     }
+                }
+            }
+        }
+    }
+    if ($old_revision < 2) {
+        // Set default permissions
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        $default_perms = array(
+            'director' => array('contact_list')
+            , 'webAdmin' => array('contact_list')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
+                    $sql = "
+                        INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')
+                    ";
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) crm_error(mysqli_error($res));
                 }
             }
         }
