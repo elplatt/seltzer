@@ -90,7 +90,8 @@ function contact_data ($opts = array()) {
     // Query database
     $sql = "
         SELECT * FROM `contact`
-        WHERE 1 ";
+        WHERE 1
+    ";
     // Add contact id
     if (isset($opts['cid'])) {
         if (is_array($opts['cid'])) {
