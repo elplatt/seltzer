@@ -50,7 +50,38 @@ function member_add_form () {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
-        , 'label' => 'Member Info'
+        , 'label' => 'Member Address Info'
+        , 'fields' => array(
+            array(
+                'type' => 'text'
+                , 'label' => 'Address 1'
+                , 'name' => 'address1'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Address 2'
+                , 'name' => 'address2'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Address 3'
+                , 'name' => 'address3'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Town/City'
+                , 'name' => 'town_city'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Zip/Postal Code'
+                , 'name' => 'zipcode'
+            )
+        )
+    );
+    $form['fields'][] = array(
+        'type' => 'fieldset'
+        , 'label' => 'Member Emergency Contact Info'
         , 'fields' => array(
             array(
                 'type' => 'text'
@@ -116,7 +147,7 @@ function member_edit_form ($cid) {
     // Edit member data
     $form['fields'][] = array(
         'type' => 'fieldset',
-        'label' => 'Edit Member Info',
+        'label' => 'Edit Member Emergency Contact Info',
         'fields' => array(
             array(
                 'type' => 'text'
@@ -135,6 +166,37 @@ function member_edit_form ($cid) {
                 , 'label' => 'Emergency Relation'
                 , 'name' => 'emergencyRelation'
                 , 'value' => $member['emergencyRelation']
+            )
+        )
+    );
+    $form['fields'][] = array(
+        'type' => 'fieldset'
+        , 'label' => 'Member Address Info'
+        , 'fields' => array(
+            array(
+                'type' => 'text'
+                , 'label' => 'Address 1'
+                , 'name' => 'address1'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Address 2'
+                , 'name' => 'address2'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Address 3'
+                , 'name' => 'address3'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Town/City'
+                , 'name' => 'town_city'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Zip/Postal Code'
+                , 'name' => 'zipcode'
             )
         )
     );
@@ -580,6 +642,11 @@ function member_import_form () {
                 <li>Last Name</li>
                 <li>Email</li>
                 <li>Phone</li>
+                <li>Address 1</li>
+                <li>Address 2</li>
+                <li>Address 3</li>
+                <li>Town/City</li>
+                <li>Zip/Postal Code</li>
                 <li>Emergency Name</li>
                 <li>Emergency Phone</li>
                 <li>Emergency Relation</li>
