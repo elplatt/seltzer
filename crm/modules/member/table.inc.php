@@ -126,11 +126,11 @@ function member_table ($opts = NULL) {
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyRelation'];
             }
-            row[] = $member['member']['address1'];
-            row[] = $member['member']['address2'];
-            row[] = $member['member']['address3'];
-            row[] = $member['member']['town_city'];
-            row[] = $member['member']['zipcode'];
+            $row[] = $member['member']['address1'];
+            $row[] = $member['member']['address2'];
+            $row[] = $member['member']['address3'];
+            $row[] = $member['member']['town_city'];
+            $row[] = $member['member']['zipcode'];
             // Construct ops array
             $ops = array();
             
@@ -463,11 +463,11 @@ function member_details_table ($opts = NULL) {
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyRelation'];
             }
-            row[] = $member['member']['address1'];
-            row[] = $member['member']['address2'];
-            row[] = $member['member']['address3'];
-            row[] = $member['member']['town_city'];
-            row[] = $member['member']['zipcode'];
+            $row[] = $member['member']['address1'];
+            $row[] = $member['member']['address2'];
+            $row[] = $member['member']['address3'];
+            $row[] = $member['member']['town_city'];
+            $row[] = $member['member']['zipcode'];
         }
         
         // Construct ops array

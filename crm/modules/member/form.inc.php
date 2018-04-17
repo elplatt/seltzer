@@ -171,7 +171,7 @@ function member_edit_form ($cid) {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
-        , 'label' => 'Member Address Info'
+        , 'label' => 'Edit Member Address Info'
         , 'fields' => array(
             array(
                 'type' => 'text'
