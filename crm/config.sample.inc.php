@@ -40,7 +40,7 @@ $config_org_website = 'www.seltzercrm.org';
 // The currency code for dealing with payments, can be GBP, USD, or EUR
 $config_currency_code = 'USD';
 
-// The From: address to use when sending email to members
+// The From: address to use when sending email to users
 $config_email_from = '';
 
 // The email address to notify when a user is created
@@ -58,6 +58,10 @@ $config_host = $_SERVER['SERVER_NAME'];
 
 // The url path of the app directory
 $config_base_path = '/crm/';
+
+// Github username & repo used to construct footer
+$config_github_username = 'elplatt';
+$config_github_repo = 'seltzer';
 
 // The name of the theme you want to use
 // (currently there is only one, "inspire".)

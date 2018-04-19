@@ -35,7 +35,7 @@ function theme_header () {
  * @return The themed html string for a page footer.
 */
 function theme_footer() {
-    return 'Powered by <a href="https://github.com/elplatt/seltzer">' . title() . ' ' . crm_version() . '</a>';
+    return 'Powered by <a href="https://github.com/' . github_username() . '/' . github_repo() . '">' . title() . ' ' . crm_version() . '</a>';
 }
 
 /**
