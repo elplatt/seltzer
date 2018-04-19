@@ -50,7 +50,7 @@ function member_add_form () {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
-        , 'label' => 'Member Address Info'
+        , 'label' => 'Member Address Details'
         , 'fields' => array(
             array(
                 'type' => 'text'
@@ -81,7 +81,7 @@ function member_add_form () {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
-        , 'label' => 'Member Emergency Contact Info'
+        , 'label' => 'Member Emergency Contact Details'
         , 'fields' => array(
             array(
                 'type' => 'text'
@@ -102,7 +102,7 @@ function member_add_form () {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
-        , 'label' => 'Membership Info'
+        , 'label' => 'Membership Details'
         , 'fields' => array(
             array(
                 'type' => 'select'
@@ -147,7 +147,7 @@ function member_edit_form ($cid) {
     // Edit member data
     $form['fields'][] = array(
         'type' => 'fieldset',
-        'label' => 'Edit Member Emergency Contact Info',
+        'label' => 'Edit Member Emergency Contact Details',
         'fields' => array(
             array(
                 'type' => 'text'
@@ -171,7 +171,7 @@ function member_edit_form ($cid) {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
-        , 'label' => 'Edit Member Address Info'
+        , 'label' => 'Edit Member Address Details'
         , 'fields' => array(
             array(
                 'type' => 'text'
