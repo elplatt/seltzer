@@ -105,3 +105,19 @@ function crm_version() {
     $version = implode(".", $crm_version);
     return $version;
 }
+
+/**
+ * @return The github username configured in config.inc.php to display in the footer.
+ */
+function github_username () {
+    global $config_github_username;
+    return $config_github_username;
+}
+
+/**
+ * @return The github username configured in config.inc.php to display in the footer.
+ */
+function github_repo () {
+    global $config_github_repo;
+    return $config_github_repo;
+}
