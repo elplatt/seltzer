@@ -161,4 +161,19 @@ function member_install($old_revision = 0) {
             }
         }
     }
+    if ($old_revision < 7) {
+        // Alter member table
+        $sql = '
+            ALTER TABLE `member`
+              ADD COLUMN `address1` varchar(255) NOT NULL
+              , ADD COLUMN `address2` varchar(255) NOT NULL
+              , ADD COLUMN `address3` varchar(255) NOT NULL
+              , ADD COLUMN `town_city` varchar(255) NOT NULL
+              , ADD COLUMN `zipcode` varchar(255) NOT NULL
+            ;
+        ';
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+    }
+    
 }

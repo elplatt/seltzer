@@ -427,6 +427,11 @@ function member_details_table ($opts = NULL) {
         if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
             $table['columns'][] = array('title'=>'Emergency Relation','class'=>'');
         }
+        $table['columns'][] = array('title'=>'Address 1','class'=>'');
+        $table['columns'][] = array('title'=>'Address 2','class'=>'');
+        $table['columns'][] = array('title'=>'Address 3','class'=>'');
+        $table['columns'][] = array('title'=>'Town/City','class'=>'');
+        $table['columns'][] = array('title'=>'Zip/Postal Code','class'=>'');
     }
     // Add ops column
     if (!$export && (user_access('member_edit') || user_access('member_delete'))) {
@@ -448,6 +453,11 @@ function member_details_table ($opts = NULL) {
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyRelation', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyRelation'];
             }
+            $row[] = $member['member']['address1'];
+            $row[] = $member['member']['address2'];
+            $row[] = $member['member']['address3'];
+            $row[] = $member['member']['town_city'];
+            $row[] = $member['member']['zipcode'];
         }
         
         // Construct ops array

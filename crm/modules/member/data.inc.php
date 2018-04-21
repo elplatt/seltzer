@@ -35,6 +35,7 @@ function member_data ($opts = array()) {
         SELECT
         `member`.`cid`, `firstName`, `middleName`, `lastName`, `email`, `phone`,
         `emergencyName`, `emergencyPhone`, `emergencyRelation`,
+        `address1`, `address2`, `address3`, `town_city`, `zipcode`,
         `username`, `hash`
         FROM `member`
         LEFT JOIN `contact` ON `member`.`cid`=`contact`.`cid`
@@ -101,6 +102,11 @@ function member_data ($opts = array()) {
                 'emergencyName' => $row['emergencyName']
                 , 'emergencyPhone' => $row['emergencyPhone']
                 , 'emergencyRelation' => $row['emergencyRelation']
+                , 'address1' => $row['address1']
+                , 'address2' => $row['address2']
+                , 'address3' => $row['address3']
+                , 'town_city' => $row['town_city']
+                , 'zipcode' => $row['zipcode']
             ),
             'membership' => array()
         );
@@ -205,6 +211,11 @@ function member_contact_api ($contact, $op) {
     $esc_emergencyName = mysqli_real_escape_string($db_connect, $contact['member']['emergencyName']);
     $esc_emergencyPhone = mysqli_real_escape_string($db_connect, $contact['member']['emergencyPhone']);
     $esc_emergencyRelation = mysqli_real_escape_string($db_connect, $contact['member']['emergencyRelation']);
+    $esc_address1 = mysqli_real_escape_string($db_connect, $contact['member']['address1']);
+    $esc_address2 = mysqli_real_escape_string($db_connect, $contact['member']['address2']);
+    $esc_address3 = mysqli_real_escape_string($db_connect, $contact['member']['address3']);
+    $esc_town_city = mysqli_real_escape_string($db_connect, $contact['member']['town_city']);
+    $esc_zipcode = mysqli_real_escape_string($db_connect, $contact['member']['zipcode']);
     
     switch ($op) {
         case 'create':
@@ -212,9 +223,9 @@ function member_contact_api ($contact, $op) {
             $member = $contact['member'];
             $sql = "
                 INSERT INTO `member`
-                (`cid`, `emergencyName`, `emergencyPhone`, `emergencyRelation`)
+                (`cid`, `emergencyName`, `emergencyPhone`, `emergencyRelation`, `address1`, `address2`, `address3`, `town_city`, `zipcode`)
                 VALUES
-                ('$esc_cid', '$esc_emergencyName', '$esc_emergencyPhone', '$esc_emergencyRelation')
+                ('$esc_cid', '$esc_emergencyName', '$esc_emergencyPhone', '$esc_emergencyRelation', '$esc_address1', '$esc_address2', '$esc_address3', '$esc_town_city', '$esc_zipcode')
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
@@ -260,7 +271,9 @@ function member_contact_api ($contact, $op) {
  */
 function member_save ($member) {
     global $db_connect;
-    $fields = array('cid', 'emergencyName', 'emergencyPhone', 'emergencyRelation');
+    $fields = array(
+        'cid', 'emergencyName', 'emergencyPhone', 'emergencyRelation', 'address1', 'address2', 'address3', 'town_city', 'zipcode'
+    );
     $escaped = array();
     foreach ($fields as $field) {
         $escaped[$field] = mysqli_real_escape_string($db_connect, $member[$field]);
@@ -272,6 +285,11 @@ function member_save ($member) {
             SET `emergencyName`='$escaped[emergencyName]'
                 , `emergencyPhone`='$escaped[emergencyPhone]'
                 , `emergencyRelation`='$escaped[emergencyRelation]'
+                , `address1`='$escaped[address1]'
+                , `address2`='$escaped[address2]'
+                , `address3`='$escaped[address3]'
+                , `town_city`='$escaped[town_city]'
+                , `zipcode`='$escaped[zipcode]'
             WHERE `cid`='$escaped[cid]'
         ";
         $res = mysqli_query($db_connect, $sql);

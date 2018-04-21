@@ -136,6 +136,11 @@ function command_member_add () {
         , 'emergencyName' => $_POST['emergencyName']
         , 'emergencyPhone' => $_POST['emergencyPhone']
         , 'emergencyRelation' => $_POST['emergencyRelation']
+        , 'address1' => $_POST['address1']
+        , 'address2' => $_POST['address2']
+        , 'address3' => $_POST['address3']
+        , 'town_city' => $_POST['town_city']
+        , 'zipcode' => $_POST['zipcode']
     );
     $contact['member'] = $member;
     
@@ -174,6 +179,11 @@ function command_member_edit () {
     $esc_emergencyName = mysqli_real_escape_string($db_connect, $_POST['emergencyName']);
     $esc_emergencyPhone = mysqli_real_escape_string($db_connect, $_POST['emergencyPhone']);
     $esc_emergencyRelation = mysqli_real_escape_string($db_connect, $_POST['emergencyRelation']);
+    $esc_address1 = mysqli_real_escape_string($db_connect, $_POST['address1']);
+    $esc_address2 = mysqli_real_escape_string($db_connect, $_POST['address2']);
+    $esc_address3 = mysqli_real_escape_string($db_connect, $_POST['address3']);
+    $esc_town_city = mysqli_real_escape_string($db_connect, $_POST['town_city']);
+    $esc_zipcode = mysqli_real_escape_string($db_connect, $_POST['zipcode']);
     $member_data = crm_get_data('member', array('cid'=>$esc_cid));
     $member = $member_data[0]['member'];
     
@@ -183,6 +193,11 @@ function command_member_edit () {
         , 'emergencyName' => $esc_emergencyName
         , 'emergencyPhone' => $esc_emergencyPhone
         , 'emergencyRelation' => $esc_emergencyRelation
+        , 'address1' => $esc_address1
+        , 'address2' => $esc_address2
+        , 'address3' => $esc_address3
+        , 'town_city' => $esc_town_city
+        , 'zipcode' => $esc_zipcode
     );
     // Save to database
     $member = member_save($member);
@@ -543,6 +558,11 @@ function command_member_import () {
             , 'emergencyName' => $row['emergencyname']
             , 'emergencyPhone' => $row['emergencyphone']
             , 'emergencyRelation' => $row['emergencyrelation']
+            , 'address1' => $row['address1']
+            , 'address2' => $row['address2']
+            , 'address3' => $row['address3']
+            , 'town_city' => $row['town_city']
+            , 'zipcode' => $row['zipcode']
         );
         $contact['member'] = $member;
         
