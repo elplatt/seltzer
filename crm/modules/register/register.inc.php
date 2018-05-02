@@ -43,14 +43,14 @@ function register_install($old_revision = 0) {
 /**
  * @return The themed html string for a registration form.
 */
-function theme_register_form () {
-    return theme('form', crm_get_form('register'));
+function theme_register_member_form () {
+    return theme('form', crm_get_form('register_member'));
 }
 
 /**
  * @return The form structure for registering a member.
 */
-function register_form () {
+function register_member_form () {
     
     // Start with contact form
     $form = crm_get_form('member_add');
@@ -59,7 +59,7 @@ function register_form () {
     $start = date("Y-m-d");
     
     // Change form command
-    $form['command'] = 'register';
+    $form['command'] = 'register_member';
     $form['submit'] = 'Register';
     
     return $form;
@@ -70,7 +70,7 @@ function register_form () {
  *
  * @return The url to display when complete.
  */
-function command_register () {
+function command_register_member () {
     global $db_connect;
     global $esc_post;
     global $config_org_name;
