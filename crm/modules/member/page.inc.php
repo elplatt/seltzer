@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     page.inc.php - Member module - tabbed page structures
