@@ -575,9 +575,7 @@ function email_list_options () {
     // query database for a list of  email lists available.
     
     $sql = '
-     SELECT
-        `lid`
-        ,`list_name`
+        SELECT `lid`,`list_name`
         FROM `email_lists`
         WHERE 1
     ';
@@ -853,8 +851,10 @@ function command_email_list_subscribe () {
     if (/* email is valid */ true) {
         //save the email
         $esc_email = mysqli_real_escape_string($db_connect, $email);
-        $sql = "INSERT INTO `email_list_subscriptions` (`lid`, `cid`, `email`)
-            VALUES ('$lid', '$cid', '$esc_email')";
+        $sql = "
+            INSERT INTO `email_list_subscriptions` (`lid`, `cid`, `email`)
+            VALUES ('$lid', '$cid', '$esc_email')
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         

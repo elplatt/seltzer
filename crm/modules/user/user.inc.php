@@ -438,7 +438,8 @@ function user_save ($user) {
             INSERT INTO `user`
             (`username`, `cid`)
             VALUES
-            ('$esc_name', '$esc_cid')";
+            ('$esc_name', '$esc_cid')
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     } else {
@@ -678,7 +679,8 @@ function user_reset_password_url ($username) {
         REPLACE INTO `resetPassword`
         (`cid`, `code`)
         VALUES
-        ('$esc_cid', '$esc_code')";
+        ('$esc_cid', '$esc_code')
+    ";
     $res = mysqli_query($db_connect, $sql);
     
     // Generate reset url

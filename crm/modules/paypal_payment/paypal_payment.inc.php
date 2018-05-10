@@ -224,7 +224,8 @@ function paypal_payment_contact_save ($contact) {
                 INSERT INTO `contact_paypal`
                 (`email`, `cid`)
                 VALUES
-                ('$esc_email', '$esc_cid')";
+                ('$esc_email', '$esc_cid')
+            ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
         }
@@ -295,9 +296,10 @@ function paypal_payment_payment_api ($payment, $op) {
         case 'delete':
             $sql = "
                 DELETE FROM `payment_paypal`
-                WHERE `pmtid`='$esc_pmtid'";
-                $res = mysqli_query($db_connect, $sql);
-                if (!$res) crm_error(mysqli_error($res));
+                WHERE `pmtid`='$esc_pmtid'
+            ";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             break;
     }
     return $payment;

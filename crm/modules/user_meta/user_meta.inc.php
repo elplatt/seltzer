@@ -179,7 +179,8 @@ function user_meta_data ($opts = array()) {
         , `end`
         , `tagstr`
         FROM `user_meta`
-        WHERE 1";
+        WHERE 1
+    ";
     if (!empty($opts['umid'])) {
         $esc_umid = mysqli_real_escape_string($db_connect, $opts['umid']);
         $sql .= " AND `umid`='$esc_umid'";
@@ -202,7 +203,8 @@ function user_meta_data ($opts = array()) {
         }
     }
     $sql .= "
-        ORDER BY `tagstr` ASC";
+        ORDER BY `tagstr` ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     
@@ -378,7 +380,11 @@ function user_meta_cross_table ($opts) {
     $uniq = array();
     
     // determine max/total number of tags, as we'll use one column for each:
-    $sql = "SELECT distinct tagstr from user_meta order by tagstr asc";
+    $sql = "
+        SELECT distinct tagstr
+        FROM user_meta
+        ORDER BY tagstr ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $count = mysqli_num_rows($res); // just one row.

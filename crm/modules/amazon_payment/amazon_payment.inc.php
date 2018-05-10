@@ -253,9 +253,10 @@ function amazon_payment_payment_api ($payment, $op) {
         case 'delete':
             $sql = "
                 DELETE FROM `payment_amazon`
-                WHERE `pmtid`='$esc_pmtid'";
-                $res = mysqli_query($db_connect, $sql);
-                if (!$res) crm_error(mysqli_error($res));
+                WHERE `pmtid`='$esc_pmtid'
+            ";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             break;
     }
     return $payment;

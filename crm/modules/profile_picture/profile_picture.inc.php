@@ -230,10 +230,13 @@ function command_profile_picture_upload () {
             }
             $esc_cid = mysqli_real_escape_string($db_connect, $cid);
             // Associate this CID with uploaded file by storing a cid=>filepath row in the profile_picture table
-            $sql = "INSERT INTO `profile_picture` (`cid`, `filename`) VALUES ('$esc_cid', '$destFileName')";
-                    $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
-                    
+            $sql = "
+                INSERT INTO `profile_picture` (`cid`, `filename`)
+                VALUES ('$esc_cid', '$destFileName')
+            ";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
+            
             //save the file. Literally just moving from /tmp/ to the right directory
             if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], $destFilePath)){
                 error_register('Error Saving Image to Server');
@@ -275,7 +278,10 @@ function profile_picture_delete ($cid) {
                 return false;
             }
             //Next, Attempt to delete the existing profile picture filename association with this cid.
-            $sql = "DELETE FROM `profile_picture` WHERE `cid`='$esc_cid'";
+            $sql = "
+                DELETE FROM `profile_picture`
+                WHERE `cid`='$esc_cid'
+            ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
             if (mysqli_affected_rows($db_connect) > 0) {
@@ -301,7 +307,11 @@ function theme_profile_picture ($contact) {
     }
     $cid = $contact['cid'];
     //Attempt to fetch a picture filename in the database associated with this cid.
-    $sql = "SELECT `cid`, `filename` FROM `profile_picture` WHERE 1 AND `cid` = '$cid'";
+    $sql = "
+        SELECT `cid`, `filename`
+        FROM `profile_picture`
+        WHERE 1 AND `cid` = '$cid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $row = mysqli_fetch_assoc($res);

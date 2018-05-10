@@ -71,10 +71,13 @@ function mentor_install($old_revision = 0) {
             , '8' => 'webAdmin'
         );
         //Set director (rid 3) as the default role that can administer mentors.
-        $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES
-        ('3', 'mentor_view'),
-        ('3', 'mentor_edit'),
-        ('3', 'mentor_delete')";
+        $sql = "
+            INSERT INTO `role_permission` (`rid`, `permission`)
+            VALUES
+            ('3', 'mentor_view'),
+            ('3', 'mentor_edit'),
+            ('3', 'mentor_delete')
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         

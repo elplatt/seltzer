@@ -86,7 +86,12 @@ function payment_install($old_revision = 0) {
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
                     $esc_perm = mysqli_real_escape_string($db_connect, $perm);
-                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')";
+                    $sql = "
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$esc_rid', '$esc_perm')
+                    ";
                     $res = mysqli_query($db_connect, $sql);
                     if (!$res) crm_error(mysqli_error($res));
                 }
@@ -476,7 +481,8 @@ function payment_delete ($pmtid) {
     $esc_pmtid = mysqli_real_escape_string($db_connect, $pmtid);
     $sql = "
         DELETE FROM `payment`
-        WHERE `pmtid`='$esc_pmtid'";
+        WHERE `pmtid`='$esc_pmtid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows($db_connect) > 0) {
@@ -495,7 +501,9 @@ function payment_accounts ($opts = array()) {
     $cid_to_balance = array();
     // Get credits
     $sql = "
-        SELECT `credit`, `code`, SUM(`value`) AS `value` FROM `payment` WHERE `credit` <> 0
+        SELECT `credit`, `code`, SUM(`value`) AS `value`
+        FROM `payment`
+        WHERE `credit` <> 0
     ";
     foreach ($opts as $key => $value) {
         switch ($key) {
@@ -531,7 +539,9 @@ function payment_accounts ($opts = array()) {
     }
     // Get debits
     $sql = "
-        SELECT `debit`, `code`, SUM(`value`) AS `value` FROM `payment` WHERE `debit` <> 0
+        SELECT `debit`, `code`, SUM(`value`) AS `value`
+        FROM `payment`
+        WHERE `debit` <> 0
     ";
     foreach ($opts as $key => $value) {
         switch ($key) {

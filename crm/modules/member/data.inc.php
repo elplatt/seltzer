@@ -453,7 +453,8 @@ function member_membership_data ($opts) {
         FROM `membership`
         INNER JOIN `plan`
         ON `membership`.`pid` = `plan`.`pid`
-        WHERE 1 ";
+        WHERE 1
+    ";
     // Add member id
     if (!empty($opts['cid'])) {
         $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
@@ -489,7 +490,8 @@ function member_membership_data ($opts) {
         }
     }
     $sql .= "
-        ORDER BY `start` DESC";
+        ORDER BY `start` DESC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     // Store data
@@ -534,7 +536,8 @@ function member_membership_save ($membership) {
         $sql = "
             UPDATE `membership`
             SET `cid`='$esc_cid'
-            , `pid`='$esc_pid', ";
+            , `pid`='$esc_pid'
+        ";
         if ($esc_start) {
             $sql .= "`start`='$esc_start', ";
         } else {

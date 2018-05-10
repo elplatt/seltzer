@@ -80,7 +80,8 @@ function variable_set ($name, $value) {
         $sql = "
             INSERT INTO `variable`
             (`name`, `value`)
-            VALUES ('$esc_name', '$esc_value')
+            VALUES
+            ('$esc_name', '$esc_value')
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -97,7 +98,11 @@ function variable_get ($name, $default) {
     global $db_connect;
     $esc_name = mysqli_real_escape_string($db_connect, $name);
     
-    $sql = "SELECT `value` FROM `variable` WHERE `name`='$esc_name'";
+    $sql = "
+        SELECT `value`
+        FROM `variable`
+        WHERE `name`='$esc_name'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     
