@@ -1,22 +1,22 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2017 Chris Murray <chris.f.murray@hotmail.co.uk>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2018 Chris Murray <chris.f.murray@hotmail.co.uk>
     
     This file is part of the Seltzer CRM Project
     register.inc.php - registration module
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -43,14 +43,14 @@ function register_install($old_revision = 0) {
 /**
  * @return The themed html string for a registration form.
 */
-function theme_register_form () {
-    return theme('form', crm_get_form('register'));
+function theme_register_member_form () {
+    return theme('form', crm_get_form('register_member'));
 }
 
 /**
  * @return The form structure for registering a member.
 */
-function register_form () {
+function register_member_form () {
     
     // Start with contact form
     $form = crm_get_form('member_add');
@@ -59,7 +59,7 @@ function register_form () {
     $start = date("Y-m-d");
     
     // Change form command
-    $form['command'] = 'register';
+    $form['command'] = 'register_member';
     $form['submit'] = 'Register';
     
     return $form;
@@ -70,7 +70,7 @@ function register_form () {
  *
  * @return The url to display when complete.
  */
-function command_register () {
+function command_register_member () {
     global $db_connect;
     global $esc_post;
     global $config_org_name;
@@ -167,6 +167,11 @@ function command_register () {
         , 'emergencyName' => $_POST['emergencyName']
         , 'emergencyPhone' => $_POST['emergencyPhone']
         , 'emergencyRelation' => $_POST['emergencyRelation']
+        , 'address1' => $_POST['address1']
+        , 'address2' => $_POST['address2']
+        , 'address3' => $_POST['address3']
+        , 'town_city' => $_POST['town_city']
+        , 'zipcode' => $_POST['zipcode']
     );
     $contact['member'] = $member;
     
