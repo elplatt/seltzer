@@ -5,17 +5,17 @@
     
     This file is part of the Seltzer CRM Project
     theme.inc.php - Core theme system.
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -24,12 +24,12 @@
  * @return the path to the theme folder without leading or trailing slashes.
  */
 function path_to_theme() {
-  global $config_theme;
-  if(strlen($config_theme) > 0) {
-    return "themes/$config_theme";
-  } else {
-    return 'themes/inspire';
-  }
+    global $config_theme;
+    if(strlen($config_theme) > 0) {
+        return "themes/$config_theme";
+    } else {
+        return 'themes/inspire';
+    }
 }
 
 /**

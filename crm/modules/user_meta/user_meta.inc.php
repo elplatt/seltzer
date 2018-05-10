@@ -6,24 +6,24 @@
     
     This file is part of the Seltzer CRM Project
     user_meta.inc.php - Meta-Tag tracking module
-
+    
     This module is for associating arbitrary "meta data" with member/s.
     This can be useful for making arbitrary groupings of users that have special meaning to you.
     Examples:
     We have one called "Respected", which entitles a member to get a physical key to the building....
     Or one called "Machinist", which means they have passed basic safety assessment to permit them to use our Mill/Lathe.
     It's kinda like an extension to the Permissions system, but for managing things external to Seltzer.
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -581,11 +581,11 @@ function meta_tag_autocomplete ($fragment) {
     if (!$userMeta) return $data;
     $mysqlRow = mysqli_fetch_assoc($userMeta);
     while (!empty($mysqlRow)) {
-            $row = array();
-            $row['value'] = $mysqlRow['tagstr'];
-            $row['label'] = $mysqlRow['tagstr'];
-            $data[] = $row;
-            $mysqlRow = mysqli_fetch_assoc($userMeta);
+        $row = array();
+        $row['value'] = $mysqlRow['tagstr'];
+        $row['label'] = $mysqlRow['tagstr'];
+        $data[] = $row;
+        $mysqlRow = mysqli_fetch_assoc($userMeta);
     }
     return $data;
 }

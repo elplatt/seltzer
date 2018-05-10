@@ -5,17 +5,17 @@
     
     This file is part of the Seltzer CRM Project
     user.inc.php - User module
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -449,7 +449,7 @@ function user_save ($user) {
             `hash`='$esc_hash',
             `salt`='$esc_salt'
             WHERE `cid`='$esc_cid'
-            ";
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
@@ -657,7 +657,7 @@ function user_reset_password_url ($username) {
         SELECT * FROM `user`
         INNER JOIN `contact` ON `user`.`cid`=`contact`.`cid`
         WHERE `user`.`username`='$esc_username'
-        ";
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $row = mysqli_fetch_assoc($res);
@@ -885,7 +885,7 @@ function command_reset_password_confirm () {
         SET `hash`='$esc_hash'
         , `salt`='$esc_salt'
         WHERE `cid`='$esc_cid'
-        ";
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
     
@@ -933,7 +933,7 @@ function command_set_password () {
         SET `hash`='$esc_hash'
         , `salt`='$esc_salt'
         WHERE `cid`='$esc_cid'
-        ";
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
     message_register("The user's password has been reset");
