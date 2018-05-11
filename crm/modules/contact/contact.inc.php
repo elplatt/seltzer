@@ -59,15 +59,15 @@ function contact_install ($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `contact` (
-              `cid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `firstName` varchar(255) NOT NULL,
-              `middleName` varchar(255) NOT NULL,
-              `lastName` varchar(255) NOT NULL,
-              `email` varchar(255) NOT NULL,
-              `phone` varchar(32) NOT NULL,
-              `emergencyName` varchar(255) NOT NULL,
-              `emergencyPhone` varchar(16) NOT NULL,
-              PRIMARY KEY (`cid`)
+              `cid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `firstName` varchar(255) NOT NULL
+              , `middleName` varchar(255) NOT NULL
+              , `lastName` varchar(255) NOT NULL
+              , `email` varchar(255) NOT NULL
+              , `phone` varchar(32) NOT NULL
+              , `emergencyName` varchar(255) NOT NULL
+              , `emergencyPhone` varchar(16) NOT NULL
+              , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -390,9 +390,9 @@ function contact_form ($opts = array()) {
     }
     // Add fields
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => $label,
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => $label
+        , 'fields' => array(
             array(
                 'type' => 'text'
                 , 'label' => 'First Name'

@@ -73,10 +73,10 @@ $config_amazon_payment_access_key_id = '';
 
 // Base modules
 $config_modules = array(
-    "contact",
-    "user",
-    "variable",
-    "member",
+    "contact"
+    , "user"
+    , "variable"
+    , "member"
 );
 
 // Optional modules, uncomment to enable

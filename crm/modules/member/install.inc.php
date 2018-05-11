@@ -36,8 +36,8 @@ function member_install($old_revision = 0) {
         // Create member table
         $sql = '
             CREATE TABLE IF NOT EXISTS `member` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              PRIMARY KEY (`cid`)
+              `cid` mediumint(8) unsigned NOT NULL
+              , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -45,12 +45,12 @@ function member_install($old_revision = 0) {
         // Create membership table
         $sql = '
             CREATE TABLE IF NOT EXISTS `membership` (
-              `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `cid` mediumint(8) unsigned NOT NULL,
-              `pid` mediumint(8) unsigned NOT NULL,
-              `start` date NOT NULL,
-              `end` date DEFAULT NULL,
-              PRIMARY KEY (`sid`)
+              `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `cid` mediumint(8) unsigned NOT NULL
+              , `pid` mediumint(8) unsigned NOT NULL
+              , `start` date NOT NULL
+              , `end` date DEFAULT NULL
+              , PRIMARY KEY (`sid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -58,12 +58,12 @@ function member_install($old_revision = 0) {
         // Create plan table
         $sql = '
             CREATE TABLE IF NOT EXISTS `plan` (
-              `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `name` varchar(255) NOT NULL,
-              `price` varchar(6) NOT NULL,
-              `active` tinyint(1) NOT NULL,
-              `voting` tinyint(1) NOT NULL,
-              PRIMARY KEY (`pid`)
+              `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `name` varchar(255) NOT NULL
+              , `price` varchar(6) NOT NULL
+              , `active` tinyint(1) NOT NULL
+              , `voting` tinyint(1) NOT NULL
+              , PRIMARY KEY (`pid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);

@@ -45,9 +45,9 @@ function profile_picture_install ($old_revision = 0) {
         // Create a table to associate pictures with a CID
         $sql = '
             CREATE TABLE IF NOT EXISTS `profile_picture` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              `filename` varchar(255) NOT NULL,
-              PRIMARY KEY (`cid`)
+              `cid` mediumint(8) unsigned NOT NULL
+              , `filename` varchar(255) NOT NULL
+              , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);

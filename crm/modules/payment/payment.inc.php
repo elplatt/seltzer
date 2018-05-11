@@ -50,18 +50,18 @@ function payment_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `payment` (
-              `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `date` date DEFAULT NULL,
-              `description` varchar(255) NOT NULL,
-              `code` varchar(8) NOT NULL,
-              `value` mediumint(8) NOT NULL,
-              `credit` mediumint(8) unsigned NOT NULL,
-              `debit` mediumint(8) unsigned NOT NULL,
-              `method` varchar(255) NOT NULL,
-              `confirmation` varchar(255) NOT NULL,
-              `notes` text NOT NULL,
-              `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              PRIMARY KEY (`pmtid`)
+              `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `date` date DEFAULT NULL
+              , `description` varchar(255) NOT NULL
+              , `code` varchar(8) NOT NULL
+              , `value` mediumint(8) NOT NULL
+              , `credit` mediumint(8) unsigned NOT NULL
+              , `debit` mediumint(8) unsigned NOT NULL
+              , `method` varchar(255) NOT NULL
+              , `confirmation` varchar(255) NOT NULL
+              , `notes` text NOT NULL
+              , `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+              , PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -436,8 +436,7 @@ function payment_save ($payment) {
     } else {
         // Payment does not yet exist, create
         $sql = "
-            INSERT INTO `payment`
-            (
+            INSERT INTO `payment` (
                 `date`
                 , `description`
                 , `code`
@@ -448,8 +447,7 @@ function payment_save ($payment) {
                 , `confirmation`
                 , `notes`
             )
-            VALUES
-            (
+            VALUES (
                 '$esc_date'
                 , '$esc_description'
                 , '$esc_code'
@@ -653,10 +651,10 @@ function payment_table ($opts) {
     $cid_to_contact = crm_map($contacts, 'cid');
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     // Add columns
     if (user_access('payment_view')) { // Permission check
@@ -1055,24 +1053,24 @@ function payment_delete_form ($pmtid) {
     }
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'payment_delete',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'payment_delete'
+        , 'hidden' => array(
             'pmtid' => $payment['pmtid']
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Delete Payment',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete Payment'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the payment "' . $payment_name . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to delete the payment "' . $payment_name . '"? This cannot be undone.',
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Delete'
                     )
                 )
             )
@@ -1088,8 +1086,8 @@ function payment_delete_form ($pmtid) {
 function payment_filter_form () {
     // Available filters
     $filters = array(
-        'all' => 'All',
-        'orphaned' => 'Orphaned'
+        'all' => 'All'
+        , 'orphaned' => 'Orphaned'
     );
     // Default filter
     $selected = empty($_SESSION['payment_filter_option']) ? 'all' : $_SESSION['payment_filter_option'];
@@ -1102,8 +1100,8 @@ function payment_filter_form () {
         'type' => 'form'
         , 'method' => 'get'
         , 'command' => 'payment_filter'
-        , 'hidden' => $hidden,
-        'fields' => array(
+        , 'hidden' => $hidden
+        , 'fields' => array(
             array(
                 'type' => 'fieldset'
                 , 'label' => 'Filter'
@@ -1113,8 +1111,8 @@ function payment_filter_form () {
                         , 'name' => 'filter'
                         , 'options' => $filters
                         , 'selected' => $selected
-                    ),
-                    array(
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Filter'
                     )

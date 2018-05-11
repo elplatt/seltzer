@@ -55,24 +55,24 @@ function filter_form ($filters, $selected, $action, $get) {
     }
     
     $form = array(
-        'type' => 'form',
-        'method' => 'get',
-        'action' => $action,
-        'hidden' => $hidden,
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'get'
+        , 'action' => $action
+        , 'hidden' => $hidden
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Filter',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Filter'
+                , 'fields' => array(
                     array(
-                        'type' => 'select',
-                        'name' => 'filter',
-                        'options' => $filters,
-                        'selected' => $selected
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Filter'
+                        'type' => 'select'
+                        , 'name' => 'filter'
+                        , 'options' => $filters
+                        , 'selected' => $selected
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Filter'
                     )
                 )
             )

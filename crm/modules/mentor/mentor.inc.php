@@ -52,9 +52,9 @@ function mentor_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `mentor` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              `mentor_cid` mediumint(8) unsigned NOT NULL,
-              PRIMARY KEY (`cid`,`mentor_cid`)
+                , `cid` mediumint(8) unsigned NOT NULL
+                , `mentor_cid` mediumint(8) unsigned NOT NULL
+                , PRIMARY KEY (`cid`,`mentor_cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -124,8 +124,6 @@ function mentor_page (&$page_data, $page_name, $options) {
             }
             
             break;
-        
-       
     }
 }
 
@@ -160,7 +158,7 @@ function theme_mentor_edit_form ($cid) {
  *   'cid' If specified, returns mentor contacts assigned to this cid,
  *   and the proteges assigned to this cid;
  * @return An array with each element representing a mentor assignment.
-*/ 
+*/
 function mentor_data ($opts = array()) {
     global $db_connect;
     // Query database
@@ -193,12 +191,11 @@ function mentor_data ($opts = array()) {
     //TODO: specify an order? (ORDER BY... ASC)
     
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));    
+    if (!$res) crm_error(mysqli_error($res));
     
     // Store data in mentorships array
     $mentorships = array();
     $row = mysqli_fetch_assoc($res);
-    
     
     while (!empty($row)) {
         $mentorship = array(
@@ -216,8 +213,10 @@ function mentor_data ($opts = array()) {
     foreach ($mentorships as $mentorship){
         if (empty($mentor_data[$mentorship['cid']])){
             //this is a new cid. Create an array.
-            $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(),
-                                                     'protege_cids' => array());
+            $mentor_data[$mentorship['cid']] = array(
+                                                    'mentor_cids' => array()
+                                                    , 'protege_cids' => array()
+                                                );
         }
         //populate array with mentor_cid (it should be created by now if it previously
         // didn't exist.)
@@ -227,12 +226,14 @@ function mentor_data ($opts = array()) {
         //of course, this involves creating the mentor_cid if it doesn't exist yet
         if (empty($mentor_data[$mentorship['mentor_cid']])){
             //this is a new cid. Create an array.
-            $mentor_data[$mentorship['mentor_cid']] = array('mentor_cids' => array(),
-                                                     'protege_cids' => array());
+            $mentor_data[$mentorship['mentor_cid']] = array(
+                                                            'mentor_cids' => array(),
+                                                            'protege_cids' => array()
+                                                        );
         }
         //populate the mentor's array with protege cid.
         $mentor_data[$mentorship['mentor_cid']]['protege_cids'][] = $mentorship['cid'];
-    }  
+    }
     // Return data
     
     return $mentor_data;
@@ -267,10 +268,10 @@ function mentor_table ($opts) {
     
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     
     // Add columns
@@ -319,14 +320,14 @@ function mentor_table ($opts) {
                     }
                     // Add ops row
                     $row[] = join(' ', $ops);
-                } 
+                }
                 $table['rows'][] = $row;
             }
         }
         //get the protege info
         $protege_cids = $contact['member']['mentorships']['protege_cids'];
         $get_protege_opts = array(
-            'cid' => $protege_cids           
+            'cid' => $protege_cids
         );
         //Print out the proteges only if there actually are some protege cids.
         if(!empty($protege_cids)){
@@ -382,28 +383,27 @@ function mentor_add_form ($cid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'mentor_add',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'mentor_add'
+        , 'hidden' => array(
             'cid' => $cid
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Add Mentor Assignment',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Add Mentor Assignment'
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'Mentor Name',
-                        'name' => 'mentor_cid',
-                        'autocomplete' => 'contact_name',
-                        'class' => 'focus'
-                        
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Add'
+                        'type' => 'text'
+                        , 'label' => 'Mentor Name'
+                        , 'name' => 'mentor_cid'
+                        , 'autocomplete' => 'contact_name'
+                        , 'class' => 'focus'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Add'
                     )
                 )
             )
@@ -425,7 +425,7 @@ function mentor_edit_form ($cid) {
     if (!user_access('mentor_edit')) {
         return NULL;
     }
-        
+    
     // Get corresponding contact data
     $data = crm_get_data ('contact', $opts = array('cid' => $cid));
     $contact = $data[0];
@@ -447,39 +447,39 @@ function mentor_edit_form ($cid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'mentor_update',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'mentor_update'
+        , 'hidden' => array(
             'cid' => $cid
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Edit Mentor Info',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Edit Mentor Info'
+                , 'fields' => array(
                     array(
-                        'type' => 'readonly',
-                        'label' => 'Name',
-                        'value' => $name
-                    ),
-                    array(
-                        'type' => 'text',
-                        'class' => 'date',
-                        'label' => 'Mentor',
-                        'name' => 'mentor',
-                        'value' => $mentor_name
-                    ),
-                    array(
-                        'type' => 'text',
-                        'class' => 'date',
-                        'label' => 'Protege',
-                        'name' => 'protege',
-                        'value' => $protege_name
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Update'
+                        'type' => 'readonly'
+                        , 'label' => 'Name'
+                        , 'value' => $name
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'class' => 'date'
+                        , 'label' => 'Mentor'
+                        , 'name' => 'mentor'
+                        , 'value' => $mentor_name
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'class' => 'date'
+                        , 'label' => 'Protege'
+                        , 'name' => 'protege'
+                        , 'value' => $protege_name
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Update'
                     )
                 )
             )
@@ -517,25 +517,25 @@ function mentor_delete_form ($cid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'mentor_delete',
-        'hidden' => array(
-            'cid' => $cid,
-            'mentor_cid' => $mentor_cid
-        ),
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'mentor_delete'
+        , 'hidden' => array(
+            'cid' => $cid
+            , 'mentor_cid' => $mentor_cid
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Delete Mentor',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete Mentor'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the member assignment "' . $mentor_name . '"? This cannot be undone.'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to delete the member assignment "' . $mentor_name . '"? This cannot be undone.'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Delete'
                     )
                 )
             )

@@ -73,17 +73,17 @@ function billing_form () {
                 , 'label' => 'Process Billings'
                 , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => 'This will generate billing entries for any members with active memberships.  <strong>Important:</strong> make sure the membership data is up to date before running billing.'
-                    ),
-                    array(
-                        'type' => 'readonly',
-                        'class' => 'date',
-                        'label' => 'Last Billed',
-                        'name' => 'last_billed',
-                        'value' => $bill_label
-                    ),
-                    array(
+                        'type' => 'message'
+                        , 'value' => 'This will generate billing entries for any members with active memberships.  <strong>Important:</strong> make sure the membership data is up to date before running billing.'
+                    )
+                    , array(
+                        'type' => 'readonly'
+                        , 'class' => 'date'
+                        , 'label' => 'Last Billed'
+                        , 'name' => 'last_billed'
+                        , 'value' => $bill_label
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Process'
                     )
@@ -115,17 +115,17 @@ function email_bills_form () {
                 , 'label' => 'Send Billing Emails'
                 , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
-                        ),
-                    array(
-                        'type' => 'readonly',
-                        'class' => 'date',
-                        'label' => 'Last Emailed',
-                        'name' => 'last_emailed',
-                        'value' => $from_label
-                    ),
-                    array(
+                        'type' => 'message'
+                        , 'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
+                    )
+                    , array(
+                        'type' => 'readonly'
+                        , 'class' => 'date'
+                        , 'label' => 'Last Emailed'
+                        , 'name' => 'last_emailed'
+                        , 'value' => $from_label
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Send Emails'
                     )

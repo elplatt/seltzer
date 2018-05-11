@@ -194,28 +194,28 @@ function module_upgrade_table () {
  */
 function module_install_form () {
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'module_install',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'module_install'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Install ' . title() . " " . crm_version(),
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Install ' . title() . " " . crm_version()
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'Admin E-mail',
-                        'name' => 'email'
-                    ),
-                    array(
-                        'type' => 'password',
-                        'label' => 'Admin Password',
-                        'name' => 'password'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Install'
+                        'type' => 'text'
+                        , 'label' => 'Admin E-mail'
+                        , 'name' => 'email'
+                    )
+                    , array(
+                        'type' => 'password'
+                        , 'label' => 'Admin Password'
+                        , 'name' => 'password'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'name' => 'submitted'
+                        , 'value' => 'Install'
                     )
                 )
             )
@@ -232,18 +232,18 @@ function module_upgrade_form () {
         return '';
     }
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'module_upgrade',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'module_upgrade'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules'
+                , 'fields' => array(
                     array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Upgrade'
+                        'type' => 'submit'
+                        , 'name' => 'submitted'
+                        , 'value' => 'Upgrade'
                     )
                 )
             )

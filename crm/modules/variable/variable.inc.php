@@ -39,9 +39,9 @@ function variable_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `variable` (
-              `name` varchar(255) NOT NULL,
-              `value` text NOT NULL,
-              PRIMARY KEY (`name`)
+              `name` varchar(255) NOT NULL
+              , `value` text NOT NULL
+              , PRIMARY KEY (`name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);

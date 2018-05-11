@@ -48,9 +48,9 @@ function member_table ($opts = NULL) {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     
     // Add columns
@@ -165,9 +165,9 @@ function member_voting_report_table () {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => 'member-voting-report',
-        'rows' => array()
+        'id' => ''
+        , 'class' => 'member-voting-report'
+        , 'rows' => array()
     );
     
     // Add columns
@@ -229,9 +229,9 @@ function member_plan_table ($opts = NULL) {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     
     // Add columns
@@ -299,9 +299,9 @@ function member_membership_table ($opts = NULL) {
     $memberships = member_membership_data($opts);
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     // Add columns
     $table['columns'] = array();
@@ -360,10 +360,10 @@ function member_contact_table ($opts) {
     
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     
     // Add columns
@@ -409,9 +409,9 @@ function member_details_table ($opts = NULL) {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     
     // Add columns

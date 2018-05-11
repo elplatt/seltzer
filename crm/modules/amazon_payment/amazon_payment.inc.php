@@ -5,7 +5,7 @@
     
     This file is part of the Seltzer CRM Project
     amazon_payment.inc.php - Amazon payments extensions for the payment module.
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -41,9 +41,9 @@ function amazon_payment_install($old_revision = 0) {
         // Additional payment info for amazon payments
         $sql = '
             CREATE TABLE IF NOT EXISTS `payment_amazon` (
-              `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `amazon_name` varchar(255) NOT NULL,
-              PRIMARY KEY (`pmtid`)
+              `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `amazon_name` varchar(255) NOT NULL
+              , PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -52,9 +52,9 @@ function amazon_payment_install($old_revision = 0) {
         // Additional contact info for amazon payments
         $sql = '
             CREATE TABLE IF NOT EXISTS `contact_amazon` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              `amazon_name` varchar(255) NOT NULL,
-              PRIMARY KEY (`amazon_name`)
+              `cid` mediumint(8) unsigned NOT NULL
+              , `amazon_name` varchar(255) NOT NULL
+              , PRIMARY KEY (`amazon_name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -275,10 +275,10 @@ function amazon_payment_contact_table ($opts) {
     $data = crm_get_data('amazon_payment_contact', $opts);
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     // Check for permissions
     if (!user_access('payment_view')) {
@@ -399,28 +399,28 @@ function amazon_payment_contact_add_form () {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'amazon_payment_contact_add',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'amazon_payment_contact_add'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Add Amazon Contact',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Add Amazon Contact'
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'Amazon Name',
-                        'name' => 'amazon_name'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => "Member's Name",
-                        'name' => 'cid',
-                        'autocomplete' => 'contact_name'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Add'
+                        'type' => 'text'
+                        , 'label' => 'Amazon Name'
+                        , 'name' => 'amazon_name'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => "Member's Name"
+                        , 'name' => 'cid'
+                        , 'autocomplete' => 'contact_name'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Add'
                     )
                 )
             )
@@ -452,24 +452,24 @@ function amazon_payment_contact_delete_form ($cid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'amazon_payment_contact_delete',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'amazon_payment_contact_delete'
+        , 'hidden' => array(
             'cid' => $amazon_payment_contact['cid']
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Delete Amazon Contact',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete Amazon Contact'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the amazon contact "' . $amazon_payment_contact_name . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to delete the amazon contact "' . $amazon_payment_contact_name . '"? This cannot be undone.',
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Delete'
                     )
                 )
             )
