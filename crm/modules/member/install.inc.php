@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     install.inc.php - Member module installation code
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -36,8 +36,8 @@ function member_install($old_revision = 0) {
         // Create member table
         $sql = '
             CREATE TABLE IF NOT EXISTS `member` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              PRIMARY KEY (`cid`)
+              `cid` mediumint(8) unsigned NOT NULL
+              , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -45,12 +45,12 @@ function member_install($old_revision = 0) {
         // Create membership table
         $sql = '
             CREATE TABLE IF NOT EXISTS `membership` (
-              `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `cid` mediumint(8) unsigned NOT NULL,
-              `pid` mediumint(8) unsigned NOT NULL,
-              `start` date NOT NULL,
-              `end` date DEFAULT NULL,
-              PRIMARY KEY (`sid`)
+              `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `cid` mediumint(8) unsigned NOT NULL
+              , `pid` mediumint(8) unsigned NOT NULL
+              , `start` date NOT NULL
+              , `end` date DEFAULT NULL
+              , PRIMARY KEY (`sid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -58,12 +58,12 @@ function member_install($old_revision = 0) {
         // Create plan table
         $sql = '
             CREATE TABLE IF NOT EXISTS `plan` (
-              `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `name` varchar(255) NOT NULL,
-              `price` varchar(6) NOT NULL,
-              `active` tinyint(1) NOT NULL,
-              `voting` tinyint(1) NOT NULL,
-              PRIMARY KEY (`pid`)
+              `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `name` varchar(255) NOT NULL
+              , `price` varchar(6) NOT NULL
+              , `active` tinyint(1) NOT NULL
+              , `voting` tinyint(1) NOT NULL
+              , PRIMARY KEY (`pid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -175,5 +175,4 @@ function member_install($old_revision = 0) {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
-    
 }

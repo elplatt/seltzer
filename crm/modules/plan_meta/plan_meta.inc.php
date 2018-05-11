@@ -1,29 +1,29 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2017 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2018 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
     
     This file is part of the Seltzer CRM Project
     plan_meta.inc.php - Meta-Tag tracking module
-
+    
     This module is for associating arbitrary "meta data" with member/s.
     This can be useful for making arbitrary groupings of users that have special meaning to you.
     Examples:
     We have one called "Respected", which entitles a member to get a physical key to the building....
     Or one called "Machinist", which means they have passed basic safety assessment to permit them to use our Mill/Lathe.
     It's kinda like an extension to the Permissions system, but for managing things external to Seltzer.
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -59,12 +59,12 @@ function plan_meta_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `plan_meta` (
-            `pmid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-            `pid` mediumint(8) unsigned NOT NULL,
-            `start` date DEFAULT NULL,
-            `end` date DEFAULT NULL,
-            `tagstr` varchar(255) NOT NULL,
-            PRIMARY KEY (`pmid`)
+                , `pmid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+                , `pid` mediumint(8) unsigned NOT NULL
+                , `start` date DEFAULT NULL
+                , `end` date DEFAULT NULL
+                , `tagstr` varchar(255) NOT NULL
+                , PRIMARY KEY (`pmid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
         $res = mysqli_query($db_connect, $sql);
@@ -82,9 +82,9 @@ function plan_meta_install($old_revision = 0) {
             , '8' => 'webAdmin'
         );
         $default_perms = array(
-            'director' => array('plan_meta_view', 'plan_meta_edit', 'plan_meta_delete'),
-            'webAdmin' => array('plan_meta_view', 'plan_meta_edit', 'plan_meta_delete'),
-            'member' => array('plan_meta_view')
+            'director' => array('plan_meta_view', 'plan_meta_edit', 'plan_meta_delete')
+            , 'webAdmin' => array('plan_meta_view', 'plan_meta_edit', 'plan_meta_delete')
+            , 'member' => array('plan_meta_view')
         );
         foreach ($roles as $rid => $role) {
             $esc_rid = mysqli_real_escape_string($db_connect, $rid);
@@ -167,7 +167,8 @@ function plan_meta_data ($opts = array()) {
         , `end`
         , `tagstr`
         FROM `plan_meta`
-        WHERE 1";
+        WHERE 1
+    ";
     if (!empty($opts['pmid'])) {
         $esc_pmid = mysqli_real_escape_string($db_connect, $opts['pmid']);
         $sql .= " AND `pmid`='$esc_pmid'";
@@ -190,7 +191,8 @@ function plan_meta_data ($opts = array()) {
         }
     }
     $sql .= "
-        ORDER BY `tagstr` ASC";
+        ORDER BY `tagstr` ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     
@@ -199,11 +201,11 @@ function plan_meta_data ($opts = array()) {
     $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         $plan_meta = array(
-            'pmid' => $row['pmid'],
-            'pid' => $row['pid'],
-            'start' => $row['start'],
-            'end' => $row['end'],
-            'tagstr' => $row['tagstr'],
+            'pmid' => $row['pmid']
+            , 'pid' => $row['pid']
+            , 'start' => $row['start']
+            , 'end' => $row['end']
+            , 'tagstr' => $row['tagstr']
         );
         if ($join_plan) {
             if (array_key_exists($row['pid'], $pidToPlan)) {
@@ -352,16 +354,20 @@ function plan_meta_cross_table ($opts) {
     
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     $tableid = 0 ;
     $uniq = array();
     
     // determine max/total number of tags, as we'll use one column for each:
-    $sql = "SELECT distinct tagstr from plan_meta order by tagstr asc";
+    $sql = "
+        SELECT distinct tagstr
+        FROM plan_meta
+        ORDER BY tagstr ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $count = mysqli_num_rows($res); // just one row.
@@ -469,10 +475,10 @@ function plan_meta_table ($opts) {
     
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     
     // Add columns
@@ -541,39 +547,39 @@ function plan_meta_add_form ($pid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'plan_meta_add',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'plan_meta_add'
+        , 'hidden' => array(
             'pid' => $pid
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Add Meta-Tag Assignment',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Add Meta-Tag Assignment'
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'MetaTag',
-                        'name' => 'tagstr',
-                         'value' => '[please enter a meaningful metatag here]',
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Since',
-                        'name' => 'start',
-                        'value' => date("Y-m-d"),
-                        'class' => 'date'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Until',
-                        'name' => 'end',
-                        'class' => 'date'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Add'
+                        'type' => 'text'
+                        , 'label' => 'MetaTag'
+                        , 'name' => 'tagstr'
+                        , 'value' => '[please enter a meaningful metatag here]',
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Since'
+                        , 'name' => 'start'
+                        , 'value' => date("Y-m-d")
+                        , 'class' => 'date'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Until'
+                        , 'name' => 'end'
+                        , 'class' => 'date'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Add'
                     )
                 )
             )
@@ -612,45 +618,45 @@ function plan_meta_edit_form ($pmid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'plan_meta_update',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'plan_meta_update'
+        , 'hidden' => array(
             'pmid' => $pmid
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Edit meta Info',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Edit meta Info'
+                , 'fields' => array(
                     array(
-                        'type' => 'readonly',
-                        'label' => 'Name',
-                        'value' => $name
-                    ),
-                    array(
-                        'type' => 'text',
-                        'class' => 'date',
-                        'label' => 'Since',
-                        'name' => 'start',
-                        'value' => $plan_meta['start']
-                    ),
-                    array(
-                        'type' => 'text',
-                        'class' => 'date',
-                        'label' => 'Until',
-                        'name' => 'end',
-                        'value' => $plan_meta['end']
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Tag',
-                        'name' => 'tagstr',
-                        'value' => $plan_meta['tagstr']
-                    ),
-                   array(
-                        'type' => 'submit',
-                        'value' => 'Update'
+                        'type' => 'readonly'
+                        , 'label' => 'Name'
+                        , 'value' => $name
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'class' => 'date'
+                        , 'label' => 'Since'
+                        , 'name' => 'start'
+                        , 'value' => $plan_meta['start']
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'class' => 'date'
+                        , 'label' => 'Until'
+                        , 'name' => 'end'
+                        , 'value' => $plan_meta['end']
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Tag'
+                        , 'name' => 'tagstr'
+                        , 'value' => $plan_meta['tagstr']
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Update'
                     )
                 )
             )
@@ -681,24 +687,24 @@ function plan_meta_delete_form ($pmid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'plan_meta_delete',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'plan_meta_delete'
+        , 'hidden' => array(
             'pmid' => $plan_meta['pmid']
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Delete Meta',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete Meta'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the meta assignment "' . $plan_meta_name . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to delete the meta assignment "' . $plan_meta_name . '"? This cannot be undone.',
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Delete'
                     )
                 )
             )

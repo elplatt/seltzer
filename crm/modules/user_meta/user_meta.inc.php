@@ -1,29 +1,29 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2017 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2018 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
     
     This file is part of the Seltzer CRM Project
     user_meta.inc.php - Meta-Tag tracking module
-
+    
     This module is for associating arbitrary "meta data" with member/s.
     This can be useful for making arbitrary groupings of users that have special meaning to you.
     Examples:
     We have one called "Respected", which entitles a member to get a physical key to the building....
     Or one called "Machinist", which means they have passed basic safety assessment to permit them to use our Mill/Lathe.
     It's kinda like an extension to the Permissions system, but for managing things external to Seltzer.
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -59,12 +59,12 @@ function user_meta_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `user_meta` (
-            `umid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-            `cid` mediumint(8) unsigned NOT NULL,
-            `start` date DEFAULT NULL,
-            `end` date DEFAULT NULL,
-            `tagstr` varchar(255) NOT NULL,
-            PRIMARY KEY (`umid`)
+                , `umid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+                , `cid` mediumint(8) unsigned NOT NULL
+                , `start` date DEFAULT NULL
+                , `end` date DEFAULT NULL
+                , `tagstr` varchar(255) NOT NULL
+                , PRIMARY KEY (`umid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ';
         $res = mysqli_query($db_connect, $sql);
@@ -82,9 +82,9 @@ function user_meta_install($old_revision = 0) {
             , '8' => 'webAdmin'
         );
         $default_perms = array(
-            'director' => array('user_meta_view', 'user_meta_edit', 'user_meta_delete'),
-            'webAdmin' => array('user_meta_view', 'user_meta_edit', 'user_meta_delete'),
-            'member' => array('user_meta_view')
+            'director' => array('user_meta_view', 'user_meta_edit', 'user_meta_delete')
+            , 'webAdmin' => array('user_meta_view', 'user_meta_edit', 'user_meta_delete')
+            , 'member' => array('user_meta_view')
         );
         foreach ($roles as $rid => $role) {
             $esc_rid = mysqli_real_escape_string($db_connect, $rid);
@@ -179,7 +179,8 @@ function user_meta_data ($opts = array()) {
         , `end`
         , `tagstr`
         FROM `user_meta`
-        WHERE 1";
+        WHERE 1
+    ";
     if (!empty($opts['umid'])) {
         $esc_umid = mysqli_real_escape_string($db_connect, $opts['umid']);
         $sql .= " AND `umid`='$esc_umid'";
@@ -202,7 +203,8 @@ function user_meta_data ($opts = array()) {
         }
     }
     $sql .= "
-        ORDER BY `tagstr` ASC";
+        ORDER BY `tagstr` ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     
@@ -211,11 +213,11 @@ function user_meta_data ($opts = array()) {
     $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         $user_meta = array(
-            'umid' => $row['umid'],
-            'cid' => $row['cid'],
-            'start' => $row['start'],
-            'end' => $row['end'],
-            'tagstr' => $row['tagstr'],
+            'umid' => $row['umid']
+            , 'cid' => $row['cid']
+            , 'start' => $row['start']
+            , 'end' => $row['end']
+            , 'tagstr' => $row['tagstr']
         );
         if ($join_contact) {
             if (array_key_exists($row['cid'], $cidToContact)) {
@@ -369,16 +371,20 @@ function user_meta_cross_table ($opts) {
     
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     $tableid = 0 ;
     $uniq = array();
     
     // determine max/total number of tags, as we'll use one column for each:
-    $sql = "SELECT distinct tagstr from user_meta order by tagstr asc";
+    $sql = "
+        SELECT distinct tagstr
+        FROM user_meta
+        ORDER BY tagstr ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $count = mysqli_num_rows($res); // just one row.
@@ -452,22 +458,21 @@ function user_meta_cross_table ($opts) {
             }
             $table['rows'][$tableid] = $row;
             $tableid++;
-        }
-            else {
-                //print "burp<br>\n";
-                // user alresdy, just add additional tag for them ...
-                
-                $previd = $uniq[$user_meta['contact']['lastName'].$user_meta['contact']['firstName']];
-                $row = $table['rows'][$previd];
-                
-                // insert new tag to existing row:
-                for ( $i = 2 ; $i < $count+2; $i++) {
-                    if ( $table['columns'][$i]['title'] == $user_meta['tagstr'] ) {
-                        $row[$i] = '<input type="checkbox" name="'.$user_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
-                    }
+        } else {
+            //print "burp<br>\n";
+            // user alresdy, just add additional tag for them ...
+            
+            $previd = $uniq[$user_meta['contact']['lastName'].$user_meta['contact']['firstName']];
+            $row = $table['rows'][$previd];
+            
+            // insert new tag to existing row:
+            for ( $i = 2 ; $i < $count+2; $i++) {
+                if ( $table['columns'][$i]['title'] == $user_meta['tagstr'] ) {
+                    $row[$i] = '<input type="checkbox" name="'.$user_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                 }
-                $table['rows'][$previd] = $row;
             }
+            $table['rows'][$previd] = $row;
+        }
     }
     
     //var_dump($uniq);
@@ -501,10 +506,10 @@ function user_meta_table ($opts) {
     
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     
     // Add columns
@@ -581,11 +586,11 @@ function meta_tag_autocomplete ($fragment) {
     if (!$userMeta) return $data;
     $mysqlRow = mysqli_fetch_assoc($userMeta);
     while (!empty($mysqlRow)) {
-            $row = array();
-            $row['value'] = $mysqlRow['tagstr'];
-            $row['label'] = $mysqlRow['tagstr'];
-            $data[] = $row;
-            $mysqlRow = mysqli_fetch_assoc($userMeta);
+        $row = array();
+        $row['value'] = $mysqlRow['tagstr'];
+        $row['label'] = $mysqlRow['tagstr'];
+        $data[] = $row;
+        $mysqlRow = mysqli_fetch_assoc($userMeta);
     }
     return $data;
 }
@@ -607,41 +612,41 @@ function user_meta_add_form ($cid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'user_meta_add',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'user_meta_add'
+        , 'hidden' => array(
             'cid' => $cid
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Add Meta-Tag Assignment',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Add Meta-Tag Assignment'
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'MetaTag',
-                        'name' => 'tagstr',
-                        'value' => '[please enter a meaningful metatag here]',
-                        'suggestion' => 'meta_tag',
-                        'defaultClear' => True
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Since',
-                        'name' => 'start',
-                        'value' => date("Y-m-d"),
-                        'class' => 'date'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Until',
-                        'name' => 'end',
-                        'class' => 'date'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Add'
+                        'type' => 'text'
+                        , 'label' => 'MetaTag'
+                        , 'name' => 'tagstr'
+                        , 'value' => '[please enter a meaningful metatag here]'
+                        , 'suggestion' => 'meta_tag'
+                        , 'defaultClear' => True
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Since'
+                        , 'name' => 'start'
+                        , 'value' => date("Y-m-d")
+                        , 'class' => 'date'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Until'
+                        , 'name' => 'end'
+                        , 'class' => 'date'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Add'
                     )
                 )
             )
@@ -680,45 +685,45 @@ function user_meta_edit_form ($umid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'user_meta_update',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'user_meta_update'
+        , 'hidden' => array(
             'umid' => $umid
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Edit meta Info',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Edit meta Info'
+                , 'fields' => array(
                     array(
-                        'type' => 'readonly',
-                        'label' => 'Name',
-                        'value' => $name
-                    ),
-                    array(
-                        'type' => 'text',
-                        'class' => 'date',
-                        'label' => 'Since',
-                        'name' => 'start',
-                        'value' => $user_meta['start']
-                    ),
-                    array(
-                        'type' => 'text',
-                        'class' => 'date',
-                        'label' => 'Until',
-                        'name' => 'end',
-                        'value' => $user_meta['end']
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => 'Tag',
-                        'name' => 'tagstr',
-                        'value' => $user_meta['tagstr']
-                    ),
-                   array(
-                        'type' => 'submit',
-                        'value' => 'Update'
+                        'type' => 'readonly'
+                        , 'label' => 'Name'
+                        , 'value' => $name
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'class' => 'date'
+                        , 'label' => 'Since'
+                        , 'name' => 'start'
+                        , 'value' => $user_meta['start']
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'class' => 'date'
+                        , 'label' => 'Until'
+                        , 'name' => 'end'
+                        , 'value' => $user_meta['end']
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Tag'
+                        , 'name' => 'tagstr'
+                        , 'value' => $user_meta['tagstr']
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Update'
                     )
                 )
             )
@@ -749,24 +754,24 @@ function user_meta_delete_form ($umid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'user_meta_delete',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'user_meta_delete'
+        , 'hidden' => array(
             'umid' => $user_meta['umid']
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Delete Meta',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete Meta'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the meta assignment "' . $user_meta_name . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to delete the meta assignment "' . $user_meta_name . '"? This cannot be undone.',
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Delete'
                     )
                 )
             )

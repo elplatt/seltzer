@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     data.inc.php - Member module - database to object mapping
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -92,13 +92,13 @@ function member_data ($opts = array()) {
                 , 'lastName' => $row['lastName']
                 , 'email' => $row['email']
                 , 'phone' => $row['phone']
-            ),
-            'user' => array(
-                'cid' => $row['cid'],
-                'username' => $row['username'],
-                'hash' => $row['hash']
-            ),
-            'member' => array(
+            )
+            , 'user' => array(
+                'cid' => $row['cid']
+                , 'username' => $row['username']
+                , 'hash' => $row['hash']
+            )
+            , 'member' => array(
                 'emergencyName' => $row['emergencyName']
                 , 'emergencyPhone' => $row['emergencyPhone']
                 , 'emergencyRelation' => $row['emergencyRelation']
@@ -107,8 +107,8 @@ function member_data ($opts = array()) {
                 , 'address3' => $row['address3']
                 , 'town_city' => $row['town_city']
                 , 'zipcode' => $row['zipcode']
-            ),
-            'membership' => array()
+            )
+            , 'membership' => array()
         );
         
         $members[] = $member;
@@ -137,17 +137,17 @@ function member_data ($opts = array()) {
         $row = mysqli_fetch_assoc($res);
         while (!empty($row)) {
             $membership = array(
-                'sid' => $row['sid'],
-                'cid' => $row['cid'],
-                'pid' => $row['pid'],
-                'start' => $row['start'],
-                'end' => $row['end'],
-                'plan' => array(
-                    'pid' => $row['pid'],
-                    'name' => $row['name'],
-                    'price' => $row['price'],
-                    'active' => $row['active'],
-                    'voting' => $row['voting']
+                'sid' => $row['sid']
+                , 'cid' => $row['cid']
+                , 'pid' => $row['pid']
+                , 'start' => $row['start']
+                , 'end' => $row['end']
+                , 'plan' => array(
+                    'pid' => $row['pid']
+                    , 'name' => $row['name']
+                    , 'price' => $row['price']
+                    , 'active' => $row['active']
+                    , 'voting' => $row['voting']
                 )
             );
             $members[$index]['membership'][] = $membership;
@@ -397,10 +397,10 @@ function member_plan_save ($plan) {
         $sql = "
             UPDATE `plan`
             SET
-                `name`='$esc_name',
-                `price`='$esc_price',
-                `active`='$esc_active',
-                `voting`='$esc_voting'
+                `name`='$esc_name'
+                , `price`='$esc_price'
+                , `active`='$esc_active'
+                , `voting`='$esc_voting'
             WHERE `pid`='$esc_pid'
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -453,7 +453,8 @@ function member_membership_data ($opts) {
         FROM `membership`
         INNER JOIN `plan`
         ON `membership`.`pid` = `plan`.`pid`
-        WHERE 1 ";
+        WHERE 1
+    ";
     // Add member id
     if (!empty($opts['cid'])) {
         $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
@@ -489,7 +490,8 @@ function member_membership_data ($opts) {
         }
     }
     $sql .= "
-        ORDER BY `start` DESC";
+        ORDER BY `start` DESC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     // Store data
@@ -497,17 +499,17 @@ function member_membership_data ($opts) {
     $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         $memberships[] = array(
-            'cid' => $row['cid'],
-            'sid' => $row['sid'],
-            'pid' => $row['pid'],
-            'start' => $row['start'],
-            'end' => $row['end'],
-            'plan' => array(
-                'pid' => $row['pid'],
-                'name' => $row['name'],
-                'price' => $row['price'],
-                'active' => $row['active'],
-                'voting' => $row['voting']
+            'cid' => $row['cid']
+            , 'sid' => $row['sid']
+            , 'pid' => $row['pid']
+            , 'start' => $row['start']
+            , 'end' => $row['end']
+            , 'plan' => array(
+                'pid' => $row['pid']
+                , 'name' => $row['name']
+                , 'price' => $row['price']
+                , 'active' => $row['active']
+                , 'voting' => $row['voting']
             )
         );
         $row = mysqli_fetch_assoc($res);
@@ -534,16 +536,17 @@ function member_membership_save ($membership) {
         $sql = "
             UPDATE `membership`
             SET `cid`='$esc_cid'
-            , `pid`='$esc_pid', ";
+            , `pid`='$esc_pid'
+        ";
         if ($esc_start) {
-            $sql .= "`start`='$esc_start', ";
+            $sql .= ",`start`='$esc_start' ";
         } else {
-            $sql .= "`start`=NULL, ";
+            $sql .= ", `start`=NULL ";
         }
         if ($esc_end) {
-            $sql .= "`end`='$esc_end' ";
+            $sql .= ", `end`='$esc_end' ";
         } else {
-            $sql .= "`end`=NULL ";
+            $sql .= ", `end`=NULL ";
         }
         $sql .= "WHERE `sid`='$esc_sid'";
         $res = mysqli_query($db_connect, $sql);

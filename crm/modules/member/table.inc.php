@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     table.inc.php - Member module - table structures
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -48,9 +48,9 @@ function member_table ($opts = NULL) {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     
     // Add columns
@@ -165,9 +165,9 @@ function member_voting_report_table () {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => 'member-voting-report',
-        'rows' => array()
+        'id' => ''
+        , 'class' => 'member-voting-report'
+        , 'rows' => array()
     );
     
     // Add columns
@@ -229,9 +229,9 @@ function member_plan_table ($opts = NULL) {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     
     // Add columns
@@ -299,9 +299,9 @@ function member_membership_table ($opts = NULL) {
     $memberships = member_membership_data($opts);
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     // Add columns
     $table['columns'] = array();
@@ -360,10 +360,10 @@ function member_contact_table ($opts) {
     
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     
     // Add columns
@@ -409,9 +409,9 @@ function member_details_table ($opts = NULL) {
     
     // Create table structure
     $table = array(
-        'id' => '',
-        'class' => '',
-        'rows' => array()
+        'id' => ''
+        , 'class' => ''
+        , 'rows' => array()
     );
     
     // Add columns

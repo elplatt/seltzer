@@ -5,17 +5,17 @@
     
     This file is part of the Seltzer CRM Project
     contact.inc.php - Defines contact entity
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -59,15 +59,15 @@ function contact_install ($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `contact` (
-              `cid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `firstName` varchar(255) NOT NULL,
-              `middleName` varchar(255) NOT NULL,
-              `lastName` varchar(255) NOT NULL,
-              `email` varchar(255) NOT NULL,
-              `phone` varchar(32) NOT NULL,
-              `emergencyName` varchar(255) NOT NULL,
-              `emergencyPhone` varchar(16) NOT NULL,
-              PRIMARY KEY (`cid`)
+              `cid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `firstName` varchar(255) NOT NULL
+              , `middleName` varchar(255) NOT NULL
+              , `lastName` varchar(255) NOT NULL
+              , `email` varchar(255) NOT NULL
+              , `phone` varchar(32) NOT NULL
+              , `emergencyName` varchar(255) NOT NULL
+              , `emergencyPhone` varchar(16) NOT NULL
+              , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -390,9 +390,9 @@ function contact_form ($opts = array()) {
     }
     // Add fields
     $form['fields'][] = array(
-        'type' => 'fieldset',
-        'label' => $label,
-        'fields' => array(
+        'type' => 'fieldset'
+        , 'label' => $label
+        , 'fields' => array(
             array(
                 'type' => 'text'
                 , 'label' => 'First Name'

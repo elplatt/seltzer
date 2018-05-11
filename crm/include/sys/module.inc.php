@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     module.inc.php - Module installation and upgrade functions
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -194,28 +194,28 @@ function module_upgrade_table () {
  */
 function module_install_form () {
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'module_install',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'module_install'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Install ' . title() . " " . crm_version(),
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Install ' . title() . " " . crm_version()
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'Admin E-mail',
-                        'name' => 'email'
-                    ),
-                    array(
-                        'type' => 'password',
-                        'label' => 'Admin Password',
-                        'name' => 'password'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Install'
+                        'type' => 'text'
+                        , 'label' => 'Admin E-mail'
+                        , 'name' => 'email'
+                    )
+                    , array(
+                        'type' => 'password'
+                        , 'label' => 'Admin Password'
+                        , 'name' => 'password'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'name' => 'submitted'
+                        , 'value' => 'Install'
                     )
                 )
             )
@@ -232,18 +232,18 @@ function module_upgrade_form () {
         return '';
     }
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'module_upgrade',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'module_upgrade'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules'
+                , 'fields' => array(
                     array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Upgrade'
+                        'type' => 'submit'
+                        , 'name' => 'submitted'
+                        , 'value' => 'Upgrade'
                     )
                 )
             )

@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     billing.inc.php - Billing module
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -73,17 +73,17 @@ function billing_form () {
                 , 'label' => 'Process Billings'
                 , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => 'This will generate billing entries for any members with active memberships.  <strong>Important:</strong> make sure the membership data is up to date before running billing.'
-                    ),
-                    array(
-                        'type' => 'readonly',
-                        'class' => 'date',
-                        'label' => 'Last Billed',
-                        'name' => 'last_billed',
-                        'value' => $bill_label
-                    ),
-                    array(
+                        'type' => 'message'
+                        , 'value' => 'This will generate billing entries for any members with active memberships.  <strong>Important:</strong> make sure the membership data is up to date before running billing.'
+                    )
+                    , array(
+                        'type' => 'readonly'
+                        , 'class' => 'date'
+                        , 'label' => 'Last Billed'
+                        , 'name' => 'last_billed'
+                        , 'value' => $bill_label
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Process'
                     )
@@ -115,17 +115,17 @@ function email_bills_form () {
                 , 'label' => 'Send Billing Emails'
                 , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
-                        ),
-                    array(
-                        'type' => 'readonly',
-                        'class' => 'date',
-                        'label' => 'Last Emailed',
-                        'name' => 'last_emailed',
-                        'value' => $from_label
-                    ),
-                    array(
+                        'type' => 'message'
+                        , 'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
+                    )
+                    , array(
+                        'type' => 'readonly'
+                        , 'class' => 'date'
+                        , 'label' => 'Last Emailed'
+                        , 'name' => 'last_emailed'
+                        , 'value' => $from_label
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Send Emails'
                     )

@@ -1,22 +1,22 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2017 Chris Murray <chris.f.murray@hotmail.co.uk>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2018 Chris Murray <chris.f.murray@hotmail.co.uk>
     
     This file is part of the Seltzer CRM Project
     paypal_payment.inc.php - Paypal payments extensions for the payment module.
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -42,9 +42,9 @@ function paypal_payment_install($old_revision = 0) {
         // Additional payment info for paypal payments
         $sql = '
             CREATE TABLE IF NOT EXISTS `payment_paypal` (
-              `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `paypal_email` varchar(255) NOT NULL,
-              PRIMARY KEY (`pmtid`)
+              `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+              , `paypal_email` varchar(255) NOT NULL
+              , PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -53,9 +53,9 @@ function paypal_payment_install($old_revision = 0) {
         // Additional contact info for paypal payments
         $sql = '
             CREATE TABLE IF NOT EXISTS `contact_paypal` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              `paypal_email` varchar(255) NOT NULL,
-              PRIMARY KEY (`paypal_email`)
+              `cid` mediumint(8) unsigned NOT NULL
+              , `paypal_email` varchar(255) NOT NULL
+              , PRIMARY KEY (`paypal_email`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -65,18 +65,18 @@ function paypal_payment_install($old_revision = 0) {
         $sql = '
             ALTER TABLE `payment_paypal`
             CHANGE COLUMN paypal_email email varchar(255);
-        ';    
+        ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $sql = '
             ALTER TABLE `contact_paypal`
             CHANGE COLUMN paypal_email email varchar(255);
-        ';    
+        ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $sql = '
-            ALTER TABLE `contact_paypal` DROP PRIMARY KEY, 
-            ADD PRIMARY KEY(`email`);
+            ALTER TABLE `contact_paypal` DROP PRIMARY KEY
+            , ADD PRIMARY KEY(`email`);
         ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -224,7 +224,8 @@ function paypal_payment_contact_save ($contact) {
                 INSERT INTO `contact_paypal`
                 (`email`, `cid`)
                 VALUES
-                ('$esc_email', '$esc_cid')";
+                ('$esc_email', '$esc_cid')
+            ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
         }
@@ -295,9 +296,10 @@ function paypal_payment_payment_api ($payment, $op) {
         case 'delete':
             $sql = "
                 DELETE FROM `payment_paypal`
-                WHERE `pmtid`='$esc_pmtid'";
-                $res = mysqli_query($db_connect, $sql);
-                if (!$res) crm_error(mysqli_error($res));
+                WHERE `pmtid`='$esc_pmtid'
+            ";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             break;
     }
     return $payment;
@@ -316,10 +318,10 @@ function paypal_payment_contact_table ($opts) {
     $data = crm_get_data('paypal_payment_contact', $opts);
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     // Check for permissions
     if (!user_access('payment_view')) {
@@ -440,28 +442,28 @@ function paypal_payment_contact_add_form () {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'paypal_payment_contact_add',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'paypal_payment_contact_add'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Add Paypal Contact',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Add Paypal Contact'
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'Paypal Email Address',
-                        'name' => 'email'
-                    ),
-                    array(
-                        'type' => 'text',
-                        'label' => "Member's Name",
-                        'name' => 'cid',
-                        'autocomplete' => 'contact_name'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Add'
+                        'type' => 'text'
+                        , 'label' => 'Paypal Email Address'
+                        , 'name' => 'email'
+                    )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => "Member's Name"
+                        , 'name' => 'cid'
+                        , 'autocomplete' => 'contact_name'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Add'
                     )
                 )
             )
@@ -493,24 +495,24 @@ function paypal_payment_contact_delete_form ($cid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'paypal_payment_contact_delete',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'paypal_payment_contact_delete'
+        , 'hidden' => array(
             'cid' => $paypal_payment_contact['cid']
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Delete Paypal Contact',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete Paypal Contact'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the paypal contact "' . $paypal_payment_contact_name . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to delete the paypal contact "' . $paypal_payment_contact_name . '"? This cannot be undone.',
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Delete'
                     )
                 )
             )

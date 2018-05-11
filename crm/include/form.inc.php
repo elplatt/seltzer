@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     form.inc.php - Core form system and core forms
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -55,24 +55,24 @@ function filter_form ($filters, $selected, $action, $get) {
     }
     
     $form = array(
-        'type' => 'form',
-        'method' => 'get',
-        'action' => $action,
-        'hidden' => $hidden,
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'get'
+        , 'action' => $action
+        , 'hidden' => $hidden
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Filter',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Filter'
+                , 'fields' => array(
                     array(
-                        'type' => 'select',
-                        'name' => 'filter',
-                        'options' => $filters,
-                        'selected' => $selected
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Filter'
+                        'type' => 'select'
+                        , 'name' => 'filter'
+                        , 'options' => $filters
+                        , 'selected' => $selected
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Filter'
                     )
                 )
             )

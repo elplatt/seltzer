@@ -1,22 +1,22 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
-    Copyright 2014-2017 Matt J. Oehrlein <matt.oehrlein@gmail.com>
+    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
+    Copyright 2014-2018 Matt J. Oehrlein <matt.oehrlein@gmail.com>
     
     This file is part of the Seltzer CRM Project
     email_list.inc.php - Associates contact's emails with email lists
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -52,10 +52,10 @@ function email_list_install ($old_revision = 0) {
         // Create a table to associate email addresses with a CID
         $sql = '
             CREATE TABLE IF NOT EXISTS `email_list_subscriptions` (
-              `lid` mediumint(8) unsigned NOT NULL,
-              `cid` mediumint(8) unsigned NOT NULL,
-              `email` varchar(255) NOT NULL,
-              PRIMARY KEY ( `lid`,`cid`,`email`)
+                , `lid` mediumint(8) unsigned NOT NULL
+                , `cid` mediumint(8) unsigned NOT NULL
+                , `email` varchar(255) NOT NULL
+                , PRIMARY KEY ( `lid`,`cid`,`email`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -63,10 +63,10 @@ function email_list_install ($old_revision = 0) {
         
         // Create a table to associate email list names with a LID (list ID)
         $sql = '
-              CREATE TABLE IF NOT EXISTS `email_lists` (
-              `lid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-              `list_name` varchar(255) NOT NULL,
-              PRIMARY KEY (`lid`)
+            CREATE TABLE IF NOT EXISTS `email_lists` (
+                `lid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+                , `list_name` varchar(255) NOT NULL
+                , PRIMARY KEY (`lid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -84,12 +84,8 @@ function email_list_install ($old_revision = 0) {
             , '8' => 'webAdmin'
         );
         $default_perms = array(
-            'director' => array('email_list_view', 'email_list_edit', 'email_list_delete'
-                                , 'email_list_subscribe', 'email_list_unsubscribe'
-                                , 'email_list_edit_subscription')
-            , 'webAdmin' => array('email_list_view', 'email_list_edit', 'email_list_delete'
-                                  , 'email_list_subscribe', 'email_list_unsubscribe'
-                                  , 'email_list_edit_subscription')
+            'director' => array('email_list_view', 'email_list_edit', 'email_list_delete' , 'email_list_subscribe', 'email_list_unsubscribe', 'email_list_edit_subscription')
+            , 'webAdmin' => array('email_list_view', 'email_list_edit', 'email_list_delete', 'email_list_subscribe', 'email_list_unsubscribe' , 'email_list_edit_subscription')
         );
         foreach ($roles as $rid => $role) {
             $esc_rid = mysqli_real_escape_string($db_connect, $rid);
@@ -146,9 +142,7 @@ function email_list_page (&$page_data, $page_name, $options) {
         case 'email_lists':
             page_set_title($page_data, 'Email Lists');
             if (user_access('contact_view')) {
-                $email_lists = theme('table', 'email_list'
-                    , array('join'=>array('contact', 'member'), 'show_export'=>false
-                        , 'lists_only'=>true));
+                $email_lists = theme('table', 'email_list', array('join'=>array('contact', 'member'), 'show_export'=>false, 'lists_only'=>true));
                 $email_lists .= theme('form', crm_get_form('email_list_create'));
                 page_add_content_top($page_data, $email_lists, 'View');
             }
@@ -430,10 +424,10 @@ function email_list_table ($opts) {
     }
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     // Add columns
     if (user_access('contact_view') || $opts['cid'] == user_id()) {
@@ -575,9 +569,7 @@ function email_list_options () {
     // query database for a list of  email lists available.
     
     $sql = '
-     SELECT
-        `lid`
-        ,`list_name`
+        SELECT `lid`,`list_name`
         FROM `email_lists`
         WHERE 1
     ';
@@ -673,26 +665,25 @@ function email_list_unsubscribe_form ($subscription) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'email_list_unsubscribe',
-        'hidden' => array(
-            'lid' => $subscription['lid'],
-            'cid' => $subscription['cid']
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'email_list_unsubscribe'
+        , 'hidden' => array(
+            'lid' => $subscription['lid']
+            , 'cid' => $subscription['cid']
         ),
         'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Email List Unsubscribe',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Email List Unsubscribe'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to unsubscribe "' 
-                        . $subscription_name . '"? This cannot be undone.',
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to unsubscribe "' . $subscription_name . '"? This cannot be undone.</p>'
                     ),
                     array(
-                        'type' => 'submit',
-                        'value' => 'Unsubscribe'
+                        'type' => 'submit'
+                        , 'value' => 'Unsubscribe'
                     )
                 )
             )
@@ -760,8 +751,8 @@ function email_list_edit_form ($lid) {
         , 'command' => 'email_list_edit'
         , 'hidden' => array(
             'lid' => $lid
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
                 'type' => 'fieldset'
                 , 'label' => 'Edit Email List'
@@ -810,24 +801,24 @@ function email_list_delete_form ($lid) {
     
     // Create form structure
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'email_list_delete',
-        'hidden' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'email_list_delete'
+        , 'hidden' => array(
             'lid' => $list['lid']
-        ),
-        'fields' => array(
+        )
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Delete List',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Delete List'
+                , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => '<p>Are you sure you want to delete the email list "' . $list_name . '"? This cannot be undone.',
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'value' => 'Delete'
+                        'type' => 'message'
+                        , 'value' => '<p>Are you sure you want to delete the email list "' . $list_name . '"? This cannot be undone.</p>'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'value' => 'Delete'
                     )
                 )
             )
@@ -853,8 +844,10 @@ function command_email_list_subscribe () {
     if (/* email is valid */ true) {
         //save the email
         $esc_email = mysqli_real_escape_string($db_connect, $email);
-        $sql = "INSERT INTO `email_list_subscriptions` (`lid`, `cid`, `email`)
-            VALUES ('$lid', '$cid', '$esc_email')";
+        $sql = "
+            INSERT INTO `email_list_subscriptions` (`lid`, `cid`, `email`)
+            VALUES ('$lid', '$cid', '$esc_email')
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         
