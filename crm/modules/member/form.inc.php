@@ -50,6 +50,27 @@ function member_add_form () {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
+        , 'label' => 'Member Emergency Contact Details'
+        , 'fields' => array(
+            array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Relation'
+                , 'name' => 'emergencyRelation'
+            )
+        )
+    );
+    $form['fields'][] = array(
+        'type' => 'fieldset'
         , 'label' => 'Member Address Details'
         , 'fields' => array(
             array(
@@ -76,27 +97,6 @@ function member_add_form () {
                 'type' => 'text'
                 , 'label' => 'Zip/Postal Code'
                 , 'name' => 'zipcode'
-            )
-        )
-    );
-    $form['fields'][] = array(
-        'type' => 'fieldset'
-        , 'label' => 'Member Emergency Contact Details'
-        , 'fields' => array(
-            array(
-                'type' => 'text'
-                , 'label' => 'Emergency Contact'
-                , 'name' => 'emergencyName'
-            )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Phone'
-                , 'name' => 'emergencyPhone'
-            )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Relation'
-                , 'name' => 'emergencyRelation'
             )
         )
     );
