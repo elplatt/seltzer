@@ -50,6 +50,27 @@ function member_add_form () {
     );
     $form['fields'][] = array(
         'type' => 'fieldset'
+        , 'label' => 'Member Emergency Contact Details'
+        , 'fields' => array(
+            array(
+                'type' => 'text'
+                , 'label' => 'Emergency Contact'
+                , 'name' => 'emergencyName'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Phone'
+                , 'name' => 'emergencyPhone'
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Emergency Relation'
+                , 'name' => 'emergencyRelation'
+            )
+        )
+    );
+    $form['fields'][] = array(
+        'type' => 'fieldset'
         , 'label' => 'Member Address Details'
         , 'fields' => array(
             array(
@@ -76,27 +97,6 @@ function member_add_form () {
                 'type' => 'text'
                 , 'label' => 'Zip/Postal Code'
                 , 'name' => 'zipcode'
-            )
-        )
-    );
-    $form['fields'][] = array(
-        'type' => 'fieldset'
-        , 'label' => 'Member Emergency Contact Details'
-        , 'fields' => array(
-            array(
-                'type' => 'text'
-                , 'label' => 'Emergency Contact'
-                , 'name' => 'emergencyName'
-            )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Phone'
-                , 'name' => 'emergencyPhone'
-            )
-            , array(
-                'type' => 'text'
-                , 'label' => 'Emergency Relation'
-                , 'name' => 'emergencyRelation'
             )
         )
     );
@@ -177,26 +177,31 @@ function member_edit_form ($cid) {
                 'type' => 'text'
                 , 'label' => 'Address 1'
                 , 'name' => 'address1'
+                , 'value' => $member['address1']
             )
             , array(
                 'type' => 'text'
                 , 'label' => 'Address 2'
                 , 'name' => 'address2'
+                , 'value' => $member['address2']
             )
             , array(
                 'type' => 'text'
                 , 'label' => 'Address 3'
                 , 'name' => 'address3'
+                , 'value' => $member['address3']
             )
             , array(
                 'type' => 'text'
                 , 'label' => 'Town/City'
                 , 'name' => 'town_city'
+                , 'value' => $member['town_city']
             )
             , array(
                 'type' => 'text'
                 , 'label' => 'Zip/Postal Code'
                 , 'name' => 'zipcode'
+                , 'value' => $member['zipcode']
             )
         )
     );
