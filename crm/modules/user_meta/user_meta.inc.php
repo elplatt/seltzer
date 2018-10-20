@@ -59,14 +59,14 @@ function user_meta_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `user_meta` (
-                , `umid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+                `umid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
                 , `cid` mediumint(8) unsigned NOT NULL
                 , `start` date DEFAULT NULL
                 , `end` date DEFAULT NULL
                 , `tagstr` varchar(255) NOT NULL
                 , PRIMARY KEY (`umid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-            ';
+        ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         
