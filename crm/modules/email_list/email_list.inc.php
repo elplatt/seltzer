@@ -52,7 +52,7 @@ function email_list_install ($old_revision = 0) {
         // Create a table to associate email addresses with a CID
         $sql = '
             CREATE TABLE IF NOT EXISTS `email_list_subscriptions` (
-                , `lid` mediumint(8) unsigned NOT NULL
+               `lid` mediumint(8) unsigned NOT NULL
                 , `cid` mediumint(8) unsigned NOT NULL
                 , `email` varchar(255) NOT NULL
                 , PRIMARY KEY ( `lid`,`cid`,`email`)

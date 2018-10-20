@@ -1,11 +1,11 @@
-<?php 
+<?php
 
 /*
     Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
     Copyright 2013-2018 Matt J. Oehrlein <matt.oehrlein@gmail.com>
     
     This file is part of the Seltzer CRM Project
-    mentor.inc.php - Mentor module 
+    mentor.inc.php - Mentor module
     
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ function mentor_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `mentor` (
-                , `cid` mediumint(8) unsigned NOT NULL
+                `cid` mediumint(8) unsigned NOT NULL
                 , `mentor_cid` mediumint(8) unsigned NOT NULL
                 , PRIMARY KEY (`cid`,`mentor_cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

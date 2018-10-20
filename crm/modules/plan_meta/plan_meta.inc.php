@@ -59,7 +59,7 @@ function plan_meta_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `plan_meta` (
-                , `pmid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+                `pmid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
                 , `pid` mediumint(8) unsigned NOT NULL
                 , `start` date DEFAULT NULL
                 , `end` date DEFAULT NULL
