@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2019 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     table.inc.php - Member module - table structures
