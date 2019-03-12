@@ -100,10 +100,10 @@ $config_modules[] = "billing";
 $config_modules[] = "amazon_payment";
 
 // Paypal integration
-//$config_modules[] = "paypal_payment";
+$config_modules[] = "paypal_payment";
 
 // Assign a profile picture using gravatar
-//$config_modules[] = "profile_picture";
+$config_modules[] = "profile_picture";
 
 // Assign members a mentor
 //$config_modules[] = "mentor";
