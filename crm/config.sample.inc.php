@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2018 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2019 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     config.inc.php - Sample configuration
@@ -100,10 +100,10 @@ $config_modules[] = "billing";
 $config_modules[] = "amazon_payment";
 
 // Paypal integration
-//$config_modules[] = "paypal_payment";
+$config_modules[] = "paypal_payment";
 
 // Assign a profile picture using gravatar
-//$config_modules[] = "profile_picture";
+$config_modules[] = "profile_picture";
 
 // Assign members a mentor
 //$config_modules[] = "mentor";
