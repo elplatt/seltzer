@@ -401,6 +401,12 @@ function payment_save ($payment) {
     if (empty($payment)) {
         return NULL;
     }
+    if (empty($payment['credit_cid'])) {
+        $payment['credit_cid'] = "0";
+    }
+    if (empty($payment['debit_cid'])) {
+        $payment['debit_cid'] = "0";
+    }
     // Sanitize input
     $esc_pmtid = mysqli_real_escape_string($db_connect, $payment['pmtid']);
     $esc_date = mysqli_real_escape_string($db_connect, $payment['date']);
