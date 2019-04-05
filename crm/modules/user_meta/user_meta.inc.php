@@ -600,7 +600,7 @@ function user_meta_add_form ($cid) {
     
     // Ensure user is allowed to edit metas
     if (!user_access('user_meta_edit')) {
-        return NULL;
+        return null;
     }
     
     // Create form structure
@@ -622,7 +622,7 @@ function user_meta_add_form ($cid) {
                         'name' => 'tagstr',
                         'value' => '[please enter a meaningful metatag here]',
                         'suggestion' => 'meta_tag',
-                        'defaultClear' => True
+                        'defaultClear' => true
                     ),
                     array(
                         'type' => 'text',
@@ -659,7 +659,7 @@ function user_meta_edit_form ($umid) {
     
     // Ensure user is allowed to edit meta
     if (!user_access('user_meta_edit')) {
-        return NULL;
+        return null;
     }
     
     // Get meta data
@@ -735,7 +735,7 @@ function user_meta_delete_form ($umid) {
     
     // Ensure user is allowed to delete metas
     if (!user_access('user_meta_delete')) {
-        return NULL;
+        return null;
     }
     
     // Get meta data

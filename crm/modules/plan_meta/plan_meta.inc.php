@@ -534,7 +534,7 @@ function plan_meta_add_form ($pid) {
     
     // Ensure user is allowed to edit metas
     if (!user_access('plan_meta_edit')) {
-        return NULL;
+        return null;
     }
     
     // Create form structure
@@ -591,7 +591,7 @@ function plan_meta_edit_form ($pmid) {
     
     // Ensure user is allowed to edit meta
     if (!user_access('plan_meta_edit')) {
-        return NULL;
+        return null;
     }
     
     // Get meta data
@@ -667,7 +667,7 @@ function plan_meta_delete_form ($pmid) {
     
     // Ensure user is allowed to delete metas
     if (!user_access('plan_meta_delete')) {
-        return NULL;
+        return null;
     }
     
     // Get meta data

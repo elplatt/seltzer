@@ -90,7 +90,7 @@ function page_set_title (&$page_data, $title) {
  * @param $content The themed html content to add.
  * @param $tab_name The name of the tab.
  */
-function page_add_content_top (&$page_data, $content, $tab_name = NULL) {
+function page_add_content_top (&$page_data, $content, $tab_name = null) {
     if (!isset($tab_name)) {
         $tab_name = '#main';
     }
@@ -106,7 +106,7 @@ function page_add_content_top (&$page_data, $content, $tab_name = NULL) {
  * @param $content The themed html content to add.
  * @param $tab_name The name of the tab.
  */
-function page_add_content_bottom (&$page_data, $content, $tab_name = NULL) {
+function page_add_content_bottom (&$page_data, $content, $tab_name = null) {
     if (!isset($tab_name)) {
         $tab_name = '#main';
     }

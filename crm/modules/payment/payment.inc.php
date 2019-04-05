@@ -391,10 +391,10 @@ function payment_save ($payment) {
     // Verify permissions and validate input
     if (!user_access('payment_edit')) {
         error_register('Permission denied: payment_edit');
-        return NULL;
+        return null;
     }
     if (empty($payment)) {
-        return NULL;
+        return null;
     }
     // Sanitize input
     $esc_pmtid = mysqli_real_escape_string($db_connect, $payment['pmtid']);
@@ -574,7 +574,7 @@ function payment_accounts ($opts = array()) {
  * @return An array of cids for matching contacts, or NULL if all match.
  */
 function payment_contact_filter ($filter) {
-    $cids = NULL;
+    $cids = null;
     foreach ($filter as $key => $value) {
         $new_cids = array();
         switch ($key) {
@@ -589,7 +589,7 @@ function payment_contact_filter ($filter) {
                 }
                 break;
             default:
-                $new_cids = NULL;
+                $new_cids = null;
         }
         if (is_null($cids)) {
             $cids = $new_cids;
@@ -839,7 +839,7 @@ function payment_add_form () {
     
     // Ensure user is allowed to edit payments
     if (!user_access('payment_edit')) {
-        return NULL;
+        return null;
     }
     
     // Create form structure
@@ -920,12 +920,12 @@ function payment_edit_form ($pmtid) {
     // Ensure user is allowed to edit payments
     if (!user_access('payment_edit')) {
         error_register('User does not have permission: payment_edit');
-        return NULL;
+        return null;
     }
     // Get payment data
     $data = crm_get_data('payment', array('pmtid'=>$pmtid));
     if (count($data) < 1) {
-        return NULL;
+        return null;
     }
     $payment = $data[0];
     $credit = '';
@@ -1027,7 +1027,7 @@ function payment_edit_form ($pmtid) {
 function payment_delete_form ($pmtid) {
     // Ensure user is allowed to delete keys
     if (!user_access('payment_delete')) {
-        return NULL;
+        return null;
     }
     // Get data
     $data = crm_get_data('payment', array('pmtid'=>$pmtid));

@@ -352,7 +352,7 @@ function member_plan_data ($opts = array()) {
  * @param $opts Options to be passed to member_plan_data().
  * @return The associative array of membership plan descriptions.
  */
-function member_plan_options ($opts = NULL) {
+function member_plan_options ($opts = null) {
     
     // Get plan data
     $plans = member_plan_data($opts);

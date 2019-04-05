@@ -265,7 +265,7 @@ function theme_form_text ($field) {
     if (!empty($field['suggestion'])) {
         array_push($classes, 'autocomplete');
     }
-    if (!empty($field['value']) && array_key_exists('defaultClear', $field) && $field['defaultClear'] == True)
+    if (!empty($field['value']) && array_key_exists('defaultClear', $field) && $field['defaultClear'] == true)
     {
         array_push($classes, 'defaultClear');
     }
@@ -285,7 +285,7 @@ function theme_form_text ($field) {
         if (!empty($field['value'])) {
             $output .= ' value="' . $field['value'] . '"';
             
-            if (array_key_exists('defaultClear', $field) && $field['defaultClear'] == True) {
+            if (array_key_exists('defaultClear', $field) && $field['defaultClear'] == true) {
                 $output .= ' title="' . $field['value'] . '"';
             }
         }

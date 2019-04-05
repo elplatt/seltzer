@@ -659,7 +659,7 @@ function email_list_unsubscribe_form ($subscription) {
     // Ensure user is allowed to unsubscribe
     if (!user_access('email_list_unsubscribe')) {
         error_register('User does not have permission: email_list_unsubscribe');
-        return NULL;
+        return null;
     }
     
     // Get subscription data    
@@ -743,7 +743,7 @@ function email_list_create_form () {
 function email_list_edit_form ($lid) {
     if (!user_access('email_list_edit')) {
         error_register('User does not have permission: email_list_edit');
-        return NULL;
+        return null;
     }
     
     // Get email list data
@@ -798,7 +798,7 @@ function email_list_delete_form ($lid) {
     // Ensure user is allowed to delete keys
     if (!user_access('email_list_delete')) {
         error_register('User does not have permission: email_list_delete');
-        return NULL;
+        return null;
     }
     
     // Get email list data

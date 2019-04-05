@@ -26,11 +26,11 @@
  * @param $opts Options to pass to member_data().
  * @return The table structure.
 */
-function member_table ($opts = NULL) {
+function member_table ($opts = null) {
     
     // Ensure user is allowed to view members
     if (!user_access('member_view')) {
-        return NULL;
+        return null;
     }
     
     // Determine settings
@@ -152,7 +152,7 @@ function member_voting_report_table () {
     
     // Ensure user is allowed to view members
     if (!user_access('member_view')) {
-        return NULL;
+        return null;
     }
     
     // Get member data
@@ -212,11 +212,11 @@ function member_voting_report_table () {
  * @param $opts Options to pass to member_plan_data().
  * @return The table structure.
 */
-function member_plan_table ($opts = NULL) {
+function member_plan_table ($opts = null) {
     
     // Ensure user is allowed to view membership plans
     if (!user_access('member_plan_edit')) {
-        return NULL;
+        return null;
     }
     
     // Get membership plan data
@@ -285,10 +285,10 @@ function member_plan_table ($opts = NULL) {
  * @param $opts Options to pass to member_membership_data().
  * @return The table structure.
 */
-function member_membership_table ($opts = NULL) {
+function member_membership_table ($opts = null) {
     // Ensure user is allowed to view members
     if (!user_access('member_membership_view')) {
-        return NULL;
+        return null;
     }
     // Get member data
     $memberships = member_membership_data($opts);
@@ -383,11 +383,11 @@ function member_contact_table ($opts) {
  * @param $opts Options to pass to member_data().
  * @return The table structure.
 */
-function member_info_table ($opts = NULL) {
+function member_info_table ($opts = null) {
     
     // Ensure user is allowed to view members
     if (!user_access('member_view')) {
-        return NULL;
+        return null;
     }
     
     // Determine settings

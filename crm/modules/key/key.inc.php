@@ -395,7 +395,7 @@ function key_add_form ($cid) {
     // Ensure user is allowed to edit keys
     if (!user_access('key_edit')) {
         error_register('User does not have permission: key_edit');
-        return NULL;
+        return null;
     }
     
     // Create form structure
@@ -455,7 +455,7 @@ function key_edit_form ($kid) {
     // Ensure user is allowed to edit keys
     if (!user_access('key_edit')) {
         error_register('User does not have permission: key_edit');
-        return NULL;
+        return null;
     }
     // Get key data
     $data = crm_get_data('key', array('kid'=>$kid));
@@ -533,7 +533,7 @@ function key_delete_form ($kid) {
     // Ensure user is allowed to delete keys
     if (!user_access('key_delete')) {
         error_register('User does not have permission: key_delete');
-        return NULL;
+        return null;
     }
     
     // Get key data

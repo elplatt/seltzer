@@ -312,7 +312,7 @@ function user_data_alter ($type, $data = array(), $opts = array()) {
  * @param $opts An associative array of options.
  * @return An array with each element representing a role.
 */ 
-function user_role_data ($opts = NULL) {
+function user_role_data ($opts = null) {
     global $db_connect;
     // Construct map from role ids to arrays of permissions granted
     $permissionMap = array();
@@ -508,7 +508,7 @@ function user_check_password($password, $user) {
  * @param $cid The cid of the user being queried, defaults to current user.
  * @return The username for the specified user.
 */
-function user_username($cid = NULL) {
+function user_username($cid = null) {
     $opts = array();
     if ($cid) {
         $opts['cid'] = $cid;
@@ -707,7 +707,7 @@ function command_login () {
     
     //Check to see if there was an @ sign in the 'username'. This will signify that the user
     //probably entered their email, and not their username.
-    if (strpos($_POST['username'], "@") === False){
+    if (strpos($_POST['username'], "@") === false){
         //there is not an "@" in the 'username', so we will assume the user entered their username
         $user_opts = array(
             'filter' => array(

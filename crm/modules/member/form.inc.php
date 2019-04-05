@@ -141,7 +141,7 @@ function member_plan_add_form () {
     
     // Ensure user is allowed to edit plans
     if (!user_access('member_plan_edit')) {
-        return NULL;
+        return null;
     }
     
     // Create form structure
@@ -197,14 +197,14 @@ function member_plan_edit_form ($pid) {
     
     // Ensure user is allowed to edit plans
     if (!user_access('member_plan_edit')) {
-        return NULL;
+        return null;
     }
     
     // Get plan data
     $plans = member_plan_data(array('pid'=>$pid));
     $plan = $plans[0];
     if (!$plan) {
-        return NULL;
+        return null;
     }
     
     // Create form structure
@@ -266,7 +266,7 @@ function member_plan_delete_form ($pid) {
     
     // Ensure user is allowed to edit plans
     if (!user_access('member_plan_edit')) {
-        return NULL;
+        return null;
     }
     
     // Get plan description
@@ -313,7 +313,7 @@ function member_membership_add_form ($cid) {
     
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
-        return NULL;
+        return null;
     }
     
     // Generate default start date, first of current month
@@ -372,7 +372,7 @@ function member_membership_edit_form ($sid) {
     
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
-        return NULL;
+        return null;
     }
     
     // Get membership data
@@ -448,7 +448,7 @@ function member_membership_delete_form ($sid) {
     
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
-        return NULL;
+        return null;
     }
     
     // Get membership data

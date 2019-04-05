@@ -26,7 +26,7 @@
  * @param $opts Options to pass to member_data().
  * @return The themed html string.
 */
-function theme_member_table ($opts = NULL) {
+function theme_member_table ($opts = null) {
     return theme('table', crm_get_table('member', $opts));
 }
 
@@ -36,7 +36,7 @@ function theme_member_table ($opts = NULL) {
  * @param $opts The options to pass to member_contact_data().
  * @return The themed html string.
 */
-function theme_member_contact_table ($opts = NULL) {
+function theme_member_contact_table ($opts = null) {
     return theme('table_vertical', crm_get_table('member_contact', $opts));
 }
 
@@ -204,7 +204,7 @@ EOF;
  * @param $opts The options to pass to member_membership_data().
  * @return The themed html string.
  */
-function theme_member_membership_table ($opts = NULL) {
+function theme_member_membership_table ($opts = null) {
     return theme('table', crm_get_table('member_membership', $opts));
 }
 
@@ -234,7 +234,7 @@ function theme_member_membership_edit_form ($sid) {
  * @param $opts The options to pass to member_plan_data().
  * @return The themed html string.
  */
-function theme_member_plan_table ($opts = NULL) {
+function theme_member_plan_table ($opts = null) {
     return theme('table', crm_get_table('member_plan', $opts));
 }
 
@@ -263,7 +263,7 @@ function theme_member_plan_edit_form ($pid) {
  * @param $opts The options to pass to member_data().
  * @return The themed html string.
  */
-function theme_member_info_table ($opts = NULL) {
+function theme_member_info_table ($opts = null) {
     return theme('table_vertical', crm_get_table('member_info', $opts));
 }
 

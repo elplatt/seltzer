@@ -374,7 +374,7 @@ function mentor_add_form ($cid) {
     
     // Ensure user is allowed to edit mentors
     if (!user_access('mentor_edit')) {
-        return NULL;
+        return null;
     }
     
     // Create form structure
@@ -420,7 +420,7 @@ function mentor_edit_form ($cid) {
     
     // Ensure user is allowed to edit mentor
     if (!user_access('mentor_edit')) {
-        return NULL;
+        return null;
     }
         
     // Get corresponding contact data
@@ -496,7 +496,7 @@ function mentor_delete_form ($cid) {
     
     // Ensure user is allowed to delete mentors
     if (!user_access('mentor_delete')) {
-        return NULL;
+        return null;
     }
     
     // Get corresponding contact data

@@ -265,7 +265,7 @@ function contact_name_autocomplete ($fragment) {
 function contact_table ($opts = array()) {
     // Ensure user is allowed to view contacts
     if (!user_access('contact_view')) {
-        return NULL;
+        return null;
     }
     // Create table structure
     $table = array();
