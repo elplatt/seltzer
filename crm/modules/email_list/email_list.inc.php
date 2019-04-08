@@ -140,7 +140,7 @@ function email_list_page (&$page_data, $page_name, $options) {
             break;
         case 'email_lists':
             page_set_title($page_data, 'Email Lists');
-            if (user_access('contact_view')) {
+            if (user_access('email_list_view')) {
                 $email_lists = theme('table', 'email_list', array('join'=>array('contact', 'member'), 'show_export'=>false, 'lists_only'=>true));
                 $email_lists .= theme('form', crm_get_form('email_list_create'));
                 page_add_content_top($page_data, $email_lists, 'View');
@@ -428,7 +428,7 @@ function email_list_table ($opts) {
         , "columns" => array()
     );
     // Add columns
-    if (user_access('contact_view') || $opts['cid'] == user_id()) {
+    if (user_access('email_list_view') || $opts['cid'] == user_id()) {
         if ($export) {
             $table['columns'][] = array("title"=>'lid', 'class'=>'', 'id'=>'');
         }
@@ -505,7 +505,7 @@ function email_list_subscriptions_table ($opts) {
         "columns" => array()
     );
     // Add columns
-    if (user_access('contact_view') || $opts['cid'] == user_id()) {
+    if (user_access('email_list_view') || $opts['cid'] == user_id()) {
         if ($export) {
             $table['columns'][] = array("title"=>'cid', 'class'=>'', 'id'=>'');
             $table['columns'][] = array("title"=>'lid', 'class'=>'', 'id'=>'');
