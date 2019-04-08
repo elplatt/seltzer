@@ -50,25 +50,25 @@ function email_list_install ($old_revision = 0) {
     global $db_connect;
     if ($old_revision < 1) {
         // Create a table to associate email addresses with a CID
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `email_list_subscriptions` (
                `lid` mediumint(8) unsigned NOT NULL
                 , `cid` mediumint(8) unsigned NOT NULL
                 , `email` varchar(255) NOT NULL
                 , PRIMARY KEY ( `lid`,`cid`,`email`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         
         // Create a table to associate email list names with a LID (list ID)
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `email_lists` (
                 `lid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
                 , `list_name` varchar(255) NOT NULL
                 , PRIMARY KEY (`lid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         
@@ -132,8 +132,7 @@ function email_list_page (&$page_data, $page_name, $options) {
             $contact = $contact_data[0];
             
             // Add email lists tab
-            if (user_access('contact_view') || user_access('contact_edit') 
-                    || user_access('contact_delete') || $cid == user_id()) {
+            if (user_access('contact_view') || user_access('contact_edit') || user_access('contact_delete') || $cid == user_id()) {
                 $email_lists = theme('table', crm_get_table('email_list_subscriptions', array('cid' => $cid)));
                 $email_lists .= theme('form', crm_get_form('email_list_subscribe', $cid));
                 page_add_content_bottom($page_data, $email_lists, 'Emails');
@@ -208,7 +207,7 @@ function email_list_description ($lid) {
  *   'cid' If specified, returns all email lists subscribed to with specified id;
  *   'join' A list of tables to join to the key table.
  * @return An array with each element representing a single key card assignment.
-*/ 
+*/
 function email_list_data ($opts = array()) {
     global $db_connect;
     // Query database for subscriptions
@@ -220,13 +219,13 @@ function email_list_data ($opts = array()) {
             `email_lists`.`lid`
             , `email_lists`.`list_name`
             FROM `email_lists`
-            WHERE 1";
+            WHERE 1
+        ";
         if (!empty($opts['lid'])) {
             $esc_lid = mysqli_real_escape_string($db_connect, $opts['lid']);
             $sql .= " AND `email_lists`.`lid`='$esc_lid'";
         }
-        $sql .= "
-            ORDER BY `email_lists`.`lid` ASC";
+        $sql .= "ORDER BY `email_lists`.`lid` ASC";
     } else {
         // This block also queries users who are subscribed to the lists
         // in addition to the lists themselves
@@ -239,7 +238,8 @@ function email_list_data ($opts = array()) {
             FROM `email_list_subscriptions`
             INNER JOIN `email_lists`
             ON `email_list_subscriptions`.`lid`=`email_lists`.`lid`
-            WHERE 1";
+            WHERE 1
+        ";
         if (!empty($opts['lid'])) {
             $esc_lid = mysqli_real_escape_string($db_connect, $opts['lid']);
             $sql .= " AND `email_lists`.`lid`='$esc_lid'";
@@ -257,9 +257,7 @@ function email_list_data ($opts = array()) {
                 $sql .= " AND `cid`='$esc_cid'";
             }
         }
-      
-        $sql .= "
-            ORDER BY `email_lists`.`lid`, `cid` ASC";
+        $sql .= "ORDER BY `email_lists`.`lid`, `cid` ASC";
     }
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
@@ -540,8 +538,7 @@ function email_list_subscriptions_table ($opts) {
             $ops = array();
             // Add unsubscribe op
             if (user_access('email_list_unsubscribe')) {
-                $ops[] = '<a href=' . crm_url('email_list/unsubscribe&cid=' 
-                    . $subscription['cid']) . '&lid=' . $subscription['lid']. '>unsubscribe</a>';
+                $ops[] = '<a href=' . crm_url('email_list/unsubscribe&cid=' . $subscription['cid']) . '&lid=' . $subscription['lid']. '>unsubscribe</a>';
             }
             // Add ops row
             $row[] = join(' ', $ops);
@@ -568,11 +565,11 @@ function email_list_options () {
     
     // query database for a list of  email lists available.
     
-    $sql = '
+    $sql = "
         SELECT `lid`,`list_name`
         FROM `email_lists`
         WHERE 1
-    ';
+    ";
     $sql .= "
         ORDER BY `list_name`, `lid` ASC
     ";
@@ -654,7 +651,7 @@ function email_list_unsubscribe_form ($subscription) {
         return NULL;
     }
     
-    // Get subscription data    
+    // Get subscription data
     $data = crm_get_data('email_list', array('lid'=>$subscription['lid']
         , 'cid'=>$subscription['cid']));
     $subscription = $data[0];
@@ -850,11 +847,10 @@ function command_email_list_subscribe () {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        
         message_register('Successfully subscribed user to email list.');
     } else {
         error_register('Invalid email. Check email syntax.');
-    } 
+    }
     return crm_url('contact&cid=' . $cid);
 }
 
@@ -925,7 +921,7 @@ function command_email_list_delete () {
 
 /**
  * Return the themed html for an email list creation form.
- * 
+ *
  * @return The themed html string.
  */
 function theme_email_list_create_form () {
