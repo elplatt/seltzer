@@ -531,7 +531,11 @@ function email_list_subscriptions_table ($opts) {
             $row[] = theme('contact_name', $cid_to_contact[$subscription['cid']], !$export);
             $row[] = $subscription['email'];
             //fetch list_name here.
-            $row[] = $subscription['list_name'];
+            if (user_access('email_list_view')) {
+                $row[] = '<a href=' . crm_url('email_list&lid=' . $subscription['lid'] . '#tab-edit') . '>' . $subscription['list_name'] . '</a> ';
+            } else {
+                $row[] = $subscription['list_name'];
+            }
         }
         if (!$export && (user_access('email_list_unsubscribe'))) {
             // Construct ops array
