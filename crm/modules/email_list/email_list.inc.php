@@ -169,6 +169,7 @@ function email_list_page (&$page_data, $page_name, $options) {
             // Add edit tab
             if (user_access('email_list_view') || user_access('email_list_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('email_list_edit', $lid), 'Edit'));
+                page_add_content_top($page_data, theme('table', 'email_list_subscribers', array('join'=>array('contact', 'member'), 'show_export'=>false, 'lists_only'=>false, 'lid'=>$lid)));
             }
             break;
     }
@@ -536,6 +537,82 @@ function email_list_subscriptions_table ($opts) {
             } else {
                 $row[] = $subscription['list_name'];
             }
+        }
+        if (!$export && (user_access('email_list_unsubscribe'))) {
+            // Construct ops array
+            $ops = array();
+            // Add unsubscribe op
+            if (user_access('email_list_unsubscribe')) {
+                $ops[] = '<a href=' . crm_url('email_list/unsubscribe&cid=' . $subscription['cid']) . '&lid=' . $subscription['lid']. '>unsubscribe</a>';
+            }
+            // Add ops row
+            $row[] = join(' ', $ops);
+        }
+        $table['rows'][] = $row;
+    }
+    return $table;
+}
+
+/**
+ * Return a table structure for a table of email lists subscribers.
+ *
+ * @param $opts The options to pass to email_list_data().
+ * @return The table structure.
+*/
+function email_list_subscribers_table ($opts) {
+    // Determine settings
+    $export = false;
+    foreach ($opts as $option => $value) {
+        switch ($option) {
+            case 'export':
+                $export = $value;
+                break;
+        }
+    }
+    // Get email list data
+    $data = crm_get_data('email_list', $opts);
+    if (count($data) < 1) {
+        return array();
+    }
+    // Get contact info
+    $contact_opts = array();
+    foreach ($data as $row) {
+        $contact_opts['cid'][] = $row['cid'];
+    }
+    $contact_data = crm_get_data('contact', $contact_opts);
+    $cid_to_contact = crm_map($contact_data, 'cid');
+    // Initialize table
+    $table = array(
+        "id" => '',
+        "class" => '',
+        "rows" => array(),
+        "columns" => array()
+    );
+    // Add columns
+    if (user_access('email_list_view') || $opts['cid'] == user_id()) {
+        if ($export) {
+            $table['columns'][] = array("title"=>'cid', 'class'=>'', 'id'=>'');
+            $table['columns'][] = array("title"=>'lid', 'class'=>'', 'id'=>'');
+        }
+        $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'Email', 'class'=>'', 'id'=>'');
+    }
+    // Add ops column
+    if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+        $table['columns'][] = array('title'=>'Ops','class'=>'');
+    }
+    // Add rows
+    foreach ($data as $subscription) {
+        // Add list data
+        $row = array();
+        if (user_access('email_list_view') || $opts['cid'] == user_id()) {
+            // Add cells
+            if ($export) {
+                $row[] = $subscription['cid'];
+                $row[] = $subscription['lid'];
+            }
+            $row[] = theme('contact_name', $cid_to_contact[$subscription['cid']], !$export);
+            $row[] = $subscription['email'];
         }
         if (!$export && (user_access('email_list_unsubscribe'))) {
             // Construct ops array
