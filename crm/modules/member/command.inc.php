@@ -447,7 +447,6 @@ function command_member_import () {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         if (mysqli_num_rows($res) < 1) {
-            
             $plan = array(
                 'name' => $esc_plan_name
                 , 'price' => '0'
