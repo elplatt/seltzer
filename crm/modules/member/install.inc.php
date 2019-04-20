@@ -34,16 +34,16 @@ function member_install($old_revision = 0) {
     // Initial installation
     if ($old_revision == 0) {
         // Create member table
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `member` (
-              `cid` mediumint(8) unsigned NOT NULL
-              , PRIMARY KEY (`cid`)
+                `cid` mediumint(8) unsigned NOT NULL
+                , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Create membership table
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `membership` (
               `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
               , `cid` mediumint(8) unsigned NOT NULL
@@ -52,11 +52,11 @@ function member_install($old_revision = 0) {
               , `end` date DEFAULT NULL
               , PRIMARY KEY (`sid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Create plan table
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `plan` (
               `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
               , `name` varchar(255) NOT NULL
@@ -65,7 +65,7 @@ function member_install($old_revision = 0) {
               , `voting` tinyint(1) NOT NULL
               , PRIMARY KEY (`pid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Create default permissions
@@ -96,38 +96,38 @@ function member_install($old_revision = 0) {
     }
     if ($old_revision < 4) {
         // Alter member table
-        $sql = '
+        $sql = "
             ALTER TABLE `member`
               ADD COLUMN `emergencyName` varchar(255) NOT NULL
               , ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
             ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $sql = '
+        $sql = "
             UPDATE contact, member
             SET member.emergencyName=contact.emergencyName
             , member.emergencyPhone = contact.emergencyPhone
             WHERE member.cid=contact.cid;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $sql = '
+        $sql = "
             ALTER TABLE `contact`
-              DROP column `emergencyName`
-              , DROP column `emergencyPhone`
+                DROP column `emergencyName`
+                , DROP column `emergencyPhone`
             ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
     if ($old_revision < 5) {
         // Alter member table
-        $sql = '
+        $sql = "
             ALTER TABLE `member`
               ADD COLUMN `emergencyRelation` varchar(255) NOT NULL
             ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
@@ -163,7 +163,7 @@ function member_install($old_revision = 0) {
     }
     if ($old_revision < 7) {
         // Alter member table
-        $sql = '
+        $sql = "
             ALTER TABLE `member`
               ADD COLUMN `address1` varchar(255) NOT NULL
               , ADD COLUMN `address2` varchar(255) NOT NULL
@@ -171,7 +171,7 @@ function member_install($old_revision = 0) {
               , ADD COLUMN `town_city` varchar(255) NOT NULL
               , ADD COLUMN `zipcode` varchar(255) NOT NULL
             ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
