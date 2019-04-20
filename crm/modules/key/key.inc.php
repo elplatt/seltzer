@@ -49,7 +49,7 @@ function key_permissions () {
 function key_install($old_revision = 0) {
     global $db_connect;
     if ($old_revision < 1) {
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `key` (
                 `kid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
                 , `cid` mediumint(8) unsigned NOT NULL
@@ -58,8 +58,8 @@ function key_install($old_revision = 0) {
                 , `serial` varchar(255) NOT NULL
                 , `slot` mediumint(8) unsigned NOT NULL
                 , PRIMARY KEY (`kid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-        ';
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
@@ -300,7 +300,6 @@ function key_delete ($key) {
 
 /**
  * Return a table structure for a table of key assignments.
- *
  * @param $opts The options to pass to key_data().
  * @return The table structure.
 */
@@ -386,7 +385,6 @@ function key_table ($opts) {
 
 /**
  * Return the form structure for the add key assignment form.
- *
  * @param The cid of the contact to add a key assignment for.
  * @return The form structure.
 */
@@ -447,7 +445,6 @@ function key_add_form ($cid) {
 
 /**
  * Return the form structure for an edit key assignment form.
- *
  * @param $kid The kid of the key assignment to edit.
  * @return The form structure.
 */
@@ -524,7 +521,6 @@ function key_edit_form ($kid) {
 
 /**
  * Return the delete key assignment form structure.
- *
  * @param $kid The kid of the key assignment to delete.
  * @return The form structure.
 */
@@ -589,10 +585,10 @@ function key_command ($command, &$url, &$params) {
 
 /**
  * Handle key add request.
- *
  * @return The url to display on completion.
  */
 function command_key_add() {
+    global $esc_post;
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
@@ -604,10 +600,10 @@ function command_key_add() {
 
 /**
  * Handle key update request.
- *
  * @return The url to display on completion.
  */
 function command_key_update() {
+    global $esc_post;
     // Verify permissions
     if (!user_access('key_edit')) {
         error_register('Permission denied: key_edit');
@@ -620,7 +616,6 @@ function command_key_update() {
 
 /**
  * Handle key delete request.
- *
  * @return The url to display on completion.
  */
 function command_key_delete() {
@@ -649,7 +644,6 @@ function key_page_list () {
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
- *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
@@ -709,7 +703,6 @@ function key_page (&$page_data, $page_name, $options) {
 
 /**
  * Return the themed html for an add key assignment form.
- *
  * @param $cid The id of the contact to add a key assignment for.
  * @return The themed html string.
  */
@@ -719,7 +712,6 @@ function theme_key_add_form ($cid) {
 
 /**
  * Return themed html for an edit key assignment form.
- *
  * @param $kid The kid of the key assignment to edit.
  * @return The themed html string.
  */
