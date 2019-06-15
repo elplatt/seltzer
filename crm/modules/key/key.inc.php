@@ -233,7 +233,7 @@ function key_data_alter ($type, $data = array(), $opts = array()) {
 /**
  * Save a key structure.  If $key has a 'kid' element, an existing key will
  * be updated, otherwise a new key will be created.
- * @param $kid The key structure
+ * @param $key The key structure
  * @return The key structure with as it now exists in the database.
  */
 function key_save ($key) {
