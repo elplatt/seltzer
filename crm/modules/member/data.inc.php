@@ -574,7 +574,7 @@ function member_membership_save ($membership) {
 function member_membership_delete ($sid) {
     global $db_connect;
     $esc_sid = mysqli_real_escape_string($db_connect, $sid);
-    $membership = crm_get_one('membership', array('sid'=>$sid));
+    $membership = crm_get_one('member_membership', array('sid'=>$sid));
     $membership = module_invoke_api('membership', $membership, 'delete');
     $sql = "DELETE FROM `membership` WHERE `sid`='$esc_sid'";
     $res = mysqli_query($db_connect, $sql);
