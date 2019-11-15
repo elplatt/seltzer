@@ -405,7 +405,7 @@ function member_plan_save ($plan) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $plan = module_invoke_api('plan', $plan, 'update');
+        $plan = module_invoke_api('member_plan', $plan, 'update');
     } else {
         // Insert
         $sql = "
@@ -417,7 +417,7 @@ function member_plan_save ($plan) {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $plan['pid'] = mysqli_insert_id($db_connect);
-        $plan = module_invoke_api('plan', $plan, 'create');
+        $plan = module_invoke_api('member_plan', $plan, 'create');
     }
     return $plan;
 }
@@ -430,7 +430,7 @@ function member_plan_delete ($pid) {
     $esc_pid = mysqli_real_escape_string($db_connect, $pid);
     $description = theme('member_plan_description', $esc_pid);
     $plan = crm_get_one('member_plan', array('pid'=>$pid));
-    $plan = module_invoke_api('plan', $plan, 'delete');
+    $plan = module_invoke_api('member_plan', $plan, 'delete');
     $sql = "DELETE FROM `plan` WHERE `pid`='$esc_pid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
@@ -551,7 +551,7 @@ function member_membership_save ($membership) {
         $sql .= "WHERE `sid`='$esc_sid'";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $membership = module_invoke_api('membership', $membership, 'update');
+        $membership = module_invoke_api('member_membership', $membership, 'update');
     } else {
         // Insert
         $sql = "
@@ -563,7 +563,7 @@ function member_membership_save ($membership) {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $membership['sid'] = mysqli_insert_id($db_connect);
-        $membership = module_invoke_api('membership', $membership, 'add');
+        $membership = module_invoke_api('member_membership', $membership, 'add');
     }
     return $membership;
 }
@@ -575,7 +575,7 @@ function member_membership_delete ($sid) {
     global $db_connect;
     $esc_sid = mysqli_real_escape_string($db_connect, $sid);
     $membership = crm_get_one('member_membership', array('sid'=>$sid));
-    $membership = module_invoke_api('membership', $membership, 'delete');
+    $membership = module_invoke_api('member_membership', $membership, 'delete');
     $sql = "DELETE FROM `membership` WHERE `sid`='$esc_sid'";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
