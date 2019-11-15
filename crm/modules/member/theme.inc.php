@@ -73,6 +73,7 @@ function theme_member_email_report ($opts) {
     if (isset($opts['filter']) && isset($opts['filter']['active'])) {
         $title = $opts['filter']['active'] ? 'Active ' : 'Lapsed ';
     }
+    $title .= 'Member ';
     $title .= 'Email Report';
     $output .= "<h2>$title</h2>";
     $output .= '<textarea rows="10" cols="80">';
