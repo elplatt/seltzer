@@ -67,6 +67,7 @@ p {
 .hidden {
     display: none;
 }
+
 /* General table styles */
 table.seltzer-table {
     border-collapse: collapse;
