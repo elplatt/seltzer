@@ -74,20 +74,17 @@ function form_set_value ($field, $values) {
 /**
  * @param $form The form structure.
  * @return The themed html string for a form.
-*/
+ */
 function theme_form ($form) {
     // Return empty string if there is no structure
     if (empty($form)) {
         return '';
     }
-    
     // Initialize output
     $output = '';
-    
     // Determine type of form structure
     switch ($form['type']) {
     case 'form':
-        
         // Add form
         $output .= '<form method="' . $form['method'] . '" action="';
         if (!empty($form['action'])) {
@@ -99,7 +96,6 @@ function theme_form ($form) {
             $output .= ' enctype="' . $form['enctype'] . '"';
         }
         $output .= '>';
-        
         // Add hidden values
         if (!empty($form['command'])) {
             $output .= '<fieldset class="hidden"><input type="hidden" name="command" value="' . $form['command'] . '" /></fieldset>';
@@ -109,7 +105,6 @@ function theme_form ($form) {
                 $output .= '<fieldset class="hidden"><input type="hidden" name="' . $name . '" value="' . $value . '"/></fieldset>';
             }
         }
-        
         // Loop through each field and add output
         foreach ($form['fields'] as $field) {
             if (array_key_exists('values', $form)) {
@@ -118,7 +113,6 @@ function theme_form ($form) {
             }
             $output .= theme('form', $field);
         }
-        
         // Add submit button
         if (isset($form['submit'])) {
             $submit_field = array(
@@ -127,19 +121,14 @@ function theme_form ($form) {
             );
             $output .= theme('form', $submit_field);
         }
-        
         $output .= '</form>';
-        
         break;
     case 'fieldset':
-        
         $output .= '<fieldset>';
-        
         // Add legend
         if (!empty($form['label'])) {
             $output .= '<legend>' . $form['label'] . '</legend>';
         }
-        
         // Loop through each field and add output
         foreach ($form['fields'] as $field) {
             if (array_key_exists('values', $form)) {
@@ -148,9 +137,7 @@ function theme_form ($form) {
             }
             $output .= theme('form', $field);
         }
-        
         $output .= '</fieldset>';
-        
         break;
     case 'table':
         $output .= theme('form_table', $form);
@@ -199,7 +186,6 @@ function theme_form_table ($field) {
         , 'rows' => array()
     );
     $table['columns'] = $field['columns'];
-    
     foreach ($field['rows'] as $formRow) {
         $row = array();
         foreach ($formRow as $formCell) {
@@ -207,13 +193,11 @@ function theme_form_table ($field) {
         }
         $table['rows'][] = $row;
     }
-    
     return theme('table', $table);
 }
 
 /**
  * Themes a message in a form.
- *
  * @param $field the message.
  * @return The themed html string for a message form element.
  */
@@ -227,7 +211,6 @@ function theme_form_message($field) {
 
 /**
  * Themes a read-only field in a form.
- * 
  * @param $field The field.
  * @return The themed html for a read-only form field.
  */
@@ -249,7 +232,6 @@ function theme_form_readonly ($field) {
 
 /**
  * Themes a text field in a form.
- * 
  * @param $field the text field.
  * @return The themed html for the text field.
  */
@@ -265,8 +247,7 @@ function theme_form_text ($field) {
     if (!empty($field['suggestion'])) {
         array_push($classes, 'autocomplete');
     }
-    if (!empty($field['value']) && array_key_exists('defaultClear', $field) && $field['defaultClear'] == True)
-    {
+    if (!empty($field['value']) && array_key_exists('defaultClear', $field) && $field['defaultClear'] == true) {
         array_push($classes, 'defaultClear');
     }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
@@ -285,7 +266,7 @@ function theme_form_text ($field) {
         if (!empty($field['value'])) {
             $output .= ' value="' . $field['value'] . '"';
             
-            if (array_key_exists('defaultClear', $field) && $field['defaultClear'] == True) {
+            if (array_key_exists('defaultClear', $field) && $field['defaultClear'] == true) {
                 $output .= ' title="' . $field['value'] . '"';
             }
         }
@@ -295,8 +276,7 @@ function theme_form_text ($field) {
         }
     }
     $output .= '/>';
-    if(array_key_exists('suggestion', $field))
-    {
+    if (array_key_exists('suggestion', $field)) {
         $output .= '<span class="autocomplete" style="display:none;">' . $field['suggestion'] . '</span>';
     }
     if (array_key_exists('autocomplete', $field) && !empty($field['autocomplete'])) {
@@ -311,7 +291,6 @@ function theme_form_text ($field) {
 
 /**
  * Themes a textarea in a form.
- * 
  * @param $field the textarea field.
  * @return The themed html for the textarea.
  */
@@ -337,12 +316,13 @@ function theme_form_textarea ($field) {
 
 /**
  * Themes a checkbox in a form.
- *
  * @param $field the checkbox.
  * @return The themed html for the checkbox.
  */
 function theme_form_checkbox ($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $output = '<fieldset class="form-row form-row-checkbox ' . $field['class'] . '">';
     $output .= '<input type="checkbox" name="' . $field['name'] . '" value="1"';
     if (array_key_exists('checked', $field) && $field['checked']) {
@@ -358,12 +338,13 @@ function theme_form_checkbox ($field) {
 
 /**
  * Themes a password field in a form.
- * 
  * @param $field the password field.
  * @return The themed html for the password field.
  */
 function theme_form_password ($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -375,7 +356,6 @@ function theme_form_password ($field) {
 
 /**
  * Themes a file field in a form.
- * 
  * @param $field the field data.
  * @return The themed html for the field.
  */
@@ -392,18 +372,18 @@ function theme_form_file ($field) {
 
 /**
  * Themes a select field in a form.
- * 
  * @param $field the select field.
  * @return themed html for the select field.
  */
 function theme_form_select ($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
     $output .= '<select name="' . $field['name'] . '">';
-    
     foreach ($field['options'] as $key => $value) {
         $output .= '<option value="' . $key . '"';
         if (array_key_exists('selected', $field) && $field['selected'] == $key) {
@@ -413,7 +393,6 @@ function theme_form_select ($field) {
         $output .= $value;
         $output .= '</option>';
     }
-    
     $output .= '</select>';
     $output .= '</fieldset>';
     return $output;
@@ -421,12 +400,13 @@ function theme_form_select ($field) {
 
 /**
  * Themes a submit button in a form.
- *
  * @param $field The submit button.
  * @return The themed html for the submit button.
  */
 function theme_form_submit ($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';

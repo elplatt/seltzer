@@ -24,18 +24,14 @@
 
 /**
  * @return The form structure for adding a member.
-*/
+ */
 function member_add_form () {
-    
     // Start with contact form
     $form = crm_get_form('contact');
-    
     // Generate default start date, first of current month
     $start = date("Y-m-d");
-    
     // Change form command
     $form['command'] = 'member_add';
-    
     // Add member data
     $form['fields'][] = array(
         'type' => 'fieldset'
@@ -125,9 +121,8 @@ function member_add_form () {
 
 /**
  * @return The form structure for editing a member.
-*/
+ */
 function member_edit_form ($cid) {
-    
     // Create form
     if ($cid) {
         $memb_data = crm_get_data('member', array('cid'=>$cid));
@@ -143,7 +138,6 @@ function member_edit_form ($cid) {
         , 'fields' => array()
         , 'submit' => 'Update'
     );
-    
     // Edit member data
     $form['fields'][] = array(
         'type' => 'fieldset'
@@ -212,14 +206,12 @@ function member_edit_form ($cid) {
 
 /**
  * @return The form structure for adding a membership plan.
-*/
+ */
 function member_plan_add_form () {
-    
     // Ensure user is allowed to edit plans
     if (!user_access('member_plan_edit')) {
-        return NULL;
+        return null;
     }
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -259,30 +251,25 @@ function member_plan_add_form () {
             )
         )
     );
-    
     return $form;
 }
 
 /**
  * Returns the form structure for editing a membership plan.
- *
  * @param $pid The pid of the membership plan to edit.
  * @return The form structure.
-*/
+ */
 function member_plan_edit_form ($pid) {
-    
     // Ensure user is allowed to edit plans
     if (!user_access('member_plan_edit')) {
-        return NULL;
+        return null;
     }
-    
     // Get plan data
     $plans = member_plan_data(array('pid'=>$pid));
     $plan = $plans[0];
     if (!$plan) {
-        return NULL;
+        return null;
     }
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -328,26 +315,21 @@ function member_plan_edit_form ($pid) {
             )
         )
     );
-    
     return $form;
 }
 
 /**
  * Return the form structure to delete a membership plan.
- *
  * @param $pid The pid of the plan to delete.
  * @return The form structure.
-*/
+ */
 function member_plan_delete_form ($pid) {
-    
     // Ensure user is allowed to edit plans
     if (!user_access('member_plan_edit')) {
-        return NULL;
+        return null;
     }
-    
     // Get plan description
     $description = theme('member_plan_description', $pid);
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -373,7 +355,6 @@ function member_plan_delete_form ($pid) {
             )
         )
     );
-    
     return $form;
 }
 
@@ -381,20 +362,16 @@ function member_plan_delete_form ($pid) {
 
 /**
  * Return the form structure for adding a membership.
- *
  * @param cid the cid of the member to add a membership for.
  * @return The form structure.
-*/
+ */
 function member_membership_add_form ($cid) {
-    
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
-        return NULL;
+        return null;
     }
-    
     // Generate default start date, first of current month
     $start = date("Y-m-d");
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -440,29 +417,24 @@ function member_membership_add_form ($cid) {
 
 /**
  * Return the form structure for editing a membership.
- *
  * @param $sid id of the membership to edit.
  * @return The form structure.
-*/
+ */
 function member_membership_edit_form ($sid) {
-    
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
-        return NULL;
+        return null;
     }
-    
     // Get membership data
     $data = member_membership_data(array('sid'=>$sid));
     $membership = $data[0];
     if (empty($membership) || count($membership) < 1) {
         return array();
     }
-    
     // Construct contact name
     $data = member_contact_data(array('cid'=>$membership['cid']));
     $contact = $data[0];
     $name = theme_contact_name($contact['cid']);
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -516,21 +488,17 @@ function member_membership_edit_form ($sid) {
 
 /**
  * Return the form structure to delete a membership.
- *
  * @param $sid id of the membership to delete.
  * @return The form structure.
-*/
+ */
 function member_membership_delete_form ($sid) {
-    
     // Ensure user is allowed to edit memberships
     if (!user_access('member_membership_edit')) {
-        return NULL;
+        return null;
     }
-    
     // Get membership data
     $data = member_membership_data(array('sid'=>$sid));
     $membership = $data[0];
-    
     // Construct member name
     /* TODO
     if (empty($member) || count($member) < 1) {
@@ -542,10 +510,8 @@ function member_membership_delete_form ($sid) {
     }
     $member_name .= ' ' . $member['contact']['lastName'];
     */
-    
     // Construct membership name
     $membership_name = "user:$membership[cid] $membership[start] -- $membership[end]";
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -578,27 +544,22 @@ function member_membership_delete_form ($sid) {
 
 /**
  * Return the form structure for a member filter.
- * 
  * @return The form structure.
-*/
+ */
 function member_filter_form () {
-    
     // Available filters    
     $filters = array(
         'all' => 'All'
-        , 'voting' => 'Voting'
         , 'active' => 'Active'
+        , 'voting' => 'Voting'
     );
-    
     // Default filter
     $selected = empty($_SESSION['member_filter_option']) ? 'all' : $_SESSION['member_filter_option'];
-    
     // Construct hidden fields to pass GET params
     $hidden = array();
     foreach ($_GET as $key => $val) {
         $hidden[$key] = $val;
     }
-    
     $form = array(
         'type' => 'form'
         , 'method' => 'get'
@@ -630,7 +591,7 @@ function member_filter_form () {
 
 /**
  * @return the form structure for a member import form.
-*/
+ */
 function member_import_form () {
     return array(
         'type' => 'form'
@@ -675,7 +636,7 @@ function member_import_form () {
 
 /**
  * @return the form structure for a plan import form.
-*/
+ */
 function plan_import_form () {
     return array(
         'type' => 'form'

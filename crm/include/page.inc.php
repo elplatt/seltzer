@@ -46,11 +46,10 @@ function core_page_list () {
 
 /**
  * Page hook.  Adds member module content to a page before it is rendered.
- *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
-*/
+ */
 function core_page (&$page_data, $page_name, $options) {
     
     $latestNews = '<p>Welcome to ' . title() . ' version ' . crm_version() . '!</p>';
@@ -102,5 +101,5 @@ function core_page (&$page_data, $page_name, $options) {
                 $content .= theme('form', crm_get_form('module_upgrade'));
                 page_add_content_top($page_data, $content);
             }
-    }   
+    }
 }

@@ -23,11 +23,9 @@
 /**
  * Convert first, middle, last into a single name string. Deprecated, use
  * theme_contact_name() instead.
- *
  * @param $first First name
  * @param $middle Middle name
  * @param $last Last name
- *
  * @return the name string.
  * @deprecated.
  */
@@ -42,25 +40,20 @@ function member_name ($first, $middle, $last) {
 
 /**
  * Generate description for a membership plan.
- *
  * @param $sid The sid of the membership.
  * @return The description string.
  */
 function member_membership_description ($sid) {
-    
     // Get membership data
     $data = member_membership_data(array('sid'=>$sid));
     $membership = $data[0];
-    
     // Get member contact info
     $data = member_contact_data(array('cid'=>$membership['cid']));
     $contact = $data[0];
-    
     // Construct description
     $description = 'Membership: ';
     $description .= theme_contact_name($contact['cid']);
     $description .= ' - Plan: ' . $membership['plan']['name'];
     $description .= ' : Starting ' . $membership['start'];
-    
     return $description;
 }

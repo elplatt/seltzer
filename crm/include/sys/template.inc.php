@@ -37,7 +37,6 @@ function template_render ($name, $vars = array()) {
     }
     // TODO run page-specific module preprocess hooks
     extract($vars);
-    
     // Render template
     if (isset($vars['type'])) {
         $filename = path_to_theme() . '/' . "$name-$vars[type]" . '.tpl.php';
@@ -49,7 +48,6 @@ function template_render ($name, $vars = array()) {
     include($filename);
     $output = ob_get_contents();
     ob_end_clean();
-    
     return $output;
 }
 
@@ -60,12 +58,10 @@ function template_render ($name, $vars = array()) {
 function template_preprocess ($vars) {
     global $config_org_name;
     global $config_base_path;
-    
     $vars['title'] = title();
     $vars['org_name'] = $config_org_name;
     $vars['base_path'] = $config_base_path;
     $vars['hostname'] = $_SERVER['SERVER_NAME'];
-    
     return $vars;
 }
 
@@ -76,7 +72,6 @@ function template_preprocess ($vars) {
 function template_preprocess_page ($vars) {
     global $config_org_name;
     global $config_base_path;
-    
     $vars['scripts'] = theme('scripts');
     $vars['stylesheets'] = theme('stylesheets');
     $vars['header'] = theme('header');
@@ -84,6 +79,5 @@ function template_preprocess_page ($vars) {
     $vars['messages'] = theme('messages');
     $vars['content'] = theme('page', $vars['path'], $_GET);
     $vars['footer'] = theme('footer');
-    
     return $vars;
 }

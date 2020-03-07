@@ -58,10 +58,8 @@ function billing_install($old_revision = 0) {
  * @return The form structure.
  */
 function billing_form () {
-    
     $bill_date = variable_get('billing_last_date', '');
     $bill_label = empty($bill_date) ? 'never' : $bill_date;
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -91,7 +89,6 @@ function billing_form () {
             )
         )
     );
-    
     return $form;
 }
 
@@ -100,10 +97,8 @@ function billing_form () {
  * @return The form structure.
  */
 function email_bills_form () {
-    
     $email_date = variable_get('billing_last_email', '');
     $from_label = empty($email_date) ? 'never' : $email_date;
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -133,7 +128,6 @@ function email_bills_form () {
             )
         )
     );
-    
     return $form;
 }
 
@@ -185,7 +179,7 @@ function command_billing_email () {
         // Construct button
         $params = array(
             'referenceId' => $cid
-            , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+            , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false)
             , 'description' => 'Membership Dues Payment'
         );
         $amount = payment_format_currency($balance);
@@ -226,11 +220,10 @@ function billing_page_list () {
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
- *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
-*/
+ */
 function billing_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         case 'payments':
@@ -386,7 +379,7 @@ function theme_billing_first_month ($cid) {
     $html = "<fieldset><legend>First month prorated dues</legend>";
     $params = array(
         'referenceId' => $cid
-        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false) 
+        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false)
         , 'description' => 'Membership Dues Payment'
     );
     $amount = payment_format_currency($due);
@@ -413,7 +406,7 @@ function theme_billing_account_info ($cid) {
     $balance = $balances[$cid];
     $params = array(
         'referenceId' => $cid
-        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false)
         , 'description' => 'Membership Dues Payment'
     );
     $output = '<div>';

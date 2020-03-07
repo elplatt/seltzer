@@ -39,9 +39,9 @@ function variable_install($old_revision = 0) {
     if ($old_revision < 1) {
         $sql = '
             CREATE TABLE IF NOT EXISTS `variable` (
-              `name` varchar(255) NOT NULL
-              , `value` text NOT NULL
-              , PRIMARY KEY (`name`)
+                `name` varchar(255) NOT NULL
+                , `value` text NOT NULL
+                , PRIMARY KEY (`name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ';
         $res = mysqli_query($db_connect, $sql);
@@ -60,12 +60,14 @@ function variable_set ($name, $value) {
     global $db_connect;
     $esc_name = mysqli_real_escape_string($db_connect, $name);
     $esc_value = mysqli_real_escape_string($db_connect, $value);
-    
     // Check if variable exists
-    $sql = "SELECT `value` FROM `variable` WHERE `name`='$esc_name'";
+    $sql = "
+        SELECT `value`
+        FROM `variable`
+        WHERE `name`='$esc_name'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    
     if (mysqli_num_rows($res) > 0) {
         // Update
         $sql = "
@@ -97,7 +99,6 @@ function variable_set ($name, $value) {
 function variable_get ($name, $default) {
     global $db_connect;
     $esc_name = mysqli_real_escape_string($db_connect, $name);
-    
     $sql = "
         SELECT `value`
         FROM `variable`
@@ -105,11 +106,9 @@ function variable_get ($name, $default) {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    
     $variable = mysqli_fetch_assoc($res);
     if ($variable) {
         return $variable['value'];
     }
-    
     return $default;
 }
