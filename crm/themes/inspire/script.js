@@ -33,23 +33,18 @@ var httpGet = {};
 
 // Add datepicker to necessary fields
 $(document).ready(function () {
-    
     // Enable date picker
     $('input.date').datepicker({"dateFormat" : "yy-mm-dd"});
-    
     // Set up tabbing
     showTab();
     $('ul.page-nav li a').click(function () {
         showTab($(this).attr('href'));
         return false;
     });
-    
     // Set up autocomplete forms
     initAutocomplete();
-    
     // Setup input clear
     initInputClear();
-    
     // Enable focusing
     $('.focus').focus();
 });

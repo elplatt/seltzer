@@ -43,30 +43,22 @@ function remove_utf8_bom($text) {
  * Converts csv data into a data structure.  The returned value is an array
  * with each element representing a row of the csv.  Each element is an array
  * with column names as keys and fields as values.
- *
  * @param $csv_data The data.
  * @param $row_terminate The character represening a new row.
  * @param $field_terminate The character representing the end of a field.
  * @param $field_quote The character used to quote fields.
  * @param $field_escape The character used to escape special characters in the field content.
- *
  * @return The data structure corresponding to the csv data.
  */
 function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $field_quote = '"', $field_escape = "\\") {
-    
     $content = trim(csv_normalize($content)) . "\n";
-    
     $result = array();
     $header = array();
     $row = array();
-
     $field = '';
     $is_quoted = false;
-    
     $in_body = false;
-    
     $field_index = 0;
-    
     $index = 0;
     $length = strlen($content);
     while ($index < $length) {
@@ -112,10 +104,7 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
             $field = '';
             $is_quoted = false;
             $field_index++;
-        } else if (
-            ($char == $row_terminate && !$is_quoted)
-            || $index === $length - 1)
-        {
+        } else if (($char == $row_terminate && !$is_quoted) || $index === $length - 1) {
             // End field or header
             if ($in_body) {
                 // Body
@@ -126,7 +115,6 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
             }
             $field = '';
             $is_quoted = false;
-            
             // End row
             $field_index = 0;
             if ($in_body) {
@@ -143,6 +131,5 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
         }
         $index++;
     }
-    
     return $result;
 }

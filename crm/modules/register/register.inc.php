@@ -51,23 +51,18 @@ function theme_register_member_form () {
  * @return The form structure for registering a member.
 */
 function register_member_form () {
-    
     // Start with contact form
     $form = crm_get_form('member_add');
-    
     // Generate default start date, first of current month
     $start = date("Y-m-d");
-    
     // Change form command
     $form['command'] = 'register_member';
     $form['submit'] = 'Register';
-    
     return $form;
 }
 
 /**
  * Handle member registration request.
- *
  * @return The url to display when complete.
  */
 function command_register_member () {
@@ -76,21 +71,22 @@ function command_register_member () {
     global $config_org_name;
     global $config_email_to;
     global $config_email_from;
-    
     // Find username or create a new one
     $username = $_POST['username'];
     $n = 0;
     while (empty($username) && $n < 100) {
-        
         // Construct test username
         $test_username = strtolower($_POST['firstName']{0} . $_POST['lastName']);
         if ($n > 0) {
             $test_username .= $n;
         }
-        
         // Check whether username is taken
         $esc_test_name = mysqli_real_escape_string($db_connect, $test_username);
-        $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_name'";
+        $sql = "
+            SELECT *
+            FROM `user`
+            WHERE `username`='$esc_test_name'
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $user_row = mysqli_fetch_assoc($res);
@@ -103,14 +99,16 @@ function command_register_member () {
         error_register('Please specify a username');
         return crm_url('register');
     }
-    
     // Check for duplicate usernames
     if (!empty($username)) {
-        
         // Check whether username is in use
         $test_username = $username;
         $esc_test_username = mysqli_real_escape_string($db_connect, $test_username);
-        $sql = "SELECT * FROM `user` WHERE `username`='$esc_test_username'";
+        $sql = "
+            SELECT *
+            FROM `user`
+            WHERE `username`='$esc_test_username'
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $username_row = mysqli_fetch_assoc($res);
@@ -121,15 +119,17 @@ function command_register_member () {
             return crm_url('register');
         }
     }
-    
     // Check for duplicate email addresses
     $email = $_POST['email'];
     if (!empty($email)) {
-        
         // Check whether email address is in use
         $test_email = $email;
         $esc_test_email = mysqli_real_escape_string($db_connect, $test_email);
-        $sql = "SELECT * FROM `contact` WHERE `email`='$esc_test_email'";
+        $sql = "
+            SELECT *
+            FROM `contact`
+            WHERE `email`='$esc_test_email'
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $email_row = mysqli_fetch_assoc($res);
@@ -141,7 +141,6 @@ function command_register_member () {
             return crm_url('register');
         }
     }
-    
     // Build contact object
     $contact = array(
         'firstName' => $_POST['firstName']
@@ -150,11 +149,9 @@ function command_register_member () {
         , 'email' => $email
         , 'phone' => $_POST['phone']
     );
-    
     // Add user fields
     $user = array('username' => $username);
     $contact['user'] = $user;
-    
     // Add member fields
     $membership = array(
         array(
@@ -174,12 +171,9 @@ function command_register_member () {
         , 'zipcode' => $_POST['zipcode']
     );
     $contact['member'] = $member;
-    
     // Save to database
     $contact = contact_save($contact);
-    
     $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);
-    
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
@@ -188,11 +182,9 @@ function command_register_member () {
         $content = theme('member_created_email', $contact['cid']);
         mail($config_email_to, "New Member: $name", $content, $headers);
     }
-    
     // Notify user
     $confirm_url = user_reset_password_url($contact['user']['username']);
     $content = theme('member_welcome_email', $contact['user']['cid'], $confirm_url);
     mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
-    
     return crm_url('login');
 }

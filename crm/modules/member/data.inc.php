@@ -22,12 +22,11 @@
 
 /**
  * Return data for one or more members.
- *
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified, return a member (or members if array) with the given id,
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a member.
-*/ 
+ */
 function member_data ($opts = array()) {
     global $db_connect;
     // Query database
@@ -52,10 +51,14 @@ function member_data ($opts = array()) {
                 $terms[] = $term;
             }
             $esc_list = "(" . implode(',', $terms) .")";
-            $sql .= " AND `member`.`cid` IN $esc_list ";
+            $sql .= "
+                AND `member`.`cid` IN $esc_list
+            ";
         } else {
             $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
-            $sql .= " AND `member`.`cid`='$esc_cid'";
+            $sql .= "
+                AND `member`.`cid`='$esc_cid'
+            ";
         }
     }
     if (isset($opts['filter'])) {
@@ -63,22 +66,30 @@ function member_data ($opts = array()) {
         if (isset($filter['active'])) {
             if ($filter['active']) {
                 //get active members:
-                $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()))";
+                $sql .= " AND
+                    (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()))
+                ";
             } else {
                 //get NOT active members:
-                $sql .= " AND (`membership`.`start` IS NULL OR `membership`.`start` > NOW() OR `membership`.`end` < NOW())";
+                $sql .= "
+                    AND (`membership`.`start` IS NULL OR `membership`.`start` > NOW() OR (`membership`.`end` IS NOT NULL AND `membership`.`end` < NOW()))
+                ";
             }
         }
         if (isset($filter['voting'])) {
-            $sql .= " AND (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()) AND `plan`.`voting` <> 0)";
+            $sql .= "
+                AND (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()) AND `plan`.`voting` <> 0)
+            ";
         }
     }
-    $sql .= " GROUP BY `member`.`cid` ";
-    $sql .= " ORDER BY `lastName`, `firstName`, `middleName` ASC ";
-    
+    $sql .= "
+        GROUP BY `member`.`cid`
+    ";
+    $sql .= "
+        ORDER BY `lastName`, `firstName`, `middleName` ASC
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    
     // Store data
     $members = array();
     $row = mysqli_fetch_assoc($res);
@@ -110,11 +121,9 @@ function member_data ($opts = array()) {
             )
             , 'membership' => array()
         );
-        
         $members[] = $member;
         $row = mysqli_fetch_assoc($res);
     }
-    
     // Get list of memberships associated with each member
     // This is slow, should be combined into a single query
     foreach ($members as $index => $member) {
@@ -132,7 +141,6 @@ function member_data ($opts = array()) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        
         // Add each membership
         $row = mysqli_fetch_assoc($res);
         while (!empty($row)) {
@@ -154,7 +162,6 @@ function member_data ($opts = array()) {
             $row = mysqli_fetch_assoc($res);
         }
     }
-    
     // Return data
     return $members;
 }
@@ -216,7 +223,6 @@ function member_contact_api ($contact, $op) {
     $esc_address3 = mysqli_real_escape_string($db_connect, $contact['member']['address3']);
     $esc_town_city = mysqli_real_escape_string($db_connect, $contact['member']['town_city']);
     $esc_zipcode = mysqli_real_escape_string($db_connect, $contact['member']['zipcode']);
-    
     switch ($op) {
         case 'create':
             // Add member
@@ -239,12 +245,15 @@ function member_contact_api ($contact, $op) {
                 }
             }
             // Add role entry
-            $sql = "SELECT `rid` FROM `role` WHERE `name`='member'";
+            $sql = "
+                SELECT `rid`
+                FROM `role`
+                WHERE `name`='member'
+            ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
             $row = mysqli_fetch_assoc($res);
             $esc_rid = mysqli_real_escape_string($db_connect, $row['rid']);
-            
             if ($row) {
                 $sql = "
                     INSERT INTO `user_role`
@@ -307,10 +316,16 @@ function member_save ($member) {
 function member_delete ($cid) {
     global $db_connect;
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
-    $sql = "DELETE FROM `member` WHERE `cid`='$esc_cid'";
+    $sql = "
+        DELETE FROM `member`
+        WHERE `cid`='$esc_cid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    $sql = "DELETE FROM `membership` WHERE `cid`='$esc_cid'";
+    $sql = "
+        DELETE FROM `membership`
+        WHERE `cid`='$esc_cid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     message_register("Deleted membership info for: " . theme('contact_name', $esc_cid));
@@ -318,24 +333,31 @@ function member_delete ($cid) {
 
 /**
  * Return data for one or more membership plans.
- * 
  * @param $opts An associative array of options, possible keys are:
  *   'pid' If specified, returns a single plan with the matching id,
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a membership plan.
-*/
+ */
 function member_plan_data ($opts = array()) {
     global $db_connect;
     // Construct query for plans
-    $sql = "SELECT * FROM `plan` WHERE 1";
+    $sql = "
+        SELECT *
+        FROM `plan`
+        WHERE 1
+    ";
     if (isset($opts['filter'])) {
         foreach ($opts['filter'] as $name => $param) {
             switch ($name) {
                 case 'active':
                     if ($param) {
-                        $sql .= " AND `plan`.`active` <> 0";
+                        $sql .= "
+                            AND `plan`.`active` <> 0
+                        ";
                     } else {
-                        $sql .= " AND `plan`.`active` = 0";
+                        $sql .= "
+                            AND `plan`.`active` = 0
+                        ";
                     }
                     break;
             }
@@ -345,11 +367,9 @@ function member_plan_data ($opts = array()) {
         $pid = mysqli_real_escape_string($db_connect, $opts['pid']);
         $sql .= " AND `plan`.`pid`='$pid' ";
     }
-    
     // Query database for plans
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
-    
     // Store plans
     $plans = array();
     $row = mysqli_fetch_assoc($res);
@@ -357,28 +377,23 @@ function member_plan_data ($opts = array()) {
         $plans[] = $row;
         $row = mysqli_fetch_assoc($res);
     }
-    
     return $plans;
 }
 
 /**
  * Generates an associative array mapping membership plan pids to
  * strings describing those membership plans.
- * 
  * @param $opts Options to be passed to member_plan_data().
  * @return The associative array of membership plan descriptions.
  */
-function member_plan_options ($opts = NULL) {
-    
+function member_plan_options ($opts = bull) {
     // Get plan data
     $plans = member_plan_data($opts);
-    
     // Add option for each member plan
     $options = array();
     foreach ($plans as $plan) {
         $options[$plan['pid']] = "$plan[name] - $plan[price]";
     }
-    
     return $options;
 }
 
@@ -431,7 +446,10 @@ function member_plan_delete ($pid) {
     $description = theme('member_plan_description', $esc_pid);
     $plan = crm_get_one('member_plan', array('pid'=>$pid));
     $plan = module_invoke_api('member_plan', $plan, 'delete');
-    $sql = "DELETE FROM `plan` WHERE `pid`='$esc_pid'";
+    $sql = "
+        DELETE FROM `plan`
+        WHERE `pid`='$esc_pid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     message_register("Deleted plan: $description");
@@ -439,12 +457,11 @@ function member_plan_delete ($pid) {
 
 /**
  * Return data for one or more memberships.
- *
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified, returns memberships for the member with the cid,
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a membership.
-*/ 
+ */ 
 function member_membership_data ($opts) {
     global $db_connect;
     // Query database
@@ -458,12 +475,16 @@ function member_membership_data ($opts) {
     // Add member id
     if (!empty($opts['cid'])) {
         $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
-        $sql .= " AND `cid`='$esc_cid'";
+        $sql .= "
+            AND `cid`='$esc_cid'
+        ";
     }
     // Add membership id
     if (!empty($opts['sid'])) {
         $esc_sid = mysqli_real_escape_string($db_connect, $opts['sid']);
-        $sql .= " AND `sid`='$esc_sid'";
+        $sql .= "
+            AND `sid`='$esc_sid'
+        ";
     }
     // Add filters
     $esc_today = mysqli_real_escape_string($db_connect, date('Y-m-d'));
@@ -473,16 +494,24 @@ function member_membership_data ($opts) {
             switch ($name) {
                 case 'active':
                     if ($param) {
-                        $sql .= " AND (`end` IS NULL OR `end` > '$esc_today') ";
+                        $sql .= "
+                            AND (`end` IS NULL OR `end` > '$esc_today')
+                        ";
                     } else {
-                        $sql .= " AND (`end` IS NOT NULL) ";
+                        $sql .= "
+                            AND (`end` IS NOT NULL)
+                        ";
                     }
                     break;
                 case 'starts_after':
-                    $sql .= " AND (`start` > '$esc_param') ";
+                    $sql .= "
+                        AND (`start` > '$esc_param')
+                    ";
                     break;
                 case 'ends_after':
-                    $sql .= " AND (`end` IS NULL OR `end` > '$esc_param') ";
+                    $sql .= "
+                        AND (`end` IS NULL OR `end` > '$esc_param')
+                    ";
                     break;
                 default:
                     break;
@@ -539,16 +568,26 @@ function member_membership_save ($membership) {
             , `pid`='$esc_pid'
         ";
         if ($esc_start) {
-            $sql .= ",`start`='$esc_start' ";
+            $sql .= "
+                , `start`='$esc_start'
+            ";
         } else {
-            $sql .= ", `start`=NULL ";
+            $sql .= "
+                , `start`=NULL
+            ";
         }
         if ($esc_end) {
-            $sql .= ", `end`='$esc_end' ";
+            $sql .= "
+                , `end`='$esc_end'
+            ";
         } else {
-            $sql .= ", `end`=NULL ";
+            $sql .= "
+                , `end`=NULL
+            ";
         }
-        $sql .= "WHERE `sid`='$esc_sid'";
+        $sql .= "
+            WHERE `sid`='$esc_sid'
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $membership = module_invoke_api('member_membership', $membership, 'update');
@@ -576,20 +615,22 @@ function member_membership_delete ($sid) {
     $esc_sid = mysqli_real_escape_string($db_connect, $sid);
     $membership = crm_get_one('member_membership', array('sid'=>$sid));
     $membership = module_invoke_api('member_membership', $membership, 'delete');
-    $sql = "DELETE FROM `membership` WHERE `sid`='$esc_sid'";
+    $sql = "
+        DELETE FROM `membership`
+        WHERE `sid`='$esc_sid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
 }
 
 /**
  * Return data for one or more contacts.  Use contact_data() instead.
- * 
  * @param $opts An associative array of options, possible keys are:
  *   'cid' If specified returns the corresponding member (or members for an array);
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a contact.
  * @deprecated
-*/ 
+ */ 
 function member_contact_data ($opts = array()) {
     return contact_data($opts);
 }

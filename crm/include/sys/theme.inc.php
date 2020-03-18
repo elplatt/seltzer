@@ -25,7 +25,7 @@
  */
 function path_to_theme() {
     global $config_theme;
-    if(strlen($config_theme) > 0) {
+    if (strlen($config_theme) > 0) {
         return "themes/$config_theme";
     } else {
         return 'themes/inspire';
@@ -34,36 +34,29 @@ function path_to_theme() {
 
 /**
  * Map theme calls to appropriate theme handler.
- *
  * At least one parmaeter is required, namely the element being themed.
  * Additional parameters will be passed on to the theme handler.
- *
  * @param $element The element to theme.
  * @return The themed html string for the specified element.
-*/
+ */
 function theme () {
-    
     // Check for arguments
     if (func_num_args() < 1) {
         return "";
     }
     $args = func_get_args();
-    
     // Construct handler name
     $element = $args[0];
     $handler = 'theme_' . $element;
-    
     // Construct handler arguments
     $handler_args = array();
     for ($i = 1; $i < count($args); $i++) {
         $handler_args[] = $args[$i];
     }
-    
     // Check for undefined handler
     if (!function_exists($handler)) {
         return "";
     }
-    
     return call_user_func_array($handler, $handler_args);
 }
 

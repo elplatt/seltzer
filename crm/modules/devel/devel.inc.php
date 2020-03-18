@@ -30,10 +30,9 @@ function devel_revision () {
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
- *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
-*/
+ */
 function devel_page (&$page_data, $page_name) {
     switch ($page_name) {
         case 'contact':

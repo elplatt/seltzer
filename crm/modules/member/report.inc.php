@@ -41,7 +41,12 @@ function member_email_report ($opts) {
  */
 function member_membership_earliest_date () {
     global $db_connect;
-    $sql = "SELECT `start` FROM `membership` ORDER BY `start` ASC LIMIT 1";
+    $sql = "
+        SELECT `start`
+        FROM `membership`
+        ORDER BY `start` ASC
+        LIMIT 1
+    ";
     $res = mysqli_query($db_connect, $sql);
     $row = mysqli_fetch_assoc($res);
     if (!$row) {
@@ -76,13 +81,24 @@ function member_statistics () {
         $dates[] = "('$year-$month-01')";
     }
     // Create temporary table with dates
-    $sql = "DROP TEMPORARY TABLE IF EXISTS `temp_months`";
+    $sql = "
+        DROP TEMPORARY TABLE IF EXISTS `temp_months`
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
-    $sql = "CREATE TEMPORARY TABLE `temp_months` (`month` date NOT NULL);";
+    $sql = "
+        CREATE TEMPORARY TABLE `temp_months` (
+            `month` date NOT NULL
+        );
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
-    $sql = "INSERT INTO `temp_months` (`month`) VALUES " . implode(',', $dates) . ";";
+    $sql = "
+        INSERT INTO `temp_months`
+        (`month`)
+        VALUES
+        " . implode(',', $dates) . ";
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
     // Query number of active memberships for each month

@@ -45,12 +45,12 @@ function member_install($old_revision = 0) {
         // Create membership table
         $sql = "
             CREATE TABLE IF NOT EXISTS `membership` (
-              `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
-              , `cid` mediumint(8) unsigned NOT NULL
-              , `pid` mediumint(8) unsigned NOT NULL
-              , `start` date NOT NULL
-              , `end` date DEFAULT NULL
-              , PRIMARY KEY (`sid`)
+                `sid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+                , `cid` mediumint(8) unsigned NOT NULL
+                , `pid` mediumint(8) unsigned NOT NULL
+                , `start` date NOT NULL
+                , `end` date DEFAULT NULL
+                , PRIMARY KEY (`sid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -58,12 +58,12 @@ function member_install($old_revision = 0) {
         // Create plan table
         $sql = "
             CREATE TABLE IF NOT EXISTS `plan` (
-              `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
-              , `name` varchar(255) NOT NULL
-              , `price` varchar(6) NOT NULL
-              , `active` tinyint(1) NOT NULL
-              , `voting` tinyint(1) NOT NULL
-              , PRIMARY KEY (`pid`)
+                `pid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
+                , `name` varchar(255) NOT NULL
+                , `price` varchar(6) NOT NULL
+                , `active` tinyint(1) NOT NULL
+                , `voting` tinyint(1) NOT NULL
+                , PRIMARY KEY (`pid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -87,7 +87,12 @@ function member_install($old_revision = 0) {
         foreach ($roles as $rid => $role) {
             if (array_key_exists($role, $default_perms)) {
                 foreach ($default_perms[$role] as $perm) {
-                    $sql = "INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$rid', '$perm')";
+                    $sql = "
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$rid', '$perm')
+                    ";
                     $res = mysqli_query($db_connect, $sql);
                     if (!$res) crm_error(mysqli_error($res));
                 }
@@ -153,7 +158,10 @@ function member_install($old_revision = 0) {
                 foreach ($default_perms[$role] as $perm) {
                     $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "
-                        INSERT INTO `role_permission` (`rid`, `permission`) VALUES ('$esc_rid', '$esc_perm')
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
                     if (!$res) crm_error(mysqli_error($res));
