@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     billing.inc.php - Billing module
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -58,10 +58,8 @@ function billing_install($old_revision = 0) {
  * @return The form structure.
  */
 function billing_form () {
-    
     $bill_date = variable_get('billing_last_date', '');
     $bill_label = empty($bill_date) ? 'never' : $bill_date;
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -73,17 +71,17 @@ function billing_form () {
                 , 'label' => 'Process Billings'
                 , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => 'This will generate billing entries for any members with active memberships.  <strong>Important:</strong> make sure the membership data is up to date before running billing.'
-                    ),
-                    array(
-                        'type' => 'readonly',
-                        'class' => 'date',
-                        'label' => 'Last Billed',
-                        'name' => 'last_billed',
-                        'value' => $bill_label
-                    ),
-                    array(
+                        'type' => 'message'
+                        , 'value' => 'This will generate billing entries for any members with active memberships.  <strong>Important:</strong> make sure the membership data is up to date before running billing.'
+                    )
+                    , array(
+                        'type' => 'readonly'
+                        , 'class' => 'date'
+                        , 'label' => 'Last Billed'
+                        , 'name' => 'last_billed'
+                        , 'value' => $bill_label
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Process'
                     )
@@ -91,7 +89,6 @@ function billing_form () {
             )
         )
     );
-    
     return $form;
 }
 
@@ -100,10 +97,8 @@ function billing_form () {
  * @return The form structure.
  */
 function email_bills_form () {
-    
     $email_date = variable_get('billing_last_email', '');
     $from_label = empty($email_date) ? 'never' : $email_date;
-    
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -115,17 +110,17 @@ function email_bills_form () {
                 , 'label' => 'Send Billing Emails'
                 , 'fields' => array(
                     array(
-                        'type' => 'message',
-                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
-                        ),
-                    array(
-                        'type' => 'readonly',
-                        'class' => 'date',
-                        'label' => 'Last Emailed',
-                        'name' => 'last_emailed',
-                        'value' => $from_label
-                    ),
-                    array(
+                        'type' => 'message'
+                        , 'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
+                    )
+                    , array(
+                        'type' => 'readonly'
+                        , 'class' => 'date'
+                        , 'label' => 'Last Emailed'
+                        , 'name' => 'last_emailed'
+                        , 'value' => $from_label
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Send Emails'
                     )
@@ -133,7 +128,6 @@ function email_bills_form () {
             )
         )
     );
-    
     return $form;
 }
 
@@ -185,7 +179,7 @@ function command_billing_email () {
         // Construct button
         $params = array(
             'referenceId' => $cid
-            , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+            , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false)
             , 'description' => 'Membership Dues Payment'
         );
         $amount = payment_format_currency($balance);
@@ -226,11 +220,10 @@ function billing_page_list () {
 
 /**
  * Page hook.  Adds module content to a page before it is rendered.
- *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
-*/
+ */
 function billing_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         case 'payments':
@@ -386,7 +379,7 @@ function theme_billing_first_month ($cid) {
     $html = "<fieldset><legend>First month prorated dues</legend>";
     $params = array(
         'referenceId' => $cid
-        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false) 
+        , 'amount' => $due['code'] . ' ' . payment_format_currency($due, false)
         , 'description' => 'Membership Dues Payment'
     );
     $amount = payment_format_currency($due);
@@ -413,7 +406,7 @@ function theme_billing_account_info ($cid) {
     $balance = $balances[$cid];
     $params = array(
         'referenceId' => $cid
-        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false) 
+        , 'amount' => $balance['code'] . ' ' . payment_format_currency($balance, false)
         , 'description' => 'Membership Dues Payment'
     );
     $output = '<div>';

@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     csv.inc.php - Parses comma-separated variable files
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -43,30 +43,22 @@ function remove_utf8_bom($text) {
  * Converts csv data into a data structure.  The returned value is an array
  * with each element representing a row of the csv.  Each element is an array
  * with column names as keys and fields as values.
- *
  * @param $csv_data The data.
  * @param $row_terminate The character represening a new row.
  * @param $field_terminate The character representing the end of a field.
  * @param $field_quote The character used to quote fields.
  * @param $field_escape The character used to escape special characters in the field content.
- *
  * @return The data structure corresponding to the csv data.
  */
 function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $field_quote = '"', $field_escape = "\\") {
-    
     $content = trim(csv_normalize($content)) . "\n";
-    
     $result = array();
     $header = array();
     $row = array();
-
     $field = '';
     $is_quoted = false;
-    
     $in_body = false;
-    
     $field_index = 0;
-    
     $index = 0;
     $length = strlen($content);
     while ($index < $length) {
@@ -112,10 +104,7 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
             $field = '';
             $is_quoted = false;
             $field_index++;
-        } else if (
-            ($char == $row_terminate && !$is_quoted)
-            || $index === $length - 1)
-        {
+        } else if (($char == $row_terminate && !$is_quoted) || $index === $length - 1) {
             // End field or header
             if ($in_body) {
                 // Body
@@ -126,7 +115,6 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
             }
             $field = '';
             $is_quoted = false;
-            
             // End row
             $field_index = 0;
             if ($in_body) {
@@ -143,6 +131,5 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
         }
         $index++;
     }
-    
     return $result;
 }

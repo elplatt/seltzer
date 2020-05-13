@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     page.inc.php - Core pages
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -46,11 +46,10 @@ function core_page_list () {
 
 /**
  * Page hook.  Adds member module content to a page before it is rendered.
- *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
-*/
+ */
 function core_page (&$page_data, $page_name, $options) {
     
     $latestNews = '<p>Welcome to ' . title() . ' version ' . crm_version() . '!</p>';
@@ -70,7 +69,7 @@ function core_page (&$page_data, $page_name, $options) {
             page_add_content_top($page_data, theme('form', crm_get_form('module_install')));
             break;
         case 'register':
-            page_add_content_top($page_data, theme('form', crm_get_form('register')));
+            page_add_content_top($page_data, theme('form', crm_get_form('register_member')));
             break;
         case 'login':
             page_add_content_top($page_data, theme('form', crm_get_form('login')));
@@ -102,5 +101,5 @@ function core_page (&$page_data, $page_name, $options) {
                 $content .= theme('form', crm_get_form('module_upgrade'));
                 page_add_content_top($page_data, $content);
             }
-    }   
+    }
 }

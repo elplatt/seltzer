@@ -1,22 +1,22 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2017 Matt J. Oehrlein <matt.oehrlein@gmail.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2020 Matt J. Oehrlein <matt.oehrlein@gmail.com>
     
     This file is part of the Seltzer CRM Project
     profile_picture.inc.php - Defines contact entity
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -45,15 +45,15 @@ function profile_picture_install ($old_revision = 0) {
         // Create a table to associate pictures with a CID
         $sql = '
             CREATE TABLE IF NOT EXISTS `profile_picture` (
-              `cid` mediumint(8) unsigned NOT NULL,
-              `filename` varchar(255) NOT NULL,
-              PRIMARY KEY (`cid`)
+                `cid` mediumint(8) unsigned NOT NULL
+                , `filename` varchar(255) NOT NULL
+                , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Create folder directory if it does not exist to store uploaded profile pictures in.
-        if(!file_exists('./files/profile_picture')){
+        if(!file_exists('./files/profile_picture')) {
             if (!mkdir('./files/profile_picture/', 0775, true)) {
                 error_register('Failed to create folder. Please check folder permissions.');
             }
@@ -73,10 +73,9 @@ function profile_picture_page_list () {
 
 /**
  * Page hook.  Adds profile_picture module content to a page before it is rendered.
- *
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
-*/
+ */
 function profile_picture_page (&$page_data, $page_name) {
     switch ($page_name) {
         case 'contact':
@@ -147,13 +146,11 @@ function profile_picture_upload_form ($cid) {
 
 /**
  * Handle profile picture upload request.
- *
  * @return The url to display on completion.
  */
 function command_profile_picture_upload () {
     global $db_connect;
     $cid = $_POST['cid'];
-    
     if (!array_key_exists('profile-picture-file', $_FILES)) {
         error_register('No profile picture uploaded');
         return crm_url('contact&cid=' . $_POST['cid']);
@@ -182,7 +179,6 @@ function command_profile_picture_upload () {
             } else {
                 define('THUMBNAIL_IMAGE_MAX_WIDTH', 120);
                 define('THUMBNAIL_IMAGE_MAX_HEIGHT', 120);
-                
                 $source_image_path = $_FILES['profile-picture-file']['tmp_name'];
                 list($source_image_width, $source_image_height, $source_image_type) = getimagesize($source_image_path);
                 switch ($source_image_type) {
@@ -218,7 +214,6 @@ function command_profile_picture_upload () {
                 imagedestroy($thumbnail_gd_image);
             }
             // ------- End Image Resizing -------
-            
             //generate md5 hash from the contents of the uploaded resized image file
             $hash = hash_file('md5', $_FILES['profile-picture-file']['tmp_name']);
             //generate filepath to save file
@@ -230,10 +225,12 @@ function command_profile_picture_upload () {
             }
             $esc_cid = mysqli_real_escape_string($db_connect, $cid);
             // Associate this CID with uploaded file by storing a cid=>filepath row in the profile_picture table
-            $sql = "INSERT INTO `profile_picture` (`cid`, `filename`) VALUES ('$esc_cid', '$destFileName')";
-                    $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
-                    
+            $sql = "
+                INSERT INTO `profile_picture` (`cid`, `filename`)
+                VALUES ('$esc_cid', '$destFileName')
+            ";
+            $res = mysqli_query($db_connect, $sql);
+            if (!$res) crm_error(mysqli_error($res));
             //save the file. Literally just moving from /tmp/ to the right directory
             if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], $destFilePath)){
                 error_register('Error Saving Image to Server');
@@ -246,7 +243,7 @@ function command_profile_picture_upload () {
         error_register('Invalid file. Did you upload an image (gif, jpeg, jpg, png) that is less than 20mb and no bigger than 1000x1024?');
         error_register('File Type is: ' . $_FILES['profile-picture-file']['type']);
         error_register('File Size is: ' . $_FILES['profile-picture-file']['size'] / 1024 . "kB");
-    } 
+    }
     return crm_url('contact&cid=' . $_POST['cid']);
 }
 
@@ -255,7 +252,6 @@ function command_profile_picture_upload () {
 /**
  * Delete a profile picture.
  * @param $cid the cid of the profile picture to delete
- *
  * @return bool true if succeded, false if failed.
  */
 function profile_picture_delete ($cid) {
@@ -275,7 +271,10 @@ function profile_picture_delete ($cid) {
                 return false;
             }
             //Next, Attempt to delete the existing profile picture filename association with this cid.
-            $sql = "DELETE FROM `profile_picture` WHERE `cid`='$esc_cid'";
+            $sql = "
+                DELETE FROM `profile_picture`
+                WHERE `cid`='$esc_cid'
+            ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
             if (mysqli_affected_rows($db_connect) > 0) {
@@ -289,9 +288,7 @@ function profile_picture_delete ($cid) {
 
 /**
  * Theme a contact's profile picture.
- * 
  * @param $contact The contact data structure or cid.
- *
  * @return The html of the user's profile picture.
  */
 function theme_profile_picture ($contact) {
@@ -301,7 +298,11 @@ function theme_profile_picture ($contact) {
     }
     $cid = $contact['cid'];
     //Attempt to fetch a picture filename in the database associated with this cid.
-    $sql = "SELECT `cid`, `filename` FROM `profile_picture` WHERE 1 AND `cid` = '$cid'";
+    $sql = "
+        SELECT `cid`, `filename`
+        FROM `profile_picture`
+        WHERE 1 AND `cid` = '$cid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $row = mysqli_fetch_assoc($res);
@@ -318,4 +319,3 @@ function theme_profile_picture ($contact) {
     }
     return $html;
 }
-?>

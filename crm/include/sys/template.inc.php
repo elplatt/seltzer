@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     theme.inc.php - Provides theming for core elements
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -37,7 +37,6 @@ function template_render ($name, $vars = array()) {
     }
     // TODO run page-specific module preprocess hooks
     extract($vars);
-    
     // Render template
     if (isset($vars['type'])) {
         $filename = path_to_theme() . '/' . "$name-$vars[type]" . '.tpl.php';
@@ -49,7 +48,6 @@ function template_render ($name, $vars = array()) {
     include($filename);
     $output = ob_get_contents();
     ob_end_clean();
-    
     return $output;
 }
 
@@ -60,12 +58,10 @@ function template_render ($name, $vars = array()) {
 function template_preprocess ($vars) {
     global $config_org_name;
     global $config_base_path;
-    
     $vars['title'] = title();
     $vars['org_name'] = $config_org_name;
     $vars['base_path'] = $config_base_path;
     $vars['hostname'] = $_SERVER['SERVER_NAME'];
-    
     return $vars;
 }
 
@@ -76,7 +72,6 @@ function template_preprocess ($vars) {
 function template_preprocess_page ($vars) {
     global $config_org_name;
     global $config_base_path;
-    
     $vars['scripts'] = theme('scripts');
     $vars['stylesheets'] = theme('stylesheets');
     $vars['header'] = theme('header');
@@ -84,6 +79,5 @@ function template_preprocess_page ($vars) {
     $vars['messages'] = theme('messages');
     $vars['content'] = theme('page', $vars['path'], $_GET);
     $vars['footer'] = theme('footer');
-    
     return $vars;
 }

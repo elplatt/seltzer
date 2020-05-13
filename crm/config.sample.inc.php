@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     config.inc.php - Sample configuration
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -40,7 +40,7 @@ $config_org_website = 'www.seltzercrm.org';
 // The currency code for dealing with payments, can be GBP, USD, or EUR
 $config_currency_code = 'USD';
 
-// The From: address to use when sending email to members
+// The From: address to use when sending email to users
 $config_email_from = '';
 
 // The email address to notify when a user is created
@@ -59,6 +59,10 @@ $config_host = $_SERVER['SERVER_NAME'];
 // The url path of the app directory
 $config_base_path = '/crm/';
 
+// Github username & repo used to construct footer
+$config_github_username = 'elplatt';
+$config_github_repo = 'seltzer';
+
 // The name of the theme you want to use
 // (currently there is only one, "inspire".)
 $config_theme = "inspire";
@@ -69,10 +73,10 @@ $config_amazon_payment_access_key_id = '';
 
 // Base modules
 $config_modules = array(
-    "contact",
-    "user",
-    "variable",
-    "member",
+    "contact"
+    , "user"
+    , "variable"
+    , "member"
 );
 
 // Optional modules, uncomment to enable
@@ -96,10 +100,10 @@ $config_modules[] = "billing";
 $config_modules[] = "amazon_payment";
 
 // Paypal integration
-//$config_modules[] = "paypal_payment";
+$config_modules[] = "paypal_payment";
 
 // Assign a profile picture using gravatar
-//$config_modules[] = "profile_picture";
+$config_modules[] = "profile_picture";
 
 // Assign members a mentor
 //$config_modules[] = "mentor";

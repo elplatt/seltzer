@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     member.inc.php - Member module
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -25,7 +25,7 @@
  * this number.
  */
 function member_revision () {
-    return 4;
+    return 7;
 }
 
 /**
@@ -41,6 +41,7 @@ function member_stylesheets () {
 function member_permissions () {
     return array(
         'member_plan_edit'
+        , 'member_list'
         , 'member_view'
         , 'member_add'
         , 'member_edit'
@@ -76,5 +77,3 @@ require_once('report.inc.php');
 
 // Themeing ////////////////////////////////////////////////////////////////////
 require_once('theme.inc.php');
-
-?>

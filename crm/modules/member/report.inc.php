@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     report.inc.php - Member module - reports
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -40,7 +40,13 @@ function member_email_report ($opts) {
  * @return the earliest date of any membership.
  */
 function member_membership_earliest_date () {
-    $sql = "SELECT `start` FROM `membership` ORDER BY `start` ASC LIMIT 1";
+    global $db_connect;
+    $sql = "
+        SELECT `start`
+        FROM `membership`
+        ORDER BY `start` ASC
+        LIMIT 1
+    ";
     $res = mysqli_query($db_connect, $sql);
     $row = mysqli_fetch_assoc($res);
     if (!$row) {
@@ -53,6 +59,7 @@ function member_membership_earliest_date () {
  * @return json structure containing membership statistics.
  */
 function member_statistics () {
+    global $db_connect;
     // Get plans and earliest date
     $plans = crm_map(member_plan_data(), 'pid');
     $results = array();
@@ -74,13 +81,24 @@ function member_statistics () {
         $dates[] = "('$year-$month-01')";
     }
     // Create temporary table with dates
-    $sql = "DROP TEMPORARY TABLE IF EXISTS `temp_months`";
+    $sql = "
+        DROP TEMPORARY TABLE IF EXISTS `temp_months`
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
-    $sql = "CREATE TEMPORARY TABLE `temp_months` (`month` date NOT NULL);";
+    $sql = "
+        CREATE TEMPORARY TABLE `temp_months` (
+            `month` date NOT NULL
+        );
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
-    $sql = "INSERT INTO `temp_months` (`month`) VALUES " . implode(',', $dates) . ";";
+    $sql = "
+        INSERT INTO `temp_months`
+        (`month`)
+        VALUES
+        " . implode(',', $dates) . ";
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
     // Query number of active memberships for each month

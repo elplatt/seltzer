@@ -1,21 +1,21 @@
 <?php
 
 /*
-    Copyright 2009-2017 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     module.inc.php - Module installation and upgrade functions
-
+    
     Seltzer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     any later version.
-
+    
     Seltzer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with Seltzer.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -34,7 +34,6 @@ function module_permissions () {
  */
 function module_list () {
     global $config_modules;
-    
     return $config_modules;
 }
 
@@ -57,7 +56,11 @@ function module_get_code_revision ($module) {
 function module_get_schema_revision ($module) {
     global $db_connect;
     $esc_module = mysqli_real_escape_string($db_connect, $module);
-    $sql = "SELECT `revision` FROM `module` WHERE `name`='$esc_module'";
+    $sql = "
+        SELECT `revision`
+        FROM `module`
+        WHERE `name`='$esc_module'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { die(mysqli_error($res)); }
     if (mysqli_num_rows($res) === 0) {
@@ -76,13 +79,24 @@ function module_set_schema_revision ($module, $revision) {
     global $db_connect;
     $esc_module = mysqli_real_escape_string($db_connect, $module);
     $esc_revision = mysqli_real_escape_string($db_connect, $revision);
-    $sql = "SELECT `revision` FROM `module` WHERE `name`='$esc_module'";
+    $sql = "
+        SELECT `revision`
+        FROM `module`
+        WHERE `name`='$esc_module'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { die(mysqli_error($res)); }
     if (mysqli_num_rows($res) === 0) {
-        $sql = "INSERT INTO `module` (`name`, `revision`) VALUES ('$esc_module', '$esc_revision')";
+        $sql = "
+            INSERT INTO `module` (`name`, `revision`)
+            VALUES ('$esc_module', '$esc_revision')
+        ";
     } else {
-        $sql = "UPDATE `module` SET `revision`='$esc_revision' WHERE `name`='$esc_module'";
+        $sql = "
+            UPDATE `module`
+            SET `revision`='$esc_revision'
+            WHERE `name`='$esc_module'
+        ";
     }
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { die(mysqli_error($res)); }
@@ -93,7 +107,9 @@ function module_set_schema_revision ($module, $revision) {
  */
 function module_core_installed () {
     global $db_connect;
-    $sql = "SHOW TABLES LIKE 'module'";
+    $sql = "
+        SHOW TABLES LIKE 'module'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) die(mysqli_error($res));
     if (mysqli_num_rows($res) > 0) {
@@ -106,26 +122,21 @@ function module_core_installed () {
  * Installs all configured modules.
  */
 function module_install () {
-    
     // Check whether already installed
     if (module_core_installed()) {
         error_register('The database must be empty before you can install ' . title() . " " . crm_version() . '!');
         return false;
     }
-    
     foreach (module_list() as $module) {
-        
         // Call the module's installation function
         $installer = $module . '_install';
         if (function_exists($installer)) {
             call_user_func($installer, 0);
         }
-        
         // Set the module's schema revision
         $revision = module_get_code_revision($module);
         module_set_schema_revision($module, $revision);
     }
-    
     return true;
 }
 
@@ -133,24 +144,20 @@ function module_install () {
  * Upgrade all configured modules.
  */
 function module_upgrade () {
-    
     // Make sure core is installed
     if (!module_core_installed()) {
         error_register('Please run the install script');
         return false;
     }
     foreach (module_list() as $module) {
-        
         // Get current schema and code revisions
         $old_revision = module_get_schema_revision($module);
         $new_revision = module_get_code_revision($module);
-        
         // Upgrade the module to the current revision
         $installer = $module . '_install';
         if (function_exists($installer)) {
             call_user_func($installer, $old_revision);
         }
-        
         // Update the revision number in the database
         module_set_schema_revision($module, $new_revision);
     }
@@ -194,28 +201,28 @@ function module_upgrade_table () {
  */
 function module_install_form () {
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'module_install',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'module_install'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Install ' . title() . " " . crm_version(),
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Install ' . title() . " " . crm_version()
+                , 'fields' => array(
                     array(
-                        'type' => 'text',
-                        'label' => 'Admin E-mail',
-                        'name' => 'email'
-                    ),
-                    array(
-                        'type' => 'password',
-                        'label' => 'Admin Password',
-                        'name' => 'password'
-                    ),
-                    array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Install'
+                        'type' => 'text'
+                        , 'label' => 'Admin E-mail'
+                        , 'name' => 'email'
+                    )
+                    , array(
+                        'type' => 'password'
+                        , 'label' => 'Admin Password'
+                        , 'name' => 'password'
+                    )
+                    , array(
+                        'type' => 'submit'
+                        , 'name' => 'submitted'
+                        , 'value' => 'Install'
                     )
                 )
             )
@@ -232,18 +239,18 @@ function module_upgrade_form () {
         return '';
     }
     $form = array(
-        'type' => 'form',
-        'method' => 'post',
-        'command' => 'module_upgrade',
-        'fields' => array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'module_upgrade'
+        , 'fields' => array(
             array(
-                'type' => 'fieldset',
-                'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules',
-                'fields' => array(
+                'type' => 'fieldset'
+                , 'label' => 'Upgrade ' . title() . " " . crm_version() . ' Modules'
+                , 'fields' => array(
                     array(
-                        'type' => 'submit',
-                        'name' => 'submitted',
-                        'value' => 'Upgrade'
+                        'type' => 'submit'
+                        , 'name' => 'submitted'
+                        , 'value' => 'Upgrade'
                     )
                 )
             )
@@ -251,7 +258,6 @@ function module_upgrade_form () {
     );
     return $form;
 }
-
 
 /**
  * Handle installation request.
@@ -261,13 +267,11 @@ function module_upgrade_form () {
 function command_module_install () {
     global $db_connect;
     global $esc_post;
-    
     // Create tables
     $res = module_install();
     if (!$res) {
         return crm_url();
     }
-    
     // Add admin contact and user
     $sql = "
         INSERT INTO `contact`
@@ -279,7 +283,6 @@ function command_module_install () {
     if (!$res) die(mysqli_error($res));
     $cid = mysqli_insert_id($db_connect);
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
-    
     $salt = user_salt();
     $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
     $esc_salt = mysqli_real_escape_string($db_connect, $salt);
@@ -291,7 +294,6 @@ function command_module_install () {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) die(mysqli_error($res));
-    
     message_register(title() . " " . crm_version() . ' has been installed.');
     message_register('You may log in as user "admin"');
     return crm_url('login');
@@ -299,18 +301,15 @@ function command_module_install () {
 
 /**
  * Handle upgrade request.
- *
  * @return The url to redirect to on completion.
  */
 function command_module_upgrade () {
     global $esc_post;
-    
     // Create tables
     $res = module_upgrade();
     if (!$res) {
         return crm_url();
     }
-    
     message_register(title() . " " . crm_version() . ' has been upgraded.');
     return crm_url();
 }
@@ -321,7 +320,6 @@ function command_module_upgrade () {
 function module_init () {
     global $core_stylesheets;
     global $core_scripts;
-    
     foreach (module_list() as $module) {
         $style_func = $module . '_stylesheets';
         if (function_exists($style_func)) {
