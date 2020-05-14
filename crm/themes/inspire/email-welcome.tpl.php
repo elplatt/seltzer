@@ -10,6 +10,7 @@
     global $config_org_website;
     global $config_email_from;
     global $config_protocol_security;
+    print '<html>';
     print 'Welcome to ' . "$config_org_name" . '!';
     print '<br /><br />';
     print 'You are receiving this email because you have recently been entered into the ' . "$config_org_name" . ' membership management system, ' . "$config_site_title" . '.';
@@ -25,5 +26,6 @@
     }
     print '<br /><br />';
     print 'If you have any additional questions, please contact: <a href="mailto:' . "$config_email_from" . '">' . "$config_email_from" . '</a> or visit the website at <a href="' . "$config_protocol_security" . '://' . "$config_org_website" . '">' . "$config_protocol_security" . '://' . "$config_org_website";
+    print '</html>';
     ?>
 </p>
