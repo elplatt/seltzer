@@ -9,13 +9,15 @@
     global $config_org_name;
     global $config_org_website;
     global $config_email_from;
+    global $config_protocol_security;
+    print '<html>';
     print 'Welcome to ' . "$config_org_name" . '!';
     print '<br /><br />';
     print 'You are receiving this email because you have recently been entered into the ' . "$config_org_name" . ' membership management system, ' . "$config_site_title" . '.';
     print '<br /><br />';
     print 'Your username is ' . "$username" . '. To confirm your email and set your password, visit <a href="' . "$confirm_url". '">' . "$confirm_url" . '</a>.';
     print '<br /><br />';
-    print 'You may manage your contact info at: <a href="http://' . "$hostname$base_path" . '">http://' . "$hostname$base_path" . '</a>';
+    print 'You may manage your contact info at: <a href="' . "$config_protocol_security" . '://' . "$hostname$base_path" . '">' . "$config_protocol_security" . '://' . "$hostname$base_path" . '</a>';
     print '<br /><br />';
     print 'Please ensure the information we have on file for you is complete and accurate.';
     print '<br /><br />';
@@ -23,6 +25,7 @@
         print 'Our address is ' . "$config_address1" . ", " . "$config_address2" . ", " . "$config_address3" . ", " . "$config_town_city" . ", " . "$config_zipcode";
     }
     print '<br /><br />';
-    print 'If you have any additional questions, please contact: <a href="mailto:' . "$config_email_from" . '">' . "$config_email_from" . '</a> or visit the website at <a href="' . "$config_org_website" . '">' . "$config_org_website";
+    print 'If you have any additional questions, please contact: <a href="mailto:' . "$config_email_from" . '">' . "$config_email_from" . '</a> or visit the website at <a href="' . "$config_protocol_security" . '://' . "$config_org_website" . '">' . "$config_protocol_security" . '://' . "$config_org_website";
+    print '</html>';
     ?>
 </p>
