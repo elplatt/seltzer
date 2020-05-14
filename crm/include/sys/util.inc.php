@@ -121,3 +121,11 @@ function github_repo () {
     global $config_github_repo;
     return $config_github_repo;
 }
+
+/**
+ * @return The URL protocol configured in config.inc.php for use in outgoing emails.
+ */
+function protocol_security () {
+    global $config_protocol_security;
+    return $config_protocol_security;
+}

@@ -63,6 +63,9 @@ $config_base_path = '/crm/';
 $config_github_username = 'elplatt';
 $config_github_repo = 'seltzer';
 
+// sets the protocol for URLs in outgoing emails, can be set to http or https
+$config_protocol_security = 'https';
+
 // The name of the theme you want to use
 // (currently there is only one, "inspire".)
 $config_theme = "inspire";

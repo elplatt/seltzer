@@ -664,6 +664,7 @@ function user_reset_password_url ($username) {
     global $db_connect;
     global $config_host;
     global $config_base_path;
+    global $config_protocol_security;
     // Get user info
     $esc_username = mysqli_real_escape_string($db_connect, $username);
     $sql = "
@@ -692,7 +693,7 @@ function user_reset_password_url ($username) {
     ";
     $res = mysqli_query($db_connect, $sql);
     // Generate reset url
-    $url = 'http://' . $config_host . crm_url("reset-confirm&v=" . $code);
+    $url = $config_protocol_security . '://' . $config_host . crm_url("reset-confirm&v=" . $code);
     return $url;
 }
 
