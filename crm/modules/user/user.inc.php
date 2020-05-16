@@ -838,7 +838,7 @@ function command_reset_password () {
         $to = $contact['email'];
         $subject = "[$config_site_title] Reset Password";
         $from = $config_email_from;
-        $headers = "From: $from\r\n";
+        $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         $message = "To reset your password, visit the following url: $url";
         $res = mail($to, $subject, $message, $headers);
         // Notify user to check their email
