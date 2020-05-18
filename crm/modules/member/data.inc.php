@@ -548,7 +548,7 @@ function member_membership_data ($opts) {
 }
 
 /**
- * Save a membership.  A membership represents a specific member's plan at
+ * Save a membership. A membership represents a specific member's plan at
  * for a specific time period.
  * @param $membership
  * @return $membership
@@ -630,7 +630,7 @@ function member_membership_delete ($sid) {
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a contact.
  * @deprecated
- */ 
+ */
 function member_contact_data ($opts = array()) {
     return contact_data($opts);
 }
