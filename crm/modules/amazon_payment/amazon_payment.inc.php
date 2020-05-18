@@ -637,6 +637,7 @@ function theme_amazon_payment_button ($cid, $params = array()) {
     global $config_amazon_payment_access_key_id;
     global $config_amazon_payment_secret;
     global $config_host;
+    global $config_protocol_security
     if (empty($config_amazon_payment_access_key_id)) {
         error_register('Missing Amazon Access Key ID');
         return '';
@@ -652,11 +653,11 @@ function theme_amazon_payment_button ($cid, $params = array()) {
         , 'amount' => 'USD 1.1'
         , 'cobrandingStyle' => 'logo'
         , 'description' => 'Test Widget'
-        , 'ipnUrl' => 'https://' . $config_host . base_path() . 'modules/amazon_payment/ipn.php'
-        , 'returnUrl' => 'https://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
+        , 'ipnUrl' => $config_protocol_security . '://' . $config_host . base_path() . 'modules/amazon_payment/ipn.php'
+        , 'returnUrl' => $config_protocol_security . '://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
         , 'processImmediate' => '1'
         , 'cobrandingStyle' => 'logo'
-        , 'abandonUrl' => 'https://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
+        , 'abandonUrl' => $config_protocol_security . '://' . $config_host . crm_url('contact', array('query'=>array('cid'=>$cid, 'tab'=>'account')))
     );
     // Use defaults for parameters not specified
     foreach ($defaults as $key => $value) {
