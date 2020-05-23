@@ -154,7 +154,7 @@ function user_meta_data ($opts = array()) {
     // Create map from cids to contact names if necessary
     // TODO: Add filters for speed
     if ($join_contact) {
-        $contacts = member_contact_data();
+        $contacts = contact_data();
         $cidToContact = array();
         foreach ($contacts as $contact) {
             $cidToContact[$contact['cid']] = $contact;
@@ -653,7 +653,7 @@ function user_meta_edit_form ($umid) {
         return array();
     }
     // Get corresponding contact data
-    $data = member_contact_data(array('cid'=>$user_meta['cid']));
+    $data = contact_data(array('cid'=>$user_meta['cid']));
     $contact = $data[0];
     // Construct member name
     $name = theme('contact_name', $contact, true);
