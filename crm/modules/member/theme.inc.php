@@ -30,15 +30,6 @@ function theme_member_table ($opts = null) {
 }
 
 /**
- * Return the themed html for a single member's contact info.
- * @param $opts The options to pass to member_contact_data().
- * @return The themed html string.
- */
-function theme_member_contact_table ($opts = null) {
-    return theme('table_vertical', crm_get_table('member_contact', $opts));
-}
-
-/**
  * Returned the themed html for edit member form.
  * @param $cid The cid of the member to edit.
  * @return The themed html.

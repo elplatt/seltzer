@@ -103,8 +103,8 @@ function member_install($old_revision = 0) {
         // Alter member table
         $sql = "
             ALTER TABLE `member`
-              ADD COLUMN `emergencyName` varchar(255) NOT NULL
-              , ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
+                ADD COLUMN `emergencyName` varchar(255) NOT NULL
+                , ADD COLUMN `emergencyPhone` varchar(16) NOT NULL
             ;
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -130,7 +130,7 @@ function member_install($old_revision = 0) {
         // Alter member table
         $sql = "
             ALTER TABLE `member`
-              ADD COLUMN `emergencyRelation` varchar(255) NOT NULL
+                ADD COLUMN `emergencyRelation` varchar(255) NOT NULL
             ;
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -173,11 +173,11 @@ function member_install($old_revision = 0) {
         // Alter member table
         $sql = "
             ALTER TABLE `member`
-              ADD COLUMN `address1` varchar(255) NOT NULL
-              , ADD COLUMN `address2` varchar(255) NOT NULL
-              , ADD COLUMN `address3` varchar(255) NOT NULL
-              , ADD COLUMN `town_city` varchar(255) NOT NULL
-              , ADD COLUMN `zipcode` varchar(255) NOT NULL
+                ADD COLUMN `address1` varchar(255) NOT NULL
+                , ADD COLUMN `address2` varchar(255) NOT NULL
+                , ADD COLUMN `address3` varchar(255) NOT NULL
+                , ADD COLUMN `town_city` varchar(255) NOT NULL
+                , ADD COLUMN `zipcode` varchar(255) NOT NULL
             ;
         ";
         $res = mysqli_query($db_connect, $sql);
