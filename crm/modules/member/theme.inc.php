@@ -289,7 +289,7 @@ function theme_member_plan_description ($pid) {
  */
 function theme_member_created_email ($cid) {
     // Get info on the logged in user
-    $data = member_contact_data(array('cid'=>user_id()));
+    $data = contact_data(array('cid'=>user_id()));
     $admin = $data[0];
     $adminName = theme_contact_name($admin['cid']);
     // Get info on member
