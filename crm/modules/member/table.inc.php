@@ -63,6 +63,8 @@ function member_table ($opts = null) {
         $table['columns'][] = array('title'=>'Phone','class'=>'');
         if (user_access('member_list')) {
             $table['columns'][] = array('title'=>'Created By','class'=>'');
+            $table['columns'][] = array('title'=>'Created Date','class'=>'');
+            $table['columns'][] = array('title'=>'Created Time','class'=>'');
         }
         if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
             $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
@@ -110,6 +112,8 @@ function member_table ($opts = null) {
                 } else {
                     $row[] = $member['contact']['createdBy'];
                 }
+                $row[] = $member['contact']['createdDate'];
+                $row[] = $member['contact']['createdTime'];
             }
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyName'];

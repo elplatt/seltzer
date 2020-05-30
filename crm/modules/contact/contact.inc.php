@@ -180,6 +180,8 @@ function contact_data ($opts = array()) {
             , 'email' => $row['email']
             , 'phone' => $row['phone']
             , 'createdBy' => $row['createdBy']
+            , 'createdDate' => $row['createdDate']
+            , 'createdTime' => $row['createdTime']
         );
         $row = mysqli_fetch_assoc($res);
     }
@@ -197,8 +199,10 @@ function contact_save ($contact) {
     } else {
             $contact['createdBy'] = "Self-Registration";
     }
+    $contact['createdDate'] = date("Y-m-d");
+    $contact['createdTime'] = date("H:i:s", time());
     $fields = array(
-        'cid', 'firstName', 'middleName', 'lastName', 'email', 'phone', 'createdBy'
+        'cid', 'firstName', 'middleName', 'lastName', 'email', 'phone', 'createdBy', 'createdDate', 'createdTime'
     );
     $escaped = array();
     foreach ($fields as $field) {
@@ -225,9 +229,9 @@ function contact_save ($contact) {
         // Add contact
         $sql = "
             INSERT INTO `contact`
-            (`firstName`,`middleName`,`lastName`,`email`,`phone`, `createdBy`)
+            (`firstName`,`middleName`,`lastName`,`email`,`phone`, `createdBy`, `createdDate`, `createdTime`)
             VALUES
-            ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[createdBy]')
+            ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[createdBy]','$escaped[createdDate]','$escaped[createdTime]')
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -322,6 +326,8 @@ function contact_table ($opts = array()) {
     $table['columns'][] = array('title'=>'Phone','class'=>'');
     if (user_access('contact_list')) {
         $table['columns'][] = array('title'=>'Created By','class'=>'');
+        $table['columns'][] = array('title'=>'Created Date','class'=>'');
+        $table['columns'][] = array('title'=>'Created Time','class'=>'');
     }
     // Add ops column
     if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
@@ -351,6 +357,8 @@ function contact_table ($opts = array()) {
                 } else {
                     $row[] = $contact['createdBy'];
                 }
+                $row[] = $contact['createdDate'];
+                $row[] = $contact['createdTime'];
             }
             // Construct ops array
             $ops = array();

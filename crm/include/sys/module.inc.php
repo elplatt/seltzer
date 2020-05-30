@@ -283,9 +283,13 @@ function command_module_install () {
     if (!$res) die(mysqli_error($res));
     $cid = mysqli_insert_id($db_connect);
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+    $esc_date = mysqli_real_escape_string($db_connect, date("Y-m-d"));
+    $esc_time = mysqli_real_escape_string($db_connect, date("H:i:s", time()));
     $sql = "
         UPDATE `contact`
         SET `createdBy`='$esc_cid'
+        , `createdDate`='$esc_date'
+        , `createdTime`='$esc_time'
         WHERE `cid`='$esc_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
