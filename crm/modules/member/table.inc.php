@@ -61,6 +61,9 @@ function member_table ($opts = null) {
         $table['columns'][] = array('title'=>'Membership','class'=>'');
         $table['columns'][] = array('title'=>'E-Mail','class'=>'');
         $table['columns'][] = array('title'=>'Phone','class'=>'');
+        if (user_access('member_list')) {
+            $table['columns'][] = array('title'=>'Created By','class'=>'');
+        }
         if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
             $table['columns'][] = array('title'=>'Emergency Contact','class'=>'');
         }
@@ -77,7 +80,6 @@ function member_table ($opts = null) {
     }
     // Loop through member data
     foreach ($members as $member) {
-        
         // Add user data
         $row = array();
         if ((user_access('member_view') && $member['contact']['cid'] == user_id()) || user_access('member_list')) {
@@ -102,6 +104,13 @@ function member_table ($opts = null) {
             $row[] = $plan;
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
+            if (user_access('member_list')) {
+                if (!($member['contact']['createdBy'] == "Self-Registration")) {
+                    $row[] = theme('contact_name', $member['contact']['createdBy'], true);
+                } else {
+                    $row[] = $member['contact']['createdBy'];
+                }
+            }
             if (!array_key_exists('exclude', $opts) || !in_array('emergencyName', $opts['exclude'])) {
                 $row[] = $member['member']['emergencyName'];
             }

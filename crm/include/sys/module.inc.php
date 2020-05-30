@@ -283,6 +283,13 @@ function command_module_install () {
     if (!$res) die(mysqli_error($res));
     $cid = mysqli_insert_id($db_connect);
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+    $sql = "
+        UPDATE `contact`
+        SET `createdBy`='$esc_cid'
+        WHERE `cid`='$esc_cid'
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     $salt = user_salt();
     $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
     $esc_salt = mysqli_real_escape_string($db_connect, $salt);
