@@ -867,23 +867,3 @@ function user_meta_page (&$page_data, $page_name, $options) {
             break;
     }
 }
-
-// Themeing ////////////////////////////////////////////////////////////////////
-
-/**
- * Return the themed html for an add meta assignment form.
- * @param $cid The id of the contact to add a meta assignment for.
- * @return The themed html string.
- */
-function theme_user_meta_add_form ($cid) {
-    return theme('form', crm_get_form('user_meta_add', $cid));
-}
-
-/**
- * Return themed html for an edit meta assignment form.
- * @param $umid The id of the meta assignment to edit.
- * @return The themed html string.
- */
-function theme_user_meta_edit_form ($umid) {
-    return theme('form', crm_get_form('user_meta_edit', $umid));
-}

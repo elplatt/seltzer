@@ -21,38 +21,6 @@
 */
 
 /**
- * Return the themed html for a table of members.
- * @param $opts Options to pass to member_data().
- * @return The themed html string.
- */
-function theme_member_table ($opts = null) {
-    return theme('table', crm_get_table('member', $opts));
-}
-
-/**
- * Returned the themed html for edit member form.
- * @param $cid The cid of the member to edit.
- * @return The themed html.
- */
-function theme_member_edit_form ($cid) {
-    return theme('form', crm_get_form('member_edit', $cid));
-}
-
-/**
- * @return The themed html for a member filter form.
- */
-function theme_member_filter_form () {
-    return theme('form', crm_get_form('member_filter'));
-}
-
-/**
- * @return The themed html for a member voting report.
- */
-function theme_member_voting_report () {
-    return theme('table', crm_get_table('member_voting_report'));
-}
-
-/**
  * @return The themed html for an active member email report.
  */
 function theme_member_email_report ($opts) {
@@ -185,68 +153,6 @@ legend.append('text')
 </script>
 EOF;
     return $output;
-}
-
-/**
- * Return the themed html for a membership table.
- * @param $opts The options to pass to member_membership_data().
- * @return The themed html string.
- */
-function theme_member_membership_table ($opts = null) {
-    return theme('table', crm_get_table('member_membership', $opts));
-}
-
-/**
- * Return the themed html for a membership add form.
- * @param $cid the cid of the member who owns the membership
- * @return The themed html string.
- */
-function theme_member_membership_add_form ($cid) {
-    return theme('form', crm_get_form('member_membership_add', $cid));
-}
-
-/**
- * Return the themed html for a membership edit form.
- * @param $sid The sid of the membership to edit.
- * @return The themed html string.
- */
-function theme_member_membership_edit_form ($sid) {
-    return theme('form', crm_get_form('member_membership_edit', $sid));
-}
-
-/**
- * Return the themed html for a membership plan table.
- * @param $opts The options to pass to member_plan_data().
- * @return The themed html string.
- */
-function theme_member_plan_table ($opts = null) {
-    return theme('table', crm_get_table('member_plan', $opts));
-}
-
-/**
- * Return the themed html for a membership plan add form.
- * @return The themed html string.
- */
-function theme_member_plan_add_form () {
-    return theme('form', crm_get_form('member_plan_add'));
-}
-
-/**
- * Return the themed html for a membership plan edit form.
- * @param $pid The pid of the membership plan to edit.
- * @return The themed html string.
- */
-function theme_member_plan_edit_form ($pid) {
-    return theme('form', crm_get_form('member_plan_edit', $pid));
-}
-
-/**
- * Return the themed html for a member details table.
- * @param $opts The options to pass to member_data().
- * @return The themed html string.
- */
-function theme_member_details_table ($opts = null) {
-    return theme('table_vertical', crm_get_table('member_details', $opts));
 }
 
 /**

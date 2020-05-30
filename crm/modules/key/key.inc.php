@@ -701,23 +701,3 @@ function key_page (&$page_data, $page_name, $options) {
             break;
     }
 }
-
-// Themeing ////////////////////////////////////////////////////////////////////
-
-/**
- * Return the themed html for an add key assignment form.
- * @param $cid The id of the contact to add a key assignment for.
- * @return The themed html string.
- */
-function theme_key_add_form ($cid) {
-    return theme('form', crm_get_form('key_add', $cid));
-}
-
-/**
- * Return themed html for an edit key assignment form.
- * @param $kid The kid of the key assignment to edit.
- * @return The themed html string.
- */
-function theme_key_edit_form ($kid) {
-    return theme('form', crm_get_form('key_edit', $kid));
-}
