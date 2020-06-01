@@ -53,8 +53,6 @@ function theme_register_member_form () {
 function register_member_form () {
     // Start with contact form
     $form = crm_get_form('member_add');
-    // Generate default start date, first of current month
-    $start = date("Y-m-d");
     // Change form command
     $form['command'] = 'register_member';
     $form['submit'] = 'Register';

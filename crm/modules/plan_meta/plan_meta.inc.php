@@ -797,23 +797,3 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             break;
     }
 }
-
-// Themeing ////////////////////////////////////////////////////////////////////
-
-/**
- * Return the themed html for an add meta assignment form.
- * @param $pid The id of the plan to add a meta assignment for.
- * @return The themed html string.
- */
-function theme_plan_meta_add_form ($pid) {
-    return theme('form', crm_get_form('plan_meta_add', $pid));
-}
-
-/**
- * Return themed html for an edit meta assignment form.
- * @param $pmid The id of the meta assignment to edit.
- * @return The themed html string.
- */
-function theme_plan_meta_edit_form ($pmid) {
-    return theme('form', crm_get_form('plan_meta_edit', $pmid));
-}
