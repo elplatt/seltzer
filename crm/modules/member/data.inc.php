@@ -548,7 +548,7 @@ function member_membership_data ($opts) {
 }
 
 /**
- * Save a membership.  A membership represents a specific member's plan at
+ * Save a membership. A membership represents a specific member's plan at
  * for a specific time period.
  * @param $membership
  * @return $membership
@@ -621,16 +621,4 @@ function member_membership_delete ($sid) {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-}
-
-/**
- * Return data for one or more contacts.  Use contact_data() instead.
- * @param $opts An associative array of options, possible keys are:
- *   'cid' If specified returns the corresponding member (or members for an array);
- *   'filter' An array mapping filter names to filter values
- * @return An array with each element representing a contact.
- * @deprecated
- */ 
-function member_contact_data ($opts = array()) {
-    return contact_data($opts);
 }

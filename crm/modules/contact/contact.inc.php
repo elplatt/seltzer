@@ -83,7 +83,7 @@ function contact_install ($old_revision = 0) {
  *   'cid' A cid or array of cids to return contacts for.
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a contact.
-*/ 
+ */
 function contact_data ($opts = array()) {
     global $db_connect;
     // Query database

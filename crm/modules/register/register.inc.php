@@ -53,8 +53,6 @@ function theme_register_member_form () {
 function register_member_form () {
     // Start with contact form
     $form = crm_get_form('member_add');
-    // Generate default start date, first of current month
-    $start = date("Y-m-d");
     // Change form command
     $form['command'] = 'register_member';
     $form['submit'] = 'Register';
@@ -177,6 +175,7 @@ function command_register_member () {
     // Notify admins
     $from = "\"$config_org_name\" <$config_email_from>";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
     if (!empty($config_email_to)) {
         $name = theme_contact_name($contact['cid']);
         $content = theme('member_created_email', $contact['cid']);

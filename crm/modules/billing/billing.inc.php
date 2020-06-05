@@ -193,7 +193,8 @@ function command_billing_email () {
         $to = $cidToContact[$cid]['email'];
         $subject = "[$config_site_title] Payment Due";
         $from = $config_email_from;
-        $headers = "Content-type: text/html\r\nFrom: $from\r\n";
+        $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
         $message = "<p>Hello,<br/><br/>Your current account balance is $amount.  To pay this balance using </p>";
         if (function_exists('amazon_payment_revision')) {
             $message .= "<p>Amazon Payments, please click the button below.</p>$button1";

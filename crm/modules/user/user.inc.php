@@ -838,7 +838,8 @@ function command_reset_password () {
         $to = $contact['email'];
         $subject = "[$config_site_title] Reset Password";
         $from = $config_email_from;
-        $headers = "From: $from\r\n";
+        $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
         $message = "To reset your password, visit the following url: $url";
         $res = mail($to, $subject, $message, $headers);
         // Notify user to check their email
@@ -1300,20 +1301,6 @@ function user_table ($opts) {
 }
 
 /**
- * @return The themed html string for a login form.
- */
-function theme_login_form () {
-    return theme('form', crm_get_form('login'));
-}
-
-/**
- * @return The themed html for a password reset form.
- */
-function theme_user_reset_password_form () {
-    return theme('form', crm_get_form('user_reset_password_form'));
-}
-
-/**
  * @param $code The pasword reset code.
  * @return The themed html for a password reset form.
  */
@@ -1322,15 +1309,6 @@ function theme_user_reset_password_confirm_form ($code) {
         return '<p>Invalid code</p>';
     }
     return theme('form', crm_get_form('user_reset_password_confirm', $code));
-}
-
-/**
- * Return themed html for a user role edit form.
- * @param $cid The cid for the user to edit.
- * @return The themed html string.
- */
-function theme_user_role_edit_form ($cid) {
-    return theme('form', crm_get_form('user_role_edit', $cid));
 }
 
 /**
