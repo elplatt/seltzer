@@ -32,7 +32,7 @@ function member_data ($opts = array()) {
     // Query database
     $sql = "
         SELECT
-        `member`.`cid`, `firstName`, `middleName`, `lastName`, `email`, `phone`, `createdBy`, `createdDate` , `createdTime`,
+        `member`.`cid`, `firstName`, `middleName`, `lastName`, `email`, `phone`, `createdBy`, `createdDate`, `createdTime`,
         `emergencyName`, `emergencyPhone`, `emergencyRelation`,
         `address1`, `address2`, `address3`, `town_city`, `zipcode`,
         `username`, `hash`

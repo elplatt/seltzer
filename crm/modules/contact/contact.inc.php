@@ -352,7 +352,7 @@ function contact_table ($opts = array()) {
             $row[] = $contact['email'];
             $row[] = $contact['phone'];
             if (user_access('contact_list')) {
-                if (!($member['contact']['createdBy'] == "Self-Registration")) {
+                if (!($contact['createdBy'] == "Self-Registration")) {
                     $row[] = theme('contact_name', $contact['createdBy'], true);
                 } else {
                     $row[] = $contact['createdBy'];
