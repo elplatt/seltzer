@@ -1,4 +1,4 @@
-Seltzer CRM 0.5.10 - An open source CRM for hackerspaces  
+Seltzer CRM 0.6.0 - An open source CRM for hackerspaces  
 Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>  
 Distributed under GPLv3 (see COPYING for more info)
 
