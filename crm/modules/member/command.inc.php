@@ -476,7 +476,7 @@ function command_member_import () {
             $test_email = $email;
             $esc_test_email = mysqli_real_escape_string($db_connect, $test_email);
             $sql = "
-                SELECT * 
+                SELECT *
                 FROM `contact`
                 WHERE `email`='$esc_test_email'
             ";

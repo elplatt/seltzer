@@ -63,7 +63,6 @@ function user_install ($old_revision = 0) {
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
-            
             $sql = "
                 CREATE TABLE IF NOT EXISTS `role` (
                     `rid` mediumint(9) NOT NULL AUTO_INCREMENT
@@ -73,7 +72,6 @@ function user_install ($old_revision = 0) {
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
-            
             $sql = "
                 CREATE TABLE IF NOT EXISTS `role_permission` (
                     `rid` mediumint(8) unsigned NOT NULL
