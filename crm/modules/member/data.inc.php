@@ -39,7 +39,7 @@ function member_data ($opts = array()) {
         FROM `member`
         LEFT JOIN `contact` ON `member`.`cid`=`contact`.`cid`
         LEFT JOIN `user` ON `member`.`cid`=`user`.`cid`
-        LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()))
+        LEFT JOIN `membership` ON (`member`.`cid`=`membership`.`cid` AND (`membership`.`end` IS null OR `membership`.`end` > NOW()))
         LEFT JOIN `plan` ON `plan`.`pid`=`membership`.`pid`
         WHERE 1
     ";
@@ -66,19 +66,19 @@ function member_data ($opts = array()) {
         if (isset($filter['active'])) {
             if ($filter['active']) {
                 //get active members:
-                $sql .= " AND
-                    (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()))
+                $sql .= "
+                    AND (`membership`.`start` IS NOT null AND `membership`.`start` < NOW() AND (`membership`.`end` IS null OR `membership`.`end` > NOW()))
                 ";
             } else {
                 //get NOT active members:
                 $sql .= "
-                    AND (`membership`.`start` IS NULL OR `membership`.`start` > NOW() OR (`membership`.`end` IS NOT NULL AND `membership`.`end` < NOW()))
+                    AND (`membership`.`start` IS null OR `membership`.`start` > NOW() OR (`membership`.`end` IS NOT null AND `membership`.`end` < NOW()))
                 ";
             }
         }
         if (isset($filter['voting'])) {
             $sql .= "
-                AND (`membership`.`start` IS NOT NULL AND `membership`.`start` < NOW() AND (`membership`.`end` IS NULL OR `membership`.`end` > NOW()) AND `plan`.`voting` <> 0)
+                AND (`membership`.`start` IS NOT null AND `membership`.`start` < NOW() AND (`membership`.`end` IS null OR `membership`.`end` > NOW()) AND `plan`.`voting` <> 0)
             ";
         }
     }
@@ -130,7 +130,6 @@ function member_data ($opts = array()) {
     // Get list of memberships associated with each member
     // This is slow, should be combined into a single query
     foreach ($members as $index => $member) {
-        
         // Query all memberships for current member
         $esc_cid = mysqli_real_escape_string($db_connect, $member['cid']);
         $sql = "
@@ -389,7 +388,7 @@ function member_plan_data ($opts = array()) {
  * @param $opts Options to be passed to member_plan_data().
  * @return The associative array of membership plan descriptions.
  */
-function member_plan_options ($opts = bull) {
+function member_plan_options ($opts = null) {
     // Get plan data
     $plans = member_plan_data($opts);
     // Add option for each member plan
@@ -464,7 +463,7 @@ function member_plan_delete ($pid) {
  *   'cid' If specified, returns memberships for the member with the cid,
  *   'filter' An array mapping filter names to filter values
  * @return An array with each element representing a membership.
- */ 
+ */
 function member_membership_data ($opts) {
     global $db_connect;
     // Query database
@@ -498,11 +497,11 @@ function member_membership_data ($opts) {
                 case 'active':
                     if ($param) {
                         $sql .= "
-                            AND (`end` IS NULL OR `end` > '$esc_today')
+                            AND (`end` IS null OR `end` > '$esc_today')
                         ";
                     } else {
                         $sql .= "
-                            AND (`end` IS NOT NULL)
+                            AND (`end` IS NOT null)
                         ";
                     }
                     break;
@@ -513,7 +512,7 @@ function member_membership_data ($opts) {
                     break;
                 case 'ends_after':
                     $sql .= "
-                        AND (`end` IS NULL OR `end` > '$esc_param')
+                        AND (`end` IS null OR `end` > '$esc_param')
                     ";
                     break;
                 default:
@@ -576,7 +575,7 @@ function member_membership_save ($membership) {
             ";
         } else {
             $sql .= "
-                , `start`=NULL
+                , `start`=null
             ";
         }
         if ($esc_end) {
@@ -585,7 +584,7 @@ function member_membership_save ($membership) {
             ";
         } else {
             $sql .= "
-                , `end`=NULL
+                , `end`=null
             ";
         }
         $sql .= "
