@@ -183,4 +183,16 @@ function member_install($old_revision = 0) {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
+    if ($old_revision < 8) {
+        // Alter contact table
+        $sql = "
+            ALTER TABLE `contact`
+                ADD COLUMN `createdBy` varchar(255)
+                , ADD COLUMN `createdDate` date
+                , ADD COLUMN `createdTime` time
+            ;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+    }
 }

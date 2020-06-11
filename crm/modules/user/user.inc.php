@@ -63,7 +63,6 @@ function user_install ($old_revision = 0) {
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
-            
             $sql = "
                 CREATE TABLE IF NOT EXISTS `role` (
                     `rid` mediumint(9) NOT NULL AUTO_INCREMENT
@@ -73,7 +72,6 @@ function user_install ($old_revision = 0) {
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
-            
             $sql = "
                 CREATE TABLE IF NOT EXISTS `role_permission` (
                     `rid` mediumint(8) unsigned NOT NULL
@@ -1105,7 +1103,6 @@ function user_reset_password_form () {
  * @return The password reset confirmation form structure.
  */
 function user_reset_password_confirm_form ($code) {
-    
     $form = array(
         'type' => 'form'
         , 'method' => 'post'
@@ -1258,7 +1255,6 @@ function user_role_edit_form ($cid) {
         , 'name' => 'submitted'
         , 'value' => 'Update'
     );
-    
     $form = array(
         'type' => 'form'
         , 'method' => 'post'
@@ -1316,7 +1312,7 @@ function theme_user_reset_password_confirm_form ($code) {
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
-*/
+ */
 function user_page (&$page_data, $page_name, $options) {
     switch ($page_name) {
         case 'contact':
