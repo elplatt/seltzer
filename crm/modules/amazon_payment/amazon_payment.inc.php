@@ -637,7 +637,7 @@ function theme_amazon_payment_button ($cid, $params = array()) {
     global $config_amazon_payment_access_key_id;
     global $config_amazon_payment_secret;
     global $config_host;
-    global $config_protocol_security
+    global $config_protocol_security;
     if (empty($config_amazon_payment_access_key_id)) {
         error_register('Missing Amazon Access Key ID');
         return '';
