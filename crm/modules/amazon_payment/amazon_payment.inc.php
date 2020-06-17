@@ -38,23 +38,23 @@ function amazon_payment_install($old_revision = 0) {
     // Create initial database table
     if ($old_revision < 1) {
         // Additional payment info for amazon payments
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `payment_amazon` (
                 `pmtid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT
                 , `amazon_name` varchar(255) NOT NULL
                 , PRIMARY KEY (`pmtid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Additional contact info for amazon payments
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `contact_amazon` (
                 `cid` mediumint(8) unsigned NOT NULL
                 , `amazon_name` varchar(255) NOT NULL
                 , PRIMARY KEY (`amazon_name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }
@@ -127,7 +127,7 @@ function amazon_payment_data ($opts = array()) {
  *   'cid' If specified, returns all payments assigned to the contact with specified id;
  *   'filter' An array mapping filter names to filter values;
  * @return An array with each element representing a single payment.
-*/
+ */
 function amazon_payment_contact_data ($opts = array()) {
     global $db_connect;
     $sql = "
@@ -404,7 +404,7 @@ function amazon_payment_import_form () {
  * Return the form structure for the add amazon contact form.
  * @param The cid of the contact to add an amazon contact for.
  * @return The form structure.
-*/
+ */
 function amazon_payment_contact_add_form () {
     // Ensure user is allowed to edit amazon contacts
     if (!user_access('payment_edit')) {
@@ -637,7 +637,7 @@ function theme_amazon_payment_button ($cid, $params = array()) {
     global $config_amazon_payment_access_key_id;
     global $config_amazon_payment_secret;
     global $config_host;
-    global $config_protocol_security
+    global $config_protocol_security;
     if (empty($config_amazon_payment_access_key_id)) {
         error_register('Missing Amazon Access Key ID');
         return '';
