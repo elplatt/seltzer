@@ -161,18 +161,13 @@ function user_install ($old_revision = 0) {
                 foreach ($default_perms[$role] as $perm) {
                     $esc_perm = mysqli_real_escape_string($db_connect, $perm);
                     $sql = "
-                        SELECT * FROM `role_permission`
-                        WHERE `permission` LIKE '$esc_perm'
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) {
-                        $sql = "
-                            INSERT INTO `role_permission` (`rid`, `permission`)
-                            VALUES ('$esc_rid', '$esc_perm')
-                        ";
-                        $res = mysqli_query($db_connect, $sql);
-                        if (!$res) crm_error(mysqli_error($res));
-                    }
+                    if (!$res) crm_error(mysqli_error($res));
                 }
             }
         }
