@@ -80,7 +80,6 @@ function mentor_install($old_revision = 0) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        
     }
 }
 
