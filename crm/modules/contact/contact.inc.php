@@ -324,11 +324,9 @@ function contact_table ($opts = array()) {
     }
     $table['columns'][] = array('title'=>'E-Mail','class'=>'');
     $table['columns'][] = array('title'=>'Phone','class'=>'');
-    if (user_access('contact_list')) {
-        $table['columns'][] = array('title'=>'Created By','class'=>'');
-        $table['columns'][] = array('title'=>'Created Date','class'=>'');
-        $table['columns'][] = array('title'=>'Created Time','class'=>'');
-    }
+    $table['columns'][] = array('title'=>'Created By','class'=>'');
+    $table['columns'][] = array('title'=>'Created Date','class'=>'');
+    $table['columns'][] = array('title'=>'Created Time','class'=>'');
     // Add ops column
     if ($show_ops && !$export && (user_access('contact_edit') || user_access('contact_delete'))) {
         $table['columns'][] = array('title'=>'Ops','class'=>'');
@@ -351,15 +349,13 @@ function contact_table ($opts = array()) {
             }
             $row[] = $contact['email'];
             $row[] = $contact['phone'];
-            if (user_access('contact_list')) {
-                if (!($contact['createdBy'] == "Self-Registration")) {
-                    $row[] = theme('contact_name', $contact['createdBy'], true);
-                } else {
-                    $row[] = $contact['createdBy'];
-                }
-                $row[] = $contact['createdDate'];
-                $row[] = $contact['createdTime'];
+            if (!($contact['createdBy'] == "Self-Registration")) {
+                $row[] = theme('contact_name', $contact['createdBy'], true);
+            } else {
+                $row[] = $contact['createdBy'];
             }
+            $row[] = $contact['createdDate'];
+            $row[] = $contact['createdTime'];
             // Construct ops array
             $ops = array();
             // Add edit op
