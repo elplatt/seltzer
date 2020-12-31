@@ -767,9 +767,11 @@ function plan_meta_page (&$page_data, $page_name, $options) {
                 return;
             }
             // Add metas tab
-            if (user_access('plan_meta_view') || user_access('plan_meta_edit') || user_access('plan_meta_delete')) {
+            if ((user_access('plan_meta_view') && $cid == user_id()) || user_access('plan_meta_edit')) {
                 $plan_metas = theme('table', crm_get_table('plan_meta', array('pid' => $pid)));
-                $plan_metas .= theme('form', crm_get_form('plan_meta_add', $pid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                if (user_access('plan_meta_edit')) {
+                    $plan_metas .= theme('form', crm_get_form('plan_meta_add', $pid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                }
                 page_add_content_bottom($page_data, $plan_metas, 'Meta-Tags');
             }
             break;
@@ -791,7 +793,7 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             // Set page title
             page_set_title($page_data, plan_meta_description($pmid));
             // Add edit tab
-            if (user_access('plan_meta_view') || user_access('plan_meta_edit') || user_access('plan_meta_delete')) {
+            if (user_access('plan_meta_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('plan_meta_edit_form', $pmid)), 'Edit');
             }
             break;

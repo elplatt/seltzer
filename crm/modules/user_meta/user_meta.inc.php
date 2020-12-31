@@ -838,9 +838,11 @@ function user_meta_page (&$page_data, $page_name, $options) {
                 return;
             }
             // Add metas tab
-            if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete') || $cid == user_id()) {
+            if ((user_access('user_meta_view') && $cid == user_id()) || user_access('user_meta_edit')) {
                 $user_metas = theme('table', crm_get_table('user_meta', array('cid' => $cid)));
-                $user_metas .= theme('form', crm_get_form('user_meta_add', $cid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                if (user_access('user_meta_edit')) {
+                    $user_metas .= theme('form', crm_get_form('user_meta_add', $cid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                }
                 page_add_content_bottom($page_data, $user_metas, 'Meta-Tags');
             }
             break;
@@ -861,7 +863,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
             // Set page title
             page_set_title($page_data, user_meta_description($umid));
             // Add edit tab
-            if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete')) {
+            if (user_access('user_meta_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('user_meta_edit', $umid)), 'Edit');
             }
             break;
