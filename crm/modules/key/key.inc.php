@@ -671,9 +671,11 @@ function key_page (&$page_data, $page_name, $options) {
                 return;
             }
             // Add keys tab
-            if (user_access('key_view') || user_access('key_edit') || user_access('key_delete') || $cid == user_id()) {
+            if (user_access('key_view') || $cid == user_id()) {
                 $keys = theme('table', crm_get_table('key', array('cid' => $cid)));
-                $keys .= theme('form', crm_get_form('key_add', $cid));
+                if (user_access('key_edit')) {
+                    $keys .= theme('form', crm_get_form('key_add', $cid));
+                }
                 page_add_content_bottom($page_data, $keys, 'Keys');
             }
             break;
@@ -695,7 +697,7 @@ function key_page (&$page_data, $page_name, $options) {
             // Set page title
             page_set_title($page_data, key_description($kid));
             // Add edit tab
-            if (user_access('key_view') || user_access('key_edit') || user_access('key_delete')) {
+            if (user_access('key_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('key_edit', $kid), 'Edit'));
             }
             break;

@@ -306,8 +306,10 @@ function plan_meta_save ($plan_meta) {
             }
         }
         $sql = "
-            INSERT INTO `plan_meta` (" . implode(', ', $cols) . ")
-            VALUES (" . implode(', ', $values) . ")
+            INSERT INTO `plan_meta`
+            (" . implode(', ', $cols) . ")
+            VALUES
+            (" . implode(', ', $values) . ")
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -325,7 +327,8 @@ function plan_meta_delete ($plan_meta) {
     global $db_connect;
     $esc_pmid = mysqli_real_escape_string($db_connect, $plan_meta['pmid']);
     $sql = "
-        DELETE FROM `plan_meta` WHERE `pmid`='$esc_pmid'
+        DELETE FROM `plan_meta`
+        WHERE `pmid`='$esc_pmid'
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
@@ -520,6 +523,7 @@ function plan_meta_table ($opts) {
 function plan_meta_add_form ($pid) {
     // Ensure user is allowed to edit metas
     if (!user_access('plan_meta_edit')) {
+        error_register('User does not have permission: pla_meta_edit');
         return null;
     }
     // Create form structure
@@ -573,6 +577,7 @@ function plan_meta_add_form ($pid) {
 function plan_meta_edit_form ($pmid) {
     // Ensure user is allowed to edit meta
     if (!user_access('plan_meta_edit')) {
+        error_register('User does not have permission: plan_meta_edit');
         return null;
     }
     // Get meta data
@@ -643,6 +648,7 @@ function plan_meta_edit_form ($pmid) {
 function plan_meta_delete_form ($pmid) {
     // Ensure user is allowed to delete metas
     if (!user_access('plan_meta_delete')) {
+        error_register('User does not have permission: plan_meta_delete');
         return null;
     }
     // Get meta data
@@ -720,6 +726,7 @@ function command_plan_meta_update() {
         error_register('Permission denied: plan_meta_edit');
         return crm_url('plan_meta&pmid=' . $_POST['pmid']);
     }
+    // Save meta data
     plan_meta_save($_POST);
     return crm_url('plan_meta&pmid=' . $esc_post['pmid'] . '&tab=edit');
 }
@@ -767,14 +774,18 @@ function plan_meta_page (&$page_data, $page_name, $options) {
                 return;
             }
             // Add metas tab
-            if (user_access('plan_meta_view') || user_access('plan_meta_edit') || user_access('plan_meta_delete')) {
+            if ((user_access('plan_meta_view') && $cid == user_id()) || user_access('plan_meta_edit')) {
                 $plan_metas = theme('table', crm_get_table('plan_meta', array('pid' => $pid)));
-                $plan_metas .= theme('form', crm_get_form('plan_meta_add', $pid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                if (user_access('plan_meta_edit')) {
+                    $plan_metas .= theme('form', crm_get_form('plan_meta_add', $pid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                }
                 page_add_content_bottom($page_data, $plan_metas, 'Meta-Tags');
             }
             break;
         case 'plan_metas':
-            page_set_title($page_data, 'Meta-Tags');
+            // Set page title
+            page_set_title($page_data, 'Plam Meta-Tags');
+            // Add view tab
             if (user_access('plan_meta_view')) {
                 // meta_cross_table ( displays tags across the screen, not down )
                 $plan_metas = theme('table', crm_get_table('plan_meta_cross', array('join'=>array('contact', 'member'), 'show_export'=>true)));
@@ -782,7 +793,6 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             }
             break;
         case 'plan_meta':
-            
             // Capture meta id
             $pmid = $options['pmid'];
             if (empty($pmid)) {
@@ -791,7 +801,7 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             // Set page title
             page_set_title($page_data, plan_meta_description($pmid));
             // Add edit tab
-            if (user_access('plan_meta_view') || user_access('plan_meta_edit') || user_access('plan_meta_delete')) {
+            if (user_access('plan_meta_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('plan_meta_edit_form', $pmid)), 'Edit');
             }
             break;
