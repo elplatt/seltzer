@@ -322,8 +322,10 @@ function user_meta_save ($user_meta) {
             }
         }
         $sql = "
-            INSERT INTO `user_meta` (" . implode(', ', $cols) . ")
-            VALUES (" . implode(', ', $values) . ")
+            INSERT INTO `user_meta`
+            (" . implode(', ', $cols) . ")
+            VALUES
+            (" . implode(', ', $values) . ")
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -341,7 +343,8 @@ function user_meta_delete ($user_meta) {
     global $db_connect;
     $esc_umid = mysqli_real_escape_string($db_connect, $user_meta['umid']);
     $sql = "
-        DELETE FROM `user_meta` WHERE `umid`='$esc_umid'
+        DELETE FROM `user_meta`
+        WHERE `umid`='$esc_umid'
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
@@ -589,6 +592,7 @@ function meta_tag_autocomplete ($fragment) {
 function user_meta_add_form ($cid) {
     // Ensure user is allowed to edit metas
     if (!user_access('user_meta_edit')) {
+        error_register('User does not have permission: user_meta_edit');
         return null;
     }
     // Create form structure
@@ -644,6 +648,7 @@ function user_meta_add_form ($cid) {
 function user_meta_edit_form ($umid) {
     // Ensure user is allowed to edit meta
     if (!user_access('user_meta_edit')) {
+        error_register('User does not have permission: user_meta_edit');
         return null;
     }
     // Get meta data
@@ -714,6 +719,7 @@ function user_meta_edit_form ($umid) {
 function user_meta_delete_form ($umid) {
     // Ensure user is allowed to delete metas
     if (!user_access('user_meta_delete')) {
+        error_register('User does not have permission: user_meta_delete');
         return null;
     }
     // Get meta data
@@ -791,6 +797,7 @@ function command_user_meta_update() {
         error_register('Permission denied: user_meta_edit');
         return crm_url('user_meta&umid=' . $_POST['umid']);
     }
+    // Save meta data
     user_meta_save($_POST);
     return crm_url('user_meta&umid=' . $esc_post['umid'] . '&tab=edit');
 }
@@ -838,14 +845,18 @@ function user_meta_page (&$page_data, $page_name, $options) {
                 return;
             }
             // Add metas tab
-            if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete') || $cid == user_id()) {
+            if ((user_access('user_meta_view') && $cid == user_id()) || user_access('user_meta_edit')) {
                 $user_metas = theme('table', crm_get_table('user_meta', array('cid' => $cid)));
-                $user_metas .= theme('form', crm_get_form('user_meta_add', $cid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                if (user_access('user_meta_edit')) {
+                    $user_metas .= theme('form', crm_get_form('user_meta_add', $cid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
+                }
                 page_add_content_bottom($page_data, $user_metas, 'Meta-Tags');
             }
             break;
         case 'user_metas':
-            page_set_title($page_data, 'Meta-Tags');
+            // Set page title
+            page_set_title($page_data, 'User Meta-Tags');
+            // Add view tab
             if (user_access('user_meta_view')) {
                 // meta_cross_table ( displays tags across the screen, not down )
                 $user_metas = theme('table', crm_get_table('user_meta_cross', array('join'=>array('contact', 'member'), 'show_export'=>true)));
@@ -861,7 +872,7 @@ function user_meta_page (&$page_data, $page_name, $options) {
             // Set page title
             page_set_title($page_data, user_meta_description($umid));
             // Add edit tab
-            if (user_access('user_meta_view') || user_access('user_meta_edit') || user_access('user_meta_delete')) {
+            if (user_access('user_meta_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('user_meta_edit', $umid)), 'Edit');
             }
             break;
