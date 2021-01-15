@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2021 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     table.inc.php - Member module - table structures
@@ -59,6 +59,7 @@ function member_table ($opts = null) {
             $table['columns'][] = array('title'=>'Name','class'=>'');
         }
         $table['columns'][] = array('title'=>'Membership','class'=>'');
+        $table['columns'][] = array('title'=>'Role(s)','class'=>'');
         $table['columns'][] = array('title'=>'E-Mail','class'=>'');
         $table['columns'][] = array('title'=>'Phone','class'=>'');
         $table['columns'][] = array('title'=>'Created By','class'=>'');
@@ -92,6 +93,10 @@ function member_table ($opts = null) {
             if (!empty($recentMembership) && empty($recentMembership['end'])) {
                 $plan = $recentMembership['plan']['name'];
             }
+            // Construct role info
+            $data = user_data(array('cid'=>$contact['cid']));
+            $user = $data[0];
+            $role = implode(", ", $user['roles']);
             // Add cells
             if ($export) {
                 $row[] = $member['contact']['cid'];
@@ -102,6 +107,7 @@ function member_table ($opts = null) {
                 $row[] = $name_link;
             }
             $row[] = $plan;
+            $row[] = $role;
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
             if (!($member['contact']['createdBy'] == "Self-Registration")) {

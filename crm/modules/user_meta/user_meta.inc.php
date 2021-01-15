@@ -1,8 +1,8 @@
 <?php
 
 /*
-    Copyright 2009-2020 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2020 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
+    Copyright 2009-2021 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2021 David "Buzz" Bussenschutt <davidbuzz@gmail.com>
     
     This file is part of the Seltzer CRM Project
     user_meta.inc.php - Meta-Tag tracking module
