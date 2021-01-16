@@ -322,6 +322,7 @@ function contact_table ($opts = array()) {
     } else {
         $table['columns'][] = array('title'=>'Name','class'=>'');
     }
+    $table['columns'][] = array('title'=>'Role(s)','class'=>'');
     $table['columns'][] = array('title'=>'E-Mail','class'=>'');
     $table['columns'][] = array('title'=>'Phone','class'=>'');
     $table['columns'][] = array('title'=>'Created By','class'=>'');
@@ -338,6 +339,10 @@ function contact_table ($opts = array()) {
         if ((user_access('contact_view') && $contact['cid'] == user_id()) || user_access('contact_list')) {
             // Construct name
             $name_link = theme('contact_name', $contact, true);
+            // Construct role info
+            $data = user_data(array('cid'=>$contact['cid']));
+            $user = $data[0];
+            $role = implode(", ", $user['roles']);
             // Add cells
             if ($export) {
                 $row[] = $contact['cid'];
@@ -347,6 +352,7 @@ function contact_table ($opts = array()) {
             } else {
                 $row[] = $name_link;
             }
+            $row[] = $role;
             $row[] = $contact['email'];
             $row[] = $contact['phone'];
             if (!($contact['createdBy'] == "Self-Registration")) {
