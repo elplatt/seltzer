@@ -24,7 +24,7 @@
 $crm_version = array(
     'major' => 0
     , 'minor' => 6
-    , 'patch' => 6
+    , 'patch' => 8
     , 'revision' => 'dev'
 );
 require_once($crm_root . '/config.inc.php');
@@ -50,7 +50,7 @@ require_once('reports.inc.php');
 require_once('theme.inc.php');
 
 // Add core modules
-array_unshift($config_modules, 'core');
+array_unshift($config_modules, 'variable', 'user', 'contact', 'core');
 
 // Optional Modules ////////////////////////////////////////////////////////////
 foreach ($config_modules as $module) {
