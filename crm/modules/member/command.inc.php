@@ -27,9 +27,6 @@
 function command_member_add () {
     global $db_connect;
     global $esc_post;
-    global $config_org_name;
-    global $config_email_to;
-    global $config_email_from;
     // Verify permissions
     if (!user_access('member_add')) {
         error_register('Permission denied: member_add');
@@ -147,18 +144,18 @@ function command_member_add () {
     $contact = contact_save($contact);
     $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);
     // Notify admins
-    $from = "\"$config_org_name\" <$config_email_from>";
+    $from = get_org_name() . " <" . get_email_from() . ">";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
-    if (!empty($config_email_to)) {
+    if (!empty(get_email_to())) {
         $name = theme_contact_name($contact['cid']);
         $content = theme('member_created_email', $contact['cid']);
-        mail($config_email_to, "New Member: $name", $content, $headers);
+        mail(get_email_to(), "New Member: $name", $content, $headers);
     }
     // Notify user
     $confirm_url = user_reset_password_url($contact['user']['username']);
     $content = theme('member_welcome_email', $contact['user']['cid'], $confirm_url);
-    mail($_POST['email'], "Welcome to $config_org_name", $content, $headers);
+    mail($_POST['email'], "Welcome to " . get_org_name(), $content, $headers);
     return crm_url("contact&cid=$esc_cid");
 }
 
@@ -367,9 +364,6 @@ function command_member_filter () {
  */
 function command_member_import () {
     global $db_connect;
-    global $config_org_name;
-    global $config_email_to;
-    global $config_email_from;
     // Verify permissions
     if (!user_access('member_add')) {
         error_register('Permission denied: member_add');
@@ -528,18 +522,18 @@ function command_member_import () {
         $contact = contact_save($contact);
         $esc_cid = mysqli_real_escape_string($db_connect, $cid);
         // Notify admins
-        $from = "\"$config_org_name\" <$config_email_from>";
+        $from = get_org_name() . " <" . get_email_from() . ">";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
-        if (!empty($config_email_to)) {
+        if (!empty(get_email_to())) {
             $name = theme_contact_name($contact['cid']);
             $content = theme('member_created_email', $contact['cid']);
-            mail($config_email_to, "New Member: $name", $content, $headers);
+            mail(get_email_to(), "New Member: $name", $content, $headers);
         }
         // Notify user
         $confirm_url = user_reset_password_url($user['username']);
         $content = theme('member_welcome_email', $user['cid'], $confirm_url);
-        mail($email, "Welcome to $config_org_name", $content, $headers);
+        mail($email, "Welcome to " . get_org_name(), $content, $headers);
     }
     return crm_url('members');
 }

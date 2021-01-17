@@ -122,6 +122,8 @@ function module_core_installed () {
  * Installs all configured modules.
  */
 function module_install () {
+    global $db_connect;
+    global $esc_post;
     // Check whether already installed
     if (module_core_installed()) {
         error_register('The database must be empty before you can install ' . title() . " " . crm_version() . '!');
@@ -137,6 +139,39 @@ function module_install () {
         $revision = module_get_code_revision($module);
         module_set_schema_revision($module, $revision);
     }
+    // Add admin contact and user
+    $sql = "
+        INSERT INTO `contact`
+        (`firstName`, `lastName`, `email`)
+        VALUES
+        ('Admin', 'User', '$esc_post[email]')
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    $cid = mysqli_insert_id($db_connect);
+    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+    $esc_date = mysqli_real_escape_string($db_connect, date("Y-m-d"));
+    $esc_time = mysqli_real_escape_string($db_connect, date("H:i:s", time()));
+    $sql = "
+        UPDATE `contact`
+        SET `createdBy`='$esc_cid'
+        , `createdDate`='$esc_date'
+        , `createdTime`='$esc_time'
+        WHERE `cid`='$esc_cid'
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
+    $salt = user_salt();
+    $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
+    $esc_salt = mysqli_real_escape_string($db_connect, $salt);
+    $sql = "
+        INSERT INTO `user`
+        (`cid`, `username`, `hash`, `salt`)
+        VALUES
+        ('$esc_cid', 'admin', '$esc_hash', '$esc_salt')
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) die(mysqli_error($res));
     return true;
 }
 
@@ -272,39 +307,6 @@ function command_module_install () {
     if (!$res) {
         return crm_url();
     }
-    // Add admin contact and user
-    $sql = "
-        INSERT INTO `contact`
-        (`firstName`, `lastName`, `email`)
-        VALUES
-        ('Admin', 'User', '$esc_post[email]')
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
-    $cid = mysqli_insert_id($db_connect);
-    $esc_cid = mysqli_real_escape_string($db_connect, $cid);
-    $esc_date = mysqli_real_escape_string($db_connect, date("Y-m-d"));
-    $esc_time = mysqli_real_escape_string($db_connect, date("H:i:s", time()));
-    $sql = "
-        UPDATE `contact`
-        SET `createdBy`='$esc_cid'
-        , `createdDate`='$esc_date'
-        , `createdTime`='$esc_time'
-        WHERE `cid`='$esc_cid'
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
-    $salt = user_salt();
-    $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
-    $esc_salt = mysqli_real_escape_string($db_connect, $salt);
-    $sql = "
-        INSERT INTO `user`
-        (`cid`, `username`, `hash`, `salt`)
-        VALUES
-        ('$esc_cid', 'admin', '$esc_hash', '$esc_salt')
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
     message_register(title() . " " . crm_version() . ' has been installed.');
     message_register('You may log in as user "admin"');
     return crm_url('login');

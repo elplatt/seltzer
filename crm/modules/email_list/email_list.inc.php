@@ -877,7 +877,6 @@ function email_list_edit_form ($lid) {
  * @return The form structure.
  */
 function email_list_delete_form ($lid) {
-    
     // Ensure user is allowed to delete keys
     if (!user_access('email_list_delete')) {
         error_register('User does not have permission: email_list_delete');

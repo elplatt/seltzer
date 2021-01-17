@@ -129,3 +129,99 @@ function protocol_security () {
     global $config_protocol_security;
     return $config_protocol_security;
 }
+
+/**
+ * @return The hostname configured in config.inc.php.
+ */
+function get_host () {
+    global $config_host;
+    return $config_host;
+}
+
+/**
+ * @return The org name configured in config.inc.php.
+ */
+function get_org_name () {
+    global $config_org_name;
+    return $config_org_name;
+}
+
+/**
+ * @return The org website configured in config.inc.php.
+ */
+function get_org_website () {
+    global $config_org_website;
+    return $config_org_website;
+}
+
+/**
+ * @return The currency code configured in config.inc.php.
+ */
+function get_currency_code () {
+    global $config_currency_code;
+    return $config_currency_code;
+}
+
+/**
+ * @return The email from configured in config.inc.php.
+ */
+function get_email_from () {
+    global $config_email_from;
+    return $config_email_from;
+}
+
+/**
+ * @return The email to configured in config.inc.php.
+ */
+function get_email_to () {
+    global $config_email_to;
+    return $config_email_to;
+}
+
+/**
+ * @return The address1 configured in config.inc.php.
+ */
+function get_address1 () {
+    global $config_address1;
+    return $config_address1;
+}
+
+/**
+ * @return The address2 configured in config.inc.php.
+ */
+function get_address2 () {
+    global $config_address2;
+    return $config_address2;
+}
+
+/**
+ * @return The address3 configured in config.inc.php.
+ */
+function get_address3 () {
+    global $config_address3;
+    return $config_address3;
+}
+
+/**
+ * @return The town/city configured in config.inc.php.
+ */
+function get_town_city () {
+    global $config_town_city;
+    return $config_town_city;
+}
+
+/**
+ * @return The zipcode configured in config.inc.php.
+ */
+function get_zipcode () {
+    global $config_zipcode;
+    return $config_zipcode;
+}
+
+/**
+ * @return The theme configured in config.inc.php.
+ */
+function get_theme () {
+    global $config_theme;
+    return $config_theme;
+}
