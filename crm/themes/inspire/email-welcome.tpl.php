@@ -1,31 +1,21 @@
 <p>
     <?php
-    global $config_address1;
-    global $config_address2;
-    global $config_address3;
-    global $config_town_city;
-    global $config_zipcode;
-    global $config_site_title;
-    global $config_org_name;
-    global $config_org_website;
-    global $config_email_from;
-    global $config_protocol_security;
     print '<html>';
-    print 'Welcome to ' . "$config_org_name" . '!';
+    print 'Welcome to ' . get_org_name() . '!';
     print '<br /><br />';
-    print 'You are receiving this email because you have recently been entered into the ' . "$config_org_name" . ' membership management system, ' . "$config_site_title" . '.';
+    print 'You are receiving this email because you have recently been entered into the ' . get_org_name() . ' membership management system, ' . title() . '.';
     print '<br /><br />';
     print 'Your username is ' . "$username" . '. To confirm your email and set your password, visit <a href="' . "$confirm_url". '">' . "$confirm_url" . '</a>.';
     print '<br /><br />';
-    print 'You may manage your contact info at: <a href="' . "$config_protocol_security" . '://' . "$hostname$base_path" . '">' . "$config_protocol_security" . '://' . "$hostname$base_path" . '</a>';
+    print 'You may manage your contact info at: <a href="' . protocol_security() . '://' . get_host() . base_path() . '">' . protocol_security() . '://' . get_host() . base_path() . '</a>';
     print '<br /><br />';
     print 'Please ensure the information we have on file for you is complete and accurate.';
     print '<br /><br />';
-    if((!empty($config_address1)) && (!empty($config_address2)) && (!empty($config_address3)) && (!empty($config_town_city)) && (!empty($config_zipcode))) {
-        print 'Our address is ' . "$config_address1" . ", " . "$config_address2" . ", " . "$config_address3" . ", " . "$config_town_city" . ", " . "$config_zipcode";
+    if((!empty(get_address1())) && (!empty(get_address2())) && (!empty(get_address3())) && (!empty(get_town_city())) && (!empty(get_zipcode()))) {
+        print 'Our address is ' . get_address1() . ", " . get_address2() . ", " . get_address3() . ", " . get_town_city(). ", " . get_zipcode();
     }
     print '<br /><br />';
-    print 'If you have any additional questions, please contact: <a href="mailto:' . "$config_email_from" . '">' . "$config_email_from" . '</a> or visit the website at <a href="' . "$config_protocol_security" . '://' . "$config_org_website" . '">' . "$config_protocol_security" . '://' . "$config_org_website";
+    print 'If you have any additional questions, please contact: <a href="mailto:' . get_email_from() . '">' . get_email_from() . '</a> or visit the website at <a href="' . protocol_security() . '://' . get_org_website() . '">' . protocol_security() . '://' . get_org_website();
     print '</html>';
     ?>
 </p>
