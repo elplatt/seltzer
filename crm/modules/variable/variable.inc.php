@@ -25,7 +25,7 @@
  * this number.
  */
 function variable_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -35,6 +35,24 @@ function variable_revision () {
  */
 function variable_install($old_revision = 0) {
     global $db_connect;
+    global $db_connect;
+    global $config_host;
+    global $config_base_path;
+    global $config_site_title;
+    global $config_github_username;
+    global $config_github_repo;
+    global $config_protocol_security;
+    global $config_org_name;
+    global $config_org_website;
+    global $config_currency_code;
+    global $config_email_from;
+    global $config_email_to;
+    global $config_address1;
+    global $config_address2;
+    global $config_address3;
+    global $config_town_city;
+    global $config_zipcode;
+    global $config_theme;
     // Create initial database table
     if ($old_revision < 1) {
         $sql = '
@@ -46,6 +64,25 @@ function variable_install($old_revision = 0) {
         ';
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
+    }
+    if ($old_revision < 2) {
+        variable_set('host', $config_host);
+        variable_set('base_path', $config_base_path);
+        variable_set('site_title', $config_site_title);
+        variable_set('github_username', $config_github_username);
+        variable_set('github_repo', $config_github_repo);
+        variable_set('protocol_security', $config_protocol_security);
+        variable_set('org_name', $config_org_name);
+        variable_set('org_website', $config_org_website);
+        variable_set('currency_code', $config_currency_code);
+        variable_set('email_from', $config_email_from);
+        variable_set('email_to', $config_email_to);
+        variable_set('address1', $config_address1);
+        variable_set('address2', $config_address2);
+        variable_set('address3', $config_address3);
+        variable_set('town_city', $config_town_city);
+        variable_set('zipcode', $config_zipcode);
+        variable_set('theme', $config_theme);
     }
 }
 
