@@ -60,7 +60,163 @@ function core_install ($old_revision = 0) {
 function core_permissions () {
     $permissions = array_merge(
         module_permissions()
-        , array('report_view')
+        , array(
+            'report_view'
+            ,'global_options_view'
+            , 'global_options_edit'
+        )
     );
     return $permissions;
+}
+
+/**
+ * @return global options form structure.
+ */
+function global_options_form () {
+    // Ensure user is allowed to view options
+    if (!user_access('global_options_view')) {
+        return null;
+    }
+    // Create form
+    $form = array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'global_options_update'
+        , 'fields' => array()
+        , 'submit' => 'Update'
+    );
+    // Edit options
+    $form['fields'][] = array(
+        'type' => 'fieldset'
+        , 'label' => 'Edit Global Options'
+        , 'fields' => array(
+            array(
+                'type' => 'text'
+                , 'label' => 'Host'
+                , 'name' => 'host'
+                , 'value' => get_host()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Base Path'
+                , 'name' => 'base_path'
+                , 'value' => base_path()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Site Title'
+                , 'name' => 'site_title'
+                , 'value' => title()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'GitHub Username'
+                , 'name' => 'github_username'
+                , 'value' => github_username()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'GitHub Repo'
+                , 'name' => 'github_repo'
+                , 'value' => github_repo()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Protocol Security'
+                , 'name' => 'protocol_security'
+                , 'value' => protocol_security()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Org Name'
+                , 'name' => 'org_name'
+                , 'value' => get_org_name()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Org Website'
+                , 'name' => 'org_website'
+                , 'value' => get_org_website()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Currency Code'
+                , 'name' => 'currency_code'
+                , 'value' => get_currency_code()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Email From'
+                , 'name' => 'email_from'
+                , 'value' => get_email_from()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Email To'
+                , 'name' => 'email_to'
+                , 'value' => get_email_to()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Address 1'
+                , 'name' => 'address1'
+                , 'value' => get_address1()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Address 2'
+                , 'name' => 'address2'
+                , 'value' => get_address2()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Address 3'
+                , 'name' => 'address3'
+                , 'value' => get_address3()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Town/City'
+                , 'name' => 'town_city'
+                , 'value' => get_town_city()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Postal/Zip Code'
+                , 'name' => 'zipcode'
+                , 'value' => get_zipcode()
+            )
+            , array(
+                'type' => 'text'
+                , 'label' => 'Theme'
+                , 'name' => 'theme'
+                , 'value' => get_theme()
+            )
+        )
+    );
+    return $form;
+}
+
+/**
+ * Handle global options update request.
+ * @return The url to display on completion.
+ */
+function command_global_options_update () {
+    global $db_connect;
+    global $esc_post;
+    // Check permissions
+    if (!user_access('global_options_edit')) {
+        error_register('Current user does not have permission: global_options_edit');
+        return crm_url('global_options');
+    }
+    $options = array(
+        'host', 'base_path', 'site_title', 'github_username', 'github_repo', 'protocol_security'
+        , 'org_name', 'org_website', 'currency_code', 'email_from', 'email_to'
+        , 'address1', 'address2', 'address3', 'town_city', 'zipcode', 'theme'
+    );
+    foreach ($options as $option) {
+        $esc_option = mysqli_real_escape_string($db_connect, $option);
+        variable_set($esc_option, $esc_post[$esc_option]);
+    }
+    return crm_url('global_options');
 }
