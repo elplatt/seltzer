@@ -387,7 +387,7 @@ function key_table ($opts) {
             $ops = array();
             // Add edit op
             if (user_access('key_edit')) {
-                $ops[] = '<a href=' . crm_url('key&kid=' . $key['kid'] . '#tab-edit') . '>edit</a> ';
+                $ops[] = '<a href=' . crm_url('key&kid=' . $key['kid'] . '#tab-edit') . '>edit</a>';
             }
             // Add delete op
             if (user_access('key_delete')) {
@@ -486,7 +486,7 @@ function key_edit_form ($kid) {
     $form = array(
         'type' => 'form'
         , 'method' => 'post'
-        , 'command' => 'key_update'
+        , 'command' => 'key_edit'
         , 'hidden' => array(
             'kid' => $kid
         )
@@ -616,7 +616,7 @@ function command_key_add() {
  * Handle key update request.
  * @return The url to display on completion.
  */
-function command_key_update() {
+function command_key_edit() {
     global $esc_post;
     // Verify permissions
     if (!user_access('key_edit')) {
