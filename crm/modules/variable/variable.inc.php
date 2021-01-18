@@ -142,7 +142,7 @@ function variable_get ($name, $default) {
         WHERE `name`='$esc_name'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) return $default;
     $variable = mysqli_fetch_assoc($res);
     if ($variable) {
         return $variable['value'];
