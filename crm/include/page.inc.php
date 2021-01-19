@@ -38,6 +38,9 @@ function core_page_list () {
     if (user_access('user_permissions_edit')) {
         $pages[] = 'permissions';
     }
+    if (user_access('global_options_view')) {
+        $pages[] = 'global_options';
+    }
     if (user_access('module_upgrade')) {
         $pages[] = 'upgrade';
     }
@@ -92,6 +95,12 @@ function core_page (&$page_data, $page_name, $options) {
             if (user_access('user_permissions_edit')) {
                 page_set_title($page_data, 'Permissions');
                 page_add_content_top($page_data, theme('form', crm_get_form('user_permissions')));
+            }
+            break;
+        case 'global_options':
+            if (user_access('global_options_view')) {
+                page_set_title($page_data, 'Global Options');
+                page_add_content_top($page_data, theme('form', crm_get_form('global_options')));
             }
             break;
         case 'upgrade':
