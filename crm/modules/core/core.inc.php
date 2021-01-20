@@ -62,7 +62,7 @@ function core_permissions () {
         module_permissions()
         , array(
             'report_view'
-            ,'global_options_view'
+            , 'global_options_view'
             , 'global_options_edit'
         )
     );
