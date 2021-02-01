@@ -273,8 +273,7 @@ function plan_meta_save ($plan_meta) {
     $fields = array('pmid', 'pid', 'tagstr', 'start', 'end');
     if (isset($plan_meta['pmid'])) {
         // Update existing plan meta data
-        $pmid = $plan_meta['pmid'];
-        $esc_pmid = mysqli_real_escape_string($db_connect, $pmid);
+        $esc_pmid = mysqli_real_escape_string($db_connect, $plan_meta['pmid']);
         $clauses = array();
         foreach ($fields as $k) {
             if ($k == 'end' && empty($plan_meta[$k])) {
@@ -313,10 +312,10 @@ function plan_meta_save ($plan_meta) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $pmid = mysqli_insert_id($db_connect);
+        $esc_pmid = mysqli_insert_id($db_connect);
         message_register('Plan Meta Data added');
     }
-    return crm_get_one('plan_meta', array('pmid'=>$pmid));
+    return crm_get_one('plan_meta', array('pmid'=>$esc_pmid));
 }
 
 /**

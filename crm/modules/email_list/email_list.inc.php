@@ -339,8 +339,7 @@ function email_list_save ($list) {
     $fields = array('lid', 'list_name');
     if (isset($list['lid'])) {
         // Update existing email list
-        $lid = $list['lid'];
-        $esc_lid = mysqli_real_escape_string($db_connect, $lid);
+        $esc_lid = mysqli_real_escape_string($db_connect, $list['lid']);
         $clauses = array();
         foreach ($fields as $k) {
             if (isset($list[$k]) && $k != 'lid') {
@@ -375,7 +374,7 @@ function email_list_save ($list) {
         if (!$res) crm_error(mysqli_error($res));
         message_register('Email list created');
     }
-    //return crm_get_one('email_list', array('kid'=>$kid));
+    //return crm_get_one('email_list', array('lid'=>$esc_lid));
 }
 
 /**
