@@ -252,8 +252,7 @@ function key_save ($key) {
     $fields = array('kid', 'cid', 'serial', 'slot', 'start', 'end');
     if (isset($key['kid'])) {
         // Update existing key
-        $kid = $key['kid'];
-        $esc_kid = mysqli_real_escape_string($db_connect, $kid);
+        $esc_kid = mysqli_real_escape_string($db_connect, $key['kid']);
         $clauses = array();
         foreach ($fields as $k) {
             if ($k == 'end' && empty($key[$k])) {
@@ -292,10 +291,10 @@ function key_save ($key) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $kid = mysqli_insert_id($db_connect);
+        $esc_kid = mysqli_insert_id($db_connect);
         message_register('Key added');
     }
-    return crm_get_one('key', array('kid'=>$kid));
+    return crm_get_one('key', array('kid'=>$esc_kid));
 }
 
 /**
