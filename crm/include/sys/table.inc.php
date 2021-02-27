@@ -184,7 +184,7 @@ function theme_table_csv ($table_name, $opts = null) {
  * @return The escaped string.
  */
 function table_escape_csv ($cell) {
-    return '"' . str_replace('"', '\"', $cell) . '"';    
+    return '"' . str_replace('"', '\"', $cell) . '"';
 }
 
 /**

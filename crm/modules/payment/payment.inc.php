@@ -108,9 +108,8 @@ function payment_install($old_revision = 0) {
  * @param $code Optional currency code.
  */
 function payment_parse_currency ($value, $code = null) {
-    global $config_currency_code;
     if (!isset($code)) {
-        $code = $config_currency_code ? $config_currency_code : 'USD';
+        $code = get_currency_code() ? get_currency_code() : 'USD';
     }
     // Determine sign
     $sign = 1;

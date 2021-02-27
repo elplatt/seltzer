@@ -25,7 +25,7 @@
  * this number.
  */
 function user_revision () {
-    return 2;
+    return 3;
 }
 
 /**
@@ -154,6 +154,39 @@ function user_install ($old_revision = 0) {
         $default_perms = array(
             'director' => array('contact_list')
             , 'webAdmin' => array('contact_list')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
+                    $sql = "
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$esc_rid', '$esc_perm')
+                    ";
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) crm_error(mysqli_error($res));
+                }
+            }
+        }
+    }
+    if ($old_revision < 3) {
+        // Set default permissions
+        $roles = array(
+            '1' => 'authenticated'
+            , '2' => 'member'
+            , '3' => 'director'
+            , '4' => 'president'
+            , '5' => 'vp'
+            , '6' => 'secretary'
+            , '7' => 'treasurer'
+            , '8' => 'webAdmin'
+        );
+        $default_perms = array(
+            'director' => array('global_options_view')
+            , 'webAdmin' => array('global_options_view')
         );
         foreach ($roles as $rid => $role) {
             $esc_rid = mysqli_real_escape_string($db_connect, $rid);
@@ -655,9 +688,6 @@ function user_subject_access ($cid, $permission) {
  */
 function user_reset_password_url ($username) {
     global $db_connect;
-    global $config_host;
-    global $config_base_path;
-    global $config_protocol_security;
     // Get user info
     $esc_username = mysqli_real_escape_string($db_connect, $username);
     $sql = "
@@ -686,7 +716,7 @@ function user_reset_password_url ($username) {
     ";
     $res = mysqli_query($db_connect, $sql);
     // Generate reset url
-    $url = $config_protocol_security . '://' . $config_host . crm_url("reset-confirm&v=" . $code);
+    $url = protocol_security() . '://' . get_host() . crm_url("reset-confirm&v=" . $code);
     return $url;
 }
 
@@ -811,10 +841,6 @@ function command_logout () {
  * Respond to reset password request.
  */
 function command_reset_password () {
-    global $config_host;
-    global $config_base_path;
-    global $config_email_from;
-    global $config_site_title;
     // Send code to user by username
     $user = crm_get_one('user', array('filter'=>array('username'=>$_POST['username'])));
     if (empty($user)) {
@@ -829,8 +855,8 @@ function command_reset_password () {
     $url = user_reset_password_url($user['username']);
     if (!empty($url)) {
         $to = $contact['email'];
-        $subject = "[$config_site_title] Reset Password";
-        $from = $config_email_from;
+        $subject = "[" . title() . "] Reset Password";
+        $from = get_email_from();
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $message = "To reset your password, visit the following url: $url";

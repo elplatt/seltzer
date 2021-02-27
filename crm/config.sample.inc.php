@@ -133,5 +133,6 @@ $config_links = array(
     , 'email_lists' => 'Email Lists'
     , 'reports' => 'Reports'
     , 'permissions' => 'Permissions'
+    , 'global_options' => 'Global Options'
     , 'upgrade' => 'Upgrade'
 );

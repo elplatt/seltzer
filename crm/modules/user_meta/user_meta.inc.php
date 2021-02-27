@@ -289,8 +289,7 @@ function user_meta_save ($user_meta) {
     $fields = array('umid', 'cid', 'tagstr', 'start', 'end');
     if (isset($user_meta['umid'])) {
         // Update existing user meta data
-        $umid = $user_meta['umid'];
-        $esc_umid = mysqli_real_escape_string($db_connect, $umid);
+        $esc_umid = mysqli_real_escape_string($db_connect, $user_meta['umid']);
         $clauses = array();
         foreach ($fields as $k) {
             if ($k == 'end' && empty($user_meta[$k])) {
@@ -329,10 +328,10 @@ function user_meta_save ($user_meta) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $umid = mysqli_insert_id($db_connect);
+        $esc_umid = mysqli_insert_id($db_connect);
         message_register('User Meta Data added');
     }
-    return crm_get_one('user_meta', array('umid'=>$umid));
+    return crm_get_one('user_meta', array('umid'=>$esc_umid));
 }
 
 /**

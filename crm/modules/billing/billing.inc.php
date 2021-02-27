@@ -167,8 +167,6 @@ function command_billing () {
  * Send emails to any members with a positive balance.
  */
 function command_billing_email () {
-    global $config_email_from;
-    global $config_site_title;
     // Get balances and contacts
     $cids = payment_contact_filter(array('balance_due'=>true));
     $balances = payment_accounts(array('cid'=>$cids));
@@ -191,8 +189,8 @@ function command_billing_email () {
         }
         // Send email
         $to = $cidToContact[$cid]['email'];
-        $subject = "[$config_site_title] Payment Due";
-        $from = $config_email_from;
+        $subject = "[" . get_site_title() . "] Payment Due";
+        $from = get_email_from();
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $message = "<p>Hello,<br/><br/>Your current account balance is $amount.  To pay this balance using </p>";

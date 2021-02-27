@@ -252,8 +252,7 @@ function key_save ($key) {
     $fields = array('kid', 'cid', 'serial', 'slot', 'start', 'end');
     if (isset($key['kid'])) {
         // Update existing key
-        $kid = $key['kid'];
-        $esc_kid = mysqli_real_escape_string($db_connect, $kid);
+        $esc_kid = mysqli_real_escape_string($db_connect, $key['kid']);
         $clauses = array();
         foreach ($fields as $k) {
             if ($k == 'end' && empty($key[$k])) {
@@ -292,10 +291,10 @@ function key_save ($key) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $kid = mysqli_insert_id($db_connect);
+        $esc_kid = mysqli_insert_id($db_connect);
         message_register('Key added');
     }
-    return crm_get_one('key', array('kid'=>$kid));
+    return crm_get_one('key', array('kid'=>$esc_kid));
 }
 
 /**
@@ -387,7 +386,7 @@ function key_table ($opts) {
             $ops = array();
             // Add edit op
             if (user_access('key_edit')) {
-                $ops[] = '<a href=' . crm_url('key&kid=' . $key['kid'] . '#tab-edit') . '>edit</a> ';
+                $ops[] = '<a href=' . crm_url('key&kid=' . $key['kid'] . '#tab-edit') . '>edit</a>';
             }
             // Add delete op
             if (user_access('key_delete')) {
@@ -486,7 +485,7 @@ function key_edit_form ($kid) {
     $form = array(
         'type' => 'form'
         , 'method' => 'post'
-        , 'command' => 'key_update'
+        , 'command' => 'key_edit'
         , 'hidden' => array(
             'kid' => $kid
         )
@@ -616,7 +615,7 @@ function command_key_add() {
  * Handle key update request.
  * @return The url to display on completion.
  */
-function command_key_update() {
+function command_key_edit() {
     global $esc_post;
     // Verify permissions
     if (!user_access('key_edit')) {
