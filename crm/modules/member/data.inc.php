@@ -95,8 +95,8 @@ function member_data ($opts = array()) {
     $row = mysqli_fetch_assoc($res);
     while (!empty($row)) {
         $member = array(
-            'cid' => $row['cid'],
-            'contact' => array(
+            'cid' => $row['cid']
+            , 'contact' => array(
                 'cid' => $row['cid']
                 , 'firstName' => $row['firstName']
                 , 'middleName' => $row['middleName']

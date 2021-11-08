@@ -90,7 +90,7 @@ function theme_form ($form) {
         if (!empty($form['action'])) {
             $output .= $form['action'] . '"';
         } else {
-            $output .= crm_url('').'"';
+            $output .= crm_url('') . '"';
         }
         if (array_key_exists('enctype', $form)) {
             $output .= ' enctype="' . $form['enctype'] . '"';
@@ -202,7 +202,9 @@ function theme_form_table ($field) {
  * @return The themed html string for a message form element.
  */
 function theme_form_message($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
     $output .= $field['value'];
     $output .= '</fieldset>';
@@ -215,7 +217,9 @@ function theme_form_message($field) {
  * @return The themed html for a read-only form field.
  */
 function theme_form_readonly ($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
@@ -236,7 +240,9 @@ function theme_form_readonly ($field) {
  * @return The themed html for the text field.
  */
 function theme_form_text ($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $classes = array();
     if (array_key_exists('class', $field) && !empty($field['class'])) {
         array_push($classes, $field['class']);
@@ -265,7 +271,6 @@ function theme_form_text ($field) {
     if (empty($field['autocomplete'])) {
         if (!empty($field['value'])) {
             $output .= ' value="' . $field['value'] . '"';
-            
             if (array_key_exists('defaultClear', $field) && $field['defaultClear'] == true) {
                 $output .= ' title="' . $field['value'] . '"';
             }
@@ -360,7 +365,9 @@ function theme_form_password ($field) {
  * @return The themed html for the field.
  */
 function theme_form_file ($field) {
-    if (!array_key_exists('class', $field)) { $field['class'] = ''; }
+    if (!array_key_exists('class', $field)) {
+        $field['class'] = '';
+    }
     $output = '<fieldset class="form-row ' . $field['class'] . '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';

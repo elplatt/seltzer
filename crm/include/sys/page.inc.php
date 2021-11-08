@@ -116,7 +116,6 @@ function page_add_content_bottom (&$page_data, $content, $tab_name = null) {
 
 /**
  * Theme an entire page.
- *
  * @param $page_name The page name.
  * @param $options The options to pass to page().
  * @return The themed html for the page.
