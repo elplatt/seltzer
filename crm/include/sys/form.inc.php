@@ -247,10 +247,10 @@ function theme_form_text ($field) {
     if (array_key_exists('class', $field) && !empty($field['class'])) {
         array_push($classes, $field['class']);
     }
-    if (!empty($field['autocomplete'])) {
+    if (array_key_exists('autocomplete', $field) && !empty($field['autocomplete'])) {
         array_push($classes, 'autocomplete');
     }
-    if (!empty($field['suggestion'])) {
+    if (array_key_exists('suggestion', $field) && !empty($field['suggestion'])) {
         array_push($classes, 'autocomplete');
     }
     if (!empty($field['value']) && array_key_exists('defaultClear', $field) && $field['defaultClear'] == true) {
