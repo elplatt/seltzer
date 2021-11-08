@@ -124,63 +124,6 @@ function mentor_install($old_revision = 0) {
     }
 }
 
-// Pages ///////////////////////////////////////////////////////////////////////
-
-/**
- * @return An array of pages provided by this module.
- */
-function mentor_page_list () {
-    $pages = array();
-    if (user_access('mentor_view')) {
-        $pages[] = 'mentor';
-    }
-    return $pages;
-}
-
-/**
- * Page hook.  Adds module content to a page before it is rendered.
- * @param &$page_data Reference to data about the page being rendered.
- * @param $page_name The name of the page being rendered.
- * @param $options The array of options passed to theme('page').
- */
-function mentor_page (&$page_data, $page_name, $options) {
-    switch ($page_name) {
-        case 'contact':
-            // Capture member cid
-            $cid = $options['cid'];
-            if (empty($cid)) {
-                return;
-            }
-            // Add mentors tab
-            if (user_access('mentor_view') || user_access('mentor_edit') || user_access('mentor_delete') || $cid == user_id()) {
-                $mentorships = theme('table', crm_get_table('mentor', array('cid' => $cid)));
-                $mentorships .= theme('form', crm_get_form('mentor_add', $cid));
-                page_add_content_bottom($page_data, $mentorships, 'Mentor');
-            }
-            break;
-    }
-}
-
-// Themeing ////////////////////////////////////////////////////////////////////
-
-/**
- * Return the themed html for an add mentor assignment form.
- * @param $cid The id of the contact to add a mentor assignment for.
- * @return The themed html string.
- */
-function theme_mentor_add_form ($cid) {
-    return theme('form', crm_get_form('mentor_add', $cid));
-}
-
-/**
- * Return themed html for an edit mentor assignment form.
- * @param $cid The cid of the mentor assignment to edit.
- * @return The themed html string.
- */
-function theme_mentor_edit_form ($cid) {
-    return theme('form', crm_get_form('mentor_edit', $cid));
-}
-
 // DB to Object mapping ////////////////////////////////////////////////////////
 
 /**
@@ -273,6 +216,35 @@ function mentor_data ($opts = array()) {
     }
     // Return data
     return $mentor_data;
+}
+
+/**
+ * Implementation of hook_data_alter().
+ * @param $type The type of the data being altered.
+ * @param $data An array of structures of the given $type.
+ * @param $opts An associative array of options.
+ * @return An array of modified structures.
+ */
+function mentor_data_alter ($type, $data = array(), $opts = array()){
+    switch($type){
+        case 'member':
+            //Get cids of all members passed into $data
+            $cids = array();
+            foreach ($data as $member){
+                $cids[] = $member['cid'];
+            }
+            // Add the cids to the options
+            $mentor_opts = $opts;
+            $mentor_opts['cid'] = $cids;
+            // Get an array of member structures for each cid
+            $mentor_data = crm_get_data('mentor', $mentor_opts);
+            // Add mentorship data to member array
+            foreach ($data as $i=> $member) {
+                $data[$i]['mentorships'] = $mentor_data[$member['cid']];
+            }
+            break;
+    }
+    return $data;
 }
 
 // Table data structures ///////////////////////////////////////////////////////
@@ -643,33 +615,39 @@ function command_mentor_delete() {
     return crm_url('members');
 }
 
-// Data Alter Function /////////////////////////////////////////////////////
+// Pages ///////////////////////////////////////////////////////////////////////
 
 /**
- * Implementation of hook_data_alter().
- * @param $type The type of the data being altered.
- * @param $data An array of structures of the given $type.
- * @param $opts An associative array of options.
- * @return An array of modified structures.
+ * @return An array of pages provided by this module.
  */
-function mentor_data_alter ($type, $data = array(), $opts = array()){
-    switch($type){
-        case 'member':
-            //Get cids of all members passed into $data
-            $cids = array();
-            foreach ($data as $member){
-                $cids[] = $member['cid'];
+function mentor_page_list () {
+    $pages = array();
+    if (user_access('mentor_view')) {
+        $pages[] = 'mentor';
+    }
+    return $pages;
+}
+
+/**
+ * Page hook. Adds module content to a page before it is rendered.
+ * @param &$page_data Reference to data about the page being rendered.
+ * @param $page_name The name of the page being rendered.
+ * @param $options The array of options passed to theme('page').
+ */
+function mentor_page (&$page_data, $page_name, $options) {
+    switch ($page_name) {
+        case 'contact':
+            // Capture member cid
+            $cid = $options['cid'];
+            if (empty($cid)) {
+                return;
             }
-            // Add the cids to the options
-            $mentor_opts = $opts;
-            $mentor_opts['cid'] = $cids;
-            // Get an array of member structures for each cid
-            $mentor_data = crm_get_data('mentor', $mentor_opts);
-            // Add mentorship data to member array
-            foreach ($data as $i=> $member) {
-                $data[$i]['mentorships'] = $mentor_data[$member['cid']];
+            // Add mentors tab
+            if (user_access('mentor_view') || user_access('mentor_edit') || user_access('mentor_delete') || $cid == user_id()) {
+                $mentorships = theme('table', crm_get_table('mentor', array('cid' => $cid)));
+                $mentorships .= theme('form', crm_get_form('mentor_add', $cid));
+                page_add_content_bottom($page_data, $mentorships, 'Mentor');
             }
             break;
     }
-    return $data;
 }
