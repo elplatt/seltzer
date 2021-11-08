@@ -71,15 +71,25 @@ function mentor_install($old_revision = 0) {
             , '8' => 'webAdmin'
         );
         //Set director (rid 3) as the default role that can administer mentors.
-        $sql = "
-            INSERT INTO `role_permission` (`rid`, `permission`)
-            VALUES
-            ('3', 'mentor_view'),
-            ('3', 'mentor_edit'),
-            ('3', 'mentor_delete')
-        ";
-        $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        $default_perms = array(
+            'director' => array('mentor_view', 'mentor_edit', 'mentor_delete')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
+                    $sql = "
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$esc_rid', '$esc_perm')
+                    ";
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) crm_error(mysqli_error($res));
+                }
+            }
+        }
     }
     if ($old_revision < 2) {
         $roles = array(
