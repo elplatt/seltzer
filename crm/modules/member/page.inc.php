@@ -120,7 +120,7 @@ function member_page (&$page_data, $page_name, $options) {
                 $plan .= theme('form', crm_get_form('member_membership_add', $cid));
                 page_add_content_top($page_data, $plan, 'Plan');
             }
-            if (user_access('member_membership_edit')) {
+            if (user_access('user_role_edit')) {
                 $roles = theme('form', crm_get_form('user_role_edit', $cid));
                 page_add_content_top($page_data, $roles, 'Roles');
             }
