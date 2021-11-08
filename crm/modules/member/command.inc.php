@@ -255,10 +255,6 @@ function command_member_plan_delete () {
 function command_member_membership_add () {
     global $esc_post;
     // Verify permissions
-    if (!user_access('member_edit')) {
-        error_register('Permission denied: member_edit');
-        return crm_url('members');
-    }
     if (!user_access('member_membership_edit')) {
         error_register('Permission denied: member_membership_edit');
         return crm_url('members');
@@ -283,10 +279,6 @@ function command_member_membership_add () {
 function command_member_membership_update () {
     global $esc_post;
     // Verify permissions
-    if (!user_access('member_edit')) {
-        error_register('Permission denied: member_edit');
-        return crm_url('members');
-    }
     if (!user_access('member_membership_edit')) {
         error_register('Permission denied: member_membership_edit');
         return crm_url('members');
