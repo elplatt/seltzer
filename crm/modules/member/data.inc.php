@@ -227,7 +227,6 @@ function member_contact_api ($contact, $op) {
     switch ($op) {
         case 'create':
             // Add member
-            $member = $contact['member'];
             $sql = "
                 INSERT INTO `member`
                 (`cid`, `emergencyName`, `emergencyPhone`, `emergencyRelation`, `address1`, `address2`, `address3`, `town_city`, `zipcode`)
@@ -238,8 +237,8 @@ function member_contact_api ($contact, $op) {
             if (!$res) crm_error(mysqli_error($res));
             $contact['member']['cid'] = $contact['cid'];
             // Save memberships
-            if (isset($member['membership'])) {
-                foreach ($member['membership'] as $i => $membership) {
+            if (isset($contact['member']['membership'])) {
+                foreach ($contact['member']['membership'] as $i => $membership) {
                     $membership['cid'] = $contact['cid'];
                     $membership = member_membership_save($membership);
                     $contact['member']['membership'][$i] = $membership;
