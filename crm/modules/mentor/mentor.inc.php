@@ -370,6 +370,7 @@ function mentor_table ($opts) {
 function mentor_add_form ($cid) {
     // Ensure user is allowed to edit mentors
     if (!user_access('mentor_edit')) {
+        error_register('User does not have permission: mentor_edit');
         return null;
     }
     // Create form structure
@@ -411,6 +412,7 @@ function mentor_add_form ($cid) {
 function mentor_edit_form ($cid) {
     // Ensure user is allowed to edit mentor
     if (!user_access('mentor_edit')) {
+        error_register('User does not have permission: mentor_edit');
         return null;
     }
     // Get corresponding contact data
@@ -477,6 +479,7 @@ function mentor_edit_form ($cid) {
 function mentor_delete_form ($cid) {
     // Ensure user is allowed to delete mentors
     if (!user_access('mentor_delete')) {
+        error_register('User does not have permission: mentor_delete');
         return null;
     }
     // Get corresponding contact data
