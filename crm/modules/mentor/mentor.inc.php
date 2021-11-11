@@ -547,7 +547,7 @@ function command_mentor_add() {
     // Verify permissions
     if (!user_access('mentor_edit')) {
         error_register('Permission denied: mentor_edit');
-        return crm_url('');
+        return crm_url('contact&cid=' . $_POST['cid']);
     }
     // Query database
     $sql = "
@@ -593,7 +593,7 @@ function command_mentor_update() {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    return crm_url('contact&cid=' . $esc_post['cid'] . '#tab-mentor');
+    return crm_url('contact&cid=' . $_POST['cid'] . '#tab-mentor');
 }
 
 /**
@@ -606,7 +606,7 @@ function command_mentor_delete() {
     // Verify permissions
     if (!user_access('mentor_delete')) {
         error_register('Permission denied: mentor_delete');
-        return crm_url('');
+        return crm_url('contact&cid=' . $_POST['cid']);
     }
     // Query database
     $sql = "
@@ -615,7 +615,7 @@ function command_mentor_delete() {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
-    return crm_url('members');
+    return crm_url('contact&cid=' . $_POST['cid']);
 }
 
 // Pages ///////////////////////////////////////////////////////////////////////
