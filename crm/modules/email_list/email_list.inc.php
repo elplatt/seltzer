@@ -599,7 +599,6 @@ function email_list_options () {
         WHERE 1
         ORDER BY `list_name`, `lid` ASC
     ";
-    
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     // Store data
@@ -621,8 +620,15 @@ function email_list_options () {
  * @return an email subscribe form structure.
  */
 function email_list_subscribe_form ($cid) {
+    // Ensure user is allowed to edit lists
+    if (!user_access('email_list_subscribe')) {
+        error_register('User does not have permission: email_list_subscribe');
+        return null;
+    }
+    // Get contact data
     $contact_data = crm_get_data('contact', array('cid'=>$cid));
     $contact = $contact_data[0];
+    // Create form structure
     return array(
         'type' => 'form'
         , 'method' => 'post'
@@ -712,6 +718,12 @@ function email_list_unsubscribe_form ($subscription) {
  * @return an email list create form structure.
  */
 function email_list_create_form () {
+    // Ensure user is allowed to edit lists
+    if (!user_access('email_list_edit')) {
+        error_register('User does not have permission: email_list_edit');
+        return null;
+    }
+    // Create form structure
     $form = array(
         'type' => 'form'
         , 'method' => 'post'
@@ -844,6 +856,11 @@ function email_list_delete_form ($lid) {
  */
 function command_email_list_subscribe () {
     global $db_connect;
+    // Verify permissions
+    if (!user_access('email_list_subscribe')) {
+        error_register('Permission denied: email_list_subscribe');
+        return crm_url('contact&cid=' . $esc_post['cid']);
+    }
     $cid = $_POST['cid'];
     $email = $_POST['email'];
     $lid = $_POST['lid'];
