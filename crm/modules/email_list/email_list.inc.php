@@ -973,7 +973,7 @@ function email_list_page (&$page_data, $page_name, $options) {
             // Add email lists tab
             if ((user_access('contact_view') && $cid == user_id()) || user_access('contact_edit')) {
                 $email_lists = theme('table', crm_get_table('email_list_subscriptions', array('cid' => $cid)));
-                if ((user_access('contact_view') && $cid == user_id()) || user_access('contact_edit')) {
+                if ((user_access('email_list_subscribe') && $cid == user_id()) || user_access('email_list_edit_subscription')) {
                     $email_lists .= theme('form', crm_get_form('email_list_subscribe', $cid));
                 }
                 page_add_content_bottom($page_data, $email_lists, 'Emails');
@@ -983,7 +983,9 @@ function email_list_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, 'Email Lists');
             if (user_access('email_list_view')) {
                 $email_lists = theme('table', 'email_list', array('join'=>array('contact', 'member'), 'show_export'=>false, 'lists_only'=>true));
-                $email_lists .= theme('form', crm_get_form('email_list_create'));
+                if (user_access('email_list_edit')) {
+                    $email_lists .= theme('form', crm_get_form('email_list_create'));
+                }
                 page_add_content_top($page_data, $email_lists, 'View');
             }
             break;
@@ -1008,7 +1010,7 @@ function email_list_page (&$page_data, $page_name, $options) {
             //Set page title
             page_set_title($page_data, email_list_description($lid));
             // Add edit tab
-            if (user_access('email_list_view') || user_access('email_list_edit')) {
+            if (user_access('email_list_edit')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('email_list_edit', $lid), 'Edit'));
                 page_add_content_top($page_data, theme('table', 'email_list_subscribers', array('join'=>array('contact', 'member'), 'show_export'=>false, 'lists_only'=>false, 'lid'=>$lid)));
             }
