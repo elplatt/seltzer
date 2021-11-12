@@ -264,9 +264,9 @@ function email_list_save ($list) {
         // Update existing email list
         $esc_lid = mysqli_real_escape_string($db_connect, $list['lid']);
         $clauses = array();
-        foreach ($fields as $k) {
-            if (isset($list[$k]) && $k != 'lid') {
-                $clauses[] = "`$k`='" . mysqli_real_escape_string($db_connect, $list[$k]) . "' ";
+        foreach ($fields as $l) {
+            if (isset($list[$l]) && $l != 'lid') {
+                $clauses[] = "`$l`='" . mysqli_real_escape_string($db_connect, $list[$l]) . "' ";
             }
         }
         $sql = "
@@ -281,10 +281,10 @@ function email_list_save ($list) {
         // Insert new email list
         $cols = array();
         $values = array();
-        foreach ($fields as $k) {
-            if (isset($list[$k])) {
-                $cols[] = "`$k`";
-                $values[] = "'" . mysqli_real_escape_string($db_connect, $list[$k]) . "'";
+        foreach ($fields as $l) {
+            if (isset($list[$l])) {
+                $cols[] = "`$l`";
+                $values[] = "'" . mysqli_real_escape_string($db_connect, $list[$l]) . "'";
             }
         }
         $sql = "
@@ -297,7 +297,7 @@ function email_list_save ($list) {
         if (!$res) crm_error(mysqli_error($res));
         message_register('Email list created');
     }
-    //return crm_get_one('email_list', array('lid'=>$esc_lid));
+    return crm_get_one('email_list', array('lid'=>$esc_lid));
 }
 
 /**
@@ -325,6 +325,30 @@ function email_list_delete ($list) {
     if (!$res) crm_error(mysqli_error($res));
     if (mysqli_affected_rows() > 0) {
         message_register('Associated subscriptions deleted.');
+    }
+}
+
+/**
+ * Create a subscription.
+ * @param $subscription The subscription structure to create, must have both 'cid' and 'lid' element.
+ */
+function email_list_subscribe ($subscription) {
+    global $db_connect;
+    $esc_cid = mysqli_real_escape_string($db_connect, $subscription['cid']);
+    $esc_email = mysqli_real_escape_string($db_connect, $subscription['email']);
+    $esc_lid = mysqli_real_escape_string($db_connect, $subscription['lid']);
+    //TODO: Qualify the email as a valid email.
+    if (/* email is valid */ true) {
+        //save the email
+        $sql = "
+            INSERT INTO `email_list_subscriptions`
+            (`lid`, `cid`, `email`)
+            VALUES
+            ('$esc_lid', '$esc_cid', '$esc_email')
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        message_register('Successfully subscribed user to email list.');
     }
 }
 
@@ -855,32 +879,19 @@ function email_list_delete_form ($lid) {
  * @return The url to display on completion.
  */
 function command_email_list_subscribe () {
-    global $db_connect;
+    global $esc_post;
     // Verify permissions
     if (!user_access('email_list_subscribe')) {
         error_register('Permission denied: email_list_subscribe');
         return crm_url('contact&cid=' . $esc_post['cid']);
     }
-    $cid = $_POST['cid'];
-    $email = $_POST['email'];
-    $lid = $_POST['lid'];
     //TODO: Qualify the email as a valid email.
     if (/* email is valid */ true) {
-        //save the email
-        $esc_email = mysqli_real_escape_string($db_connect, $email);
-        $sql = "
-            INSERT INTO `email_list_subscriptions`
-            (`lid`, `cid`, `email`)
-            VALUES
-            ('$lid', '$cid', '$esc_email')
-        ";
-        $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
-        message_register('Successfully subscribed user to email list.');
+        email_list_subscribe($_POST);
     } else {
         error_register('Invalid email. Check email syntax.');
     }
-    return crm_url('contact&cid=' . $cid);
+    return crm_url('contact&cid=' . $esc_post['cid']);
 }
 
 /**
@@ -956,7 +967,7 @@ function email_list_page_list () {
 }
 
 /**
- * Page hook.  Adds email_lists module content to a page before it is rendered.
+ * Page hook. Adds email_lists module content to a page before it is rendered.
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  */

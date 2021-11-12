@@ -247,6 +247,50 @@ function mentor_data_alter ($type, $data = array(), $opts = array()){
     return $data;
 }
 
+/**
+ * Save a mentor structure. If $mentor has a 'cid' element, an existing mentor will
+ * be updated, otherwise a new mentor will be created.
+ * @param $mentor The mentor structure
+ * @return The mentor structure with as it now exists in the database.
+ */
+function mentor_save ($mentor) {
+    global $db_connect;
+    // Escape values
+    $esc_cid = mysqli_real_escape_string($db_connect, $mentor['cid']);
+    $esc_mentor_cid = mysqli_real_escape_string($db_connect, $mentor['mentor_cid']);
+    // Insert new mentor
+    $sql = "
+        INSERT INTO `mentor`
+        (`cid`, `mentor_cid`)
+        VALUES
+        ('$esc_cid', '$esc_mentor_cid')
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    message_register('Mentor added');
+    return crm_get_one('mentor', array('cid'=>$esc_cid, 'mentor_cid' => $esc_mentor_cid));
+}
+
+/**
+ * Delete a mentor.
+ * @param $mentor The mentor data structure to delete, must have a 'cid' & 'mentor_cid' element.
+ */
+function mentor_delete ($mentor) {
+    global $db_connect;
+    $esc_cid = mysqli_real_escape_string($db_connect, $mentor['cid']);
+    $esc_mentor_cid = mysqli_real_escape_string($db_connect, $mentor['mentor_cid']);
+    $sql = "
+        DELETE FROM `mentor`
+        WHERE `cid`='$esc_cid'
+        AND `mentor_cid`='$esc_mentor_cid'
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    if (mysqli_affected_rows($db_connect) > 0) {
+        message_register('Mentor deleted.');
+    }
+}
+
 // Table data structures ///////////////////////////////////////////////////////
 
 /**
@@ -467,22 +511,14 @@ function mentor_command ($command, &$url, &$params) {
  * @return The url to display on completion.
  */
 function command_mentor_add() {
-    global $db_connect;
     global $esc_post;
     // Verify permissions
     if (!user_access('mentor_edit')) {
         error_register('Permission denied: mentor_edit');
         return crm_url('contact&cid=' . $_POST['cid']);
     }
-    // Query database
-    $sql = "
-        INSERT INTO `mentor`
-        (`cid`, `mentor_cid`)
-        VALUES
-        ('$esc_post[cid]', '$esc_post[mentor_cid]')
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    // Save mentor
+    mentor_save($_POST);
     return crm_url('contact&cid=' . $_POST['cid'] . '#tab-mentor');
 }
 
@@ -491,20 +527,13 @@ function command_mentor_add() {
  * @return The url to display on completion.
  */
 function command_mentor_delete() {
-    global $db_connect;
     global $esc_post;
     // Verify permissions
     if (!user_access('mentor_delete')) {
         error_register('Permission denied: mentor_delete');
         return crm_url('contact&cid=' . $_POST['cid']);
     }
-    // Query database
-    $sql = "
-        DELETE FROM `mentor`
-        WHERE `cid`='$esc_post[cid]' AND `mentor_cid`='$esc_post[mentor_cid]'
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    mentor_delete($_POST);
     return crm_url('contact&cid=' . $_POST['cid']);
 }
 
