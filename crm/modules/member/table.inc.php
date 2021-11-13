@@ -130,7 +130,7 @@ function member_table ($opts = null) {
             $ops = array();
             // Add edit op
             if (user_access('member_edit')) {
-                $ops[] = '<a href=' . crm_url('contact&cid=' . $member['cid'] . '&tab=edit') .'>edit</a>';
+                $ops[] = '<a href=' . crm_url('contact&cid=' . $member['cid'] . '&tab=edit') . '>edit</a>';
             }
             // Add delete op
             if (user_access('member_delete')) {
@@ -302,9 +302,12 @@ function member_membership_table ($opts = null) {
         }
         // Construct ops array
         $ops = array();
-        // Add delete op
+        // Add edit op
         if (user_access('member_membership_edit')) {
             $ops[] = '<a href=' . crm_url('membership&sid=' . $membership['sid'] . '&tab=edit') . '>edit</a>';
+        }
+        // Add delete op
+        if (user_access('member_edit')) {
             $ops[] = '<a href=' . crm_url('delete&type=member_membership&amp;id=' . $membership['sid']) . '>delete</a>';
         }
         // Add ops row
@@ -391,7 +394,7 @@ function member_details_table ($opts = null) {
         $ops = array();
         // Add edit op
         if (user_access('member_edit')) {
-            $ops[] = '<a href='. crm_url('contact&cid=' . $member['cid'] . '&tab=edit') . '>edit</a> ';
+            $ops[] = '<a href=' . crm_url('contact&cid=' . $member['cid'] . '&tab=edit') . '>edit</a>';
         }
         // Add ops row
         if (!$export && (user_access('member_edit'))) {

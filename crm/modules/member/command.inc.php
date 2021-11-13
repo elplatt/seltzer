@@ -192,6 +192,11 @@ function command_member_edit () {
  */
 function command_member_plan_add () {
     global $esc_post;
+    // Verify permissions
+    if (!user_access('member_plan_edit')) {
+        error_register('Permission denied: member_plan_edit');
+        return crm_url('plans');
+    }
     $plan = array(
         'name' => $_POST['name']
         , 'price' => $_POST['price']
@@ -199,11 +204,6 @@ function command_member_plan_add () {
         , 'active' => $_POST['active'] ? '1' : '0'
         , 'pid' => $_POST['pid']
     );
-    // Verify permissions
-    if (!user_access('member_plan_edit')) {
-        error_register('Permission denied: member_plan_edit');
-        return crm_url('plans');
-    }
     // Add plan
     member_plan_save($plan);
     return crm_url('plans');
@@ -215,6 +215,11 @@ function command_member_plan_add () {
  */
 function command_member_plan_update () {
     global $esc_post;
+    // Verify permissions
+    if (!user_access('member_plan_edit')) {
+        error_register('Permission denied: member_plan_edit');
+        return crm_url('plans');
+    }
     $plan = array(
         'name' => $_POST['name']
         , 'price' => $_POST['price']
@@ -222,11 +227,6 @@ function command_member_plan_update () {
         , 'active' => $_POST['active'] ? '1' : '0'
         , 'pid' => $_POST['pid']
     );
-    // Verify permissions
-    if (!user_access('member_plan_edit')) {
-        error_register('Permission denied: member_plan_edit');
-        return crm_url('plans');
-    }
     // Update plan
     member_plan_save($plan);
     return crm_url('plans');
@@ -255,10 +255,6 @@ function command_member_plan_delete () {
 function command_member_membership_add () {
     global $esc_post;
     // Verify permissions
-    if (!user_access('member_edit')) {
-        error_register('Permission denied: member_edit');
-        return crm_url('members');
-    }
     if (!user_access('member_membership_edit')) {
         error_register('Permission denied: member_membership_edit');
         return crm_url('members');
@@ -283,10 +279,6 @@ function command_member_membership_add () {
 function command_member_membership_update () {
     global $esc_post;
     // Verify permissions
-    if (!user_access('member_edit')) {
-        error_register('Permission denied: member_edit');
-        return crm_url('members');
-    }
     if (!user_access('member_membership_edit')) {
         error_register('Permission denied: member_membership_edit');
         return crm_url('members');

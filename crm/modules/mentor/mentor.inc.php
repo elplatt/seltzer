@@ -71,15 +71,25 @@ function mentor_install($old_revision = 0) {
             , '8' => 'webAdmin'
         );
         //Set director (rid 3) as the default role that can administer mentors.
-        $sql = "
-            INSERT INTO `role_permission` (`rid`, `permission`)
-            VALUES
-            ('3', 'mentor_view'),
-            ('3', 'mentor_edit'),
-            ('3', 'mentor_delete')
-        ";
-        $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        $default_perms = array(
+            'director' => array('mentor_view', 'mentor_edit', 'mentor_delete')
+        );
+        foreach ($roles as $rid => $role) {
+            $esc_rid = mysqli_real_escape_string($db_connect, $rid);
+            if (array_key_exists($role, $default_perms)) {
+                foreach ($default_perms[$role] as $perm) {
+                    $esc_perm = mysqli_real_escape_string($db_connect, $perm);
+                    $sql = "
+                        INSERT INTO `role_permission`
+                        (`rid`, `permission`)
+                        VALUES
+                        ('$esc_rid', '$esc_perm')
+                    ";
+                    $res = mysqli_query($db_connect, $sql);
+                    if (!$res) crm_error(mysqli_error($res));
+                }
+            }
+        }
     }
     if ($old_revision < 2) {
         $roles = array(
@@ -112,63 +122,6 @@ function mentor_install($old_revision = 0) {
             }
         }
     }
-}
-
-// Pages ///////////////////////////////////////////////////////////////////////
-
-/**
- * @return An array of pages provided by this module.
- */
-function mentor_page_list () {
-    $pages = array();
-    if (user_access('mentor_view')) {
-        $pages[] = 'mentor';
-    }
-    return $pages;
-}
-
-/**
- * Page hook.  Adds module content to a page before it is rendered.
- * @param &$page_data Reference to data about the page being rendered.
- * @param $page_name The name of the page being rendered.
- * @param $options The array of options passed to theme('page').
- */
-function mentor_page (&$page_data, $page_name, $options) {
-    switch ($page_name) {
-        case 'contact':
-            // Capture member cid
-            $cid = $options['cid'];
-            if (empty($cid)) {
-                return;
-            }
-            // Add mentors tab
-            if (user_access('mentor_view') || user_access('mentor_edit') || user_access('mentor_delete') || $cid == user_id()) {
-                $mentorships = theme('table', crm_get_table('mentor', array('cid' => $cid)));
-                $mentorships .= theme('form', crm_get_form('mentor_add', $cid));
-                page_add_content_bottom($page_data, $mentorships, 'Mentor');
-            }
-            break;
-    }
-}
-
-// Themeing ////////////////////////////////////////////////////////////////////
-
-/**
- * Return the themed html for an add mentor assignment form.
- * @param $cid The id of the contact to add a mentor assignment for.
- * @return The themed html string.
- */
-function theme_mentor_add_form ($cid) {
-    return theme('form', crm_get_form('mentor_add', $cid));
-}
-
-/**
- * Return themed html for an edit mentor assignment form.
- * @param $cid The cid of the mentor assignment to edit.
- * @return The themed html string.
- */
-function theme_mentor_edit_form ($cid) {
-    return theme('form', crm_get_form('mentor_edit', $cid));
 }
 
 // DB to Object mapping ////////////////////////////////////////////////////////
@@ -265,6 +218,79 @@ function mentor_data ($opts = array()) {
     return $mentor_data;
 }
 
+/**
+ * Implementation of hook_data_alter().
+ * @param $type The type of the data being altered.
+ * @param $data An array of structures of the given $type.
+ * @param $opts An associative array of options.
+ * @return An array of modified structures.
+ */
+function mentor_data_alter ($type, $data = array(), $opts = array()){
+    switch($type){
+        case 'member':
+            //Get cids of all members passed into $data
+            $cids = array();
+            foreach ($data as $member){
+                $cids[] = $member['cid'];
+            }
+            // Add the cids to the options
+            $mentor_opts = $opts;
+            $mentor_opts['cid'] = $cids;
+            // Get an array of member structures for each cid
+            $mentor_data = crm_get_data('mentor', $mentor_opts);
+            // Add mentorship data to member array
+            foreach ($data as $i=> $member) {
+                $data[$i]['mentorships'] = $mentor_data[$member['cid']];
+            }
+            break;
+    }
+    return $data;
+}
+
+/**
+ * Save a mentor structure. If $mentor has a 'cid' element, an existing mentor will
+ * be updated, otherwise a new mentor will be created.
+ * @param $mentor The mentor structure
+ * @return The mentor structure with as it now exists in the database.
+ */
+function mentor_save ($mentor) {
+    global $db_connect;
+    // Escape values
+    $esc_cid = mysqli_real_escape_string($db_connect, $mentor['cid']);
+    $esc_mentor_cid = mysqli_real_escape_string($db_connect, $mentor['mentor_cid']);
+    // Insert new mentor
+    $sql = "
+        INSERT INTO `mentor`
+        (`cid`, `mentor_cid`)
+        VALUES
+        ('$esc_cid', '$esc_mentor_cid')
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    message_register('Mentor added');
+    return crm_get_one('mentor', array('cid'=>$esc_cid, 'mentor_cid' => $esc_mentor_cid));
+}
+
+/**
+ * Delete a mentor.
+ * @param $mentor The mentor data structure to delete, must have a 'cid' & 'mentor_cid' element.
+ */
+function mentor_delete ($mentor) {
+    global $db_connect;
+    $esc_cid = mysqli_real_escape_string($db_connect, $mentor['cid']);
+    $esc_mentor_cid = mysqli_real_escape_string($db_connect, $mentor['mentor_cid']);
+    $sql = "
+        DELETE FROM `mentor`
+        WHERE `cid`='$esc_cid'
+        AND `mentor_cid`='$esc_mentor_cid'
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    if (mysqli_affected_rows($db_connect) > 0) {
+        message_register('Mentor deleted.');
+    }
+}
+
 // Table data structures ///////////////////////////////////////////////////////
 
 /**
@@ -326,10 +352,6 @@ function mentor_table ($opts) {
                 if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
                     // Construct ops array
                     $ops = array();
-                    // Add edit op
-                    //if (user_access('mentor_edit')) {
-                    //    $ops[] = '<a href=' . crm_url('contact&cid=' . $mentor['cid'] . '#tab-mentor') . '>edit</a> ';
-                    //}
                     // Add delete op
                     if (user_access('mentor_delete')) {
                         $ops[] = '<a href=' . crm_url('delete&type=mentor&id=' . $contact['cid'] . '&mentorcid=' . $mentor['cid']) . '>delete</a>';
@@ -360,10 +382,6 @@ function mentor_table ($opts) {
                 if (!$export && (user_access('mentor_edit') || user_access('mentor_delete'))) {
                     // Construct ops array
                     $ops = array();
-                    // Add edit op
-                    //if (user_access('mentor_edit')) {
-                    //    $ops[] = '<a href=' . crm_url('contact&cid=' . $contact['cid'] . '#tab-mentor') . '>edit</a>';
-                    //}
                     // Add delete op
                     if (user_access('mentor_delete')) {
                         $ops[] = '<a href=' . crm_url('delete&type=mentor&id=' . $protege['cid'] . '&mentorcid=' . $contact['cid']) . '>delete</a>';
@@ -388,6 +406,7 @@ function mentor_table ($opts) {
 function mentor_add_form ($cid) {
     // Ensure user is allowed to edit mentors
     if (!user_access('mentor_edit')) {
+        error_register('User does not have permission: mentor_edit');
         return null;
     }
     // Create form structure
@@ -422,72 +441,6 @@ function mentor_add_form ($cid) {
 }
 
 /**
- * Return the form structure for an edit mentor assignment form.
- * @param $cid The cid of the protege to edit.
- * @return The form structure.
- */
-function mentor_edit_form ($cid) {
-    // Ensure user is allowed to edit mentor
-    if (!user_access('mentor_edit')) {
-        return null;
-    }
-    // Get corresponding contact data
-    $data = crm_get_data ('contact', $opts = array('cid' => $cid));
-    $contact = $data[0];
-    // Construct member name
-    $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
-    // Get list of current mentor cids.
-    $mentor_cids = $contact['member']['mentorships']['mentor_cids'];
-    // Construct mentor name (from member/protege)
-    $mentor_name = crm_get_data('contact', $opts = array('cid' => $mentor_cids[0]));
-    // Get list of current protege cids.
-    $protege_cids = $contact['member']['mentorships']['protege_cids'];
-    // Construct protege name (from member/protege) TODO: Change this to an array of protege's
-    $protege_name = crm_get_data('contact', $opts = array('cid' => $protege_cids[0]));
-    // Create form structure
-    $form = array(
-        'type' => 'form'
-        , 'method' => 'post'
-        , 'command' => 'mentor_update'
-        , 'hidden' => array(
-            'cid' => $cid
-        )
-        , 'fields' => array(
-            array(
-                'type' => 'fieldset'
-                , 'label' => 'Edit Mentor Info'
-                , 'fields' => array(
-                    array(
-                        'type' => 'readonly'
-                        , 'label' => 'Name'
-                        , 'value' => $name
-                    )
-                    , array(
-                        'type' => 'text'
-                        , 'class' => 'date'
-                        , 'label' => 'Mentor'
-                        , 'name' => 'mentor'
-                        , 'value' => $mentor_name
-                    )
-                    , array(
-                        'type' => 'text'
-                        , 'class' => 'date'
-                        , 'label' => 'Protege'
-                        , 'name' => 'protege'
-                        , 'value' => $protege_name
-                    )
-                    , array(
-                        'type' => 'submit'
-                        , 'value' => 'Update'
-                    )
-                )
-            )
-        )
-    );
-    return $form;
-}
-
-/**
  * Return the delete mentor assigment form structure.
  * @param $cid The cid of the protege to delete the mentor from.
  * @return The form structure.
@@ -495,6 +448,7 @@ function mentor_edit_form ($cid) {
 function mentor_delete_form ($cid) {
     // Ensure user is allowed to delete mentors
     if (!user_access('mentor_delete')) {
+        error_register('User does not have permission: mentor_delete');
         return null;
     }
     // Get corresponding contact data
@@ -557,58 +511,15 @@ function mentor_command ($command, &$url, &$params) {
  * @return The url to display on completion.
  */
 function command_mentor_add() {
-    global $db_connect;
-    global $esc_post;
-    // Verify permissions
-    if (!user_access('mentor_edit')) {
-        error_register('Permission denied: mentor_edit');
-        return crm_url('');
-    }
-    // Query database
-    $sql = "
-        INSERT INTO `mentor`
-        (`cid`, `mentor_cid`)
-        VALUES
-        ('$esc_post[cid]', '$esc_post[mentor_cid]')
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
-    return crm_url('contact&cid=' . $_POST['cid'] . '#tab-mentor');
-}
-
-/**
- * Handle mentor update request.
- * @return The url to display on completion. TODO: This function is not completely
- * implemented yet, it still has some copied parts from the key module that have
- * not been translated
- */
-function command_mentor_update() {
-    global $db_connect;
     global $esc_post;
     // Verify permissions
     if (!user_access('mentor_edit')) {
         error_register('Permission denied: mentor_edit');
         return crm_url('contact&cid=' . $_POST['cid']);
     }
-    // Query database
-    $sql = "
-        UPDATE `mentor`
-        SET
-        `start`='$esc_post[start]',
-    ";
-    if (!empty($esc_post['end'])) {
-        $sql .= "`end`='$esc_post[end]',";
-    } else {
-        $sql .= "`end`=NULL,";
-    }
-    $sql .= "
-        `serial`='$esc_post[serial]',
-        `slot`='$esc_post[slot]'
-        WHERE `kid`='$esc_post[kid]'
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
-    return crm_url('contact&cid=' . $esc_post['cid'] . '#tab-mentor');
+    // Save mentor
+    mentor_save($_POST);
+    return crm_url('contact&cid=' . $_POST['cid'] . '#tab-mentor');
 }
 
 /**
@@ -616,50 +527,51 @@ function command_mentor_update() {
  * @return The url to display on completion.
  */
 function command_mentor_delete() {
-    global $db_connect;
     global $esc_post;
     // Verify permissions
     if (!user_access('mentor_delete')) {
         error_register('Permission denied: mentor_delete');
-        return crm_url('');
+        return crm_url('contact&cid=' . $_POST['cid']);
     }
-    // Query database
-    $sql = "
-        DELETE FROM `mentor`
-        WHERE `cid`='$esc_post[cid]' AND `mentor_cid`='$esc_post[mentor_cid]'
-    ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
-    return crm_url('members');
+    mentor_delete($_POST);
+    return crm_url('contact&cid=' . $_POST['cid']);
 }
 
-// Data Alter Function /////////////////////////////////////////////////////
+// Pages ///////////////////////////////////////////////////////////////////////
 
 /**
- * Implementation of hook_data_alter().
- * @param $type The type of the data being altered.
- * @param $data An array of structures of the given $type.
- * @param $opts An associative array of options.
- * @return An array of modified structures.
+ * @return An array of pages provided by this module.
  */
-function mentor_data_alter ($type, $data = array(), $opts = array()){
-    switch($type){
-        case 'member':
-            //Get cids of all members passed into $data
-            $cids = array();
-            foreach ($data as $member){
-                $cids[] = $member['cid'];
+function mentor_page_list () {
+    $pages = array();
+    if (user_access('mentor_view')) {
+        $pages[] = 'mentor';
+    }
+    return $pages;
+}
+
+/**
+ * Page hook. Adds module content to a page before it is rendered.
+ * @param &$page_data Reference to data about the page being rendered.
+ * @param $page_name The name of the page being rendered.
+ * @param $options The array of options passed to theme('page').
+ */
+function mentor_page (&$page_data, $page_name, $options) {
+    switch ($page_name) {
+        case 'contact':
+            // Capture member cid
+            $cid = $options['cid'];
+            if (empty($cid)) {
+                return;
             }
-            // Add the cids to the options
-            $mentor_opts = $opts;
-            $mentor_opts['cid'] = $cids;
-            // Get an array of member structures for each cid
-            $mentor_data = crm_get_data('mentor', $mentor_opts);
-            // Add mentorship data to member array
-            foreach ($data as $i=> $member) {
-                $data[$i]['mentorships'] = $mentor_data[$member['cid']];
+            // Add mentors tab
+            if (user_access('mentor_view') || $cid == user_id()) {
+                $mentorships = theme('table', crm_get_table('mentor', array('cid' => $cid)));
+                if (user_access('mentor_edit')) {
+                    $mentorships .= theme('form', crm_get_form('mentor_add', $cid));
+                }
+                page_add_content_bottom($page_data, $mentorships, 'Mentor');
             }
             break;
     }
-    return $data;
 }
