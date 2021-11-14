@@ -114,15 +114,11 @@ function member_page (&$page_data, $page_name, $options) {
                 $edit = theme('form', crm_get_form('member_edit', $cid), 'Edit Member Details');
                 page_add_content_bottom($page_data, $edit, 'Edit');
             }
-            // Add plan and role tabs
+            // Add plan tab
             if (user_access('member_membership_edit') || $cid == user_id()) {
                 $plan = theme('table', crm_get_table('member_membership', array('cid' => $cid)));
                 $plan .= theme('form', crm_get_form('member_membership_add', $cid));
                 page_add_content_top($page_data, $plan, 'Plan');
-            }
-            if (user_access('user_role_edit')) {
-                $roles = theme('form', crm_get_form('user_role_edit', $cid));
-                page_add_content_top($page_data, $roles, 'Roles');
             }
             break;
         case 'membership':
