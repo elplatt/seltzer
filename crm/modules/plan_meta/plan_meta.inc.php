@@ -783,7 +783,7 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             break;
         case 'plan_metas':
             // Set page title
-            page_set_title($page_data, 'Plam Meta-Tags');
+            page_set_title($page_data, 'Plan Meta-Tags');
             // Add view tab
             if (user_access('plan_meta_view')) {
                 // meta_cross_table ( displays tags across the screen, not down )
