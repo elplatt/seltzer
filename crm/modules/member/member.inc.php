@@ -25,7 +25,7 @@
  * this number.
  */
 function member_revision () {
-    return 8;
+    return 9;
 }
 
 /**
@@ -40,12 +40,13 @@ function member_stylesheets () {
  */
 function member_permissions () {
     return array(
-        'member_plan_edit'
-        , 'member_list'
+        'member_list'
         , 'member_view'
         , 'member_add'
         , 'member_edit'
         , 'member_delete'
+        , 'member_plan_view'
+        , 'member_plan_edit'
         , 'member_membership_view'
         , 'member_membership_edit'
     );
