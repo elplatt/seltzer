@@ -208,7 +208,7 @@ function member_voting_report_table () {
  */
 function member_plan_table ($opts = null) {
     // Ensure user is allowed to view membership plans
-    if (!user_access('member_plan_edit')) {
+    if (!user_access('member_plan_view')) {
         return null;
     }
     // Get membership plan data
@@ -221,18 +221,20 @@ function member_plan_table ($opts = null) {
     );
     // Add columns
     $table['columns'] = array();
-    if (user_access('member_plan_edit')) {
+    if (user_access('member_plan_view')) {
         $table['columns'][] = array('title'=>'Name','class'=>'');
         $table['columns'][] = array('title'=>'Price','class'=>'');
         $table['columns'][] = array('title'=>'Active','class'=>'');
         $table['columns'][] = array('title'=>'Voting','class'=>'');
-        $table['columns'][] = array('title'=>'Ops','class'=>'');
+        if (user_access('member_plan_edit')) {
+            $table['columns'][] = array('title'=>'Ops','class'=>'');
+        }
     }
     // Loop through plan data
     foreach ($plans as $plan) {
         // Add plan data to table
         $row = array();
-        if (user_access('member_plan_edit')) {
+        if (user_access('member_plan_view')) {
             // Add cells
             $row[] = $plan['name'];
             $row[] = $plan['price'];
