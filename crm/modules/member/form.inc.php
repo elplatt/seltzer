@@ -497,21 +497,10 @@ function member_membership_delete_form ($sid) {
         return null;
     }
     // Get membership data
-    $data = member_membership_data(array('sid'=>$sid));
-    $membership = $data[0];
-    // Construct member name
-    /* TODO
-    if (empty($member) || count($member) < 1) {
-        return array();
-    }
-    $member_name = $member['contact']['firstName'];
-    if (!empty($member['contact']['middleName'])) {
-        $member_name .= ' ' . $member['contact']['middleName'];
-    }
-    $member_name .= ' ' . $member['contact']['lastName'];
-    */
+    $membership = (member_membership_data(array('sid'=>$sid))[0]);
+    $contact = (contact_data(array('cid'=>$membership['cid']))[0]);
     // Construct membership name
-    $membership_name = "user:$membership[cid] $membership[start] -- $membership[end]";
+    $membership_name = "user: " . theme('contact_name', $contact, true) . " $membership[start] -- $membership[end]";
     // Create form structure
     $form = array(
         'type' => 'form'
@@ -547,7 +536,7 @@ function member_membership_delete_form ($sid) {
  * @return The form structure.
  */
 function member_filter_form () {
-    // Available filters    
+    // Available filters
     $filters = array(
         'all' => 'All'
         , 'active' => 'Active'
