@@ -289,17 +289,17 @@ function member_save ($member) {
     }
     if (isset($member['cid'])) {
         // Update member
+        $esc_cid = mysqli_real_escape_string($db_connect, $member['cid']);
+        $clauses = array();
+        foreach ($fields as $m) {
+            if (isset($member[$m]) && $m != 'cid') {
+                $clauses[] = "`$m`='" . mysqli_real_escape_string($db_connect, $member[$m]) . "' ";
+            }
+        }
         $sql = "
             UPDATE `member`
-            SET `emergencyName`='$escaped[emergencyName]'
-                , `emergencyPhone`='$escaped[emergencyPhone]'
-                , `emergencyRelation`='$escaped[emergencyRelation]'
-                , `address1`='$escaped[address1]'
-                , `address2`='$escaped[address2]'
-                , `address3`='$escaped[address3]'
-                , `town_city`='$escaped[town_city]'
-                , `zipcode`='$escaped[zipcode]'
-            WHERE `cid`='$escaped[cid]'
+            SET " . implode(', ', $clauses) . "
+            WHERE `cid`='$esc_cid'
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -402,20 +402,25 @@ function member_plan_options ($opts = null) {
  */
 function member_plan_save ($plan) {
     global $db_connect;
-    $esc_name = mysqli_real_escape_string($db_connect, $plan['name']);
-    $esc_price = mysqli_real_escape_string($db_connect, $plan['price']);
-    $esc_voting = mysqli_real_escape_string($db_connect, $plan['voting']);
-    $esc_active = mysqli_real_escape_string($db_connect, $plan['active']);
-    $esc_pid = mysqli_real_escape_string($db_connect, $plan['pid']);
+    $fields = array(
+        'pid', 'name', 'price', 'voting', 'active'
+    );
+    $escaped = array();
+    foreach ($fields as $field) {
+        $escaped[$field] = mysqli_real_escape_string($db_connect, $plan[$field]);
+    }
     if (isset($plan['pid'])) {
         // Update
+        $esc_pid = mysqli_real_escape_string($db_connect, $plan['pid']);
+        $clauses = array();
+        foreach ($fields as $p) {
+            if (isset($plan[$p]) && $p != 'pid') {
+                $clauses[] = "`$p`='" . mysqli_real_escape_string($db_connect, $plan[$p]) . "' ";
+            }
+        }
         $sql = "
             UPDATE `plan`
-            SET
-                `name`='$esc_name'
-                , `price`='$esc_price'
-                , `active`='$esc_active'
-                , `voting`='$esc_voting'
+            SET " . implode(', ', $clauses) . "
             WHERE `pid`='$esc_pid'
         ";
         $res = mysqli_query($db_connect, $sql);
@@ -423,15 +428,23 @@ function member_plan_save ($plan) {
         $plan = module_invoke_api('member_plan', $plan, 'update');
     } else {
         // Insert
+        $cols = array();
+        $values = array();
+        foreach ($fields as $p) {
+            if (isset($plan[$p])) {
+                $cols[] = "`$p`";
+                $values[] = "'" . mysqli_real_escape_string($db_connect, $plan[$p]) . "'";
+            }
+        }
         $sql = "
             INSERT INTO `plan`
-            (`name`,`price`, `voting`, `active`)
+            (" . implode(', ', $cols) . ")
             VALUES
-            ('$esc_name', '$esc_price', '$esc_voting', '$esc_active')
+            (" . implode(', ', $values) . ")
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        $plan['pid'] = mysqli_insert_id($db_connect);
+        $esc_pid = mysqli_insert_id($db_connect);
         $plan = module_invoke_api('member_plan', $plan, 'create');
     }
     return $plan;
