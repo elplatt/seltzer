@@ -1344,7 +1344,7 @@ function user_page (&$page_data, $page_name, $options) {
             }
             // Add view tab
             $view_content = '';
-            if (user_id() == $_GET['cid'] || user_access('user_edit')) {
+            if (user_id() == $cid || user_access('user_edit')) {
                 $view_content .= '<h3>User Info</h3>';
                 $view_content .= theme('table_vertical', crm_get_table('user', array('cid' => $cid)));
                 $view_content .= '<h3>Change Password</h3>';
