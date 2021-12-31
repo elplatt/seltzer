@@ -453,8 +453,6 @@ function mentor_delete_form ($cid) {
     // Get corresponding contact data
     $data = crm_get_data ('contact', $opts = array('cid' => $cid));
     $contact = $data[0];
-    // Construct member name
-    $name = member_name($contact['firstName'], $contact['middleName'], $contact['lastName']);
     // Get list of current mentor cids.
     $mentor_cid = $contact['member']['mentorships']['mentor_cids'][0];
     // Construct mentor name (from member/protege)
