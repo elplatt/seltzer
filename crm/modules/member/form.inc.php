@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2021 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2022 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     form.inc.php - Member module - form structures
@@ -125,8 +125,8 @@ function member_add_form () {
 function member_edit_form ($cid) {
     // Create form
     if ($cid) {
-        $memb_data = crm_get_data('member', array('cid'=>$cid));
-        $member = $memb_data[0]['member'];
+        $member_data = crm_get_data('member', array('cid'=>$cid));
+        $member = $member_data[0]['member'];
     }
     $form = array(
         'type' => 'form'
