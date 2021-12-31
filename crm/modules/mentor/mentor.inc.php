@@ -1,8 +1,8 @@
 <?php
 
 /*
-    Copyright 2009-2021 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2021 Matt J. Oehrlein <matt.oehrlein@gmail.com>
+    Copyright 2009-2022 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2022 Matt J. Oehrlein <matt.oehrlein@gmail.com>
     
     This file is part of the Seltzer CRM Project
     mentor.inc.php - Mentor module
@@ -24,7 +24,7 @@
 // Installation functions //////////////////////////////////////////////////////
 
 /**
- * @return This module's revision number.  Each new release should increment
+ * @return This module's revision number. Each new release should increment
  * this number.
  */
 function mentor_revision () {
@@ -70,7 +70,6 @@ function mentor_install($old_revision = 0) {
             , '7' => 'treasurer'
             , '8' => 'webAdmin'
         );
-        //Set director (rid 3) as the default role that can administer mentors.
         $default_perms = array(
             'director' => array('mentor_view', 'mentor_edit', 'mentor_delete')
         );
