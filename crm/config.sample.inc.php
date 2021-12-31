@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2021 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2022 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     config.inc.php - Sample configuration
@@ -46,7 +46,7 @@ $config_email_from = '';
 // The email address to notify when a user is created
 $config_email_to = '';
 
-// The postal address of the space (used when sending out new member emails)
+// The postal address of the organization (used when sending out new user emails)
 $config_address1 = '';
 $config_address2 = '';
 $config_address3 = '';

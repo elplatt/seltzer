@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2021 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2022 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     billing.inc.php - Billing module
@@ -21,7 +21,7 @@
 */
 
 /**
- * @return This module's revision number.  Each new release should increment
+ * @return This module's revision number. Each new release should increment
  * this number.
  */
 function billing_revision () {
