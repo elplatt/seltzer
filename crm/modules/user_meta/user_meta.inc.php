@@ -228,7 +228,7 @@ function user_meta_data ($opts = array()) {
                 $user_meta['contact'] = $cidToContact[$row['cid']];
             }
         }
-        if ($join_contact) {
+        if ($join_member) {
             if (array_key_exists($row['cid'], $cidToMember)) {
                 $user_meta['member'] = $cidToMember[$row['cid']];
             }
