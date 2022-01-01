@@ -489,9 +489,7 @@ function email_list_subscriptions_table ($opts) {
         $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Email', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'List', 'class'=>'', 'id'=>'');
-    }
-    // Add ops column
-    if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+        // Add ops column
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
     // Add rows
@@ -570,9 +568,7 @@ function email_list_subscribers_table ($opts) {
         }
         $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Email', 'class'=>'', 'id'=>'');
-    }
-    // Add ops column
-    if (!$export && (user_access('contact_edit') || user_access('contact_delete'))) {
+        // Add ops column
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
     // Add rows
