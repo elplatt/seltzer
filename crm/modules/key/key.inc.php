@@ -501,17 +501,17 @@ function key_edit_form ($kid) {
                     )
                     , array(
                         'type' => 'text'
-                        , 'class' => 'date'
                         , 'label' => 'Start'
                         , 'name' => 'start'
                         , 'value' => $key['start']
+                        , 'class' => 'date'
                     )
                     , array(
                         'type' => 'text'
-                        , 'class' => 'date'
                         , 'label' => 'End'
                         , 'name' => 'end'
                         , 'value' => $key['end']
+                        , 'class' => 'date'
                     )
                     , array(
                         'type' => 'text'
