@@ -82,9 +82,9 @@ function plan_meta_install($old_revision = 0) {
             , '8' => 'webAdmin'
         );
         $default_perms = array(
-            'director' => array('plan_meta_view', 'plan_meta_edit', 'plan_meta_delete')
+            'member' => array('plan_meta_view')
+            , 'director' => array('plan_meta_view', 'plan_meta_edit', 'plan_meta_delete')
             , 'webAdmin' => array('plan_meta_view', 'plan_meta_edit', 'plan_meta_delete')
-            , 'member' => array('plan_meta_view')
         );
         foreach ($roles as $rid => $role) {
             $esc_rid = mysqli_real_escape_string($db_connect, $rid);

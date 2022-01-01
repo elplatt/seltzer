@@ -156,25 +156,6 @@ EOF;
 }
 
 /**
- * Return the themed html for a contact's name.
- * @param $cid The cid of the contact.
- * @return The themed html string.
- */
-function theme_member_contact_name ($cid) {
-    // Get member data
-    $data = member_data(array('cid' => $cid));
-    if (count($data) < 1) {
-        return '';
-    }
-    $output = member_name(
-        $data[0]['contact']['firstName']
-        , $data[0]['contact']['middleName']
-        , $data[0]['contact']['lastName']
-    );
-    return $output;
-}
-
-/**
  * Return the themed html description for a plan.
  * @param $pid The pid of the plan.
  * @return The themed html string.
