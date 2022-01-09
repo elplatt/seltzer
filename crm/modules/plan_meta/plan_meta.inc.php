@@ -69,7 +69,6 @@ function plan_meta_install($old_revision = 0) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        
         // Set default permissions
         $roles = array(
             '1' => 'authenticated'
@@ -542,7 +541,7 @@ function plan_meta_add_form ($pid) {
                         'type' => 'text'
                         , 'label' => 'MetaTag'
                         , 'name' => 'tagstr'
-                        , 'value' => '[please enter a meaningful metatag here]',
+                        , 'value' => '[please enter a meaningful metatag here]'
                     )
                     , array(
                         'type' => 'text'
@@ -710,6 +709,7 @@ function command_plan_meta_add() {
         error_register('Permission denied: plan_meta_edit');
         return crm_url('plan_meta&pmid=' . $esc_post['pmid']);
     }
+    // Save meta data
     plan_meta_save($_POST);
     return crm_url('plan&pid=' . $_POST['pid'] . '&tab=metas');
 }

@@ -222,7 +222,7 @@ function theme_member_welcome_email ($cid, $confirm_url) {
  * Theme a plan name.
  * @param $plan The plan data structure or pid.
  * @param $link true if the name should be a link (default: false).
- * @param $path The path that should be linked to.  The pid will always be added
+ * @param $path The path that should be linked to. The pid will always be added
  *   as a parameter.
  * @return the name string.
  */

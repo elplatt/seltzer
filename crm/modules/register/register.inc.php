@@ -42,14 +42,14 @@ function register_install($old_revision = 0) {
 
 /**
  * @return The themed html string for a registration form.
-*/
+ */
 function theme_register_member_form () {
     return theme('form', crm_get_form('register_member'));
 }
 
 /**
  * @return The form structure for registering a member.
-*/
+ */
 function register_member_form () {
     // Start with contact form
     $form = crm_get_form('member_add');

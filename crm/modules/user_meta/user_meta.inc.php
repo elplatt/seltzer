@@ -69,7 +69,6 @@ function user_meta_install($old_revision = 0) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        
         // Set default permissions
         $roles = array(
             '1' => 'authenticated'
@@ -416,7 +415,7 @@ function user_meta_cross_table ($opts) {
         // Add meta data
         $row = array();
         // user not already on screen, add them, and all details, and first tag.
-        if (!array_key_exists($user_meta['contact']['lastName'].$user_meta['contact']['firstName'], $uniq) ) {
+        if (!array_key_exists($user_meta['contact']['lastName'].$user_meta['contact']['firstName'], $uniq)) {
             $uniq[$user_meta['contact']['lastName'].$user_meta['contact']['firstName']] = $tableid;
             if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
                 // Add cells
@@ -781,6 +780,7 @@ function command_user_meta_add() {
         error_register('Permission denied: user_meta_edit');
         return crm_url('user_meta&umid=' . $esc_post['umid']);
     }
+    // Save meta data
     user_meta_save($_POST);
     return crm_url('contact&cid=' . $_POST['cid'] . '&tab=metas');
 }

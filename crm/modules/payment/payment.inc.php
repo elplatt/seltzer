@@ -285,7 +285,7 @@ function payment_invert_currency ($value) {
  *   'join' A list of tables to join to the payment table;
  *   'order' An array of associative arrays of the form 'field'=>'order'.
  * @return An array with each element representing a single payment.
- */ 
+ */
 function payment_data ($opts = array()) {
     global $db_connect;
     $sql = "
@@ -1158,7 +1158,7 @@ function payment_page_list () {
 }
 
 /**
- * Page hook.  Adds module content to a page before it is rendered.
+ * Page hook. Adds module content to a page before it is rendered.
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').
