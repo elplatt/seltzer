@@ -337,7 +337,7 @@ function mentor_table ($opts) {
             'cid' => $mentors_cids
         );
         //Print out the mentors only if there actually are some mentor cids.
-        if(!empty($mentors_cids)) {
+        if (!empty($mentors_cids)) {
             $mentors = crm_get_data('contact',$get_mentor_opts);
             foreach ($mentors as $mentor) {
                 // Add mentor data
@@ -367,9 +367,9 @@ function mentor_table ($opts) {
             'cid' => $protege_cids
         );
         //Print out the proteges only if there actually are some protege cids.
-        if(!empty($protege_cids)) {
+        if (!empty($protege_cids)) {
             $proteges = crm_get_data('contact',$get_protege_opts);
-            foreach($proteges as $protege) {
+            foreach ($proteges as $protege) {
                 //Add Protege Data
                 $row = array();
                 if (user_access('mentor_view') || $opts['cid'] == user_id()) {

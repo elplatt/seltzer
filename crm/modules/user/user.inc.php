@@ -114,8 +114,10 @@ function user_install ($old_revision = 0) {
             );
             foreach ($roles as $rid => $role) {
                 $sql = "
-                    INSERT INTO `role` (`rid`, `name`)
-                    VALUES ('$rid', '$role')
+                    INSERT INTO `role`
+                    (`rid`, `name`)
+                    VALUES
+                    ('$rid', '$role')
                 ";
                 $res = mysqli_query($db_connect, $sql);
                 if (!$res) crm_error(mysqli_error($res));
@@ -129,8 +131,10 @@ function user_install ($old_revision = 0) {
                 if (array_key_exists($role, $default_perms)) {
                     foreach ($default_perms[$role] as $perm) {
                         $sql = "
-                            INSERT INTO `role_permission` (`rid`, `permission`)
-                            VALUES ('$rid', '$perm')
+                            INSERT INTO `role_permission`
+                            (`rid`, `permission`)
+                            VALUES
+                            ('$rid', '$perm')
                         ";
                         $res = mysqli_query($db_connect, $sql);
                         if (!$res) crm_error(mysqli_error($res));
@@ -976,7 +980,7 @@ function command_user_permissions_update () {
         foreach ($roles as $role) {
             $key = "$perm-$role[name]";
             $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
-            if ($_POST[$key]) {
+            if (isset($_POST[$key])) {
                 // Ensure the role has this permission
                 $sql = "
                     SELECT *
@@ -1329,7 +1333,7 @@ function theme_user_reset_password_confirm_form ($code) {
 }
 
 /**
- * Page hook.  Adds user module content to a page before it is rendered.
+ * Page hook. Adds user module content to a page before it is rendered.
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').

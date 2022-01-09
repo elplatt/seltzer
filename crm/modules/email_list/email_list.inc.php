@@ -229,7 +229,9 @@ function email_list_data ($opts = array()) {
                 ";
             }
         }
-        $sql .= "ORDER BY `email_lists`.`lid`, `cid` ASC";
+        $sql .= "
+            ORDER BY `email_lists`.`lid`, `cid` ASC
+        ";
     }
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
@@ -587,10 +589,10 @@ function email_list_subscribers_table ($opts) {
     $cid_to_contact = crm_map($contact_data, 'cid');
     // Initialize table
     $table = array(
-        "id" => '',
-        "class" => '',
-        "rows" => array(),
-        "columns" => array()
+        "id" => ''
+        , "class" => ''
+        , "rows" => array()
+        , "columns" => array()
     );
     // Add columns
     if (user_access('email_list_view') || $opts['cid'] == user_id()) {
@@ -600,6 +602,7 @@ function email_list_subscribers_table ($opts) {
         }
         $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Email', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'List', 'class'=>'', 'id'=>'');
         // Add ops column
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
@@ -615,6 +618,7 @@ function email_list_subscribers_table ($opts) {
             }
             $row[] = theme('contact_name', $cid_to_contact[$subscription['cid']], !$export);
             $row[] = $subscription['email'];
+            $row[] = $subscription['list_name'];
         }
         if (!$export && (user_access('email_list_unsubscribe'))) {
             // Construct ops array
@@ -698,7 +702,7 @@ function email_list_subscribe_form ($cid) {
                         'type' => 'message'
                         , 'value' => 'Use this form to subscribe a contact to an email list'
                     )
-                    ,array(
+                    , array(
                         'type' => 'select'
                         , 'label' => 'Email List'
                         , 'name' => 'lid'
