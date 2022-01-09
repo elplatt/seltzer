@@ -60,13 +60,21 @@ function crm_get_form () {
  */
 function form_set_value ($field, $values) {
     // Set value if specified
-    $name = $field['name'];
+    if(isset($_GET['name'])) {
+        $name = $field['name'];
+    } else {
+        $name = "";
+    }
     if (isset($values[$name])) {
         $field['value'] = $values[$name];
     } else if (isset($field['value'])) {
         return $field;
     } else {
-        $field['value'] = $field['default'];
+        if(isset($_GET['default'])) {
+            $field['value'] = $field['default'];
+        } else {
+            $field['value'] = "";
+        }
     }
     return $field;
 }
@@ -280,6 +288,9 @@ function theme_form_text ($field) {
             $output .= ' value="' . $field['description'] . '"';
         }
     }
+    if (!empty($field['size'])) {
+        $output .= 'size="' . $field['size'] . '" ';
+    }
     $output .= '/>';
     if (array_key_exists('suggestion', $field)) {
         $output .= '<span class="autocomplete" style="display:none;">' . $field['suggestion'] . '</span>';
@@ -301,16 +312,24 @@ function theme_form_text ($field) {
  */
 function theme_form_textarea ($field) {
     $classes = array();
+    $output = '<fieldset class="form-row';
     if (!empty($field['class'])) {
         array_push($classes, $field['class']);
+        $output .= ' ' . $field['class'];
     }
-    $output = '<fieldset class="form-row ' . $field['class'] . '">';
+    $output .= '">';
     if (!empty($field['label'])) {
         $output .= '<label>' . $field['label'] . '</label>';
     }
     $output .= '<textarea name="' . $field['name'] . '"';
-    if (!empty($classes)) {
-        $output .= ' class="' . join(' ', $classes) . '"';
+    if (!empty($field['markdown'])) {
+        $output .= 'data-provide="markdown"';
+    }
+    if (!empty($field['rows'])) {
+        $output .= 'rows="' . $field['rows'] . '"';
+    }
+    if (!empty($field['cols'])) {
+        $output .= 'cols="' . $field['cols'] . '"';
     }
     $output .= '>';
     $output .= $field['value'];

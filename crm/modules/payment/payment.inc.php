@@ -785,9 +785,13 @@ function payment_history_table ($opts) {
         $contact = '';
         if ($payment['credit_cid'] === $cid) {
             $payment = payment_invert_currency($payment);
-            $contact = $payment['debit'];
+            if (isset($_GET['debit'])) {
+                $contact = $payment['debit'];
+            }
         } else {
-            $contact = $payment['credit'];
+            if (isset($_GET['credit'])) {
+                $contact = $payment['credit'];
+            }
         }
         $contactName = '';
         if (!empty($contact)) {

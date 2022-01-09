@@ -980,7 +980,7 @@ function command_user_permissions_update () {
         foreach ($roles as $role) {
             $key = "$perm-$role[name]";
             $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
-            if ($_POST[$key]) {
+            if (isset($_POST[$key])) {
                 // Ensure the role has this permission
                 $sql = "
                     SELECT *
