@@ -35,7 +35,6 @@ function variable_revision () {
  */
 function variable_install($old_revision = 0) {
     global $db_connect;
-    global $db_connect;
     global $config_host;
     global $config_base_path;
     global $config_site_title;

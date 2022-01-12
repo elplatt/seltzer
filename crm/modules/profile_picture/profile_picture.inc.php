@@ -53,7 +53,7 @@ function profile_picture_install ($old_revision = 0) {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Create folder directory if it does not exist to store uploaded profile pictures in.
-        if(!file_exists('./files/profile_picture')) {
+        if (!file_exists('./files/profile_picture')) {
             if (!mkdir('./files/profile_picture/', 0775, true)) {
                 error_register('Failed to create folder. Please check folder permissions.');
             }
@@ -72,7 +72,7 @@ function profile_picture_page_list () {
 }
 
 /**
- * Page hook.  Adds profile_picture module content to a page before it is rendered.
+ * Page hook. Adds profile_picture module content to a page before it is rendered.
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  */
@@ -226,8 +226,10 @@ function command_profile_picture_upload () {
             $esc_cid = mysqli_real_escape_string($db_connect, $cid);
             // Associate this CID with uploaded file by storing a cid=>filepath row in the profile_picture table
             $sql = "
-                INSERT INTO `profile_picture` (`cid`, `filename`)
-                VALUES ('$esc_cid', '$destFileName')
+                INSERT INTO `profile_picture`
+                (`cid`, `filename`)
+                VALUES
+                ('$esc_cid', '$destFileName')
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($res));
@@ -236,7 +238,7 @@ function command_profile_picture_upload () {
                 error_register('Error Saving Image to Server');
                 error_register('Tried moving: ' .  $_FILES['profile-picture-file']['tmp_name'] . 'to: ' . $destFilePath);
             } else {
-              message_register("Successfully uploaded new user profile picture");  
+              message_register("Successfully uploaded new user profile picture");
             }
         }
     } else {
@@ -259,7 +261,11 @@ function profile_picture_delete ($cid) {
     //Remove existing profile picture associated with this CID (both the file, and the row in the database)
     //Attempt to fetch a picture filename in the database associated with this cid.
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
-    $sql = "SELECT `cid`, `filename` FROM `profile_picture` WHERE 1 AND `cid` = '$esc_cid'";
+    $sql = "
+        SELECT `cid`, `filename`
+        FROM `profile_picture`
+        WHERE 1 AND `cid` = '$esc_cid'
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $row = mysqli_fetch_assoc($res);
