@@ -773,7 +773,7 @@ function plan_meta_page (&$page_data, $page_name, $options) {
                 return;
             }
             // Add metas tab
-            if ((user_access('plan_meta_view') && $cid == user_id()) || user_access('plan_meta_edit')) {
+            if (user_access('plan_meta_view')) {
                 $plan_metas = theme('table', crm_get_table('plan_meta', array('pid' => $pid)));
                 if (user_access('plan_meta_edit')) {
                     $plan_metas .= theme('form', crm_get_form('plan_meta_add', $pid)); // this is where we put the "Add Meta-Tag Assignment" form on the page
