@@ -601,6 +601,7 @@ function email_list_subscribers_table ($opts) {
         }
         $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>'');
         $table['columns'][] = array("title"=>'Email', 'class'=>'', 'id'=>'');
+        $table['columns'][] = array("title"=>'List', 'class'=>'', 'id'=>'');
         // Add ops column
         $table['columns'][] = array('title'=>'Ops','class'=>'');
     }
@@ -616,6 +617,7 @@ function email_list_subscribers_table ($opts) {
             }
             $row[] = theme('contact_name', $cid_to_contact[$subscription['cid']], !$export);
             $row[] = $subscription['email'];
+            $row[] = $subscription['list_name'];
         }
         if (!$export && (user_access('email_list_unsubscribe'))) {
             // Construct ops array
