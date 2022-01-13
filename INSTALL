@@ -13,7 +13,6 @@ and modify it to reflect the settings for your database and organization.
 6. Make sure PHP "magic quotes" are disabled (http://php.net/manual/en/security.magicquotes.disabling.php).
 7. Open a web browser and navigate to install.php in the crm directory. Example: http://yourserver.com/crm/install.php
 8. Enter an email and choose a password for the admin user.
-9. You can now log in using "admin" as the username and the password you
-selected during installation.
+9. You can now log in using "admin" as the username and the password you selected during installation.
 10. Optionally go to Plans > Import to upload a CSV file of existing members. See https://github.com/elplatt/seltzer/wiki/HOWTO-Import-Plans for more info.
 11. Optionally go to Members > Import to upload a CSV file of existing members. See https://github.com/elplatt/seltzer/wiki/HOWTO-Import-Members for more info.

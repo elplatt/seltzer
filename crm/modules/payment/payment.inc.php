@@ -285,7 +285,7 @@ function payment_invert_currency ($value) {
  *   'join' A list of tables to join to the payment table;
  *   'order' An array of associative arrays of the form 'field'=>'order'.
  * @return An array with each element representing a single payment.
- */ 
+ */
 function payment_data ($opts = array()) {
     global $db_connect;
     $sql = "
@@ -705,16 +705,28 @@ function payment_table ($opts) {
         $row = array();
         if (user_access('payment_view')) {
             $row[] = $payment['date'];
-            $row[] = $payment['description'];
+            if(isset($opts['export']) && $opts['export']) {
+                $row[] = strip_tags($payment['description']);
+            } else {
+                $row[] = $payment['description'];
+            }
             if (array_key_exists('credit_cid', $payment) && $payment['credit_cid']) {
                 $contact = $cid_to_contact[$payment['credit_cid']];
-                $row[] = theme('contact_name', $contact, true);
+                if(isset($opts['export']) && $opts['export']) {
+                    $row[] = "{$contact['firstName']} {$contact['lastName']}";
+                } else {
+                    $row[] = theme('contact_name', $contact, true);
+                }
             } else {
                 $row[] = '';
             }
             if ($payment['debit_cid']) {
                 $contact = $cid_to_contact[$payment['debit_cid']];
-                $row[] = theme('contact_name', $contact, true);
+                if(isset($opts['export']) && $opts['export']) {
+                    $row[] = "{$contact['firstName']} {$contact['lastName']}";
+                } else {
+                    $row[] = theme('contact_name', $contact, true);
+                }
             } else {
                 $row[] = '';
             }
@@ -785,9 +797,13 @@ function payment_history_table ($opts) {
         $contact = '';
         if ($payment['credit_cid'] === $cid) {
             $payment = payment_invert_currency($payment);
-            $contact = $payment['debit'];
+            if (isset($_GET['debit'])) {
+                $contact = $payment['debit'];
+            }
         } else {
-            $contact = $payment['credit'];
+            if (isset($_GET['credit'])) {
+                $contact = $payment['credit'];
+            }
         }
         $contactName = '';
         if (!empty($contact)) {
@@ -1083,7 +1099,7 @@ function payment_delete_form ($pmtid) {
                 , 'fields' => array(
                     array(
                         'type' => 'message'
-                        , 'value' => '<p>Are you sure you want to delete the payment "' . $payment_name . '"? This cannot be undone.',
+                        , 'value' => '<p>Are you sure you want to delete the payment "' . $payment_name . '"? This cannot be undone.</p>'
                     )
                     , array(
                         'type' => 'submit'
@@ -1122,7 +1138,7 @@ function payment_filter_form () {
             array(
                 'type' => 'fieldset'
                 , 'label' => 'Filter'
-                ,'fields' => array(
+                , 'fields' => array(
                     array(
                         'type' => 'select'
                         , 'name' => 'filter'
@@ -1158,7 +1174,7 @@ function payment_page_list () {
 }
 
 /**
- * Page hook.  Adds module content to a page before it is rendered.
+ * Page hook. Adds module content to a page before it is rendered.
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').

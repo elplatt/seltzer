@@ -365,7 +365,9 @@ function member_plan_data ($opts = array()) {
     }
     if (!empty($opts['pid'])) {
         $pid = mysqli_real_escape_string($db_connect, $opts['pid']);
-        $sql .= " AND `plan`.`pid`='$pid' ";
+        $sql .= "
+            AND `plan`.`pid`='$pid'
+        ";
     }
     // Query database for plans
     $res = mysqli_query($db_connect, $sql);

@@ -110,8 +110,8 @@ function email_bills_form () {
                 , 'label' => 'Send Billing Emails'
                 , 'fields' => array(
                     array(
-                        'type' => 'message'
-                        , 'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
+                        'type' => 'message',
+                        'value' => 'This will send an email with a payment button to anyone who has a nonzero account balance.'
                     )
                     , array(
                         'type' => 'readonly'
@@ -218,7 +218,7 @@ function billing_page_list () {
 }
 
 /**
- * Page hook.  Adds module content to a page before it is rendered.
+ * Page hook. Adds module content to a page before it is rendered.
  * @param &$page_data Reference to data about the page being rendered.
  * @param $page_name The name of the page being rendered.
  * @param $options The array of options passed to theme('page').

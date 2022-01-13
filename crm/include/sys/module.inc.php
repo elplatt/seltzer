@@ -296,7 +296,6 @@ function module_upgrade_form () {
 
 /**
  * Handle installation request.
- *
  * @return The url to redirect to on completion.
  */
 function command_module_install () {
