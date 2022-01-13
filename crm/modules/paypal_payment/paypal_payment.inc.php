@@ -211,7 +211,7 @@ function paypal_payment_contact_api ($contact, $op) {
 function paypal_payment_contact_save ($contact) {
     global $db_connect;
     $esc_email = mysqli_real_escape_string($db_connect, $contact['email']);
-    $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);    
+    $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);
     // Check whether the paypal contact already exists in the database
     $sql = "
         SELECT *
@@ -364,7 +364,7 @@ function paypal_payment_contact_table ($opts) {
         if (!empty($contact)) {
             $contactName = theme('contact_name', $contact, true);
         }
-        $row[] = $contactName; 
+        $row[] = $contactName;
         // Second column is union['email']
         $row[] = $union['email'];
         if (!$export && (user_access('payment_edit') || user_access('payment_delete'))) {
@@ -515,7 +515,7 @@ function paypal_payment_contact_delete_form ($cid) {
                 , 'fields' => array(
                     array(
                         'type' => 'message'
-                        , 'value' => '<p>Are you sure you want to delete the paypal contact "' . $paypal_payment_contact_name . '"? This cannot be undone.',
+                        , 'value' => '<p>Are you sure you want to delete the paypal contact "' . $paypal_payment_contact_name . '"? This cannot be undone.</p>'
                     )
                     , array(
                         'type' => 'submit'
@@ -593,7 +593,6 @@ function command_paypal_payment_import () {
     $count = 0;
     message_register("Processing " . count($data) . " row(s)");
     foreach ($data as $row) {
-        
         // Skip transactions that have already been imported
         $payment_opts = array(
             'filter' => array('confirmation' => $row['Transaction ID'])

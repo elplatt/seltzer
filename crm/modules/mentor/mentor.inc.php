@@ -50,13 +50,13 @@ function mentor_permissions () {
 function mentor_install($old_revision = 0) {
     global $db_connect;
     if ($old_revision < 1) {
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `mentor` (
                 `cid` mediumint(8) unsigned NOT NULL
                 , `mentor_cid` mediumint(8) unsigned NOT NULL
                 , PRIMARY KEY (`cid`,`mentor_cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Set default permissions on install/upgrade
@@ -136,9 +136,7 @@ function mentor_data ($opts = array()) {
     global $db_connect;
     // Query database
     $sql = "
-        SELECT
-        `cid`
-        , `mentor_cid`
+        SELECT `cid`, `mentor_cid`
         FROM `mentor`
         WHERE 1
     ";
@@ -193,10 +191,7 @@ function mentor_data ($opts = array()) {
     foreach ($mentorships as $mentorship){
         if (empty($mentor_data[$mentorship['cid']])){
             //this is a new cid. Create an array.
-            $mentor_data[$mentorship['cid']] = array(
-                                                    'mentor_cids' => array()
-                                                    , 'protege_cids' => array()
-                                                );
+            $mentor_data[$mentorship['cid']] = array('mentor_cids' => array(), 'protege_cids' => array());
         }
         //populate array with mentor_cid (it should be created by now if it previously
         // didn't exist.)
@@ -205,10 +200,7 @@ function mentor_data ($opts = array()) {
         //of course, this involves creating the mentor_cid if it doesn't exist yet
         if (empty($mentor_data[$mentorship['mentor_cid']])){
             //this is a new cid. Create an array.
-            $mentor_data[$mentorship['mentor_cid']] = array(
-                                                            'mentor_cids' => array()
-                                                            , 'protege_cids' => array()
-                                                        );
+            $mentor_data[$mentorship['mentor_cid']] = array('mentor_cids' => array(), 'protege_cids' => array());
         }
         //populate the mentor's array with protege cid.
         $mentor_data[$mentorship['mentor_cid']]['protege_cids'][] = $mentorship['cid'];
@@ -337,7 +329,7 @@ function mentor_table ($opts) {
             'cid' => $mentors_cids
         );
         //Print out the mentors only if there actually are some mentor cids.
-        if(!empty($mentors_cids)) {
+        if (!empty($mentors_cids)) {
             $mentors = crm_get_data('contact',$get_mentor_opts);
             foreach ($mentors as $mentor) {
                 // Add mentor data
@@ -367,9 +359,9 @@ function mentor_table ($opts) {
             'cid' => $protege_cids
         );
         //Print out the proteges only if there actually are some protege cids.
-        if(!empty($protege_cids)) {
+        if (!empty($protege_cids)) {
             $proteges = crm_get_data('contact',$get_protege_opts);
-            foreach($proteges as $protege) {
+            foreach ($proteges as $protege) {
                 //Add Protege Data
                 $row = array();
                 if (user_access('mentor_view') || $opts['cid'] == user_id()) {
@@ -474,7 +466,7 @@ function mentor_delete_form ($cid) {
                 , 'fields' => array(
                     array(
                         'type' => 'message'
-                        , 'value' => '<p>Are you sure you want to delete the member assignment "' . $mentor_name . '"? This cannot be undone.'
+                        , 'value' => '<p>Are you sure you want to delete the member assignment "' . $mentor_name . '"? This cannot be undone.</p>'
                     )
                     , array(
                         'type' => 'submit'

@@ -345,7 +345,7 @@ function member_plan_delete_form ($pid) {
                 , 'fields' => array(
                     array(
                         'type' => 'message'
-                        , 'value' => '<p>Are you sure you want to delete the plan "' . $description. '"? This cannot be undone.',
+                        , 'value' => '<p>Are you sure you want to delete the plan "' . $description. '"? This cannot be undone.</p>'
                     )
                     , array(
                         'type' => 'submit'
@@ -516,7 +516,7 @@ function member_membership_delete_form ($sid) {
                 , 'fields' => array(
                     array(
                         'type' => 'message'
-                        , 'value' => '<p>Are you sure you want to delete the membership "' . $membership_name . '"? This cannot be undone.',
+                        , 'value' => '<p>Are you sure you want to delete the membership "' . $membership_name . '"? This cannot be undone.</p>'
                     )
                     , array(
                         'type' => 'submit'

@@ -69,7 +69,6 @@ function user_meta_install($old_revision = 0) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        
         // Set default permissions
         $roles = array(
             '1' => 'authenticated'
@@ -130,7 +129,7 @@ function user_meta_description ($umid) {
 /**
  * Return data for one or more meta-tag assignments.
  * @param $opts An associative array of options, possible metas are:
- * 'umid' If specified, returns a single memeber with the matching meta id;
+ * 'umid' If specified, returns a single member with the matching meta id;
  * 'cid' If specified, returns all metas assigned to the contact with specified id;
  * 'filter' An array mapping filter names to filter values;
  * 'join' A list of tables to join to the meta table.
@@ -416,7 +415,7 @@ function user_meta_cross_table ($opts) {
         // Add meta data
         $row = array();
         // user not already on screen, add them, and all details, and first tag.
-        if (!array_key_exists($user_meta['contact']['lastName'].$user_meta['contact']['firstName'], $uniq) ) {
+        if (!array_key_exists($user_meta['contact']['lastName'].$user_meta['contact']['firstName'], $uniq)) {
             $uniq[$user_meta['contact']['lastName'].$user_meta['contact']['firstName']] = $tableid;
             if (user_access('user_meta_view') || $opts['cid'] == user_id()) {
                 // Add cells
@@ -439,7 +438,7 @@ function user_meta_cross_table ($opts) {
                     if ( $table['columns'][$i]['title'] == $user_meta['tagstr'] ) {
                         $row[$i] = '<input type="checkbox" name="'.$user_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                     } else {
-                        if ( ! array_key_exists($i, $row) ) { $row[$i] = ''; }
+                        if (!array_key_exists($i, $row) ) { $row[$i] = '';}
                     }
                 }
             }
@@ -741,7 +740,7 @@ function user_meta_delete_form ($umid) {
                 , 'fields' => array(
                     array(
                         'type' => 'message'
-                        , 'value' => '<p>Are you sure you want to delete the meta assignment "' . $user_meta_name . '"? This cannot be undone.',
+                        , 'value' => '<p>Are you sure you want to delete the meta assignment "' . $user_meta_name . '"? This cannot be undone.</p>'
                     )
                     , array(
                         'type' => 'submit'
@@ -781,6 +780,7 @@ function command_user_meta_add() {
         error_register('Permission denied: user_meta_edit');
         return crm_url('user_meta&umid=' . $esc_post['umid']);
     }
+    // Save meta data
     user_meta_save($_POST);
     return crm_url('contact&cid=' . $_POST['cid'] . '&tab=metas');
 }

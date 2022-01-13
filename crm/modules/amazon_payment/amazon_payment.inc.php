@@ -472,7 +472,7 @@ function amazon_payment_contact_delete_form ($cid) {
                 , 'fields' => array(
                     array(
                         'type' => 'message'
-                        , 'value' => '<p>Are you sure you want to delete the amazon contact "' . $amazon_payment_contact_name . '"? This cannot be undone.',
+                        , 'value' => '<p>Are you sure you want to delete the amazon contact "' . $amazon_payment_contact_name . '"? This cannot be undone.</p>'
                     )
                     , array(
                         'type' => 'submit'
@@ -534,7 +534,6 @@ function amazon_payment_form_alter ($form, $form_id) {
 
 /**
  * Handle amazon payment import request.
- *
  * @return The url to display on completion.
  */
 function command_amazon_payment_import () {

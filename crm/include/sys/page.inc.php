@@ -56,20 +56,16 @@ function page_sitemap () {
  * @return The page data structure.
  */
 function page ($page, $options) {
-    
     // Initialize page structure
     $data = array();
-    
     // Loop through modules
     foreach (module_list() as $module) {
-        
         // Check if hook exists and execute
         $hook = $module . '_page';
         if (function_exists($hook)) {
             $hook($data, $page, $options);
         }
     }
-    
     return $data;
 }
 
