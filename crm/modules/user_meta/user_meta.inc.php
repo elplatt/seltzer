@@ -129,7 +129,7 @@ function user_meta_description ($umid) {
 /**
  * Return data for one or more meta-tag assignments.
  * @param $opts An associative array of options, possible metas are:
- * 'umid' If specified, returns a single memeber with the matching meta id;
+ * 'umid' If specified, returns a single member with the matching meta id;
  * 'cid' If specified, returns all metas assigned to the contact with specified id;
  * 'filter' An array mapping filter names to filter values;
  * 'join' A list of tables to join to the meta table.
