@@ -54,13 +54,13 @@ function variable_install($old_revision = 0) {
     global $config_theme;
     // Create initial database table
     if ($old_revision < 1) {
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `variable` (
                 `name` varchar(255) NOT NULL
                 , `value` text NOT NULL
                 , PRIMARY KEY (`name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
     }

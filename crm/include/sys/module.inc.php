@@ -214,9 +214,9 @@ function module_upgrade_table () {
             , array('title'=>'Old')
             , array('title'=>'New')
             , array('title'=>'Needs upgrade?')
-            )
+        )
         , 'rows' => array()
-        );
+    );
     $rows = array();
     foreach (module_list() as $module) {
         $old_rev = module_get_schema_revision($module);
@@ -299,7 +299,6 @@ function module_upgrade_form () {
  * @return The url to redirect to on completion.
  */
 function command_module_install () {
-    global $db_connect;
     global $esc_post;
     // Create tables
     $res = module_install();

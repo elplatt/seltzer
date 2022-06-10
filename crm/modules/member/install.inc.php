@@ -28,7 +28,7 @@
 function member_install($old_revision = 0) {
     global $db_connect;
     if ($old_revision == 1) {
-        error_log('The database version is too old to upgrade to this release of ' . title(). '.  Please upgrade one release at a time.');
+        error_log('The database version is too old to upgrade to this release of ' . title() . '. Please upgrade one release at a time.');
         return;
     }
     // Initial installation
@@ -51,7 +51,7 @@ function member_install($old_revision = 0) {
                 , `start` date NOT NULL
                 , `end` date DEFAULT NULL
                 , PRIMARY KEY (`sid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -64,7 +64,7 @@ function member_install($old_revision = 0) {
                 , `active` tinyint(1) NOT NULL
                 , `voting` tinyint(1) NOT NULL
                 , PRIMARY KEY (`pid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));

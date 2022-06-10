@@ -57,7 +57,7 @@ function core_page (&$page_data, $page_name, $options) {
     $latestNews = '<p>Welcome to ' . title() . ' version ' . crm_version() . '!</p>';
     // Modify this variable with valid HTML between the apostrophes to display update text to users on login
     $latestNews = $latestNews . '
-        <p><p>
+        <p></p>
     ';
     switch ($page_name) {
         case '<front>':

@@ -65,7 +65,7 @@ function plan_meta_install($old_revision = 0) {
                 , `end` date DEFAULT NULL
                 , `tagstr` varchar(255) NOT NULL
                 , PRIMARY KEY (`pmid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -261,7 +261,7 @@ function plan_meta_data_alter ($type, $data = array(), $opts = array()) {
 }
 
 /**
- * Save a user meta data structure. If $plan_meta has a 'pmid' element, an existing user meta data will
+ * Save a plan meta data structure. If $plan_meta has a 'pmid' element, an existing user meta data will
  * be updated, otherwise a new user meta data will be created.
  * @param $pmid The user meta data structure
  * @return The user meta data structure with as it now exists in the database.
@@ -403,11 +403,13 @@ function plan_meta_cross_table ($opts) {
                 // Add cells
                 $row[] = theme('member_plan_name', $plan_meta['pid'], true);
                 // insert new tag in new row at a fixed offset.
-                for ( $i = 0 ; $i < $count+1; $i++) {
-                    if ( $table['columns'][$i]['title'] == $plan_meta['tagstr'] ) {
+                for ($i = 0 ; $i < $count+1; $i++) {
+                    if ($table['columns'][$i]['title'] == $plan_meta['tagstr']) {
                         $row[$i] = '<input type="checkbox" name="'.$plan_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                     } else {
-                        if (!array_key_exists($i, $row) ) { $row[$i] = '';}
+                        if (!array_key_exists($i, $row)) {
+                            $row[$i] = '';
+                        }
                     }
                 }
             }
@@ -428,8 +430,8 @@ function plan_meta_cross_table ($opts) {
             $previd = $uniq[$plan_meta['pid']];
             $row = $table['rows'][$previd];
             // insert new tag to existing row:
-            for ( $i = 1 ; $i < $count+1; $i++) {
-                if ( $table['columns'][$i]['title'] == $plan_meta['tagstr'] ) {
+            for ($i = 1 ; $i < $count+1; $i++) {
+                if ($table['columns'][$i]['title'] == $plan_meta['tagstr']) {
                     $row[$i] = '<input type="checkbox" name="'.$plan_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                 }
             }
@@ -521,7 +523,7 @@ function plan_meta_table ($opts) {
 function plan_meta_add_form ($pid) {
     // Ensure user is allowed to edit metas
     if (!user_access('plan_meta_edit')) {
-        error_register('User does not have permission: pla_meta_edit');
+        error_register('User does not have permission: plan_meta_edit');
         return null;
     }
     // Create form structure
@@ -801,7 +803,7 @@ function plan_meta_page (&$page_data, $page_name, $options) {
             page_set_title($page_data, plan_meta_description($pmid));
             // Add edit tab
             if (user_access('plan_meta_edit')) {
-                page_add_content_top($page_data, theme('form', crm_get_form('plan_meta_edit_form', $pmid)), 'Edit');
+                page_add_content_top($page_data, theme('form', crm_get_form('plan_meta_edit', $pmid)), 'Edit');
             }
             break;
     }

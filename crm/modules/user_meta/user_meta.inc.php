@@ -65,7 +65,7 @@ function user_meta_install($old_revision = 0) {
                 , `end` date DEFAULT NULL
                 , `tagstr` varchar(255) NOT NULL
                 , PRIMARY KEY (`umid`)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
@@ -402,7 +402,7 @@ function user_meta_cross_table ($opts) {
         if (array_key_exists('join', $opts) && in_array('contact', $opts['join'])) {
             $table['columns'][] = array("title"=>'Name', 'class'=>'', 'id'=>''); // column 1
         }
-        for ( $i = 0 ; $i < $count; $i++) {
+        for ($i = 0 ; $i < $count; $i++) {
             $table['columns'][] = array("title"=>$tags[$i], 'class'=>'', 'id'=>''); // column 2 -> almost end
         }
     }
@@ -434,11 +434,13 @@ function user_meta_cross_table ($opts) {
                     }
                 }
                 // insert new tag in new row at a fixed offset.
-                for ( $i = 1 ; $i < $count+1; $i++) {
-                    if ( $table['columns'][$i]['title'] == $user_meta['tagstr'] ) {
+                for ($i = 1 ; $i < $count+1; $i++) {
+                    if ($table['columns'][$i]['title'] == $user_meta['tagstr']) {
                         $row[$i] = '<input type="checkbox" name="'.$user_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                     } else {
-                        if (!array_key_exists($i, $row) ) { $row[$i] = '';}
+                        if (!array_key_exists($i, $row)) {
+                            $row[$i] = '';
+                        }
                     }
                 }
             }
@@ -459,8 +461,8 @@ function user_meta_cross_table ($opts) {
             $previd = $uniq[$user_meta['contact']['lastName'].$user_meta['contact']['firstName']];
             $row = $table['rows'][$previd];
             // insert new tag to existing row:
-            for ( $i = 2 ; $i < $count+2; $i++) {
-                if ( $table['columns'][$i]['title'] == $user_meta['tagstr'] ) {
+            for ($i = 2 ; $i < $count+2; $i++) {
+                if ($table['columns'][$i]['title'] == $user_meta['tagstr']) {
                     $row[$i] = '<input type="checkbox" name="'.$user_meta['tagstr'].'" value="1" checked="checked" disabled=true/>';
                 }
             }
