@@ -43,13 +43,13 @@ function profile_picture_install ($old_revision = 0) {
     }
     if ($old_revision < 2) {
         // Create a table to associate pictures with a CID
-        $sql = '
+        $sql = "
             CREATE TABLE IF NOT EXISTS `profile_picture` (
                 `cid` mediumint(8) unsigned NOT NULL
                 , `filename` varchar(255) NOT NULL
                 , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-        ';
+        ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         // Create folder directory if it does not exist to store uploaded profile pictures in.
@@ -269,7 +269,7 @@ function profile_picture_delete ($cid) {
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $row = mysqli_fetch_assoc($res);
-    if (!empty($row)){
+    if (!empty($row)) {
             $oldProfilePictureFilePath = "files/profile_picture/" . $row['filename'];
             //First, delete the profile picture file associated with this cid.
             if (!unlink($oldProfilePictureFilePath)){
@@ -312,7 +312,7 @@ function theme_profile_picture ($contact) {
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $row = mysqli_fetch_assoc($res);
-    if (!empty($row)){
+    if (!empty($row)) {
         // If a row exists in the database that associates this user's CID with a filename, return the HTML that
         // shows that user's profile picture.
         $html = '<div class="userimage"><img src = "'. "files/profile_picture/" . $row['filename'] .'"></div>';

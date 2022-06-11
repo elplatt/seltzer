@@ -181,8 +181,7 @@ function member_voting_report_table () {
         // Add user data
         $row = array();
         if (user_access('member_view')) {
-            $name = $member['contact']['lastName']
-                . ', ' . $member['contact']['firstName'];
+            $name = $member['contact']['lastName'] . ', ' . $member['contact']['firstName'];
             if (!empty($member['contact']['middleName'])) {
                 $name .= ' ' . $member['contact']['middleName'];
             }
