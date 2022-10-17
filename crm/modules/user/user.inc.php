@@ -755,7 +755,7 @@ function user_salt () {
     $salt_length = 16;
     $salt = '';
     for ($i = 0; $i < 16; $i++) {
-        $salt .= $chars{rand(0, $char_count - 1)};
+        $salt .= $chars[rand(0, $char_count - 1)];
     }
     return $salt;
 }

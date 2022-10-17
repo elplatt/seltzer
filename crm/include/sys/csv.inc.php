@@ -62,11 +62,11 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
     $index = 0;
     $length = strlen($content);
     while ($index < $length) {
-        $char = $content{$index};
+        $char = $content[$index];
         if ($char == $field_escape) {
             // Escaped character
             $index++;
-            $field .= $content{$index};
+            $field .= $content[$index];
         } else if ($char == $field_quote) {
             if ($is_quoted) {
                 // We've reached the end of a quoted field
@@ -77,7 +77,7 @@ function csv_parse ($content, $row_terminate = "\n", $field_terminate = ",", $fi
                         $index++;
                         break;
                     }
-                    $char = $content{$index + 1};
+                    $char = $content[$index + 1];
                     if ($char == $field_terminate) {
                         break;
                     }
