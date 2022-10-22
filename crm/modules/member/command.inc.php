@@ -45,7 +45,7 @@ function command_member_add () {
     $n = 0;
     while (empty($username) && $n < 100) {
         // Construct test username
-        $test_username = strtolower($_POST['firstName']{0} . $_POST['lastName']);
+        $test_username = strtolower($_POST['firstName'][0] . $_POST['lastName']);
         if ($n > 0) {
             $test_username .= $n;
         }
@@ -404,7 +404,7 @@ function command_member_import () {
         $n = 0;
         while (empty($username) && $n < 100) {
             // Construct test username
-            $test_username = strtolower($row['firstname']{0} . $row['lastname']);
+            $test_username = strtolower($row['firstname'][0] . $row['lastname']);
             if ($n > 0) {
                 $test_username .= $n;
             }
