@@ -71,7 +71,7 @@ function command_register_member () {
     $n = 0;
     while (empty($username) && $n < 100) {
         // Construct test username
-        $test_username = strtolower($_POST['firstName']{0} . $_POST['lastName']);
+        $test_username = strtolower($_POST['firstName'][0] . $_POST['lastName']);
         if ($n > 0) {
             $test_username .= $n;
         }

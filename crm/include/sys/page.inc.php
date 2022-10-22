@@ -140,7 +140,7 @@ function theme_page ($page_name, $options = array()) {
     // Loop through each tab
     foreach ($data as $tab => $tab_data) {
         // Skip special keys
-        if ($tab{0} === '#') {
+        if ($tab[0] === '#') {
             continue;
         }
         // Generate tab name

@@ -184,7 +184,8 @@ function user_meta_data ($opts = array()) {
         ";
     }
     if (!empty($opts['cid'])) {
-        $esc_cid = mysqli_real_escape_string($db_connect, $opts['cid']);
+        $cid = $opts['cid'][0];
+        $esc_cid = mysqli_real_escape_string($db_connect, $cid);
         $sql .= "
             AND `cid`='$esc_cid'
         ";
