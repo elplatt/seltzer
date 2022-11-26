@@ -1039,10 +1039,10 @@ function email_list_page (&$page_data, $page_name, $options) {
                 return;
             }
             page_set_title($page_data, 'Email Lists');
-                if (user_access('email_list_unsubscribe')) {
-                    $email_lists = theme('form', crm_get_form('email_list_unsubscribe', array('cid'=>$cid, 'lid'=>$lid)));
-                    page_add_content_top($page_data, $email_lists);
-                }
+            if (user_access('email_list_unsubscribe')) {
+                $email_lists = theme('form', crm_get_form('email_list_unsubscribe', array('cid'=>$cid, 'lid'=>$lid)));
+                page_add_content_top($page_data, $email_lists);
+            }
             break;
         case 'email_list':
             $lid = $options['lid'];
