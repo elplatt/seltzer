@@ -140,8 +140,11 @@ function variable_get ($name, $default) {
         FROM `variable`
         WHERE `name`='$esc_name'
     ";
-    $res = mysqli_query($db_connect, $sql);
-    if (!$res) return $default;
+    try {
+        $res = mysqli_query($db_connect, $sql);
+    } catch (Exception $e) {
+        return $default;
+    }
     $variable = mysqli_fetch_assoc($res);
     if ($variable) {
         return $variable['value'];
