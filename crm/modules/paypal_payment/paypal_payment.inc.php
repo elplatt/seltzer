@@ -161,12 +161,12 @@ function paypal_payment_contact_data ($opts = array()) {
             if ($filter === 'email') {
                 $esc_email = mysqli_real_escape_string($db_connect, $value);
                 $sql .= "
-                AND `email`='$esc_email'
+                    AND `email`='$esc_email'
                 ";
             }
             $sql .= "
                 AND $filter='$value'
-                ";
+            ";
         }
     }
     $res = mysqli_query($db_connect, $sql);
