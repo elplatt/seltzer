@@ -636,4 +636,5 @@ function member_membership_delete ($sid) {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
+    message_register("Deleted membership");
 }
