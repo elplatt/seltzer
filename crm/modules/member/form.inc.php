@@ -432,7 +432,7 @@ function member_membership_edit_form ($sid) {
         return array();
     }
     // Construct contact name
-    $data = member_contact_data(array('cid'=>$membership['cid']));
+    $data = member_data(array('cid'=>$membership['cid']));
     $contact = $data[0];
     $name = theme_contact_name($contact['cid']);
     // Create form structure

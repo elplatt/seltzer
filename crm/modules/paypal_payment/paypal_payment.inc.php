@@ -161,9 +161,12 @@ function paypal_payment_contact_data ($opts = array()) {
             if ($filter === 'email') {
                 $esc_email = mysqli_real_escape_string($db_connect, $value);
                 $sql .= "
-                    AND `email`='$esc_email'
+                AND `email`='$esc_email'
                 ";
             }
+            $sql .= "
+                AND $filter='$value'
+                ";
         }
     }
     $res = mysqli_query($db_connect, $sql);
@@ -496,7 +499,7 @@ function paypal_payment_contact_delete_form ($cid) {
         return crm_url('paypal-admin');
     }
     // Get paypal contact data
-    $data = crm_get_data('paypal_payment_contact', array('cid'=>$cid));
+    $data = crm_get_data('paypal_payment_contact', array('filter'=>array('cid'=>$cid)));
     $paypal_payment_contact = $data[0];
     // Construct paypal contact name
     $paypal_payment_contact_name = "paypal contact:$paypal_payment_contact[cid] email:$paypal_payment_contact[email]";
