@@ -308,7 +308,8 @@ function command_member_membership_delete () {
     }
     // Delete membership
     member_membership_delete($esc_post['sid']);
-    return crm_url("contact&cid=$_POST[cid]&tab=plan");
+    message_register("Deleted membership");
+    return crm_url("contact&cid=${_POST['cid']}&tab=plan");
 }
 
 /**

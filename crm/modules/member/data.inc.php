@@ -610,9 +610,9 @@ function member_membership_save ($membership) {
         // Insert
         $sql = "
             INSERT INTO `membership`
-            (`cid`, `pid`, `start`)
+            (`cid`, `pid`, `start`, `end`)
             VALUES
-            ('$esc_cid', '$esc_pid', '$esc_start')
+            ('$esc_cid', '$esc_pid', '$esc_start', ".($esc_end ? "'$esc_end'" : "NULL").")
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
