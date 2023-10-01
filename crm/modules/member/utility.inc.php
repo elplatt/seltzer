@@ -30,7 +30,7 @@ function member_membership_description ($sid) {
     $data = member_membership_data(array('sid'=>$sid));
     $membership = $data[0];
     // Get member contact info
-    $data = member_contact_data(array('cid'=>$membership['cid']));
+    $data = member_data(array('cid'=>$membership['cid']));
     $contact = $data[0];
     // Construct description
     $description = 'Membership: ';
