@@ -542,7 +542,7 @@ function command_contact_update () {
     $contact_data = crm_get_data('contact', array('cid'=>$_POST['cid']));
     $contact = $contact_data[0];
     if (empty($contact)) {
-        error_register("No contact for cid: $_POST[cid]");
+        error_register("No contact for cid: ${_POST['cid']}");
         return crm_url('members');
     }
     // Update contact data
