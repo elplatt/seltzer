@@ -367,12 +367,26 @@ function command_member_import () {
     }
     $csv = file_get_contents($_FILES['member-file']['tmp_name']);
     $data = csv_parse($csv);
+    $row_cntr = 0;
+    $mandatory_fields = array('firstname','plan','startdate','email');
     foreach ($data as $row) {
         // Convert row keys to lowercase and remove spaces
         foreach ($row as $key => $value) {
             $new_key = str_replace(' ', '', strtolower($key));
             unset($row[$key]);
             $row[$new_key] = $value;
+        }
+        // Check for empty mandatory fields
+        $row_cntr++;
+        $missing_fields = array();
+        foreach ($mandatory_fields as $m_field) {
+            if (empty($row[$m_field])) {
+                array_push($missing_fields, $m_field);
+            }
+        }
+        if ($missing_fields) {
+            error_register("Skipping row <b>$row_cntr</b>. Missing field(s) <b>".implode(',', $missing_fields)."</b>");
+            continue;
         }
         // Add plan if necessary
         $esc_plan_name = mysqli_real_escape_string($db_connect, $row['plan']);
@@ -444,7 +458,6 @@ function command_member_import () {
                 $username = $test_username;
             } else {
                 error_register('Username <b>'.$username_row['username'].'</b> already in use, skipping entry');
-                // return crm_url('members&tab=import');
                 continue;
             }
         }
@@ -467,7 +480,6 @@ function command_member_import () {
             } else {
                 error_register('Email address <b>'.$email_row['email'].'</b> already in use');
                 error_register('Skipping this entry');
-                // return crm_url('members&tab=import');
                 continue;
             }
         }
