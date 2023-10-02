@@ -191,7 +191,8 @@ function global_options_form () {
                 , 'label' => 'Theme'
                 , 'name' => 'theme'
                 , 'value' => get_theme()
-            ), array(
+            )
+            , array(
                 'type' => 'select'
                 , 'label' => 'Name format'
                 , 'name' => 'name_format'

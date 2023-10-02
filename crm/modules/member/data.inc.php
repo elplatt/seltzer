@@ -85,9 +85,12 @@ function member_data ($opts = array()) {
     $sql .= "
         GROUP BY `member`.`cid`
     ";
-    $sql .= "
-        ORDER BY `lastName`, `firstName`, `middleName` ASC
-    ";
+    array_walk($opts['order'], function(&$item) {$item = "`$item`";});
+    if (isset($opts['order'])) {
+        $sql .= '
+            ORDER BY '.implode(', ', $opts['order']).' ASC
+        ';
+    }
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     // Store data
