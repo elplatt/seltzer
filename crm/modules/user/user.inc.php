@@ -1052,7 +1052,7 @@ function command_user_role_update () {
             if (!$res) { crm_error(mysqli_error($res)); }
         }
     }
-    return crm_url("contact&cid=$_POST[cid]&tab=roles");
+    return crm_url("contact&cid=${_POST['cid']}&tab=roles");
 }
 
 // Forms ///////////////////////////////////////////////////////////////////////

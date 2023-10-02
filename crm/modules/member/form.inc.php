@@ -508,6 +508,7 @@ function member_membership_delete_form ($sid) {
         , 'command' => 'member_membership_delete'
         , 'hidden' => array(
             'sid' => $membership['sid']
+            , 'cid' => $membership['cid']
         )
         , 'fields' => array(
             array(
