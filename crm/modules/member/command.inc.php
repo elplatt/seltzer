@@ -443,8 +443,9 @@ function command_member_import () {
             if (!$username_row) {
                 $username = $test_username;
             } else {
-                error_register('Username already in use, please specify a different username');
-                return crm_url('members&tab=import');
+                error_register('Username <b>'.$username_row['username'].'</b> already in use, skipping entry');
+                // return crm_url('members&tab=import');
+                continue;
             }
         }
         // Check for duplicate email addresses
@@ -464,9 +465,10 @@ function command_member_import () {
             if (!$email_row) {
                 $email = $test_email;
             } else {
-                error_register('Email address already in use');
-                error_register('Please specify a different email address');
-                return crm_url('members&tab=import');
+                error_register('Email address <b>'.$email_row['email'].'</b> already in use');
+                error_register('Skipping this entry');
+                // return crm_url('members&tab=import');
+                continue;
             }
         }
         // Build contact object
@@ -505,6 +507,7 @@ function command_member_import () {
         // Save to database
         $contact = contact_save($contact);
         $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+        message_register('Created user '.$contact['user']['username'].": ${contact['firstName']} ${contact['lastName']}");
         // Notify admins
         $from = get_org_name() . " <" . get_email_from() . ">";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
