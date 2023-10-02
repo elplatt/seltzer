@@ -369,6 +369,9 @@ function command_member_import () {
     $data = csv_parse($csv);
     $row_cntr = 0;
     $mandatory_fields = array('firstname','plan','startdate','email');
+    if ($_POST['create-plan'] == 1) {
+        message_register("Creating plan from file");
+    }
     foreach ($data as $row) {
         // Convert row keys to lowercase and remove spaces
         foreach ($row as $key => $value) {
@@ -398,6 +401,10 @@ function command_member_import () {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         if (mysqli_num_rows($res) < 1) {
+            if ($_POST['create-plan'] != 1) {
+                error_register("Skipping row <b>$row_cntr</b>. Plan <b>$esc_plan_name</b> not found in database.");
+                continue;
+            }
             $plan = array(
                 'name' => $esc_plan_name
                 , 'price' => '0'
