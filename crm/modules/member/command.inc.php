@@ -268,7 +268,7 @@ function command_member_membership_add () {
         , 'end' => $_POST['end']
     );
     member_membership_save($membership);
-    return crm_url("contact&cid=$_POST[cid]&tab=plan");
+    return crm_url("contact&cid=${_POST['cid']}&tab=plan");
 }
 
 /**
@@ -292,7 +292,7 @@ function command_member_membership_update () {
         , 'end' => $_POST['end']
     );
     member_membership_save($membership);
-    return crm_url("contact&cid=$_POST[cid]&tab=plan");
+    return crm_url("contact&cid=${_POST['cid']}&tab=plan");
 }
 
 /**
@@ -308,7 +308,7 @@ function command_member_membership_delete () {
     }
     // Delete membership
     member_membership_delete($esc_post['sid']);
-    return crm_url("contact&cid=$_POST[cid]&tab=plan");
+    return crm_url("contact&cid=${_POST['cid']}&tab=plan");
 }
 
 /**
