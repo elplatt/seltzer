@@ -51,7 +51,7 @@ function theme_register_member_form () {
  * @return The form structure for registering a member.
  */
 function register_member_form () {
-    // Start with contact form
+    // Start with member form
     $form = crm_get_form('member_add');
     // Change form command
     $form['command'] = 'register_member';
