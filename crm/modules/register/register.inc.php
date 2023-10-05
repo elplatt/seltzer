@@ -176,7 +176,7 @@ function command_register_member () {
     if (!empty(get_email_to())) {
         $name = theme_contact_name($contact['cid']);
         $content = theme('member_created_email', $contact['cid']);
-        mail($config_email_to, "New Member: $name", $content, $headers);
+        mail(get_email_to(), "New Member: $name", $content, $headers);
     }
     // Notify user
     $confirm_url = user_reset_password_url($contact['user']['username']);
