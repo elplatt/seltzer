@@ -980,7 +980,7 @@ function command_user_permissions_update () {
         foreach ($roles as $role) {
             $key = "$perm-$role[name]";
             $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
-            if ($_POST[$key]) {
+            if (isset($_POST[$key])) {
                 // Ensure the role has this permission
                 $sql = "
                     SELECT *
@@ -1030,6 +1030,7 @@ function command_user_role_update () {
         error_register('Current user does not have permission: user_role_edit');
         return crm_url('members');
     }
+    $roles = user_role_data();
     // Delete all roles for specified user
     $sql = "
         DELETE FROM `user_role`
@@ -1038,7 +1039,6 @@ function command_user_role_update () {
     $res = mysqli_query($db_connect, $sql);
     if (!$res) { crm_error(mysqli_error($res)); }
     // Re-add each role
-    $roles = user_role_data();
     foreach ($roles as $role) {
         if ($_POST[$role['name']]) {
             $esc_rid = mysqli_real_escape_string($db_connect, $role['rid']);
