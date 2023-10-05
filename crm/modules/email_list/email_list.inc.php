@@ -63,7 +63,7 @@ function email_list_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         // Create a table to associate email list names with a LID (list ID)
         $sql = "
             CREATE TABLE IF NOT EXISTS `email_lists` (
@@ -73,7 +73,7 @@ function email_list_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         //Set Permissions
         $roles = array(
             '1' => 'authenticated'
@@ -101,7 +101,7 @@ function email_list_install ($old_revision = 0) {
                         ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($db_connect));
                 }
             }
         }
@@ -133,7 +133,7 @@ function email_list_install ($old_revision = 0) {
                         ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($db_connect));
                 }
             }
         }
@@ -234,7 +234,7 @@ function email_list_data ($opts = array()) {
         ";
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     // Store data
     $email_list_data = array();
     $row = mysqli_fetch_assoc($res);
@@ -309,7 +309,7 @@ function email_list_save ($list) {
             WHERE `lid`='$esc_lid'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         message_register('Email list updated');
     } else {
         // Insert new email list
@@ -328,7 +328,7 @@ function email_list_save ($list) {
             (" . implode(', ', $values) . ")
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         message_register('Email list created');
     }
     return crm_get_one('email_list', array('lid'=>$esc_lid));
@@ -346,7 +346,7 @@ function email_list_delete ($list) {
         WHERE `lid`='$esc_lid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows() > 0) {
         message_register('List deleted.');
     }
@@ -356,7 +356,7 @@ function email_list_delete ($list) {
         WHERE `lid`='$esc_lid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows() > 0) {
         message_register('Associated subscriptions deleted.');
     }
@@ -381,7 +381,7 @@ function email_list_subscribe ($subscription) {
             ('$esc_lid', '$esc_cid', '$esc_email')
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         message_register('Successfully subscribed user to email list.');
     }
 }
@@ -400,7 +400,7 @@ function email_list_unsubscribe ($subscription) {
         AND `cid`='$esc_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows() > 0) {
         message_register('Subscription deleted.');
     } if (mysqli_affected_rows() > 1){
@@ -655,7 +655,7 @@ function email_list_options () {
         ORDER BY `list_name`, `lid` ASC
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     // Store data
     $lists = array();
     $row = mysqli_fetch_assoc($res);

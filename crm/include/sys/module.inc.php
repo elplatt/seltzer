@@ -62,7 +62,7 @@ function module_get_schema_revision ($module) {
         WHERE `name`='$esc_module'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { die(mysqli_error($db_connect)); }
     if (mysqli_num_rows($res) === 0) {
         return 0;
     }
@@ -85,7 +85,7 @@ function module_set_schema_revision ($module, $revision) {
         WHERE `name`='$esc_module'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { die(mysqli_error($db_connect)); }
     if (mysqli_num_rows($res) === 0) {
         $sql = "
             INSERT INTO `module` (`name`, `revision`)
@@ -99,7 +99,7 @@ function module_set_schema_revision ($module, $revision) {
         ";
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) { die(mysqli_error($res)); }
+    if (!$res) { die(mysqli_error($db_connect)); }
 }
 
 /**
@@ -111,7 +111,7 @@ function module_core_installed () {
         SHOW TABLES LIKE 'module'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) die(mysqli_error($db_connect));
     if (mysqli_num_rows($res) > 0) {
         return true;
     }
@@ -147,7 +147,7 @@ function module_install () {
         ('Admin', 'User', '$esc_post[email]')
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) die(mysqli_error($db_connect));
     $cid = mysqli_insert_id($db_connect);
     $esc_cid = mysqli_real_escape_string($db_connect, $cid);
     $esc_date = mysqli_real_escape_string($db_connect, date("Y-m-d"));
@@ -160,7 +160,7 @@ function module_install () {
         WHERE `cid`='$esc_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) die(mysqli_error($db_connect));
     $salt = user_salt();
     $esc_hash = mysqli_real_escape_string($db_connect, user_hash($_POST['password'], $salt));
     $esc_salt = mysqli_real_escape_string($db_connect, $salt);
@@ -171,7 +171,7 @@ function module_install () {
         ('$esc_cid', 'admin', '$esc_hash', '$esc_salt')
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) die(mysqli_error($res));
+    if (!$res) die(mysqli_error($db_connect));
     return true;
 }
 

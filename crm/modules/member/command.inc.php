@@ -57,7 +57,7 @@ function command_member_add () {
             WHERE `username`='$esc_test_name'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $user_row = mysqli_fetch_assoc($res);
         if (!$user_row) {
             $username = $test_username;
@@ -79,7 +79,7 @@ function command_member_add () {
             WHERE `username`='$esc_test_username'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $username_row = mysqli_fetch_assoc($res);
         if (!$username_row) {
             $username = $test_username;
@@ -100,7 +100,7 @@ function command_member_add () {
             WHERE `email`='$esc_test_email'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $email_row = mysqli_fetch_assoc($res);
         if (!$email_row) {
             $email = $test_email;
@@ -382,7 +382,7 @@ function command_member_import () {
             WHERE `name`='$esc_plan_name'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         if (mysqli_num_rows($res) < 1) {
             $plan = array(
                 'name' => $esc_plan_name
@@ -416,7 +416,7 @@ function command_member_import () {
                 WHERE `username`='$esc_test_name'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             $user_row = mysqli_fetch_assoc($res);
             if (!$user_row) {
                 $username = $test_username;
@@ -438,7 +438,7 @@ function command_member_import () {
                 WHERE `username`='$esc_test_username'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             $username_row = mysqli_fetch_assoc($res);
             if (!$username_row) {
                 $username = $test_username;
@@ -459,7 +459,7 @@ function command_member_import () {
                 WHERE `email`='$esc_test_email'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             $email_row = mysqli_fetch_assoc($res);
             if (!$email_row) {
                 $email = $test_email;
