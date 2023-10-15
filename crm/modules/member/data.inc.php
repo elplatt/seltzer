@@ -303,7 +303,7 @@ function member_save ($member) {
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
-        if (mysqli_affected_rows() < 1) {
+        if (mysqli_affected_rows($db_connect) < 1) {
             return null;
         }
     }
