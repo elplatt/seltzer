@@ -1023,12 +1023,12 @@ function command_user_role_update () {
     // Check permissions
     if (!user_access('user_edit')) {
         error_register('Current user does not have permission: user_edit');
-        return crm_url('members');
+        return crm_url('contacts');
     }
     // Check permissions
     if (!user_access('user_role_edit')) {
         error_register('Current user does not have permission: user_role_edit');
-        return crm_url('members');
+        return crm_url('contacts');
     }
     $roles = user_role_data();
     // Delete all roles for specified user
