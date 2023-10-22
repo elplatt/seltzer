@@ -617,6 +617,11 @@ function member_import_form () {
                 , 'name' => 'member-file'
             )
             , array(
+                'type' => 'checkbox'
+                , 'label' => 'Create plans from file'
+                , 'name' => 'create-plan'
+            )
+            , array(
                 'type' => 'submit'
                 , 'value' => 'Import'
             )

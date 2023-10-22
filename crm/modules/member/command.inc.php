@@ -367,12 +367,29 @@ function command_member_import () {
     }
     $csv = file_get_contents($_FILES['member-file']['tmp_name']);
     $data = csv_parse($csv);
+    $row_cntr = 0;
+    $mandatory_fields = array('firstname','plan','startdate','email');
+    if ($_POST['create-plan'] == 1) {
+        message_register("Creating plan from file");
+    }
     foreach ($data as $row) {
         // Convert row keys to lowercase and remove spaces
         foreach ($row as $key => $value) {
             $new_key = str_replace(' ', '', strtolower($key));
             unset($row[$key]);
             $row[$new_key] = $value;
+        }
+        // Check for empty mandatory fields
+        $row_cntr++;
+        $missing_fields = array();
+        foreach ($mandatory_fields as $m_field) {
+            if (empty($row[$m_field])) {
+                array_push($missing_fields, $m_field);
+            }
+        }
+        if ($missing_fields) {
+            error_register("Skipping row <b>$row_cntr</b>. Missing field(s) <b>".implode(',', $missing_fields)."</b>");
+            continue;
         }
         // Add plan if necessary
         $esc_plan_name = mysqli_real_escape_string($db_connect, $row['plan']);
@@ -384,6 +401,10 @@ function command_member_import () {
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($db_connect));
         if (mysqli_num_rows($res) < 1) {
+            if ($_POST['create-plan'] != 1) {
+                error_register("Skipping row <b>$row_cntr</b>. Plan <b>$esc_plan_name</b> not found in database.");
+                continue;
+            }
             $plan = array(
                 'name' => $esc_plan_name
                 , 'price' => '0'
@@ -443,8 +464,8 @@ function command_member_import () {
             if (!$username_row) {
                 $username = $test_username;
             } else {
-                error_register('Username already in use, please specify a different username');
-                return crm_url('members&tab=import');
+                error_register('Username <b>'.$username_row['username'].'</b> already in use, skipping entry');
+                continue;
             }
         }
         // Check for duplicate email addresses
@@ -464,9 +485,9 @@ function command_member_import () {
             if (!$email_row) {
                 $email = $test_email;
             } else {
-                error_register('Email address already in use');
-                error_register('Please specify a different email address');
-                return crm_url('members&tab=import');
+                error_register('Email address <b>'.$email_row['email'].'</b> already in use');
+                error_register('Skipping this entry');
+                continue;
             }
         }
         // Build contact object
@@ -505,6 +526,7 @@ function command_member_import () {
         // Save to database
         $contact = contact_save($contact);
         $esc_cid = mysqli_real_escape_string($db_connect, $cid);
+        message_register('Created user '.$contact['user']['username'].": ${contact['firstName']} ${contact['lastName']}");
         // Notify admins
         $from = get_org_name() . " <" . get_email_from() . ">";
         $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
