@@ -58,7 +58,9 @@ function member_table ($opts = null) {
         } else {
             $table['columns'][] = array('title'=>'Name','class'=>'');
         }
-        $table['columns'][] = array('title'=>'Membership','class'=>'');
+        if (user_access('member_membership_view')) {
+            $table['columns'][] = array('title'=>'Membership','class'=>'');
+        }
         $table['columns'][] = array('title'=>'Role(s)','class'=>'');
         $table['columns'][] = array('title'=>'E-Mail','class'=>'');
         $table['columns'][] = array('title'=>'Phone','class'=>'');
@@ -106,7 +108,9 @@ function member_table ($opts = null) {
             } else {
                 $row[] = $name_link;
             }
-            $row[] = $plan;
+            if (user_access('member_membership_view')) {
+                $row[] = $plan;
+            }
             $row[] = $role;
             $row[] = $member['contact']['email'];
             $row[] = $member['contact']['phone'];
