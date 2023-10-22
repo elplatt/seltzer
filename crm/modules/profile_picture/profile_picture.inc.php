@@ -51,7 +51,7 @@ function profile_picture_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         // Create folder directory if it does not exist to store uploaded profile pictures in.
         if (!file_exists('./files/profile_picture')) {
             if (!mkdir('./files/profile_picture/', 0775, true)) {
@@ -232,7 +232,7 @@ function command_profile_picture_upload () {
                 ('$esc_cid', '$destFileName')
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             //save the file. Literally just moving from /tmp/ to the right directory
             if(!move_uploaded_file($_FILES['profile-picture-file']['tmp_name'], $destFilePath)){
                 error_register('Error Saving Image to Server');
@@ -267,7 +267,7 @@ function profile_picture_delete ($cid) {
         WHERE 1 AND `cid` = '$esc_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $row = mysqli_fetch_assoc($res);
     if (!empty($row)) {
             $oldProfilePictureFilePath = "files/profile_picture/" . $row['filename'];
@@ -282,7 +282,7 @@ function profile_picture_delete ($cid) {
                 WHERE `cid`='$esc_cid'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             if (mysqli_affected_rows($db_connect) > 0) {
             message_register('Existing profile picture removed');
         }
@@ -310,7 +310,7 @@ function theme_profile_picture ($contact) {
         WHERE 1 AND `cid` = '$cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $row = mysqli_fetch_assoc($res);
     if (!empty($row)) {
         // If a row exists in the database that associates this user's CID with a filename, return the HTML that

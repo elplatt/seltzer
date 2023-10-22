@@ -71,7 +71,7 @@ function contact_install ($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 
@@ -167,7 +167,7 @@ function contact_data ($opts = array()) {
         ORDER BY `lastName`, `firstName`, `middleName` ASC
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     // Store data
     $contacts = array();
     $row = mysqli_fetch_assoc($res);
@@ -220,7 +220,7 @@ function contact_save ($contact) {
             WHERE `cid`='$escaped[cid]'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         if (mysqli_affected_rows($db_connect) < 1) {
             return null;
         }
@@ -234,7 +234,7 @@ function contact_save ($contact) {
             ('$escaped[firstName]','$escaped[middleName]','$escaped[lastName]','$escaped[email]','$escaped[phone]','$escaped[createdBy]','$escaped[createdDate]','$escaped[createdTime]')
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $contact['cid'] = mysqli_insert_id($db_connect);
         $contact = module_invoke_api('contact', $contact, 'create');
     }
@@ -261,7 +261,7 @@ function contact_delete ($cid) {
         WHERE `cid`='$esc_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     message_register('Deleted contact info for: ' . theme('contact_name', $contact));
 }
 

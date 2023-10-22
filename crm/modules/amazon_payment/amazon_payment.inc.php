@@ -46,7 +46,7 @@ function amazon_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         // Additional contact info for amazon payments
         $sql = "
             CREATE TABLE IF NOT EXISTS `contact_amazon` (
@@ -56,7 +56,7 @@ function amazon_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 
@@ -112,7 +112,7 @@ function amazon_payment_data ($opts = array()) {
         }
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     // Read from database and store in a structure
     $amazon_payment_data = array();
     while ($db_row = mysqli_fetch_assoc($res)) {
@@ -146,7 +146,7 @@ function amazon_payment_contact_data ($opts = array()) {
         }
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $names = array();
     $row = mysqli_fetch_assoc($res);
     while ($row) {
@@ -178,7 +178,7 @@ function amazon_payment_contact_save ($contact) {
         WHERE `amazon_name` = '$esc_name'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $row = mysqli_fetch_assoc($res);
     if ($row) {
         // Name is already in database, update if the cid is set
@@ -189,7 +189,7 @@ function amazon_payment_contact_save ($contact) {
                 WHERE `amazon_name`='$esc_name'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
         }
     } else {
         // Name is not in database, insert new
@@ -200,7 +200,7 @@ function amazon_payment_contact_save ($contact) {
             ('$esc_name', '$esc_cid')
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 
@@ -216,7 +216,7 @@ function amazon_payment_contact_delete ($amazon_payment_contact) {
         WHERE `cid`='$esc_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows($db_connect) > 0) {
         message_register("Deleted Amazon contact info for: " . theme('contact_name', $esc_cid));
     }
@@ -255,7 +255,7 @@ function amazon_payment_payment_api ($payment, $op) {
                 ('$esc_pmtid', '$esc_name')
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             amazon_payment_contact_save($amazon_contact);
             break;
         case 'update':
@@ -265,7 +265,7 @@ function amazon_payment_payment_api ($payment, $op) {
                 WHERE `pmtid` = '$esc_pmtid'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             amazon_payment_contact_save($amazon_contact);
             break;
         case 'delete':
@@ -274,7 +274,7 @@ function amazon_payment_payment_api ($payment, $op) {
                 WHERE `pmtid`='$esc_pmtid'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             break;
     }
     return $payment;
