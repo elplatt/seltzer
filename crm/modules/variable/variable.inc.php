@@ -62,7 +62,7 @@ function variable_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
     if ($old_revision < 2) {
         variable_set('host', $config_host);
@@ -103,7 +103,7 @@ function variable_set ($name, $value) {
         WHERE `name`='$esc_name'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_num_rows($res) > 0) {
         // Update
         $sql = "
@@ -112,7 +112,7 @@ function variable_set ($name, $value) {
             WHERE `name`='$esc_name'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     } else {
         // Insert
         $sql = "
@@ -122,7 +122,7 @@ function variable_set ($name, $value) {
             ('$esc_name', '$esc_value')
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 
