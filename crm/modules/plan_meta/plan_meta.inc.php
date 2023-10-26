@@ -68,7 +68,7 @@ function plan_meta_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         // Set default permissions
         $roles = array(
             '1' => 'authenticated'
@@ -97,7 +97,7 @@ function plan_meta_install($old_revision = 0) {
                         ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($db_connect));
                 }
             }
         }
@@ -199,7 +199,7 @@ function plan_meta_data ($opts = array()) {
         ORDER BY `tagstr` ASC
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     // Store data
     $plan_metas = array();
     $row = mysqli_fetch_assoc($res);
@@ -288,7 +288,7 @@ function plan_meta_save ($plan_meta) {
             WHERE `pmid`='$esc_pmid'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         message_register('Plan Meta Data updated');
     } else {
         // Insert new plan meta data
@@ -310,7 +310,7 @@ function plan_meta_save ($plan_meta) {
             (" . implode(', ', $values) . ")
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $esc_pmid = mysqli_insert_id($db_connect);
         message_register('Plan Meta Data added');
     }
@@ -329,7 +329,7 @@ function plan_meta_delete ($plan_meta) {
         WHERE `pmid`='$esc_pmid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows() > 0) {
         message_register('Plan Meta Data deleted.');
     }
@@ -375,7 +375,7 @@ function plan_meta_cross_table ($opts) {
         ORDER BY tagstr ASC
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $count = mysqli_num_rows($res); // just one row.
     $tags = array();
     while ($row = mysqli_fetch_array($res, MYSQL_NUM)) {

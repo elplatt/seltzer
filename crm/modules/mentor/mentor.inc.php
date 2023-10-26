@@ -58,7 +58,7 @@ function mentor_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         // Set default permissions on install/upgrade
         $roles = array(
             '1' => 'authenticated'
@@ -85,7 +85,7 @@ function mentor_install($old_revision = 0) {
                         ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($db_connect));
                 }
             }
         }
@@ -116,7 +116,7 @@ function mentor_install($old_revision = 0) {
                         ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($db_connect));
                 }
             }
         }
@@ -171,7 +171,7 @@ function mentor_data ($opts = array()) {
     }
     //TODO: specify an order? (ORDER BY... ASC)
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     // Store data in mentorships array
     $mentorships = array();
     $row = mysqli_fetch_assoc($res);
@@ -257,7 +257,7 @@ function mentor_save ($mentor) {
         ('$esc_cid', '$esc_mentor_cid')
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     message_register('Mentor added');
     return crm_get_one('mentor', array('cid'=>$esc_cid, 'mentor_cid' => $esc_mentor_cid));
 }
@@ -276,7 +276,7 @@ function mentor_delete ($mentor) {
         AND `mentor_cid`='$esc_mentor_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows($db_connect) > 0) {
         message_register('Mentor deleted.');
     }
