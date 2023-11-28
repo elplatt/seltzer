@@ -24,7 +24,7 @@
 $crm_version = array(
     'major' => 0
     , 'minor' => 7
-    , 'patch' => 35
+    , 'patch' => 36
     , 'revision' => 'dev'
 );
 require_once($crm_root . '/config.inc.php');
