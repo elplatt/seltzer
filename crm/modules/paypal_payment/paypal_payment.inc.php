@@ -338,7 +338,7 @@ function paypal_payment_contact_table ($opts) {
     $data = crm_get_data('paypal_payment_contact', $opts);
     // Initialize table
     $table = array(
-        "id" => ''
+        "id" => 'paypal_payment_contact'
         , "class" => ''
         , "rows" => array()
         , "columns" => array()
@@ -405,7 +405,7 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
             break;
         case 'paypal-admin':
             page_set_title($page_data, 'Administer Paypal Contacts');
-            page_add_content_top($page_data, theme('table', crm_get_table('paypal_payment_contact', array('show_export'=>true)), 'View'));
+            page_add_content_top($page_data, theme('table', crm_get_table('paypal_payment_contact'), array('show_export'=>true)));
             page_add_content_top($page_data, theme('form', crm_get_form('paypal_payment_contact_add')), 'Add');
             break;
     }
