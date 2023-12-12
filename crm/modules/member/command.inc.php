@@ -579,3 +579,25 @@ function command_member_plan_import () {
     }
     return crm_url('plans');
 }
+
+function command_member_renotify() {
+    global $db_connect;
+    foreach ($_POST['cid'] as $key => $cid) {
+        $sql = "
+            SELECT *
+            FROM `user` JOIN contact USING(cid)
+            WHERE cid=".$cid;
+        print_r($sql);
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($res));
+        $user = mysqli_fetch_assoc($res);
+        // Notify user
+        $from = get_org_name() . " <" . get_email_from() . ">";
+        $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $confirm_url = user_reset_password_url($user['username']);
+        $content = theme('member_welcome_email', $user['cid'], $confirm_url);
+        mail($user['email'], "Welcome to " . get_org_name(), $content, $headers);
+    }
+    return crm_url('members&tab=renotify');
+}
