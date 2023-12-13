@@ -876,7 +876,7 @@ function payment_accounts_table ($opts) {
         )),
         ''
     );
-        return $table;
+    return $table;
 }
 
 // Forms ///////////////////////////////////////////////////////////////////////
