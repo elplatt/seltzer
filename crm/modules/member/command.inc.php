@@ -585,8 +585,10 @@ function command_member_renotify() {
     foreach ($_POST['cid'] as $key => $cid) {
         $sql = "
             SELECT *
-            FROM `user` JOIN contact USING(cid)
-            WHERE cid=".$cid;
+            FROM `user` 
+            JOIN contact USING(`cid`)
+            WHERE `cid`='$cid'
+        ";
         print_r($sql);
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
