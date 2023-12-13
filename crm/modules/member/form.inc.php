@@ -668,9 +668,10 @@ function plan_import_form () {
 function member_renotify_form () {
     global $db_connect;
     $sql = "
-                SELECT *
-                FROM `user` JOIN contact USING(cid)
-                ORDER BY firstName, LastName";
+        SELECT *
+        FROM `user` JOIN contact USING(cid)
+        ORDER BY firstName, LastName
+    ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($res));
     $fields = array();
@@ -686,7 +687,6 @@ function member_renotify_form () {
         'type' => 'submit'
         , 'value' => 'Renotify'
     ));
-
     return array(
         'type' => 'form'
         , 'method' => 'post'
