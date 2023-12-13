@@ -589,7 +589,6 @@ function command_member_renotify() {
             JOIN contact USING(`cid`)
             WHERE `cid`='$cid'
         ";
-        print_r($sql);
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($res));
         $user = mysqli_fetch_assoc($res);
