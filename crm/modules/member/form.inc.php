@@ -669,7 +669,8 @@ function member_renotify_form () {
     global $db_connect;
     $sql = "
         SELECT *
-        FROM `user` JOIN contact USING(cid)
+        FROM `user` 
+        JOIN `contact` USING(`cid`)
         ORDER BY firstName, LastName
     ";
     $res = mysqli_query($db_connect, $sql);
