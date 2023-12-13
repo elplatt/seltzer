@@ -328,8 +328,11 @@ function theme_form_checkbox ($field) {
     if (!array_key_exists('class', $field)) {
         $field['class'] = '';
     }
+    if (empty($field['value'])) {
+        $field['value'] = "1";
+    }
     $output = '<fieldset class="form-row form-row-checkbox ' . $field['class'] . '">';
-    $output .= '<input type="checkbox" name="' . $field['name'] . '" value="1"';
+    $output .= '<input type="checkbox" name="' . $field['name'] . '" value="'.$field['value'].'"';
     if (array_key_exists('checked', $field) && $field['checked']) {
         $output .= ' checked="checked"';
     }

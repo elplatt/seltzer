@@ -661,3 +661,37 @@ function plan_import_form () {
         )
     );
 }
+
+/**
+ * @return the form structure for member renotify form.
+ */
+function member_renotify_form () {
+    global $db_connect;
+    $sql = "
+        SELECT *
+        FROM `user` 
+        JOIN `contact` USING(`cid`)
+        ORDER BY firstName, LastName
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    $fields = array();
+    while($user_row = mysqli_fetch_assoc($res)) {
+        array_push($fields,array(
+            'type' => 'checkbox'
+            , 'label' => "${user_row['firstName']} ${user_row['lastName']} (${user_row['username']}) [${user_row['email']}]"
+            , 'name' => 'cid[]'
+            , 'value' => $user_row['cid']
+        ));
+    }
+    array_push($fields, array(
+        'type' => 'submit'
+        , 'value' => 'Renotify'
+    ));
+    return array(
+        'type' => 'form'
+        , 'method' => 'post'
+        , 'command' => 'member_renotify'
+        , 'fields' => $fields
+    );
+}
