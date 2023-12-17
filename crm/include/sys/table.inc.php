@@ -54,7 +54,6 @@ function theme_table ($table_id, $opts = null) {
     } else {
         // Support old style of passing the data directly
         $table = $table_id;
-        $table_id = $table['id'];
     }
     // Check if table is empty
     if (empty($table['rows'])) {
