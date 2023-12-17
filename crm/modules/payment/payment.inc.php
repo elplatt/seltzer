@@ -868,13 +868,13 @@ function payment_accounts_table ($opts) {
         $table['rows'][] = $row;
     }
     $table['rows'][] = array(
-        'Total',
-        '',
-        payment_format_currency(array(
-            'value' => $total_amount_owed,
-            'code' => variable_get('currency_code'),
-        )),
-        ''
+        'Total'
+        , ''
+        , payment_format_currency(array(
+            'value' => $total_amount_owed
+            , 'code' => variable_get('currency_code')
+        ))
+        , ''
     );
     return $table;
 }
