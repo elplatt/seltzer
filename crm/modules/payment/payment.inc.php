@@ -872,7 +872,7 @@ function payment_accounts_table ($opts) {
         , ''
         , payment_format_currency(array(
             'value' => $total_amount_owed
-            , 'code' => get_currency_code
+            , 'code' => get_currency_code()
         ))
         , ''
     );
