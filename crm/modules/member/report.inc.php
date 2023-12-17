@@ -33,7 +33,7 @@ function member_email_report ($opts) {
             $result[] = $email;
         }
     }
-    return join($result, ', ');
+    return join(', ', $result);
 }
 
 /**
