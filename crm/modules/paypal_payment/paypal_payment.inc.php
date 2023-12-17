@@ -338,7 +338,7 @@ function paypal_payment_contact_table ($opts) {
     $data = crm_get_data('paypal_payment_contact', $opts);
     // Initialize table
     $table = array(
-        "id" => 'paypal_payment_contact'
+        "id" => ''
         , "class" => ''
         , "rows" => array()
         , "columns" => array()
