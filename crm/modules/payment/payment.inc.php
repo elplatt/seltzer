@@ -859,7 +859,7 @@ function payment_accounts_table ($opts) {
     $total_amount_owed=0;
     foreach ($balances as $cid => $balance) {
         $last_payment = get_last_payment($cid);
-        $total_amount_owed += $balance['value']/100;
+        $total_amount_owed += $balance['value'];
         $row = array();
         $row[] = theme('contact_name', $cid, !$export);
         $row[] = $cidToContact[$cid]['email'];
@@ -868,13 +868,13 @@ function payment_accounts_table ($opts) {
         $table['rows'][] = $row;
     }
     $table['rows'][] = array(
-        'Total',
-        '',
-        payment_format_currency(array(
-            'value' => $total_amount_owed,
-            'code' => variable_get('currency_code'),
-        )),
-        ''
+        'Total'
+        , ''
+        , payment_format_currency(array(
+            'value' => $total_amount_owed
+            , 'code' => get_currency_code
+        ))
+        , ''
     );
     return $table;
 }
