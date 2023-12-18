@@ -100,7 +100,7 @@ $config_modules[] = "payment";
 $config_modules[] = "billing";
 
 // Amazon payment integration
-$config_modules[] = "amazon_payment";
+//$config_modules[] = "amazon_payment";
 
 // Paypal integration
 $config_modules[] = "paypal_payment";
