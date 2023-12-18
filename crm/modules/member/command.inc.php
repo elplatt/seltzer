@@ -580,6 +580,10 @@ function command_member_plan_import () {
     return crm_url('plans');
 }
 
+/**
+ * Handle member renotify request.
+ * @return The url to display on completion.
+ */
 function command_member_renotify() {
     global $db_connect;
     foreach ($_POST['cid'] as $key => $cid) {
