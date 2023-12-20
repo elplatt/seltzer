@@ -1,4 +1,4 @@
-Seltzer CRM 0.7.42 - An open source CRM for hackerspaces
+Seltzer CRM 0.8.0 - An open source CRM for hackerspaces
 Copyright 2009-2023 Edward L. Platt <ed@elplatt.com>
 Distributed under GPLv3 (see COPYING for more info)
 
@@ -16,7 +16,8 @@ The current features are:
 * Tracking of member contact and emergency contact info
 * Tracking of membership levels and dates
 * Automated Billing
-* Amazon Payments and PayPal integration
+* Amazon Payments integration (deprecated)
+* PayPal integration
 * Tracking of RFID key assignments
 * Track members' mentors
 * Customizable permissions and roles
