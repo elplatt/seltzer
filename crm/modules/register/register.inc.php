@@ -51,7 +51,7 @@ function theme_register_member_form () {
  * @return The form structure for registering a member.
  */
 function register_member_form () {
-    // Start with contact form
+    // Start with member form
     $form = crm_get_form('member_add');
     // Change form command
     $form['command'] = 'register_member';
@@ -83,7 +83,7 @@ function command_register_member () {
             WHERE `username`='$esc_test_name'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $user_row = mysqli_fetch_assoc($res);
         if (!$user_row) {
             $username = $test_username;
@@ -105,7 +105,7 @@ function command_register_member () {
             WHERE `username`='$esc_test_username'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $username_row = mysqli_fetch_assoc($res);
         if (!$username_row) {
             $username = $test_username;
@@ -126,7 +126,7 @@ function command_register_member () {
             WHERE `email`='$esc_test_email'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $email_row = mysqli_fetch_assoc($res);
         if (!$email_row) {
             $email = $test_email;
@@ -176,7 +176,7 @@ function command_register_member () {
     if (!empty(get_email_to())) {
         $name = theme_contact_name($contact['cid']);
         $content = theme('member_created_email', $contact['cid']);
-        mail($config_email_to, "New Member: $name", $content, $headers);
+        mail(get_email_to(), "New Member: $name", $content, $headers);
     }
     // Notify user
     $confirm_url = user_reset_password_url($contact['user']['username']);

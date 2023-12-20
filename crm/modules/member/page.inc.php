@@ -74,6 +74,10 @@ function member_page (&$page_data, $page_name, $options) {
             if (user_access('contact_add') && user_access('user_add') && user_access('member_add')) {
                 page_add_content_top($page_data, theme('form', crm_get_form('member_import')), 'Import');
             }
+            // Add renotify tab
+            if (user_access('contact_add') && user_access('user_add') && user_access('member_add')) {
+                page_add_content_top($page_data, theme('form', crm_get_form('member_renotify')), 'Renotify');
+            }
             break;
         case 'plans':
             // Set page title

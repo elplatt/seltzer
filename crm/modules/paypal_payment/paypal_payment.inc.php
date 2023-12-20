@@ -47,7 +47,7 @@ function paypal_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         // Additional contact info for paypal payments
         $sql = "
             CREATE TABLE IF NOT EXISTS `contact_paypal` (
@@ -57,7 +57,7 @@ function paypal_payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
     if ($old_revision < 2) {
         $sql = "
@@ -65,19 +65,19 @@ function paypal_payment_install($old_revision = 0) {
             CHANGE COLUMN paypal_email email varchar(255);
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $sql = "
             ALTER TABLE `contact_paypal`
             CHANGE COLUMN paypal_email email varchar(255);
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $sql = "
             ALTER TABLE `contact_paypal` DROP PRIMARY KEY
             , ADD PRIMARY KEY(`email`);
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 
@@ -133,7 +133,7 @@ function paypal_payment_data ($opts = array()) {
         }
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     // Read from database and store in a structure
     $paypal_payment_data = array();
     while ($db_row = mysqli_fetch_assoc($res)) {
@@ -170,7 +170,7 @@ function paypal_payment_contact_data ($opts = array()) {
         }
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $emails = array();
     $row = mysqli_fetch_assoc($res);
     while ($row) {
@@ -222,7 +222,7 @@ function paypal_payment_contact_save ($contact) {
         WHERE `email` = '$esc_email'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $row = mysqli_fetch_assoc($res);
     if ($row) {
         // Name is already in database, update if the cid is set
@@ -233,7 +233,7 @@ function paypal_payment_contact_save ($contact) {
                 WHERE `email`='$esc_email'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
         }
     } else {
         // Name is not in database, insert new
@@ -245,7 +245,7 @@ function paypal_payment_contact_save ($contact) {
                 ('$esc_email', '$esc_cid')
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
         }
     }
 }
@@ -262,7 +262,7 @@ function paypal_payment_contact_delete ($paypal_payment_contact) {
         WHERE `cid`='$esc_cid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows($db_connect) > 0) {
         message_register('Deleted Paypal contact info for: ' . theme('contact_name', $esc_cid));
     }
@@ -301,7 +301,7 @@ function paypal_payment_payment_api ($payment, $op) {
                 ('$esc_pmtid', '$esc_email')
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             paypal_payment_contact_save($paypal_contact);
             break;
         case 'update':
@@ -311,7 +311,7 @@ function paypal_payment_payment_api ($payment, $op) {
                 WHERE `pmtid` = '$esc_pmtid'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             paypal_payment_contact_save($paypal_contact);
             break;
         case 'delete':
@@ -320,7 +320,7 @@ function paypal_payment_payment_api ($payment, $op) {
                 WHERE `pmtid`='$esc_pmtid'
             ";
             $res = mysqli_query($db_connect, $sql);
-            if (!$res) crm_error(mysqli_error($res));
+            if (!$res) crm_error(mysqli_error($db_connect));
             break;
     }
     return $payment;
@@ -405,7 +405,7 @@ function paypal_payment_page (&$page_data, $page_name, $options) {
             break;
         case 'paypal-admin':
             page_set_title($page_data, 'Administer Paypal Contacts');
-            page_add_content_top($page_data, theme('table', crm_get_table('paypal_payment_contact', array('show_export'=>true)), 'View'));
+            page_add_content_top($page_data, theme('table', crm_get_table('paypal_payment_contact'), array('show_export'=>true)), 'View');
             page_add_content_top($page_data, theme('form', crm_get_form('paypal_payment_contact_add')), 'Add');
             break;
     }

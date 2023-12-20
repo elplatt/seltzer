@@ -65,7 +65,7 @@ function payment_install($old_revision = 0) {
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         // Set default permissions
         $roles = array(
             '1' => 'authenticated'
@@ -93,7 +93,7 @@ function payment_install($old_revision = 0) {
                         ('$esc_rid', '$esc_perm')
                     ";
                     $res = mysqli_query($db_connect, $sql);
-                    if (!$res) crm_error(mysqli_error($res));
+                    if (!$res) crm_error(mysqli_error($db_connect));
                 }
             }
         }
@@ -371,7 +371,7 @@ function payment_data ($opts = array()) {
         ";
     }
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $payments = array();
     $row = mysqli_fetch_assoc($res);
     while ($row) {
@@ -448,7 +448,7 @@ function payment_save ($payment) {
             `pmtid` = '$esc_pmtid'
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $payment = module_invoke_api('payment', $payment, 'update');
     } else {
         // Payment does not yet exist, create
@@ -477,7 +477,7 @@ function payment_save ($payment) {
             )
         ";
         $res = mysqli_query($db_connect, $sql);
-        if (!$res) crm_error(mysqli_error($res));
+        if (!$res) crm_error(mysqli_error($db_connect));
         $payment['pmtid'] = mysqli_insert_id($db_connect);
         $payment = module_invoke_api('payment', $payment, 'insert');
     }
@@ -499,7 +499,7 @@ function payment_delete ($pmtid) {
         WHERE `pmtid`='$esc_pmtid'
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     if (mysqli_affected_rows($db_connect) > 0) {
         message_register('Deleted payment with id ' . $pmtid);
     }
@@ -545,7 +545,7 @@ function payment_accounts ($opts = array()) {
         GROUP BY `credit`, `code`
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $db_row = mysqli_fetch_assoc($res);
     while ($db_row) {
         $cid = $db_row['credit'];
@@ -589,7 +589,7 @@ function payment_accounts ($opts = array()) {
         GROUP BY `debit`, `code`
     ";
     $res = mysqli_query($db_connect, $sql);
-    if (!$res) crm_error(mysqli_error($res));
+    if (!$res) crm_error(mysqli_error($db_connect));
     $db_row = mysqli_fetch_assoc($res);
     while ($db_row) {
         // Add all debits to balance owed
@@ -850,18 +850,32 @@ function payment_accounts_table ($opts) {
             array('title' => 'Name')
             , array('title' => 'Email')
             , array('title' => 'Balance Owed')
+            , array('title' => 'Last payment')
         )
         , 'rows' => array()
     );
     $contacts = crm_get_data('contact', array('cid'=>$cids));
     $cidToContact = crm_map($contacts, 'cid');
+    $total_amount_owed=0;
     foreach ($balances as $cid => $balance) {
+        $last_payment = get_last_payment($cid);
+        $total_amount_owed += $balance['value'];
         $row = array();
         $row[] = theme('contact_name', $cid, !$export);
         $row[] = $cidToContact[$cid]['email'];
         $row[] = payment_format_currency($balance);
+        $row[] = "${last_payment['date']} (${last_payment['months']} months ago)";
         $table['rows'][] = $row;
     }
+    $table['rows'][] = array(
+        'Total'
+        , ''
+        , payment_format_currency(array(
+            'value' => $total_amount_owed
+            , 'code' => get_currency_code()
+        ))
+        , ''
+    );
     return $table;
 }
 
@@ -1308,4 +1322,18 @@ function command_payment_filter () {
         $query = '&' . implode('&', $params);
     }
     return crm_url('payments') . $query;
+}
+
+function get_last_payment($cid) {
+    global $db_connect;
+    $sql = "
+        SELECT `date`, `value`/100 AS amount, TIMESTAMPDIFF(MONTH, `date`, now()) AS months
+        FROM payment
+        WHERE `credit` = $cid AND `value` > 0
+        ORDER BY `date` DESC LIMIT 1
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($db_connect));
+    $db_row = mysqli_fetch_assoc($res);
+    return $db_row;
 }

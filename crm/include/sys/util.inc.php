@@ -92,7 +92,7 @@ function crm_link ($text, $path, $opts = array()) {
  * @param $text
  */
 function crm_error ($text) {
-    print "<pre>$text";
+    print "<pre>$text\n";
     print_r(debug_backtrace());
     print "</pre>";
     die();
