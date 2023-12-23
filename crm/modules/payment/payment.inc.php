@@ -850,18 +850,32 @@ function payment_accounts_table ($opts) {
             array('title' => 'Name')
             , array('title' => 'Email')
             , array('title' => 'Balance Owed')
+            , array('title' => 'Last payment')
         )
         , 'rows' => array()
     );
     $contacts = crm_get_data('contact', array('cid'=>$cids));
     $cidToContact = crm_map($contacts, 'cid');
+    $total_amount_owed=0;
     foreach ($balances as $cid => $balance) {
+        $last_payment = get_last_payment($cid);
+        $total_amount_owed += $balance['value'];
         $row = array();
         $row[] = theme('contact_name', $cid, !$export);
         $row[] = $cidToContact[$cid]['email'];
         $row[] = payment_format_currency($balance);
+        $row[] = "${last_payment['date']} (${last_payment['months']} months ago)";
         $table['rows'][] = $row;
     }
+    $table['rows'][] = array(
+        'Total'
+        , ''
+        , payment_format_currency(array(
+            'value' => $total_amount_owed
+            , 'code' => get_currency_code()
+        ))
+        , ''
+    );
     return $table;
 }
 
@@ -1308,4 +1322,18 @@ function command_payment_filter () {
         $query = '&' . implode('&', $params);
     }
     return crm_url('payments') . $query;
+}
+
+function get_last_payment($cid) {
+    global $db_connect;
+    $sql = "
+        SELECT `date`, `value`/100 AS amount, TIMESTAMPDIFF(MONTH, `date`, now()) AS months
+        FROM payment
+        WHERE `credit` = $cid AND `value` > 0
+        ORDER BY `date` DESC LIMIT 1
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($db_connect));
+    $db_row = mysqli_fetch_assoc($res);
+    return $db_row;
 }
