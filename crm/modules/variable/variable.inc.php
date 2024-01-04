@@ -132,7 +132,7 @@ function variable_set ($name, $value) {
  * @param $default The value to return if no such variable exists.
  * @return The value of the variable named $name, or $default if not found.
  */
-function variable_get ($name, $default) {
+function variable_get ($name, $default = null) {
     global $db_connect;
     $esc_name = mysqli_real_escape_string($db_connect, $name);
     $sql = "
