@@ -1,8 +1,8 @@
 <?php
 
 /*
-    Copyright 2009-2023 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2023 Matt J. Oehrlein <matt.oehrlein@gmail.com>
+    Copyright 2009-2024 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2024 Matt J. Oehrlein <matt.oehrlein@gmail.com>
     
     This file is part of the Seltzer CRM Project
     mentor.inc.php - Mentor module
