@@ -350,7 +350,7 @@ function payment_data ($opts = array()) {
                     $clause .= "`created` ";
                     break;
                 default:
-                    continue;
+                    continue 2;
             }
             if (strtolower($order) === 'asc') {
                 $clause .= 'ASC';
