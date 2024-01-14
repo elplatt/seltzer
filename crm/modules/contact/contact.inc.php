@@ -661,9 +661,19 @@ function theme_contact_name ($contact, $link = false, $path = 'contact') {
     $first = $contact['firstName'];
     $middle = $contact['middleName'];
     $last = $contact['lastName'];
-    $name = "$last, $first";
-    if (!empty($middle)) {
-        $name .= " $middle";
+    $name_format = variable_get('name_format', 'last-first');
+    switch ($name_format) {
+        case 'first-last':
+            $name = "$first $last";
+            break;
+        case 'first-middle-last':
+            $name = $first.' '.(empty($middle) ? '' : $middle.' ').$last;
+            break;
+        case 'last-first-middle':
+            $name = "$last, $first".(empty($middle) ? '' : ' '.$middle);
+            break;
+        default:
+            $name = "$last, $first";
     }
     if ($link) {
         $url_opts = array('query' => array('cid' => $contact['cid']));
