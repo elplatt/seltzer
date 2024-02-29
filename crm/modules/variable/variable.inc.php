@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2023 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2024 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     variable.inc.php - Module to save and retrieve strings
@@ -132,7 +132,7 @@ function variable_set ($name, $value) {
  * @param $default The value to return if no such variable exists.
  * @return The value of the variable named $name, or $default if not found.
  */
-function variable_get ($name, $default) {
+function variable_get ($name, $default = null) {
     global $db_connect;
     $esc_name = mysqli_real_escape_string($db_connect, $name);
     $sql = "

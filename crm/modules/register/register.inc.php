@@ -1,8 +1,8 @@
 <?php
 
 /*
-    Copyright 2009-2023 Edward L. Platt <ed@elplatt.com>
-    Copyright 2013-2023 Chris Murray <chris.f.murray@hotmail.co.uk>
+    Copyright 2009-2024 Edward L. Platt <ed@elplatt.com>
+    Copyright 2013-2024 Chris Murray <chris.f.murray@hotmail.co.uk>
     
     This file is part of the Seltzer CRM Project
     register.inc.php - registration module

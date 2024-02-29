@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2023 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2024 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     payment.inc.php - Payment tracking module
@@ -350,7 +350,7 @@ function payment_data ($opts = array()) {
                     $clause .= "`created` ";
                     break;
                 default:
-                    continue;
+                    continue 2;
             }
             if (strtolower($order) === 'asc') {
                 $clause .= 'ASC';
