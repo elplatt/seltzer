@@ -347,7 +347,7 @@ function user_meta_delete ($user_meta) {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($db_connect));
-    if (mysqli_affected_rows() > 0) {
+    if (mysqli_affected_rows($db_connect) > 0) {
         message_register('User Meta Data deleted.');
     }
 }

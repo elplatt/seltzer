@@ -330,7 +330,7 @@ function plan_meta_delete ($plan_meta) {
     ";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($db_connect));
-    if (mysqli_affected_rows() > 0) {
+    if (mysqli_affected_rows($db_connect) > 0) {
         message_register('Plan Meta Data deleted.');
     }
 }
