@@ -102,16 +102,10 @@ function firefly_iii_users_data ($opts = array()) {
  * @param $contact The contact data array.
  * @param $op The operation being performed.
  */
-function firefly_iii_user_api ($cid, $op) {
+function firefly_iii_contact_api ($contact, $op) {
     switch ($op) {
-        case 'create':
-            firefly_iii_contact_save($contact);
-            break;
-        case 'update':
-            firefly_iii_user_edit($cid);
-            break;
         case 'delete':
-            firefly_iii_contact_delete($contact);
+            firefly_iii_contact_delete($contact['cid']);
             break;
     }
     return $contact;
@@ -447,6 +441,10 @@ function firefly_iii_signature_check($signature, $secret, $op) {
     echo $return;
 }
 
-function firefly_iii_user_delete ($cid) {
-
+function firefly_iii_contact_delete($cid) {
+    global $db_connect;
+    $sql = "DELETE FROM `firefly_iii_users`
+            WHERE `cid` = $cid";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($db_connect));
 }
