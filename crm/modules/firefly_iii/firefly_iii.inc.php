@@ -276,6 +276,12 @@ function firefly_iii_settings_form () {
                         , 'label' => 'Delete token'
                         , 'name' => 'ffiii_delete_token'
                         , 'value' => variable_get('ffiii_delete_token')
+                        )
+                    , array(
+                        'type' => 'text'
+                        , 'label' => 'Membership category'
+                        , 'name' => 'ffiii_membership_category'
+                        , 'value' => variable_get('ffiii_membership_category', 'Membership')
                     )
                     , array(
                         'type' => 'checkbox'
@@ -313,7 +319,8 @@ function command_firefly_iii_settings_save() {
     global $esc_post;
     global $db_connect;
     $options = array(
-        'ffiii_url', 'ffiii_create_token', 'ffiii_update_token', 'ffiii_delete_token', 'ffiii_match_trx', 'ffiii_skip_signature');
+        'ffiii_url', 'ffiii_create_token', 'ffiii_update_token', 'ffiii_delete_token', 'ffiii_match_trx',
+        'ffiii_skip_signature', 'ffiii_membership_category');
     foreach ($options as $option) {
         $esc_option = mysqli_real_escape_string($db_connect, $option);
         variable_set($esc_option, $esc_post[$esc_option]);
@@ -361,8 +368,7 @@ function firefly_iii_get_cid($source_id) {
 
 function firefly_iii_trx_create($transaction, $trx_id) {
     global $db_connect;
-    //TODO Make category an array in conf
-    if ($transaction['category_name'] != 'Membership') return;
+    if ($transaction['category_name'] != variable_get('ffiii_membership_category', 'Membership')) return;
     $cid = firefly_iii_get_cid($transaction['source_id']);
     // Check for existing transaction
     $sql = "SELECT `pmtid` FROM payment
