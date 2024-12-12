@@ -228,6 +228,22 @@ function firefly_iii_user_edit_form ($cid) {
 }
 
 function firefly_iii_settings_form () {
+    if (!in_array('sha3-256', hash_algos())) {
+        $hash_msg = array(
+            'type' => 'message'
+            , 'value' => '<b>Note:</b> SHA3-256 is not available, use "Skip signature verification" at your own risk'
+        );
+        $skip_sig_field = array(
+            'type' => 'checkbox'
+            , 'label' => 'Skip signature verification'
+            , 'name' => 'ffiii_skip_signature'
+            , 'checked' => variable_get('ffiii_skip_signature')
+        );
+    } else {
+        $hash_msg = array();
+        $skip_sig_field = array();
+        variable_set('ffiii_skip_signature', false);
+    }
     return array(
         'type' => 'form'
         , 'method' => 'post'
@@ -267,6 +283,8 @@ function firefly_iii_settings_form () {
                         , 'name' => 'ffiii_match_trx'
                         , 'checked' => variable_get('ffiii_match_trx')
                     )
+                    , $hash_msg
+                    , $skip_sig_field
                     , array(
                         'type' => 'submit'
                         , 'value' => 'Save'
@@ -295,7 +313,7 @@ function command_firefly_iii_settings_save() {
     global $esc_post;
     global $db_connect;
     $options = array(
-        'ffiii_url', 'ffiii_create_token', 'ffiii_update_token', 'ffiii_delete_token', 'ffiii_match_trx');
+        'ffiii_url', 'ffiii_create_token', 'ffiii_update_token', 'ffiii_delete_token', 'ffiii_match_trx', 'ffiii_skip_signature');
     foreach ($options as $option) {
         $esc_option = mysqli_real_escape_string($db_connect, $option);
         variable_set($esc_option, $esc_post[$esc_option]);
@@ -443,7 +461,6 @@ function firefly_iii_signature_check($signature, $secret, $op) {
     }
 
     $entityBody = file_get_contents('php://input');
-    $signature='t=1610738765,v1=d62463af1dcdcc7b5a2db6cf6b1e01d985c31685ee75d01a4f40754dbb4cf396';
 
     /**
      * Explode the signature header to get the necessary data.
@@ -464,6 +481,8 @@ function firefly_iii_signature_check($signature, $secret, $op) {
         exit;
     }
 
+    if (variable_get('ffiii_skip_signature', false)) return;
+
     /**
      * Try to recalculate the signature based on the data. Steal this code.
      */
@@ -471,34 +490,11 @@ function firefly_iii_signature_check($signature, $secret, $op) {
     $calculated = hash_hmac('sha3-256', $payload, $secret, false);
     $valid      = $calculated === $signatureHash;
 
-    /**
-     * Put some debug data in a long string.
-     */
-    $return = '';
-    $return .= "---\n" . 'Received a message on ' . date('Y-m-d @ H:i:s') . "\n";
-    $return .= "\n";
-
-    /**
-     * Put more debug data in a long string.
-     */
-    $return .= "\n";
-    $return .= 'Webhook secret            : ' . $secret . "\n";
-    $return .= 'Full signature string     : ' . $signature . "\n";
-    $return .= 'Signature hash            : ' . $signatureHash . "\n";
-    $return .= 'Calculated hash           : ' . $calculated . "\n";
-    $return .= 'Signature valid?          : ' . var_export($valid, true) . "\n";
-    $return .= 'Raw body                  : ' . $entityBody . "\n";
-    if ($valid) {
-        $return .= 'Parsed body (on new line) : ' . "\n";
-        $return .= print_r(json_decode($entityBody, true, JSON_THROW_ON_ERROR), true) . "\n";
+    if (!$valid) {
+        header('Status: 401 Unauthorized');
+        echo 'Invalid signature';
+        exit;
     }
-    $return .= "\n";
-
-    /**
-     * Echo the result. This will end up in Firefly III logs if you set it to "debug".
-     */
-    echo "<pre>\n";
-    echo $return;
 }
 
 function firefly_iii_contact_delete($cid) {
