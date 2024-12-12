@@ -27,7 +27,6 @@ $crm_root = dirname(__FILE__);
 include('include/crm.inc.php');
 
 $handler = $_GET['endpoint'] . '_service';
-trigger_error("Call to: $handler");
 //TODO: Check against registered endpoint in conf api_endpoints array
 if (function_exists($handler)) {
     //TODO: Some sanitize may be needed here

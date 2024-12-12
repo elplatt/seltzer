@@ -262,6 +262,12 @@ function firefly_iii_settings_form () {
                         , 'value' => variable_get('ffiii_delete_token')
                     )
                     , array(
+                        'type' => 'checkbox'
+                        , 'label' => 'Match existing transactions'
+                        , 'name' => 'ffiii_match_trx'
+                        , 'checked' => variable_get('ffiii_match_trx')
+                    )
+                    , array(
                         'type' => 'submit'
                         , 'value' => 'Save'
                     )
@@ -289,7 +295,7 @@ function command_firefly_iii_settings_save() {
     global $esc_post;
     global $db_connect;
     $options = array(
-        'ffiii_url', 'ffiii_create_token', 'ffiii_update_token', 'ffiii_delete_token');
+        'ffiii_url', 'ffiii_create_token', 'ffiii_update_token', 'ffiii_delete_token', 'ffiii_match_trx');
     foreach ($options as $option) {
         $esc_option = mysqli_real_escape_string($db_connect, $option);
         variable_set($esc_option, $esc_post[$esc_option]);
@@ -300,13 +306,13 @@ function command_firefly_iii_settings_save() {
 function firefly_iii_payment_api ($payment, $op) {
     switch ($op) {
         case 'delete':
-            firefly_iii_trx_delete($payment['pmtid']);
+            firefly_iii_trx_map_delete($payment['pmtid']);
             break;
     }
     return $payment;
 }
 
-function firefly_iii_trx_delete($pmtid) {
+function firefly_iii_trx_map_delete($pmtid) {
     global $db_connect;
     $sql = "DELETE FROM `firefly_iii_transactions`
             WHERE `pmtid`=$pmtid";
@@ -319,44 +325,99 @@ function firefly_iii_trx_create_service($url_params, $ffiii_trx) {
     $signature = ($_SERVER['HTTP_SIGNATURE'] ?: false);
     firefly_iii_signature_check($signature, variable_get('ffiii_create_token'), 'create');
     foreach ($ffiii_trx['content']['transactions'] as $key => $transaction) {
-        //TODO Make category an array in conf
-        if ($transaction['category_name'] != 'Membership') continue;
-        // Get CID
-        $esc_cid = mysqli_real_escape_string($db_connect, $transaction['source_id']);
-        $sql = "SELECT `cid` FROM `firefly_iii_users` WHERE `ffiii_uid`=$esc_cid";
-        $res = mysqli_query($db_connect, $sql);
-        if (!$res) trigger_error(mysqli_error($db_connect));
-        $row = mysqli_fetch_assoc($res) ?: false;
-        if ($row === false) continue;
-        // Check for existing transaction
-        $sql = "SELECT * FROM payment
-                JOIN firefly_iii_transactions USING(`pmtid`)
-                WHERE `ffiii_tr_id`={$transaction['transaction_journal_id']}";
-        $res = mysqli_query($db_connect, $sql);
-        if (mysqli_num_rows($res) > 0) continue;
-        // Create transaction
-        $amount = $transaction['amount']*100;
-        $url = variable_get('ffiii_url');
-        $notes = "<a href=\"$url/transactions/show/{$ffiii_trx['content']['id']}\" target=\"_blank\">Firefly III transaction {$ffiii_trx['content']['id']}</a>";
-        mysqli_begin_transaction($db_connect);
-        $sql = "INSERT INTO payment (`date`, `description`, `code`, `value`, `credit`, `debit`, `method`, `confirmation`, `notes`)
-                VALUES ('{$transaction['date']}', '{$transaction['category_name']}',
-                '{$transaction['currency_code']}', {$amount}, {$row['cid']}, 0, '{$transaction['destination_name']}', '', '$notes');
-                ";
-        $res = mysqli_query($db_connect, $sql);
-        $pmtid = mysqli_insert_id($db_connect);
-        $sql="INSERT INTO firefly_iii_transactions (`pmtid`, `ffiii_tr_id`)
-                VALUES($pmtid, {$transaction['transaction_journal_id']})";
-        $res = mysqli_query($db_connect, $sql);
-        mysqli_commit($db_connect);
-        if (!$res) crm_error(mysqli_error($db_connect));
+        firefly_iii_trx_create($transaction, $ffiii_trx['content']['id']);
     }
 
 }
+function firefly_iii_get_cid($source_id) {
+    global $db_connect;
+    // Get CID
+    $esc_source_id = mysqli_real_escape_string($db_connect, $source_id);
+    $sql = "SELECT `cid` FROM `firefly_iii_users` WHERE `ffiii_uid`=$esc_source_id";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) trigger_error(mysqli_error($db_connect));
+    $row = mysqli_fetch_assoc($res) ?: false;
+    if ($row === false) return false;
+    return $row['cid'];
+}
+
+function firefly_iii_trx_create($transaction, $trx_id) {
+    global $db_connect;
+    //TODO Make category an array in conf
+    if ($transaction['category_name'] != 'Membership') return;
+    $cid = firefly_iii_get_cid($transaction['source_id']);
+    // Check for existing transaction
+    $sql = "SELECT `pmtid` FROM payment
+            JOIN firefly_iii_transactions USING(`pmtid`)
+            WHERE `ffiii_tr_id`={$transaction['transaction_journal_id']}";
+    $res = mysqli_query($db_connect, $sql);
+    if (mysqli_num_rows($res) > 0) return;
+    // Locate matching transaction
+    $pmtid = false;
+    if (variable_get('ffiii_match_trx')) {
+        $pmtid = firefly_iii_match_transaction($transaction);
+    }
+    // Create transaction
+    $amount = $transaction['amount']*100;
+    $url = variable_get('ffiii_url');
+    $notes = "<a href=\"$url/transactions/show/$trx_id\" target=\"_blank\">Firefly III transaction $trx_id</a>";
+    // skip if matched transaction
+    mysqli_begin_transaction($db_connect);
+    if ($pmtid == false) {
+        $sql = "INSERT INTO `payment` (`date`, `description`, `code`, `value`, `credit`, `debit`, `method`, `confirmation`, `notes`)
+                VALUES ('{$transaction['date']}', '{$transaction['category_name']}',
+                '{$transaction['currency_code']}', {$amount}, {$cid}, 0, '{$transaction['destination_name']}', '', '$notes');
+                ";
+        $res = mysqli_query($db_connect, $sql);
+        $pmtid = mysqli_insert_id($db_connect);
+    } else {
+        // Add note
+        $sql = "UPDATE `payment`
+                SET `notes`='$notes', `method`='{$transaction['destination_name']}'
+                WHERE `pmtid`=$pmtid";
+        $res = mysqli_query($db_connect, $sql);
+    }
+    $sql="INSERT INTO firefly_iii_transactions (`pmtid`, `ffiii_tr_id`)
+            VALUES($pmtid, {$transaction['transaction_journal_id']})";
+    $res = mysqli_query($db_connect, $sql);
+    mysqli_commit($db_connect);
+    if (!$res) trigger_error(mysqli_error($db_connect));
+}
+
+function firefly_iii_trx_update($transaction) {
+    global $db_connect;
+    $cid = firefly_iii_get_cid($transaction['source_id']);
+    $amount = $transaction['amount']*100;
+    $pmtid = firefly_iii_get_mptid($transaction['transaction_journal_id']);
+    $sql = "UPDATE `payment`
+            SET `value`={$amount}, `credit`={$cid}, `method`='{$transaction['destination_name']}'
+            WHERE `pmtid`=$pmtid";
+    $res = mysqli_query($db_connect, $sql);
+}
 
 function firefly_iii_trx_update_service($url_params, $ffiii_trx) {
+    global $db_connect;
     $signature = ($_SERVER['HTTP_SIGNATURE'] ?: false);
     firefly_iii_signature_check($signature, variable_get('ffiii_update_token'), 'update');
+    foreach ($ffiii_trx['content']['transactions'] as $key => $transaction) {
+        $pmtid = firefly_iii_get_mptid($transaction['transaction_journal_id']);
+        if ($transaction['category_name'] == 'Membership') {
+            if ($pmtid) {
+                // Update transaction
+                firefly_iii_trx_update($transaction);
+
+            } else {
+                // No record, create transaction
+                firefly_iii_trx_create($transaction, $ffiii_trx['content']['id']);
+            }
+        } else {
+            $pmtid = firefly_iii_get_mptid($transaction['transaction_journal_id']);
+            if ($pmtid) {
+                // Not membership, delete transaction
+                payment_delete($pmtid);
+            }
+        }
+    }
 }
 
 function firefly_iii_trx_delete_service($url_params, $ffiii_trx) {
@@ -369,7 +430,6 @@ function firefly_iii_trx_delete_service($url_params, $ffiii_trx) {
                 FROM `firefly_iii_transactions`
                 JOIN `payment` USING (`pmtid`)
                 WHERE `ffiii_tr_id` = ".$transaction['transaction_journal_id'];
-        trigger_error($sql);
         $res = mysqli_query($db_connect, $sql);
         if (!$res) trigger_error(mysqli_error($db_connect));
     }
@@ -447,4 +507,41 @@ function firefly_iii_contact_delete($cid) {
             WHERE `cid` = $cid";
     $res = mysqli_query($db_connect, $sql);
     if (!$res) crm_error(mysqli_error($db_connect));
+}
+
+function firefly_iii_get_mptid($tjid) {
+    global $db_connect;
+    $sql = "SELECT `pmtid`
+            FROM `firefly_iii_transactions`
+            WHERE `ffiii_tr_id` = $tjid";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) trigger_error(mysqli_error($db_connect));
+    if (mysqli_num_rows($res) == 0) return false;
+    $row = mysqli_fetch_assoc($res);
+    return $row['pmtid'];
+}
+
+/**
+ * Attempt to match existing transaction based on cid, date and amount
+ */
+function firefly_iii_match_transaction($transaction) {
+    global $db_connect;
+    // Check if transaction is matched in CRM
+    $cid = firefly_iii_get_cid($transaction['source_id']);
+    $amount = $transaction['amount'] * 100;
+    $date = explode('T', $transaction['date'])[0];
+    $sql="SELECT `pmtid`
+          FROM `payment`
+          LEFT JOIN firefly_iii_transactions USING(pmtid)
+          WHERE `date`='$date'
+          AND `value`=$amount
+          AND `credit`=$cid
+          AND ffiii_tr_id IS NULL
+          LIMIT 1
+          ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) trigger_error(mysqli_error($db_connect));
+    if (mysqli_num_rows($res) == 0) return false;
+    $row = mysqli_fetch_assoc($res);
+    return $row['pmtid'];
 }
