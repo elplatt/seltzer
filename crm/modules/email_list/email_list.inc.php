@@ -1,8 +1,8 @@
 <?php
 
 /*
-    Copyright 2009-2024 Edward L. Platt <ed@elplatt.com>
-    Copyright 2014-2024 Matt J. Oehrlein <matt.oehrlein@gmail.com>
+    Copyright 2009-2025 Edward L. Platt <ed@elplatt.com>
+    Copyright 2014-2025 Matt J. Oehrlein <matt.oehrlein@gmail.com>
     
     This file is part of the Seltzer CRM Project
     email_list.inc.php - Associates contact's emails with email lists
