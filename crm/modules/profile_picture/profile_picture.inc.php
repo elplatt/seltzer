@@ -98,7 +98,7 @@ function profile_picture_page (&$page_data, $page_name) {
             }
             //only allow users to upload photos for their OWN profile!
             // OR if they have contact_edit permission.
-            if ($cid == user_id() || user_access('contact_edit')){
+            if ($cid == user_id() || user_access('contact_edit')) {
                 $view_content .= theme('form', crm_get_form('profile_picture_upload',  $cid));
             }
             if (!empty($view_content)) {
