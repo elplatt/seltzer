@@ -3,10 +3,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" type="text/css" href="<?php print path_to_theme(); ?>/style.css"/>
-    <link rel="stylesheet" type="text/css" href="<?php print path_to_theme(); ?>/css/ui-lightness/jquery-ui-1.8.14.custom.css"/>
+    <link rel="stylesheet" type="text/css" href="<?php print path_to_theme(); ?>/css/ui-lightness/jquery-ui.min.css"/>
     <?php print $stylesheets; ?>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="<?php print path_to_theme(); ?>/js/jquery-ui-1.8.14.custom.min.js"></script>
+    <script type="text/javascript" src="<?php print path_to_theme(); ?>/js/jquery-ui.min.js"></script>
     <script type="text/javascript" src="<?php print path_to_theme(); ?>/js/d3.v3.min.js"></script>
     <script type="text/javascript" src="<?php print path_to_theme(); ?>/script.js"></script>
     <?php print $scripts; ?>
