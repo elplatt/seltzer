@@ -63,6 +63,19 @@ function member_page (&$page_data, $page_name, $options) {
                         , 'emergencyRelation'
                     )
                 );
+                switch (variable_get('name_format', 'last-first')) {
+                    case 'first-last':
+                        $opts['order'] = array('firstName', 'lastName');
+                        break;
+                    case 'first-middle-last':
+                        $opts['order'] = array('firstName', 'middleName', 'lastName');
+                        break;
+                    case 'last-first-middle':
+                        $opts['order'] = array('lastName', 'firstName', 'middleName');
+                        break;
+                    default:
+                        $opts['order'] = array('lastName', 'firstName');
+                }
                 $view .= theme('table', crm_get_table('member', $opts));
                 page_add_content_top($page_data, $view, 'View');
             }
