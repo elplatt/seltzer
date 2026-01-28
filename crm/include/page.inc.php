@@ -1,7 +1,7 @@
 <?php
 
 /*
-    Copyright 2009-2025 Edward L. Platt <ed@elplatt.com>
+    Copyright 2009-2026 Edward L. Platt <ed@elplatt.com>
     
     This file is part of the Seltzer CRM Project
     page.inc.php - Core pages
