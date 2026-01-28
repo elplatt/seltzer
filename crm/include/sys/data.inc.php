@@ -30,7 +30,7 @@
  */
 function crm_get_data ($type, $opts = array()) {
     // Get the base data
-    $hook = "${type}_data";
+    $hook = "{$type}_data";
     if (!function_exists($hook)) {
         error_register('No such data type: ' . $type);
         die();
@@ -40,8 +40,8 @@ function crm_get_data ($type, $opts = array()) {
         // Let other modules extend the data
         foreach (module_list() as $module) {
             // Make sure module is really installed
-            $rev_hook = "${module}_revision";
-            $hook = "${module}_data_alter";
+            $rev_hook = "{$module}_revision";
+            $hook = "{$module}_data_alter";
             if (function_exists($hook)) {
                 if (module_get_schema_revision($module) != call_user_func($rev_hook)) {
                     error_register("Database schema needs to be upgraded for module $module.");

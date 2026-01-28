@@ -525,7 +525,6 @@ function command_member_import () {
         $contact['member'] = $member;
         // Save to database
         $contact = contact_save($contact);
-        $esc_cid = mysqli_real_escape_string($db_connect, $cid);
         message_register('Created user '.$contact['user']['username'].": ${contact['firstName']} ${contact['lastName']}");
         // Notify admins
         $from = get_org_name() . " <" . get_email_from() . ">";
