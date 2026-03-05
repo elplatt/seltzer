@@ -29,7 +29,7 @@ function crm_get_form () {
     }
     $args = func_get_args();
     $form_id = array_shift($args);
-    $hook = "${form_id}_form";
+    $hook = "{$form_id}_form";
     // Build initial form
     if (!function_exists($hook)) {
         error_register("No such hook: $hook");

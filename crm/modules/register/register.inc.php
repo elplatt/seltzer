@@ -168,7 +168,6 @@ function command_register_member () {
     $contact['member'] = $member;
     // Save to database
     $contact = contact_save($contact);
-    $esc_cid = mysqli_real_escape_string($db_connect, $contact['cid']);
     // Notify admins
     $from = get_org_name() . " <" . get_email_from() . ">";
     $headers = "From: $from\r\nContent-Type: text/html; charset=ISO-8859-1\r\n";
