@@ -382,7 +382,7 @@ function module_invoke_api ($type, $entity, $op) {
     $type = array_shift($args);
     $modules = module_list();
     foreach ($modules as $module) {
-        $hook = "${module}_${type}_api";
+        $hook = "{$module}_{$type}_api";
         if (function_exists($hook)) {
             $entity = call_user_func_array($hook, $args);
             if (empty($entity)) {

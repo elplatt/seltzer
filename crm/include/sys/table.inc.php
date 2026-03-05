@@ -27,7 +27,7 @@
  */
 function crm_get_table ($table_id, $opts = array()) {
     // Get base table
-    $table = call_user_func("${table_id}_table", $opts);
+    $table = call_user_func("{$table_id}_table", $opts);
     // Allow modules to alter the table
     foreach (module_list() as $module) {
         $hook = $module . '_table_alter';
