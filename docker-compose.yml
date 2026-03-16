@@ -1,0 +1,37 @@
+---
+nginx:
+  build: ./docker/nginx/
+  container_name: crm-nginx-container
+  ports:
+    - 8000:80
+  links:
+    - php
+  volumes:
+    - ./crm/:/var/www/html/
+php:
+  build: ./docker/php/
+  container_name: crm-php-container
+  links:
+    - mysql
+  expose:
+    - 9000
+  volumes:
+    - ./crm/:/var/www/html/
+  
+mysql:    
+  image: mariadb  
+  container_name: crm-mysql-container  
+  volumes_from:  
+    - mysql-data  
+  environment:  
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  
+    MYSQL_DATABASE: ${MYSQL_DATABASE}  
+    MYSQL_USER: ${MYSQL_USER}  
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD}  
+
+mysql-data:    
+  image: mariadb  
+  container_name: crm-mysql-data-container  
+  volumes:  
+    - /var/lib/mysql  
+  command: "true"
