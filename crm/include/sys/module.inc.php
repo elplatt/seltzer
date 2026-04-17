@@ -339,9 +339,9 @@ function module_init () {
                 $core_stylesheets[] = "include/$module/$sheet";
             }
         }
-        $style_func = $module . '_scripts';
-        if (function_exists($style_func)) {
-            $scripts = call_user_func($scripts_func);
+        $script_func = $module . '_scripts';
+        if (function_exists($script_func)) {
+            $scripts = call_user_func($script_func);
             foreach ($scripts as $script) {
                 $core_scripts[] = "include/$module/$script";
             }
@@ -371,7 +371,7 @@ function module_invoke_all ($hook) {
             }
         }
     }
-    return $result;
+    return $results;
 }
 
 /**
@@ -381,6 +381,7 @@ function module_invoke_api ($type, $entity, $op) {
     $args = func_get_args();
     $type = array_shift($args);
     $modules = module_list();
+    $entity = null;
     foreach ($modules as $module) {
         $hook = "{$module}_{$type}_api";
         if (function_exists($hook)) {
