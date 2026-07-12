@@ -192,6 +192,18 @@ function global_options_form () {
                 , 'name' => 'theme'
                 , 'value' => get_theme()
             )
+            , array(
+                'type' => 'select'
+                , 'label' => 'Name format'
+                , 'name' => 'name_format'
+                , 'selected' => variable_get('name_format', 'last-first')
+                , 'options' => array(
+                    'last-first'=>'Last, First',
+                    'first-last'=>'First Last',
+                    'first-middle-last' => 'First Middle Last',
+                    'last-first-middle'=>'Last, First Middle'
+                    )
+            )
         )
     );
     return $form;
@@ -212,7 +224,7 @@ function command_global_options_update () {
     $options = array(
         'host', 'base_path', 'site_title', 'github_username', 'github_repo', 'protocol_security'
         , 'org_name', 'org_website', 'currency_code', 'email_from', 'email_to'
-        , 'address1', 'address2', 'address3', 'town_city', 'zipcode', 'theme'
+        , 'address1', 'address2', 'address3', 'town_city', 'zipcode', 'theme', 'name_format'
     );
     foreach ($options as $option) {
         $esc_option = mysqli_real_escape_string($db_connect, $option);
