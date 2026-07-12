@@ -1324,6 +1324,79 @@ function command_payment_filter () {
     return crm_url('payments') . $query;
 }
 
+
+function monthly_payments_service($options) {
+    global $db_connect;
+
+    $sql = "
+    SELECT MONTH(date) AS month, YEAR(date) AS year, SUM(value)/100 AS amount
+    FROM payment 
+    WHERE description NOT LIKE 'Dues%' GROUP BY MONTH(date), YEAR(date) 
+    ORDER BY year, month;
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    while ($row = mysqli_fetch_assoc($res)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
+function monthly_payments_due_service($options) {
+    global $db_connect;
+
+    $sql = "
+    SELECT MONTH(date) AS month, YEAR(date) AS year, SUM(value)/-100 AS amount
+    FROM payment 
+    WHERE description LIKE 'Dues%' GROUP BY MONTH(date), YEAR(date) 
+    ORDER BY year, month;
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    while ($row = mysqli_fetch_assoc($res)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
+function monthly_cumulative_income_api($options) {
+    global $db_connect;
+
+    $sql = "
+        SELECT DISTINCT
+            YEAR(date) AS year,
+            MONTH(date) AS month,
+            SUM(value) OVER (ORDER BY YEAR(date) ASC, MONTH(date) ASC) AS cumulative_income
+        FROM payment
+        WHERE description LIKE 'Dues%'
+        ORDER BY year, month;
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    while ($row = mysqli_fetch_assoc($res)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
+function plan_distribution_api($options) {
+    global $db_connect;
+
+    $sql = "
+        SELECT 
+            plan.name,
+            COUNT(*) as count
+        FROM membership JOIN plan USING(pid) 
+        WHERE end is NULL GROUP BY pid
+    ";
+    $res = mysqli_query($db_connect, $sql);
+    if (!$res) crm_error(mysqli_error($res));
+    while ($row = mysqli_fetch_assoc($res)) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
 function get_last_payment($cid) {
     global $db_connect;
     $sql = "
