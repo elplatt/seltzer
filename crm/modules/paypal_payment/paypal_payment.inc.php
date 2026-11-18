@@ -26,7 +26,7 @@
  * this number.
  */
 function paypal_payment_revision () {
-    return 2;
+    return 3;
 }
 
 /**
@@ -75,6 +75,18 @@ function paypal_payment_install($old_revision = 0) {
         $sql = "
             ALTER TABLE `contact_paypal` DROP PRIMARY KEY
             , ADD PRIMARY KEY(`email`);
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+    }
+    if ($old_revision < 3) {
+        $sql = "
+            ALTER TABLE `payment_paypal` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `contact_paypal` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($db_connect));

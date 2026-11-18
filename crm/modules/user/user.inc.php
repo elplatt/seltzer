@@ -25,7 +25,7 @@
  * this number.
  */
 function user_revision () {
-    return 3;
+    return 4;
 }
 
 /**
@@ -68,7 +68,7 @@ function user_install ($old_revision = 0) {
                     `rid` mediumint(9) NOT NULL AUTO_INCREMENT
                     , `name` varchar(255) NOT NULL
                     , PRIMARY KEY (`rid`)
-                ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+                ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
             ";
             $res = mysqli_query($db_connect, $sql);
             if (!$res) crm_error(mysqli_error($db_connect));
@@ -208,6 +208,33 @@ function user_install ($old_revision = 0) {
                 }
             }
         }
+    }
+    if ($old_revision < 4) {
+        $sql = "
+            ALTER TABLE `resetPassword` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `role` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `role_permission` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `user` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `user_role` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 

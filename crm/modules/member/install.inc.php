@@ -229,4 +229,21 @@ function member_install($old_revision = 0) {
             }
         }
     }
+    if ($old_revision < 10) {
+        $sql = "
+            ALTER TABLE `member` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `membership` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `plan` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+    }
 }

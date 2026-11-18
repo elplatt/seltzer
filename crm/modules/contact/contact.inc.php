@@ -25,7 +25,7 @@
  * this number.
  */
 function contact_revision () {
-    return 3;
+    return 4;
 }
 
 /**
@@ -69,6 +69,13 @@ function contact_install ($old_revision = 0) {
                 , `emergencyPhone` varchar(16) NOT NULL
                 , PRIMARY KEY (`cid`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+    }
+    if ($old_revision < 4) {
+        $sql = "
+            ALTER TABLE `contact` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($db_connect));

@@ -26,7 +26,7 @@
  * this number.
  */
 function profile_picture_revision () {
-    return 2;
+    return 3;
 }
 
 // Installation functions //////////////////////////////////////////////////////
@@ -58,6 +58,13 @@ function profile_picture_install ($old_revision = 0) {
                 error_register('Failed to create folder. Please check folder permissions.');
             }
         }
+    }
+    if ($old_revision < 3) {
+        $sql = "
+            ALTER TABLE `profile_picture` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 

@@ -25,7 +25,7 @@
  * this number.
  */
 function core_revision () {
-    return 3;
+    return 4;
 }
 
 /**
@@ -48,6 +48,13 @@ function core_install ($old_revision = 0) {
                 , `revision` MEDIUMINT(8) unsigned NOT NULL
                 , PRIMARY KEY (`did`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+    }
+    if ($old_revision < 4) {
+        $sql = "
+            ALTER TABLE `module` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($db_connect));

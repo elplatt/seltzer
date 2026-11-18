@@ -25,7 +25,7 @@
  * this number.
  */
 function amazon_payment_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -54,6 +54,18 @@ function amazon_payment_install($old_revision = 0) {
                 , `amazon_name` varchar(255) NOT NULL
                 , PRIMARY KEY (`amazon_name`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+    }
+    if ($old_revision < 2) {
+        $sql = "
+            ALTER TABLE `payment_amazon` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
+        $sql = "
+            ALTER TABLE `contact_amazon` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
         ";
         $res = mysqli_query($db_connect, $sql);
         if (!$res) crm_error(mysqli_error($db_connect));
