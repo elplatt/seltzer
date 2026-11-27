@@ -35,7 +35,7 @@
  * this number.
  */
 function user_meta_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -101,6 +101,13 @@ function user_meta_install($old_revision = 0) {
                 }
             }
         }
+    }
+    if ($old_revision < 2) {
+        $sql = "
+            ALTER TABLE `user_meta` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 

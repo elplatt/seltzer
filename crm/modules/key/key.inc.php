@@ -27,7 +27,7 @@
  * this number.
  */
 function key_revision () {
-    return 2;
+    return 3;
 }
 
 /**
@@ -96,6 +96,13 @@ function key_install($old_revision = 0) {
                 }
             }
         }
+    }
+    if ($old_revision < 3) {
+        $sql = "
+            ALTER TABLE `key` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 

@@ -25,7 +25,7 @@
  * this number.
  */
 function payment_revision () {
-    return 1;
+    return 2;
 }
 
 /**
@@ -97,6 +97,13 @@ function payment_install($old_revision = 0) {
                 }
             }
         }
+    }
+    if ($old_revision < 2) {
+        $sql = "
+            ALTER TABLE `payment` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 

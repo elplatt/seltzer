@@ -25,7 +25,7 @@
  * this number.
  */
 function variable_revision () {
-    return 2;
+    return 3;
 }
 
 /**
@@ -82,6 +82,13 @@ function variable_install($old_revision = 0) {
         variable_set('town_city', $config_town_city);
         variable_set('zipcode', $config_zipcode);
         variable_set('theme', $config_theme);
+    }
+    if ($old_revision < 3) {
+        $sql = "
+            ALTER TABLE `variable` ENGINE=InnoDB, CONVERT TO CHARACTER SET utf8mb4;
+        ";
+        $res = mysqli_query($db_connect, $sql);
+        if (!$res) crm_error(mysqli_error($db_connect));
     }
 }
 
